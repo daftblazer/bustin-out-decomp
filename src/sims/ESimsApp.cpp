@@ -1,7 +1,7 @@
-#include "sims/SimsApp.h"
+#include "sims/ESimsApp.h"
 
 // 0x8000360C
-SimsApp::SimsApp() {
+ESimsApp::ESimsApp() {
     unk478 = 0;
     unk2B3C = 0;
     unk2B40 = 0;
@@ -11,7 +11,7 @@ SimsApp::SimsApp() {
 }
 
 // 0x8000367C
-SimsApp::~SimsApp() {
+ESimsApp::~ESimsApp() {
     if (unk2B50) {
         delete unk2B50;
         unk2B50 = 0;
@@ -19,7 +19,7 @@ SimsApp::~SimsApp() {
 }
 
 // 0x80003708
-void SimsApp::Shutdown() {
+void ESimsApp::Shutdown() {
     lbl_802E6700.Begin();
     fn_801CD9A8(lbl_8037C3D8);
     fn_800FD840();
@@ -41,14 +41,14 @@ void SimsApp::Shutdown() {
 }
 
 // 0x800037C8
-const char* SimsApp::GetBuildString() {
+const char* ESimsApp::GetBuildVersion() {
     return "NGC Sims Bustin Out Build 2.1.3.31-1i";
 }
 
 // 0x80004058
 // NON_MATCHING: the original copies the `new` result through r0 before storing it
 // (`mr r0, r3; stw r0, 0x2b50(r31)`), one instruction more than this produces.
-void SimsApp::vfn21(int arg) {
+void ESimsApp::SetGameState(int arg) {
     unk468 = arg;
     if (arg == 1) {
         if (unk2B50 == 0) {
@@ -64,18 +64,18 @@ void SimsApp::vfn21(int arg) {
 }
 
 // 0x800046B0
-void SimsApp::vfn17(int arg) {
+void ESimsApp::vfn17(int arg) {
     lbl_8037D948->vfn14(lbl_8037D94C);
     lbl_8037D94C->fn_801EAE6C(arg);
 }
 
 // 0x80004704
-bool SimsApp::vfn18() {
+bool ESimsApp::vfn18() {
     return lbl_8037D94C->fn_801EB1D8() != 0;
 }
 
 // 0x80004738
-void SimsApp::vfn19(int arg) {
+void ESimsApp::vfn19(int arg) {
     if (arg) {
         lbl_8037D944->vfn14();
     } else {
@@ -84,26 +84,26 @@ void SimsApp::vfn19(int arg) {
 }
 
 // 0x80004798
-void SimsApp::vfn20(int arg) {
+void ESimsApp::vfn20(int arg) {
     lbl_802F7658.unkF0->fn_80086E58();
     lbl_802F7658.unkF0->unk84 = arg == 1;
 }
 
 // 0x800049F0
-unsigned char SimsApp::fn_800049F0(unsigned char* value) {
-    (*value)++;
-    if (*value > 5) {
-        *value = 0;
+unsigned char PlayerCheats::GetNextIndex(unsigned char& index) {
+    index++;
+    if (index > 5) {
+        index = 0;
     }
-    return *value;
+    return index;
 }
 
 // 0x80004A18
 // NON_MATCHING: the original has the first iteration peeled off ahead of the loop.
-bool SimsApp::fn_80004A18(int mask) {
+bool PlayerCheats::IsSingleButton(unsigned short buttons) {
     bool found = false;
     for (unsigned char i = 0; i <= 15; i++) {
-        if ((mask >> i) & 1) {
+        if ((buttons >> i) & 1) {
             if (!found) {
                 found = true;
             } else {

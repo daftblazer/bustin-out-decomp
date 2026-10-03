@@ -244,7 +244,7 @@ config.libs = [
     GameLib(
         "sims",
         [
-            Object(NonMatching, "sims/SimsApp.cpp"),
+            Object(NonMatching, "sims/ESimsApp.cpp"),
         ],
     ),
 ]

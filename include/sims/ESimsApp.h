@@ -1,5 +1,5 @@
-#ifndef SIMS_SIMSAPP_H
-#define SIMS_SIMSAPP_H
+#ifndef SIMS_ESIMSAPP_H
+#define SIMS_ESIMSAPP_H
 
 #include "engine/EApp.h"
 
@@ -28,7 +28,7 @@ struct SimsAppUnk2B3C {
     virtual ~SimsAppUnk2B3C();
 };
 
-// Base class of the object at SimsApp+0x2B50; introduces the vtable pointer at 0x44.
+// Base class of the object at ESimsApp+0x2B50; introduces the vtable pointer at 0x44.
 struct SimsAppUnk2B50Base {
     virtual ~SimsAppUnk2B50Base();
 
@@ -141,27 +141,32 @@ void fn_801CD9A8(void*);
 void fn_800FD840();
 void fn_801B8A60(void*);
 
-// The game's application object.
-class SimsApp : public EApp {
+// Cheat-code button sequence tracker.
+class PlayerCheats {
 public:
-    SimsApp();
-    virtual ~SimsApp();
+    unsigned char GetNextIndex(unsigned char& index);
+    bool IsSingleButton(unsigned short buttons);
+};
+
+// The game's application object. Class and method names follow the symbol map
+// of The Sims 2 (GameCube), which shares this engine.
+class ESimsApp : public EApp {
+public:
+    ESimsApp();
+    virtual ~ESimsApp();
     virtual const char* vfn3() { return ""; }
     virtual const char* vfn4() { return ""; }
-    virtual const char* GetBuildString();
-    virtual const char* GetTitle() { return "The Sims For PS2"; }
-    virtual int vfn16() { return 0; }
+    virtual const char* GetBuildVersion();
+    virtual const char* GetAppName() { return "The Sims For PS2"; }
+    virtual int GetEventTableSize() { return 0; }
     virtual void vfn17(int);
     virtual bool vfn18();
     virtual void vfn19(int);
     virtual void vfn20(int);
-    virtual void vfn21(int);
+    virtual void SetGameState(int);
     virtual void vfn23();
     virtual void vfn24();
     virtual void Shutdown();
-
-    unsigned char fn_800049F0(unsigned char*);
-    bool fn_80004A18(int);
 
     SimsAppUnk478* unk478;
     SimsAppUnk47C unk47C;

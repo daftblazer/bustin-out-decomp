@@ -21,8 +21,8 @@ public:
     virtual void vfn2();
     virtual const char* vfn3();
     virtual const char* vfn4();
-    virtual const char* GetBuildString();
-    virtual const char* GetTitle();
+    virtual const char* GetBuildVersion();
+    virtual const char* GetAppName();
     virtual void vfn7();
     virtual void vfn8();
     virtual void vfn9();
@@ -32,12 +32,12 @@ public:
     virtual void vfn13();
     virtual void vfn14();
     virtual void vfn15();
-    virtual int vfn16();
+    virtual int GetEventTableSize();
     virtual void vfn17(int);
     virtual bool vfn18();
     virtual void vfn19(int);
     virtual void vfn20(int);
-    virtual void vfn21(int);
+    virtual void SetGameState(int);
     virtual void vfn22();
     virtual void vfn23();
     virtual void vfn24();
