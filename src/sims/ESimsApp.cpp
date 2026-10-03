@@ -90,7 +90,7 @@ ESimsApp::~ESimsApp() {
 void ESimsApp::Shutdown() {
     lbl_802E6700.Begin();
     fn_801CD9A8(lbl_8037C3D8);
-    fn_800FD840();
+    StateMachineManager::Shutdown();
     unk478->Stop();
     if (unk478) {
         delete unk478;
@@ -161,6 +161,31 @@ void ESimsApp::Init() {
     }
     initContinue();
     fn_801C6A24(&lbl_8037D2EC, "Allocating CTGDump object memory\n");
+}
+
+// 0x80003A7C
+void ESimsApp::initContinue() {
+    LoadSimulatorGlobs();
+    fn_800616B0();
+    float volume = (float)lbl_802E6818.unk0->unk14 * 0.1f;
+    float clamped;
+    if (volume < 0.0f) {
+        clamped = 0.0f;
+    } else if (volume > 1.0f) {
+        clamped = 1.0f;
+    } else {
+        clamped = volume;
+    }
+    lbl_8037D938 = clamped;
+    StateMachineManager::Startup();
+    StateMachineManager* manager = lbl_8037D93C;
+    manager->AddMachine(new Unk802B5A68Machine);
+    manager->AddMachine(new Unk802AF658Machine);
+    unk4E0.fn_800D5618();
+    Unk800669ACResult banner1 = lbl_802E6700.fn_800669AC("ngc_ipl_banner_1");
+    int id1 = banner1.ptr ? *banner1.ptr : 0;
+    Unk800669ACResult banner2 = lbl_802E6700.fn_800669AC("ngc_ipl_banner_2");
+    fn_8018FE20(id1, banner2.ptr ? *banner2.ptr : 0);
 }
 
 // 0x80004058

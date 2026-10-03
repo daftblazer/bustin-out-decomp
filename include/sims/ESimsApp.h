@@ -2,6 +2,7 @@
 #define SIMS_ESIMSAPP_H
 
 #include "engine/EApp.h"
+#include "engine/StateMachine.h"
 
 void* fn_80169F1C(unsigned int size, int align);
 
@@ -26,6 +27,7 @@ struct SimsAppUnk47C {
 
 struct SimsAppUnk4E0 {
     SimsAppUnk4E0();
+    void fn_800D5618();
     ~SimsAppUnk4E0();
     char unk0[0x2B3C - 0x4E0];
 };
@@ -65,6 +67,7 @@ struct Unk802E6700 {
     void Begin();
     void End();
     unsigned int fn_800655D8();
+    struct Unk800669ACResult fn_800669AC(const char* format, ...);
     void fn_800656D8();
 };
 
@@ -160,7 +163,6 @@ extern Unk802E6820 lbl_802E6820;
 
 void fn_80046194();
 void fn_801CD9A8(void*);
-void fn_800FD840();
 
 // Cheat-code button sequence tracker.
 class PlayerCheats {
@@ -254,6 +256,42 @@ extern Unk8037D2D8 lbl_8037D2D8;
 extern Unk8037D2EC lbl_8037D2EC;
 void fn_801C6168(Unk8037D2D8*, const char*);
 void fn_801C6A24(Unk8037D2EC*, const char*);
+
+// State machines created by ESimsApp::initContinue (0x94 bytes each).
+class Unk802B5A68Machine : public StateMachine {
+public:
+    Unk802B5A68Machine() : StateMachine('SIMS'), unk7C(0), unk80(0), unk84(0), unk88(0), unk8C(1), unk90(0) {}
+    virtual ~Unk802B5A68Machine();
+    virtual void Startup();
+
+    int unk7C, unk80, unk84, unk88, unk8C, unk90;
+};
+
+class Unk802AF658Machine : public StateMachine {
+public:
+    Unk802AF658Machine() : StateMachine('MUST'), unk7C(0), unk80(0), unk84(0), unk88(0), unk8C(1) {}
+    virtual ~Unk802AF658Machine();
+    virtual void Startup();
+
+    int unk7C, unk80, unk84, unk88, unk8C, unk90;
+};
+
+struct Unk802E6818Target {
+    char unk0[0x14];
+    char unk14;
+};
+struct Unk802E6818 {
+    Unk802E6818Target* unk0;
+    char unk4[0x100]; // size unknown
+};
+struct Unk800669ACResult {
+    int* ptr;
+};
+
+extern Unk802E6818 lbl_802E6818;
+extern float lbl_8037D938;
+void fn_800616B0();
+void fn_8018FE20(int, int);
 
 extern Unk803401C4 lbl_803401C4;
 extern Unk80340AB8 lbl_80340AB8;
