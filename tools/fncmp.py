@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Compare a compiled function against the original DOL, masking relocated fields.
 
-Usage: tools/fncmp.py OBJECT SYMBOL ADDR
+Usage: tools/fncmp.py OBJECT [-v]              (all functions named in symbols.txt)
+       tools/fncmp.py OBJECT SYMBOL ADDR [-v]
   OBJECT  compiled ELF object (e.g. from tools/trycc.sh, in build/try/)
   SYMBOL  mangled function symbol in OBJECT
   ADDR    address of the original function (hex)
@@ -18,10 +19,26 @@ MASKS = {"R_PPC_REL24": 0x03FFFFFC, "R_PPC_REL14": 0x0000FFFC, "R_PPC_EMB_SDA21"
          "R_PPC_ADDR16_HA": 0xFFFF, "R_PPC_ADDR16_LO": 0xFFFF, "R_PPC_ADDR16_HI": 0xFFFF, "R_PPC_ADDR32": 0xFFFFFFFF}
 
 def main():
+    if len(sys.argv) == 2 or sys.argv[2] == "-v":
+        # Compare every function in OBJECT that is named in symbols.txt
+        table = {}
+        for line in open(root / "config/G4ME69/symbols.txt"):
+            m = re.match(r"(\S+) = \.\w+:0x([0-9A-F]+); // type:function", line)
+            if m: table[m.group(1)] = int(m.group(2), 16)
+        out = subprocess.run([objdump, "-dr", "-z", sys.argv[1]], capture_output=True, text=True, check=True).stdout
+        ok = True
+        for sym in re.findall(r"^[0-9a-f]+ <(\S+)>:$", out, re.M):
+            if sym in table: ok &= compare(out, sys.argv[1], sym, table[sym])
+            else: print(f"{sym}: not in symbols.txt (skipped)")
+        sys.exit(0 if ok else 1)
     obj, sym, addr = sys.argv[1], sys.argv[2], int(sys.argv[3], 16)
     out = subprocess.run([objdump, "-dr", "-z", obj], capture_output=True, text=True, check=True).stdout
+    sys.exit(0 if compare(out, obj, sym, addr) else 1)
+
+def compare(out, obj, sym, addr):
     m = re.search(rf"^[0-9a-f]+ <{re.escape(sym)}>:\n(.*?)(?=^\s*$|\Z)", out, re.M | re.S)
     if not m: sys.exit(f"symbol {sym} not found in {obj}")
+    verbose = "-v" in sys.argv
     words, relocs = [], {}
     for line in m.group(1).splitlines():
         r = re.match(r"\s+([0-9a-f]+):\s+(R_PPC_\w+)\s+(\S+)", line)
@@ -42,9 +59,9 @@ def main():
         a = addr + off - base
         if not same: bad += 1
         note = f"   [{rel[1]}]" if rel else ""
-        if not same or "-v" in sys.argv:
+        if not same or verbose:
             print(f"{'  ' if same else '!!'} {a:08X}  orig: {dis(o, a):32s} mine: {dis(w, a)}{note}")
     print(f"{sym} @ {addr:08X}: {len(words)} instructions, {bad} mismatching" + ("  -> MATCH" if not bad else ""))
-    sys.exit(1 if bad else 0)
+    return not bad
 
 main()
