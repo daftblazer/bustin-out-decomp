@@ -1,0 +1,104 @@
+--- a/src/analysis/tracker.rs	2026-10-03 12:02:32.597354455 -0500
++++ b/src/analysis/tracker.rs	2026-10-03 12:11:30.752907948 -0500
+@@ -292,6 +292,9 @@
+                                 if let RelocationTarget::Address(address) = value {
+                                     self.sda_to.insert(address);
+                                 }
++                            } else if vm.gpr[target].hi_addr.is_some_and(|a| is_lis_ori_pair(obj, a))
++                            {
++                                // ProDG: base built with `lis`/`ori` (see LoadStore below)
+                             } else if let (Some(hi_addr), Some(lo_addr)) =
+                                 (vm.gpr[target].hi_addr, vm.gpr[target].lo_addr)
+                             {
+@@ -319,7 +322,14 @@
+                     // ori rA, rS, UIMM
+                     Opcode::Ori => {
+                         let target = ins.field_ra() as usize;
+-                        if let Some(value) = self.gpr_address(obj, ins_addr, &vm.gpr[target].value)
++                        // ProDG (GCC) emits `lis`/`ori` only for integer constants (hashes,
++                        // magic numbers); addresses always use `lis`/`addi`. Only trust
++                        // `lis`/`ori` as an address in hand-written startup code (.init).
++                        let ori_is_address = obj.sections[ins_addr.section].name == ".init";
++                        if !ori_is_address {
++                            // fall through: treated as a plain constant
++                        } else if let Some(value) =
++                            self.gpr_address(obj, ins_addr, &vm.gpr[target].value)
+                         {
+                             if let (Some(hi_addr), Some(lo_addr)) =
+                                 (vm.gpr[target].hi_addr, vm.gpr[target].lo_addr)
+@@ -376,6 +386,10 @@
+                                     self.hal_to.insert(address);
+                                 }
+                             }
++                            // ProDG: a base built with `lis`/`ori` followed by a displaced
++                            // load/store (hand-written asm). The `ori` already holds the full
++                            // low half, so folding the displacement into it would corrupt it.
++                            (Some(_), Some(lo_addr)) if is_ori_at(obj, lo_addr) => {}
+                             (Some(hi_addr), Some(lo_addr)) => {
+                                 let hi_reloc = self.relocations.get(&hi_addr).cloned();
+                                 if hi_reloc.is_none() {
+@@ -635,6 +649,8 @@
+         if !matches!(
+             reloc_kind,
+             ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo
++            // ProDG (GCC) loads these with `lis`/`ori`
++            | ObjRelocKind::PpcAddr16Hi
+             // RSOLinkInit uses a data table containing references to _SDA_BASE_ and _SDA2_BASE_
+             | ObjRelocKind::Absolute
+         ) {
+@@ -777,6 +793,15 @@
+                         obj.symbols.replace(symbol_idx, new_symbol)?;
+                     }
+                     (symbol_idx, target.address as i64 - symbol_address as i64)
++                } else if target.section == SectionIndex::MAX {
++                    // Target is outside of any section and isn't a known special symbol
++                    log::warn!(
++                        "Skipping relocation {:?} @ {:#010X} with out-of-section target {:#010X}",
++                        reloc_kind,
++                        addr,
++                        target.address
++                    );
++                    continue;
+                 } else {
+                     // Create a new label
+                     let name = if obj.module_id == 0 {
+@@ -844,6 +869,39 @@
+     }
+ }
+ 
++/// Whether the instruction at `addr` is an `ori`.
++fn is_ori_at(obj: &ObjInfo, addr: SectionAddress) -> bool {
++    let section = &obj.sections[addr.section];
++    let Some(offset) = (addr.address as u64).checked_sub(section.address) else {
++        return false;
++    };
++    let offset = offset as usize;
++    match section.data.get(offset..offset + 4) {
++        Some(bytes) => bytes[0] >> 2 == 24,
++        None => false,
++    }
++}
++
++/// Whether `addr` is a `lis rX` immediately followed by `ori rX, rX`.
++fn is_lis_ori_pair(obj: &ObjInfo, addr: SectionAddress) -> bool {
++    let section = &obj.sections[addr.section];
++    let Some(offset) = (addr.address as u64).checked_sub(section.address) else {
++        return false;
++    };
++    let offset = offset as usize;
++    let Some(bytes) = section.data.get(offset..offset + 8) else {
++        return false;
++    };
++    let lis = u32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]);
++    let ori = u32::from_be_bytes([bytes[4], bytes[5], bytes[6], bytes[7]]);
++    let rd = (lis >> 21) & 31;
++    lis >> 26 == 15
++        && (lis >> 16) & 31 == 0
++        && ori >> 26 == 24
++        && (ori >> 21) & 31 == rd
++        && (ori >> 16) & 31 == rd
++}
++
+ fn data_kind_from_op(op: Opcode) -> DataKind {
+     match op {
+         Opcode::Lbz => DataKind::Byte,

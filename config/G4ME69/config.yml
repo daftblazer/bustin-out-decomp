@@ -1,0 +1,26 @@
+# See config.example.yml for documentation.
+object_base: orig/G4ME69
+object: sys/main.dol
+hash: 26f0bf319a5fd3ea3d3d86e6117fbc78e259231c
+symbols: config/G4ME69/symbols.txt
+splits: config/G4ME69/splits.txt
+
+skip_cfa_ranges:
+# SN Systems ProDG debugger stub (libsn): hand-written exception-vector
+# assembly that dtk's control flow analysis can't follow.
+- start: .text:0x8010A444
+  end: .text:0x8010B314
+# Function containing an inline SN breakpoint (.long 1) that hangs dtk's analyzer.
+- start: .text:0x80178200
+  end: .text:0x801783CC
+
+block_relocations:
+# GCC-style `lis`/`ori` loads of the stack pointer and small-data bases (r1/r2/r13).
+# The targets lie outside any section; dtk crashes trying to create symbols for them.
+- source: .init:0x80003100
+  end: .init:0x80003118
+# `lis`/`ori` of the end of .sbss for the startup memset (not inside any section).
+- source: .init:0x8000315C
+  end: .init:0x80003164
+- source: .text:0x8010AE3C
+  end: .text:0x8010AE4C
