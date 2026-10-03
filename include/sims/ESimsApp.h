@@ -146,7 +146,32 @@ class PlayerCheats {
 public:
     unsigned char GetNextIndex(unsigned char& index);
     bool IsSingleButton(unsigned short buttons);
+    void PurgeBtnMemory();
+    unsigned short CreateBtnMask();
+
+    struct Button {
+        unsigned short buttons;
+        float expireTime;
+    };
+
+    char unk0[0x10];
+    unsigned char unk10;
+    int unk14;
+    float unk18; // current time in milliseconds
+    Button unk1C[6];
 };
+
+struct Unk8037C114 {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual float vfn5(PlayerCheats*);
+};
+
+extern Unk8037C114* lbl_8037C114;
+void fn_801C6BB8();
+void ProfileHook();
 
 // The game's application object. Class and method names follow the symbol map
 // of The Sims 2 (GameCube), which shares this engine.
@@ -168,6 +193,9 @@ public:
     virtual void vfn23();
     virtual void vfn24();
     virtual void Shutdown();
+
+    int GetDefaultLanguage();
+    void LoadSimulatorGlobs();
 
     SimsAppUnk478* unk478;
     SimsAppUnk47C unk47C;

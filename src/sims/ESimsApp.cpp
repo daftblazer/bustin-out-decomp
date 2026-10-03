@@ -45,6 +45,11 @@ const char* ESimsApp::GetBuildVersion() {
     return "NGC Sims Bustin Out Build 2.1.3.31-1i";
 }
 
+// 0x800037D4
+int ESimsApp::GetDefaultLanguage() {
+    return 0;
+}
+
 // 0x80004058
 // NON_MATCHING: the original copies the `new` result through r0 before storing it
 // (`mr r0, r3; stw r0, 0x2b50(r31)`), one instruction more than this produces.
@@ -61,6 +66,16 @@ void ESimsApp::SetGameState(int arg) {
         delete unk2B50;
         unk2B50 = 0;
     }
+}
+
+// 0x8000410C
+void ESimsApp::LoadSimulatorGlobs() {
+    fn_801C6BB8();
+}
+
+// 0x8000412C
+void ProfileHook() {
+    lbl_8037B3E8++;
 }
 
 // 0x800046B0
@@ -113,3 +128,39 @@ bool PlayerCheats::IsSingleButton(unsigned short buttons) {
     }
     return found;
 }
+
+// 0x80004A6C
+void PlayerCheats::PurgeBtnMemory() {
+    unk18 = lbl_8037C114->vfn5(this) * 1000.0;
+    if (unk14 == 1) {
+        unk14 = 0;
+        unk10 = 0;
+        unk18 = unk18 + 1500.0f;
+    }
+    for (unsigned char i = 0; i <= 5; i++) {
+        if (unk1C[i].buttons != 0 && unk18 >= unk1C[i].expireTime) {
+            unk1C[i].buttons = 0;
+            unk1C[i].expireTime = 0.0f;
+        }
+    }
+}
+
+// 0x80004B44
+unsigned short PlayerCheats::CreateBtnMask() {
+    unsigned short mask = 0;
+    for (unsigned char i = 0; i <= 5; i++) {
+        mask |= unk1C[i].buttons;
+    }
+    return mask;
+}
+
+inline void* operator new(unsigned int, void* ptr) { return ptr; }
+
+// Storage for the application object. It is constructed in place and never
+// destroyed: the original has no global destructor for it.
+char lbl_802E2C40[sizeof(ESimsApp)];
+
+struct ESimsAppInit {
+    ESimsAppInit() { new (lbl_802E2C40) ESimsApp; }
+};
+static ESimsAppInit sAppInit;
