@@ -443,9 +443,10 @@ int fn_80110874(const char*);                          // atoi
 void fn_801C6BB8();
 void ProfileHook();
 
-// Something included by this unit streams a TArray<unsigned int>: the unit holds
-// the binary's shared copy of that template and of its operator>>. What it is
-// has not been identified, so this stand-in triggers the instantiation.
+// This unit provides the binary's shared TArray<unsigned int> members and its
+// operator>> (template repository, see CLAUDE.md), so something it includes
+// must use them. What that is has not been identified; this stand-in makes the
+// unit offer those instances.
 struct UnkUIntArrayReader {
     TArray<unsigned int> unk0;
     void Read(EStream& stream) { stream >> unk0; }

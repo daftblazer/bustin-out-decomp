@@ -109,14 +109,23 @@ order they were first needed, followed by `__static_initialization_and_destructi
 the unit's inline virtual functions, and `_GLOBAL_.I.<first function>`.
 Getting that tail order right is a good check that the class definitions are right.
 
-**Open problem (blocks switching any unit to `Matching`):** each template
-function exists only once in the whole binary, in the first unit in link order
-that uses it, and other units call that copy. Our compiler emits them as local
-symbols under `-fno-weak`, and as GNU linkonce sections (which the linker
-places elsewhere) without it. The original toolchain must have emitted them as
-global symbols and removed the duplicates at link time (`ngcld --strip-unused`
-strips unused functions). Until that is reproduced, a compiled unit's template
-functions are invisible to the units that call them.
+**Template repository.** Each template function exists only once in the whole
+binary, as a global symbol in the first unit in link order that can provide it;
+other units call that copy. The original build used GCC's template repository
+(`-frepo`): the link step picked one object per instance and recompiled it with
+the instance emitted. `tools/prodg_cc.py` reproduces this. It compiles with
+`-frepo`, then marks as chosen exactly the offered instances whose mangled name
+is a symbol inside the unit's ranges in `symbols.txt`, and recompiles.
+
+So for a unit to emit a template function, two things are needed:
+
+1. The function's symbol in `symbols.txt` must carry the exact mangled name
+   (run `tools/tu.sh`; names it can't find are listed as "not in symbols.txt").
+   The same goes for template static data such as
+   `_Q24_STLt12__node_alloc2b0i0._S_free_list`.
+2. The unit must *offer* the instance, i.e. some code or header it compiles
+   uses that template with those arguments. A unit can hold instances its own
+   functions never call, because another unit needed them.
 
 Recognise template functions rather than decompiling them:
 
@@ -139,10 +148,9 @@ Global `operator new` / `operator delete` are `__builtin_new` (0x801B8A3C) and
 
 ## Compiler notes (GCC 2.95.2, SN build)
 
-- Flags: `-O2 -G8 -fno-weak -fsigned-char`. Plain `char` is signed (reads of a
-  `char` used in comparisons show `extsb`). `-fno-weak` is what puts vtables in `.rodata` and
-  gives every translation unit its own local copy of inline and template
-  functions (so identical STL helpers appear many times in the binary). `-O1` and `-O3` are ruled out (`-O3` moves inline functions
+- Flags: `-O2 -G8 -fno-weak -frepo -fsigned-char`. Plain `char` is signed (reads of a
+  `char` used in comparisons show `extsb`). `-fno-weak` is what puts vtables in `.rodata`
+  and inline virtual functions in `.text`; `-frepo` handles templates (see above). `-O1` and `-O3` are ruled out (`-O3` moves inline functions
   to the front of the object; the original has them at the end).
 - The exact ProDG version is unknown: 3.5 through 3.9.3 agree on everything
   matched so far. Note any function where they differ.

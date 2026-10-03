@@ -36,3 +36,4 @@ compile_commands.json
 
 # Local tooling
 .venv/
+*.rpo

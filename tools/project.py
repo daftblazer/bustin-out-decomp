@@ -703,8 +703,11 @@ def generate_build_ninja(
         # ngccc -MMD writes the depfile next to the object, with a `.obj` target.
         sn_env = f"env SN_NGC_PATH={compiler_path} "
         mwcc = compiler_path / "ngccc.exe"
-        mwcc_cmd = f"{sn_env}{wrapper_cmd}{mwcc} $cflags -MMD -c $in -o $out"
-        mwcc_implicit = [compilers_implicit or mwcc, wrapper_implicit]
+        # Compiled through tools/prodg_cc.py, which reproduces the original
+        # build's template repository (-frepo) assignment for the unit.
+        prodg_cc = config.tools_dir / "prodg_cc.py"
+        mwcc_cmd = f"$python {prodg_cc} --unit $unit -- {sn_env}{wrapper_cmd}{mwcc} $cflags -MMD -c $in -o $out"
+        mwcc_implicit = [compilers_implicit or mwcc, wrapper_implicit, prodg_cc]
         mwcc_sjis_cmd = mwcc_cmd
         mwcc_sjis_implicit = [*mwcc_implicit]
         mwcc_extab_cmd = mwcc_cmd
@@ -1074,6 +1077,8 @@ def generate_build_ninja(
                 "basedir": os.path.dirname(obj.src_obj_path),
                 "basefile": obj.src_obj_path.with_suffix(""),
             }
+            if config.prodg:
+                variables["unit"] = obj.name
 
             if obj.options["shift_jis"] and obj.options["extab_padding"] is not None:
                 build_rule = "mwcc_sjis_extab"
