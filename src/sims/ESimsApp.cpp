@@ -341,6 +341,56 @@ void ESimsApp::vfn20(int arg) {
     lbl_802F7658.unkF0->unk84 = arg == 1;
 }
 
+// 0x800047E4
+// NON_MATCHING: one instruction longer. The original lays the inner sequence loop out
+// with the code comparison first and the `code == 0 || i == 6` checks merged into the
+// loop condition at the bottom.
+bool PlayerCheats::Capture(EController* controller) {
+    bool found = false;
+    unsigned short buttons = controller->fn_8015E304();
+    if (!IsSingleButton(buttons) || (lbl_802E6700.cheats.unk0 & buttons) == 0) {
+        unk14 = 1;
+        return false;
+    }
+    PurgeBtnMemory();
+    unk1C[unk10].buttons = buttons;
+    unk18 = lbl_8037C114->vfn5(this) * 1000.0;
+    unk1C[unk10].expireTime = unk18 + 1500.0f;
+    unsigned short mask = CreateBtnMask();
+    for (unsigned char cheat = 0; cheat <= 7; cheat++) {
+        if ((lbl_802E6700.cheats.masks[cheat] & mask) == lbl_802E6700.cheats.masks[cheat]) {
+            unsigned char index = unk10;
+            while (GetNextIndex(index) != unk10) {
+                if (unk1C[index].buttons != 0) {
+                    unsigned char cursor = index;
+                    bool match = false;
+                    for (unsigned char i = 0; i <= 6; i++) {
+                        unsigned short code = lbl_802E6700.cheats.codes[cheat][i];
+                        if (code == 0 || i == 6) {
+                            match = true;
+                            break;
+                        }
+                        if (code != unk1C[cursor].buttons) {
+                            break;
+                        }
+                        GetNextIndex(cursor);
+                    }
+                    if (match) {
+                        controller->fn_8015DFEC(0);
+                        found = true;
+                        lbl_802E6700.fn_800690E0(cheat);
+                        unk14 = 1;
+                        unk10 = 0;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    GetNextIndex(unk10);
+    return found;
+}
+
 // 0x800049F0
 unsigned char PlayerCheats::GetNextIndex(unsigned char& index) {
     index++;

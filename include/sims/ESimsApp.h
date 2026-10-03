@@ -97,7 +97,15 @@ struct SimsAppUnk2B50 : public SimsAppUnk2B50Base {
 };
 
 struct Unk802E6700 {
-    char unk0[0x218]; // size unknown
+    union {
+        char unk0[0x218]; // size unknown
+        struct {
+            unsigned short unk0;            // 0x00 buttons allowed in cheat codes
+            unsigned short codes[8][6];     // 0x02 button sequences, zero-terminated
+            unsigned short masks[8];        // 0x62 buttons used by each sequence
+        } cheats;
+    };
+    void fn_800690E0(int);
     void Begin();
     void End();
     void* GetUnk90() { return *(void**)(unk0 + 0x90); }
@@ -210,7 +218,7 @@ struct EController;
 // Cheat-code button sequence tracker.
 class PlayerCheats {
 public:
-    void Capture(EController* controller);
+    bool Capture(EController* controller);
     unsigned char GetNextIndex(unsigned char& index);
     bool IsSingleButton(unsigned short buttons);
     void PurgeBtnMemory();
@@ -262,6 +270,7 @@ struct Unk8015CAA0 {
 
 struct EController {
     int fn_8015E304();
+    void fn_8015DFEC(int);
 };
 
 struct Unk8037C11C {
