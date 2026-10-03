@@ -40,7 +40,7 @@ public:
     virtual void SetGameState(int);
     virtual void vfn22();
     virtual void vfn23();
-    virtual void vfn24();
+    virtual void Update();
     virtual void vfn25();
     virtual void vfn26();
     virtual void vfn27();
@@ -51,7 +51,9 @@ public:
     char unk33C[0x348 - 0x33C];
     int mArgc;      // 0x348
     char** mArgv;   // 0x34C
-    char unk350[0x468 - 0x350];
+    char unk350[0x450 - 0x350];
+    int unk450;
+    char unk454[0x468 - 0x454];
     int unk468;
     char unk46C[0x478 - 0x46C];
 };

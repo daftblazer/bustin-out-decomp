@@ -216,6 +216,105 @@ void ProfileHook() {
     lbl_8037B3E8++;
 }
 
+// 0x8000413C
+// NON_MATCHING: same length, 35 of 349 instructions differ, all register numbering
+// (r29/r30/r31). It stems from the four timing floats at the top: the original stores
+// [0] and [1] like a constructed pair and [3], [2] straight to the stack.
+void ESimsApp::Update() {
+    SimsAppUnk2B3CRect times(0.0f, 0.0f, 0.0f, 0.0f);
+    MarkUpdateStart(times);
+    ProfileHook();
+    if (lbl_8037D3D0 == 0 && lbl_8037C11C != 0) {
+        static int sControllerId = lbl_8037C11C->fn_8015E614(lbl_8037B3EC);
+        static EController* sController = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(sControllerId));
+        if (sController && unk2B60 && sController->fn_8015E304()) {
+            unk2B60->Capture(sController);
+        }
+    }
+    unk47C.fn_800E6038();
+    unk4E0.fn_800D59D0();
+    fn_8011D784();
+    if (lbl_802E6700.GetUnk214() == 0) {
+        fn_801063A4(lbl_802E6700.GetUnk90());
+    }
+    lbl_802F7658.fn_800F850C(lbl_8037BFC8);
+    StateMachineManager::UpdateMachines(lbl_8037BFC8);
+    if (lbl_802E6700.GetUnkA4() != 0 && unk2B50) {
+        unk2B50->vfn32();
+    }
+    fn_800E6714();
+    fn_800E67CC();
+    if (unk450 == 0 && lbl_8037D940) {
+        fn_80255A54(lbl_8037D940);
+    }
+    float scale;
+    Unk8037D944* movie = lbl_8037D944;
+    if (movie == 0) {
+        scale = 1.0f;
+    } else if (movie->vfn18() != 0) {
+        scale = 0.0f;
+    } else if (movie->vfn13() != 0) {
+        scale = 0.0f;
+    } else {
+        switch (movie->vfn9()) {
+        case 0:
+            scale = 1.0f;
+            break;
+        case -1:
+            scale = 0.5f;
+            break;
+        case -2:
+            scale = 5.0f;
+            break;
+        case -3:
+            scale = 10.0f;
+            break;
+        default:
+            scale = 0.0f;
+            break;
+        }
+    }
+    fn_80182B30(lbl_8037BFC8 * scale);
+    char* timer = lbl_8033F8B0;
+    times.unkC = lbl_8037C114->vfn5(timer);
+    ERC* rc = lbl_8037C198->vfn13(0);
+    unk2B38 = rc;
+    StateMachineManager::DrawMachines(rc);
+    lbl_8037C198->vfn14(rc);
+    unk2B38 = 0;
+    lbl_8037C114->vfn5(timer);
+    if (unk2B54) {
+        lbl_8037C198->vfn7();
+        for (int y = 0; y < unk2B5C; y++) {
+            for (int x = 0; x < unk2B58; x++) {
+                fn_8018AD9C(1, unk2B58, unk2B5C, x, y);
+                lbl_8037C198->vfn6();
+                rc = lbl_8037C198->vfn13(0);
+                unk2B38 = rc;
+                SimsAppUnk2B3C window;
+                window.fn_8018B044(rc);
+                StateMachineManager::DrawMachines(rc);
+                lbl_8037C198->vfn14(rc);
+                lbl_8037C198->vfn7();
+                char name[256];
+                fn_8010F710(name, "screenshot-x%dy%d.raw", x + 1, y + 1);
+                lbl_8037C198->vfn42(name);
+            }
+        }
+        fn_8018AD9C(1, 1, 1, 0, 0);
+        lbl_8037C198->vfn6();
+        rc = lbl_8037C198->vfn13(0);
+        unk2B38 = rc;
+        SimsAppUnk2B3C window;
+        window.fn_8018B044(rc);
+        StateMachineManager::DrawMachines(rc);
+        lbl_8037C198->vfn14(rc);
+        fn_8018AD9C(0, 1, 1, 0, 0);
+        unk2B54 = 0;
+    }
+    lbl_8037C114->vfn5(lbl_8033F8B0);
+}
+
 // 0x800046B0
 void ESimsApp::vfn17(int arg) {
     lbl_8037D948->vfn14(lbl_8037D94C);

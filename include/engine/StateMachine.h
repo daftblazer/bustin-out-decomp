@@ -56,6 +56,8 @@ class StateMachineManager {
 public:
     static void Startup();
     static void Shutdown();
+    static void UpdateMachines(float dt);
+    static void DrawMachines(struct ERC* rc);
     StateMachine* FindMachine(StateMachine* machine);
 
     // The original reloads the global manager pointer inside this function
