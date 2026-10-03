@@ -2,6 +2,7 @@
 #define SIMS_ESIMSAPP_H
 
 #include "engine/EApp.h"
+#include "engine/EStream.h"
 #include "engine/StateMachine.h"
 
 void* fn_80169F1C(unsigned int size, int align);
@@ -389,7 +390,7 @@ void fn_801C6A24(Unk8037D2EC*, const char*);
 // State machines created by ESimsApp::initContinue (0x94 bytes each).
 class Unk802B5A68Machine : public StateMachine {
 public:
-    Unk802B5A68Machine() : StateMachine('SIMS'), unk7C(0), unk80(0), unk84(0), unk88(0), unk8C(1), unk90(0) {}
+    Unk802B5A68Machine() : StateMachine(0x53494D53) /* 'SIMS' */, unk7C(0), unk80(0), unk84(0), unk88(0), unk8C(1), unk90(0) {}
     virtual ~Unk802B5A68Machine();
     virtual void Startup();
 
@@ -398,7 +399,7 @@ public:
 
 class Unk802AF658Machine : public StateMachine {
 public:
-    Unk802AF658Machine() : StateMachine('MUST'), unk7C(0), unk80(0), unk84(0), unk88(0), unk8C(1) {}
+    Unk802AF658Machine() : StateMachine(0x4D555354) /* 'MUST' */, unk7C(0), unk80(0), unk84(0), unk88(0), unk8C(1) {}
     virtual ~Unk802AF658Machine();
     virtual void Startup();
 
@@ -441,6 +442,14 @@ int fn_80110874(const char*);                          // atoi
 }
 void fn_801C6BB8();
 void ProfileHook();
+
+// Something included by this unit streams a TArray<unsigned int>: the unit holds
+// the binary's shared copy of that template and of its operator>>. What it is
+// has not been identified, so this stand-in triggers the instantiation.
+struct UnkUIntArrayReader {
+    TArray<unsigned int> unk0;
+    void Read(EStream& stream) { stream >> unk0; }
+};
 
 // The game's application object. Class and method names follow the symbol map
 // of The Sims 2 (GameCube), which shares this engine.

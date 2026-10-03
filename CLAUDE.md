@@ -104,9 +104,21 @@ It is configured by the flags in `configure.py`: `_STLP_NO_OWN_IOSTREAMS`,
 `_NOTHREADS`, `_STLP_NO_BAD_ALLOC`. With these, `std::vector`, `std::deque`
 and the node allocator compile to the original bytes; just `#include <vector>`.
 
-Because of `-fno-weak`, every unit that uses a template gets its own local
-copy of each instantiated function, emitted after the unit's ordinary
-functions. Recognise them rather than decompiling them:
+Template instantiations are emitted after a unit's ordinary functions, in the
+order they were first needed, followed by `__static_initialization_and_destruction_0`,
+the unit's inline virtual functions, and `_GLOBAL_.I.<first function>`.
+Getting that tail order right is a good check that the class definitions are right.
+
+**Open problem (blocks switching any unit to `Matching`):** each template
+function exists only once in the whole binary, in the first unit in link order
+that uses it, and other units call that copy. Our compiler emits them as local
+symbols under `-fno-weak`, and as GNU linkonce sections (which the linker
+places elsewhere) without it. The original toolchain must have emitted them as
+global symbols and removed the duplicates at link time (`ngcld --strip-unused`
+strips unused functions). Until that is reproduced, a compiled unit's template
+functions are invisible to the units that call them.
+
+Recognise template functions rather than decompiling them:
 
 - `__node_alloc<false,0>`: `_M_allocate` (0x50), `_M_deallocate` (0x28),
   `_S_refill` (0xAC), `_S_chunk_alloc` (0x144). Blocks over 128 bytes go to
@@ -115,6 +127,8 @@ functions. Recognise them rather than decompiling them:
   `_M_destroy_nodes` (0x54), destructor (0x80).
 - STLport containers keep a 4-byte allocator slot before the end-of-storage
   pointer: a `vector` is `{start, finish, <allocator>, end_of_storage}` (16 bytes).
+- `EStream& operator>>(EStream&, TArray<T>&)` (`include/engine/EStream.h`, 0xAC)
+  follows the `TArray` members it uses.
 - `TArray<T, TArrayDefaultAllocator>` (`include/engine/TArray.h`) is the
   engine's own array, `{T* mData; int mSize; int mCapacity}`: `Init` (0x14),
   `Construct`/`Destruct` (0x1C each for trivial `T`; an empty counting loop),
@@ -142,6 +156,11 @@ Global `operator new` / `operator delete` are `__builtin_new` (0x801B8A3C) and
 - A loop bound that shows up unfolded (`cmpwi r31, 4; blt` instead of `cmpwi r31, 3; ble`)
   came from an inline function, not a literal: `i < GetCount()` with
   `inline int GetCount() { return 4; }`.
+- An extra `fmr`/`mr` into a second register for a clamped or selected value
+  means the source used a separate result variable assigned in each branch
+  (`if (v < lo) r = lo; else if (v > hi) r = hi; else r = v;`).
+- A value read through a saved register after a call (`stfs f1, 4(r30)`) rather
+  than straight off the stack was written through a reference in an inline function.
 - Statement order matters: a run of constant stores comes out in a different
   order than written, with no simple rule. For three or four stores, compile
   every permutation in a scratch file and compare (see `TArray::Init`).
