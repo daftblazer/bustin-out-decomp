@@ -21,12 +21,13 @@ Status
 ------
 
 - The DOL is split into 293 objects and relinks to a byte-identical `main.dol`.
-- 1 of 10,848 functions is decompiled (`python configure.py progress`).
-- The disc has no symbol map, so names are provisional. Class names can be
-  recovered from the engine's class-name strings in `.rodata`
-  (`EStorable`, `EResource`, `EInstance`, ...).
-- The exact ProDG version is not pinned down: the one matched function compiles
-  identically with 3.5 through 3.9.3. 3.7 is used as the default.
+- 13 of 10,848 functions are decompiled (`python configure.py progress`).
+- The disc has no symbol map. Names are carried over from The Sims 2
+  (GameCube), which shares the engine and shipped with one: see
+  `config/G4ME69/sims2_hints.txt` and `tools/align_sims2.py`.
+- Compiler flags are `-O2 -G8`. The exact ProDG version is not pinned down:
+  3.5 through 3.9.3 agree on everything matched so far, and 3.7 is the default.
+- See `CLAUDE.md` for the layout of the binary and the working conventions.
 
 Building
 --------
@@ -80,6 +81,7 @@ Decompiling
 
 Helper scripts (run with the Python that has `capstone` installed):
 
+- `tools/tu.sh src/file.cpp` compiles a source file and compares every function with the original.
 - `tools/trycc.sh [-v VERSION] file.cpp [flags]` compiles a snippet with ProDG and prints its disassembly.
 - `tools/fncmp.py OBJECT SYMBOL ADDR` compares a compiled function with the original, ignoring relocated fields.
 - `tools/ppcdis.py ADDR [COUNT]` disassembles the original DOL.
@@ -89,6 +91,6 @@ Helper scripts (run with the Python that has `capstone` installed):
 Compiler notes
 --------------
 
-- `-O2` matches so far.
+- `-O2`; `-O1` and `-O3` are ruled out.
 - Virtual calls go through GCC 2.95 vtable entries of `{short delta; short index; void* pfn}`.
 - `bool` is 4 bytes with this compiler.

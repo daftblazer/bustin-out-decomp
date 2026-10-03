@@ -190,9 +190,7 @@ config.reconfig_deps = []
 # Can be overridden in libraries or objects
 config.scratch_preset_id = None
 
-# Base flags for ngccc (GCC 2.95.2, SN build).
-# TODO: the exact optimization flags are not confirmed yet; refine them
-# once the first functions are matched.
+# Base flags for ngccc (GCC 2.95.2, SN build). -O1 and -O3 are ruled out.
 cflags_base = [
     "-O2",
     "-G8",
