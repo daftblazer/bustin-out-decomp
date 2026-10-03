@@ -18,13 +18,15 @@ objdump = root / "build/binutils/powerpc-eabi-objdump"
 MASKS = {"R_PPC_REL24": 0x03FFFFFC, "R_PPC_REL14": 0x0000FFFC, "R_PPC_EMB_SDA21": 0x001FFFFF,
          "R_PPC_ADDR16_HA": 0xFFFF, "R_PPC_ADDR16_LO": 0xFFFF, "R_PPC_ADDR16_HI": 0xFFFF, "R_PPC_ADDR32": 0xFFFFFFFF}
 
+SIZES = {}  # original function sizes by address, when known from symbols.txt
+
 def main():
     if len(sys.argv) == 2 or sys.argv[2] == "-v":
         # Compare every function in OBJECT that is named in symbols.txt
         table = {}
         for line in open(root / "config/G4ME69/symbols.txt"):
-            m = re.match(r"(\S+) = \.\w+:0x([0-9A-F]+); // type:function", line)
-            if m: table[m.group(1)] = int(m.group(2), 16)
+            m = re.match(r"(\S+) = \.\w+:0x([0-9A-F]+); // type:function size:0x([0-9A-F]+)", line)
+            if m: table[m.group(1)] = int(m.group(2), 16); SIZES[int(m.group(2), 16)] = int(m.group(3), 16)
         out = subprocess.run([objdump, "-dr", "-z", sys.argv[1]], capture_output=True, text=True, check=True).stdout
         ok = True
         for sym in re.findall(r"^[0-9a-f]+ <(\S+)>:$", out, re.M):
@@ -61,6 +63,11 @@ def compare(out, obj, sym, addr):
         note = f"   [{rel[1]}]" if rel else ""
         if not same or verbose:
             print(f"{'  ' if same else '!!'} {a:08X}  orig: {dis(o, a):32s} mine: {dis(w, a)}{note}")
+    # A function of the wrong length never matches, even if the common part agrees.
+    orig_len = SIZES.get(addr, len(words) * 4) // 4
+    if orig_len != len(words):
+        print(f"{sym} @ {addr:08X}: {len(words)} instructions (original has {orig_len}), {bad} mismatching in the common part")
+        return False
     print(f"{sym} @ {addr:08X}: {len(words)} instructions, {bad} mismatching" + ("  -> MATCH" if not bad else ""))
     return not bad
 

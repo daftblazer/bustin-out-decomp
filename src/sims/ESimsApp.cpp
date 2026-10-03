@@ -3,8 +3,9 @@
 #include "sims/ESimsApp.h"
 
 // 0x800034A0
-// NON_MATCHING: same size, but the original tests `space` once (kept in cr4) ahead of
-// the '-' check and lays the inner loop out with the continue test at the bottom.
+// NON_MATCHING: one instruction short (90 vs 91). The original tests `space` once (kept
+// in cr4) ahead of the '-' check and lays the inner loop out with the continue test at
+// the bottom.
 void ESimsApp::parseCommandLine() {
     int argc = mArgc;
     char** argv = mArgv;
@@ -400,7 +401,9 @@ unsigned char PlayerCheats::GetNextIndex(unsigned char& index) {
 }
 
 // 0x80004A18
-// NON_MATCHING: the original has the first iteration peeled off ahead of the loop.
+// NON_MATCHING: 14 instructions vs 21. The original has the bit check duplicated ahead
+// of the loop (first iteration, with the shift folded away) and again after the
+// `i > 15` exit test, as GCC does when that check is the loop's condition.
 bool PlayerCheats::IsSingleButton(unsigned short buttons) {
     bool found = false;
     for (unsigned char i = 0; i <= 15; i++) {

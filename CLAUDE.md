@@ -26,6 +26,9 @@ bytes (`tools/tu.sh` prints `MATCH`). No inline asm, no byte arrays, no
 post-processing of compiler output. If a function can't be matched, leave the
 best attempt in place with a `// NON_MATCHING: <what differs>` comment and move on.
 
+`tools/tu.sh` also rejects a function whose length differs from the original's
+size in `symbols.txt`, so a short function can't pass by matching a prefix.
+
 `ngcld` resolves undefined symbols to 0 without an error, so only the final
 `main.dol: OK` proves a link is right.
 
