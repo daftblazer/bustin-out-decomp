@@ -154,10 +154,11 @@ class ESimsApp : public EApp {
 public:
     ESimsApp();
     virtual ~ESimsApp();
+    virtual const char* GetBuildVersion();
+    // Inline functions are emitted at the end of the object in declaration order.
+    virtual const char* GetAppName() { return "The Sims For PS2"; }
     virtual const char* vfn3() { return ""; }
     virtual const char* vfn4() { return ""; }
-    virtual const char* GetBuildVersion();
-    virtual const char* GetAppName() { return "The Sims For PS2"; }
     virtual int GetEventTableSize() { return 0; }
     virtual void vfn17(int);
     virtual bool vfn18();

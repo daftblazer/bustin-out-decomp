@@ -75,9 +75,31 @@ to the GCC 2.95 mangled name the compiler emits (`tools/rename.py OLD NEW`):
   `Object(NonMatching, ...)` entry in `configure.py`. Translation units end at
   the static-initializer functions listed in `.ctors`.
 
+## Splitting a unit's data
+
+A unit can only be switched to `Matching` once its data sections are split too.
+
+1. `.venv/bin/python tools/tu_data.py -n 20` lists, per unit in link order, the
+   range of data referenced by that unit alone. Add a unit name to list the symbols.
+2. Units keep the same order in every section. A unit's range runs from the
+   previous unit's end to the next unit's first exclusive symbol; outliers far
+   from the rest are shared globals owned by another unit.
+3. `.rodata` of a C++ unit is: strings and constants from headers, the unit's
+   own strings and floats, then its vtables. Many units start with the same
+   run of class-name strings (`EStorable`, `EResource`, ...), which marks the boundary.
+4. Add the ranges to `splits.txt`. If dtk reports that a split "ends within
+   symbol", the guessed size of that symbol in `symbols.txt` is too large: fix
+   it (vtables are `_vt.<mangled class>`, 8 bytes per slot).
+5. Rebuild; `main.dol: OK` confirms the split is consistent.
+
+Inline member functions are emitted at the end of the object in declaration
+order, so the order of declarations in a class body is observable.
+
 ## Compiler notes (GCC 2.95.2, SN build)
 
-- Flags: `-O2 -G8`. `-O1` and `-O3` are ruled out (`-O3` moves inline functions
+- Flags: `-O2 -G8 -fno-weak`. `-fno-weak` is what puts vtables in `.rodata` and
+  gives every translation unit its own local copy of inline and template
+  functions (so identical STL helpers appear many times in the binary). `-O1` and `-O3` are ruled out (`-O3` moves inline functions
   to the front of the object; the original has them at the end).
 - The exact ProDG version is unknown: 3.5 through 3.9.3 agree on everything
   matched so far. Note any function where they differ.

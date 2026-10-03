@@ -12,3 +12,8 @@ Sections:
 sims/ESimsApp.cpp:
 	.text       start:0x800034A0 end:0x800052C8
 	.ctors      start:0x80291CA4 end:0x80291CA8
+	.rodata     start:0x80291EE0 end:0x80292438
+	.data       start:0x802D1C60 end:0x802D1ED8
+	.bss        start:0x802E2C40 end:0x802E57B8
+	.sdata      start:0x8037B3E0 end:0x8037B3FC
+	.sbss       start:0x8037CA20 end:0x8037CA3C

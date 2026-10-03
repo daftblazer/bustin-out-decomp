@@ -194,6 +194,9 @@ config.scratch_preset_id = None
 cflags_base = [
     "-O2",
     "-G8",
+    # Vtables go to .rodata and inline/template functions are emitted as local
+    # copies in every translation unit, as in the original.
+    "-fno-weak",
     "-Iinclude",
     f"-Ibuild/{config.version}/include",
     f"-DBUILD_VERSION={version_num}",
