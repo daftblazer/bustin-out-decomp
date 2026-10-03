@@ -3,12 +3,19 @@
 
 #include "engine/EApp.h"
 
+void* fn_80169F1C(unsigned int size, int align);
+
 // NOTE: The retail disc has no symbols. Class, member and function names in
 // this project are provisional unless stated otherwise.
 
+// Size 0x74 (ctor at 0x8006431C).
 struct SimsAppUnk478 {
+    SimsAppUnk478();
     ~SimsAppUnk478();
     void Stop();
+    void fn_800645E8(void*);
+
+    char unk0[0x74];
 };
 
 struct SimsAppUnk47C {
@@ -23,9 +30,19 @@ struct SimsAppUnk4E0 {
     char unk0[0x2B3C - 0x4E0];
 };
 
+struct SimsAppUnk2B3CRect {
+    float unk0, unk4, unk8, unkC;
+    SimsAppUnk2B3CRect(float a, float b, float c, float d) : unk0(a), unk4(b), unk8(c), unkC(d) {}
+};
+
+// Size 0xA0 (ctor at 0x8018ABB0).
 struct SimsAppUnk2B3C {
-    char unk0[0x9C];
+    SimsAppUnk2B3C();
     virtual ~SimsAppUnk2B3C();
+    void fn_8018B584(const SimsAppUnk2B3CRect&);
+    void* operator new(unsigned int size) { return fn_80169F1C(size, 16); }
+
+    char unk0[0x9C];
 };
 
 // Base class of the object at ESimsApp+0x2B50; introduces the vtable pointer at 0x44.
@@ -47,6 +64,8 @@ struct Unk802E6700 {
     char unk0[0x100]; // size unknown
     void Begin();
     void End();
+    unsigned int fn_800655D8();
+    void fn_800656D8();
 };
 
 struct Unk80340094 {
@@ -57,6 +76,7 @@ struct Unk80340094 {
 struct Unk802E5E1C {
     char unk0[0x100]; // size unknown
     void Shutdown();
+    void fn_80176C78(const char*, int);
 };
 
 extern Unk802E6700 lbl_802E6700;
@@ -118,6 +138,8 @@ struct Unk80086E58 {
 struct Unk802F7658 {
     char unk0[0xF0];
     Unk80086E58* unkF0;
+    unsigned int fn_800F85B4();
+    void fn_800F87A0();
 };
 
 struct Unk802E6820Target {
@@ -140,6 +162,7 @@ void fn_80046194();
 void fn_801CD9A8(void*);
 void fn_800FD840();
 void fn_801B8A60(void*);
+void* fn_801B8A3C(unsigned int);
 
 // Cheat-code button sequence tracker.
 class PlayerCheats {
@@ -165,12 +188,86 @@ struct Unk8037C114 {
     virtual void vfn1();
     virtual void vfn2();
     virtual void vfn3();
-    virtual void vfn4();
+    virtual void vfn4(PlayerCheats*);
     virtual float vfn5(PlayerCheats*);
 };
 
 extern Unk8037C114* lbl_8037C114;
 extern int lbl_8037B3E0; // start lot from the "-lot" command line option
+
+// These three globals share the method at 0x80177628 (resource managers?).
+struct Unk803401C4 {
+    void fn_80177628(unsigned int, int, int);
+    char unk0[0xA4];
+    int unkA4; // default language
+};
+
+struct Unk80340AB8 {
+    void fn_80177628(unsigned int, int, int);
+    char unk0[0x6C];
+};
+
+struct Unk8033F5C4 {
+    void fn_80177628(unsigned int, int, int);
+    char unk0[0xA4];
+};
+
+struct Unk8015CAA0 {
+    void fn_8015CAA0(void*);
+};
+
+struct Unk8037C11C {
+    Unk8015CAA0* fn_8015E574(int);
+    void fn_8015E550(int);
+};
+
+// Allocated with the aligned allocator and zero-filled.
+void* fn_80169F1C(unsigned int size, int align);
+void* fn_80169E74(unsigned int size, int align);
+void fn_80104794(void*, unsigned int);
+void fn_8006015C();
+extern "C" void* fn_80111C78(void*, int, unsigned int); // memset
+
+struct Unk80103028 {
+    Unk80103028();
+    void* operator new(unsigned int size) {
+        void* ptr = fn_80169F1C(size, 16);
+        fn_80111C78(ptr, 0, size);
+        return ptr;
+    }
+    char unk0[0xC];
+};
+
+struct Unk800813CC {
+    Unk800813CC();
+    void* operator new(unsigned int size) {
+        void* ptr = fn_80169F1C(size, 16);
+        fn_80111C78(ptr, 0, size);
+        return ptr;
+    }
+    char unk0[0x8C];
+};
+
+struct Unk8037D2D8;
+struct Unk8037D2EC {
+    int unk0;
+};
+extern Unk8037D2D8 lbl_8037D2D8;
+extern Unk8037D2EC lbl_8037D2EC;
+void fn_801C6168(Unk8037D2D8*, const char*);
+void fn_801C6A24(Unk8037D2EC*, const char*);
+
+extern Unk803401C4 lbl_803401C4;
+extern Unk80340AB8 lbl_80340AB8;
+extern Unk8033F5C4 lbl_8033F5C4;
+// The loop bound in ESimsApp::Init is not folded into the comparison, so it
+// comes from an inline function rather than a literal.
+inline int GetNumControllers() { return 4; }
+extern Unk802E5E1C* lbl_8037C0B4;
+extern int lbl_8037C0B8;
+extern Unk8037C11C* lbl_8037C11C;
+extern int lbl_8037CA30;
+extern char lbl_802D1C60[0x1B8];
 
 extern "C" {
 char* fn_80111E30(const char*, int);                   // strchr
@@ -201,6 +298,8 @@ public:
     virtual void vfn24();
     virtual void Shutdown();
 
+    void Init();
+    void initContinue();
     void parseCommandLine();
     int GetDefaultLanguage();
     void LoadSimulatorGlobs();
@@ -211,10 +310,11 @@ public:
     SimsAppUnk2B3C* unk2B3C;
     char unk2B40;
     int unk2B44;
-    char unk2B48[0x2B50 - 0x2B48];
+    char unk2B48[0x2B4C - 0x2B48];
+    int unk2B4C;
     SimsAppUnk2B50Base* unk2B50;
     char unk2B54[0x2B60 - 0x2B54];
-    void* unk2B60;
+    PlayerCheats* unk2B60;
 };
 
 #endif

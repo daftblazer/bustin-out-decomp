@@ -116,6 +116,51 @@ int ESimsApp::GetDefaultLanguage() {
     return 0;
 }
 
+// 0x800037DC
+// NON_MATCHING: 8 of 168 instructions. In the three fn_80177628 calls made through a
+// saved register, the original loads `this` (mr r3) after the other arguments.
+void ESimsApp::Init() {
+    PlayerCheats* cheats = (PlayerCheats*)fn_801B8A3C(sizeof(PlayerCheats));
+    unk2B60 = cheats;
+    if (cheats) {
+        cheats->unk10 = 0;
+        cheats->unk14 = 1;
+        lbl_8037C114->vfn4(cheats);
+    }
+    parseCommandLine();
+    lbl_802E5E1C.fn_80176C78("rletextures", 0x100);
+    lbl_8037C0B4 = &lbl_802E5E1C;
+    lbl_803401C4.unkA4 = GetDefaultLanguage();
+    lbl_8037CA30 = 1;
+    fn_801C6168(&lbl_8037D2D8, "");
+    lbl_8037C0B8 = 0;
+    unsigned int id = lbl_802F7658.fn_800F85B4();
+    Unk80340AB8* mgr = &lbl_80340AB8;
+    mgr->fn_80177628(id, 0, 0);
+    mgr->fn_80177628(0xCD2395BD, 0, 0);
+    lbl_8033F5C4.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    lbl_803401C4.fn_80177628(0xA173A1EE, 0, 0);
+    mgr->fn_80177628(0x1A18CA65, 0, 0);
+    fn_80104794(fn_80169E74(0x100000, 4), 0x100000);
+    lbl_802E6700.fn_800656D8();
+    for (int i = 0; i < GetNumControllers(); i++) {
+        lbl_8037C11C->fn_8015E574(i)->fn_8015CAA0(lbl_802D1C60);
+        lbl_8037C11C->fn_8015E550(i);
+    }
+    unk478 = new SimsAppUnk478;
+    unk478->fn_800645E8(new Unk80103028);
+    unk478->fn_800645E8(new Unk800813CC);
+    lbl_802F7658.fn_800F87A0();
+    fn_8006015C();
+    unk2B4C = 0;
+    unk2B3C = new SimsAppUnk2B3C;
+    if (unk2B3C) {
+        unk2B3C->fn_8018B584(SimsAppUnk2B3CRect(0.0f, 0.0f, 1.0f, 1.0f));
+    }
+    initContinue();
+    fn_801C6A24(&lbl_8037D2EC, "Allocating CTGDump object memory\n");
+}
+
 // 0x80004058
 // NON_MATCHING: the original copies the `new` result through r0 before storing it
 // (`mr r0, r3; stw r0, 0x2b50(r31)`), one instruction more than this produces.

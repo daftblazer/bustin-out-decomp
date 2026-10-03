@@ -112,6 +112,9 @@ order, so the order of declarations in a class body is observable.
 - Destructors take a hidden `int` flag (`delete p` passes 3).
 - `bool` is 4 bytes; a byte-sized flag is `char`/`unsigned char`.
 - GCC uses `lis`/`ori` only for integer constants and `lis`/`addi` for addresses.
+- A loop bound that shows up unfolded (`cmpwi r31, 4; blt` instead of `cmpwi r31, 3; ble`)
+  came from an inline function, not a literal: `i < GetCount()` with
+  `inline int GetCount() { return 4; }`.
 - Statement order matters: the scheduler tends to hoist the last of a run of
   constant stores to the front, so try rotating assignments.
 - Globals of 8 bytes or less are addressed through `r13`; bigger ones through
