@@ -169,6 +169,10 @@ Global `operator new` / `operator delete` are `__builtin_new` (0x801B8A3C) and
   (`if (v < lo) r = lo; else if (v > hi) r = hi; else r = v;`).
 - A value read through a saved register after a call (`stfs f1, 4(r30)`) rather
   than straight off the stack was written through a reference in an inline function.
+- A stray copy like `mr r0, r3; stw r0, field` after a call means the value was
+  still needed in `r3`: typically a pointer converted to another type for the
+  store while the original pointer is used as `this` for the next call
+  (`T* p = new T; field = p; p->Method();`).
 - Statement order matters: a run of constant stores comes out in a different
   order than written, with no simple rule. For three or four stores, compile
   every permutation in a scratch file and compare (see `TArray::Init`).

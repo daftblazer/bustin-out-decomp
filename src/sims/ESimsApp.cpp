@@ -189,14 +189,13 @@ void ESimsApp::initContinue() {
 }
 
 // 0x80004058
-// NON_MATCHING: the original copies the `new` result through r0 before storing it
-// (`mr r0, r3; stw r0, 0x2b50(r31)`), one instruction more than this produces.
 void ESimsApp::SetGameState(int arg) {
     unk468 = arg;
     if (arg == 1) {
         if (unk2B50 == 0) {
-            unk2B50 = new SimsAppUnk2B50(1, 2);
-            fn_80046194();
+            SimsAppUnk2B50* object = new SimsAppUnk2B50(1, 2);
+            unk2B50 = object;
+            object->fn_80046194();
             ((Unk801888F4*)unk2B50)->fn_801888F4(2, 0);
         }
         lbl_802E6820.unk0->unk24 = 0;

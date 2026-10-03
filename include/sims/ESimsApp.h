@@ -93,6 +93,7 @@ struct SimsAppUnk2B50Base {
 struct SimsAppUnk2B50 : public SimsAppUnk2B50Base {
     SimsAppUnk2B50(int, int);
     virtual ~SimsAppUnk2B50();
+    void fn_80046194();
 
     char unk48[0x338 - 0x48];
 };
@@ -211,7 +212,6 @@ extern Unk8037D944* lbl_8037D944;
 extern Unk802F7658 lbl_802F7658;
 extern Unk802E6820 lbl_802E6820;
 
-void fn_80046194();
 void fn_801CD9A8(void*);
 
 struct EController;
