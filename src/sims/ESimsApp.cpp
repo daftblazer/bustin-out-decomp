@@ -1,6 +1,78 @@
+// 32 bytes of constant data at the very start of the unit's .rodata, ahead of
+// every header string. Nothing references it by address, so it must have
+// external linkage to survive. What it represents is unknown.
+extern const int lbl_80291EE0[8] = { -1, 0, 0, 0, 0, 0, 0, 0 };
+
 #include <new>
 
 #include "sims/ESimsApp.h"
+#include "engine/header_strings.h"
+
+// Small initialized globals, in .sdata. lbl_8037B3E4 is never referenced.
+int lbl_8037B3E0 = 0; // start lot from the "-lot" command line option
+int lbl_8037B3E4 = 0;
+int lbl_8037B3E8 = 0; // incremented by ProfileHook
+unsigned short lbl_8037B3EC = 0;
+
+// Table handed to each of the four controllers in ESimsApp::Init: 55 pairs of
+// (action id, button mask), i.e. the game's button mapping.
+Unk802D1C60Entry lbl_802D1C60[55] = {
+    { 0x30, 0x00000000 },
+    { 0x31, 0x00000000 },
+    { 0x32, 0x00000000 },
+    { 0x01, 0x00001000 },
+    { 0x02, 0x00004000 },
+    { 0x03, 0x00008000 },
+    { 0x04, 0x00002000 },
+    { 0x05, 0x00000040 },
+    { 0x06, 0x00000040 },
+    { 0x07, 0x00000080 },
+    { 0x08, 0x00000010 },
+    { 0x09, 0x00000000 },
+    { 0x0A, 0x00000010 },
+    { 0x0B, 0x000000B0 },
+    { 0x0C, 0x0000000C },
+    { 0x33, 0x00001000 },
+    { 0x34, 0x00004000 },
+    { 0x35, 0x00008000 },
+    { 0x36, 0x00002000 },
+    { 0x0F, 0x00000010 },
+    { 0x10, 0x00000020 },
+    { 0x0D, 0x00000004 },
+    { 0x0E, 0x00000008 },
+    { 0x11, 0x00000008 },
+    { 0x11, 0x00000004 },
+    { 0x12, 0x00000800 },
+    { 0x14, 0x00000084 },
+    { 0x15, 0x00000000 },
+    { 0x16, 0x00000002 },
+    { 0x17, 0x00000020 },
+    { 0x18, 0x00000020 },
+    { 0x19, 0x00000800 },
+    { 0x1A, 0x00000900 },
+    { 0x1B, 0x00000010 },
+    { 0x1C, 0x00000020 },
+    { 0x1D, 0x00000010 },
+    { 0x1E, 0x00000010 },
+    { 0x1F, 0x00000040 },
+    { 0x20, 0x00004000 },
+    { 0x21, 0x00001000 },
+    { 0x22, 0x00004000 },
+    { 0x23, 0x00008000 },
+    { 0x24, 0x00002000 },
+    { 0x25, 0x00000004 },
+    { 0x26, 0x00000008 },
+    { 0x28, 0x00000020 },
+    { 0x27, 0x00000040 },
+    { 0x29, 0x00000010 },
+    { 0x2B, 0x00800000 },
+    { 0x2C, 0x00200000 },
+    { 0x2D, 0x00000020 },
+    { 0x2E, 0x00000010 },
+    { 0x2F, 0x00000800 },
+    { 0x13, 0x00000010 },
+    { 0x00, 0x00000000 }
+};
 
 // 0x800034A0
 // NON_MATCHING: one instruction short (90 vs 91). The original tests `space` once (kept
@@ -134,8 +206,10 @@ void ESimsApp::Init() {
     lbl_802E5E1C.fn_80176C78("rletextures", 0x100);
     lbl_8037C0B4 = &lbl_802E5E1C;
     lbl_803401C4.unkA4 = GetDefaultLanguage();
-    lbl_8037CA30 = 1;
-    fn_801C6168(&lbl_8037D2D8, "");
+    lbl_8037CA30.unk0 = 1;
+    // The original has a second, separate empty string here; an identical "" would be
+    // merged with the one in ESimsApp.h. The exact spelling is a guess.
+    fn_801C6168(&lbl_8037D2D8, "\0");
     lbl_8037C0B8 = 0;
     unsigned int id = lbl_802F7658.fn_800F85B4();
     Unk80340AB8* mgr = &lbl_80340AB8;
@@ -447,7 +521,13 @@ unsigned short PlayerCheats::CreateBtnMask() {
 // destroyed: the original has no global destructor for it.
 char lbl_802E2C40[sizeof(ESimsApp)];
 
-struct ESimsAppInit {
-    ESimsAppInit() { new (lbl_802E2C40) ESimsApp; }
-};
-static ESimsAppInit sAppInit;
+// 20 bytes of .bss after the application object and two words of .sbss after
+// lbl_8037CA30 that nothing references. Their real declarations are unknown.
+int lbl_802E57A4[5];
+int lbl_8037CA34;
+int lbl_8037CA38;
+
+inline ESimsAppInit::ESimsAppInit() {
+    new (lbl_802E2C40) ESimsApp;
+}
+ESimsAppInit lbl_8037CA30;

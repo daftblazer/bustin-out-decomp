@@ -19,10 +19,11 @@ public:
     EApp();
     virtual ~EApp();
     virtual void vfn2();
-    virtual const char* vfn3();
+    virtual const char* vfn3() { return "\\eor\\bin\\iop"; } // GetRootDirectory?
     virtual const char* vfn4();
-    virtual const char* GetBuildVersion();
-    virtual const char* GetAppName();
+    // Built from __TIME__ and __DATE__ in the original.
+    virtual const char* GetBuildVersion() { return "EOR Engine v2.0 built 21:41:12 Nov 13 2003 "; }
+    virtual const char* GetAppName() { return "Untitled"; }
     virtual void vfn7();
     virtual void vfn8();
     virtual void vfn9();

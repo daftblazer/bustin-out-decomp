@@ -104,7 +104,7 @@ order, so the order of declarations in a class body is observable.
 The game uses **STLport 4.5.3** (shipped with ProDG), vendored unmodified in
 `libs/stlport`, on top of minimal C/C++ runtime headers in `libs/include`.
 It is configured by the flags in `configure.py`: `_STLP_NO_OWN_IOSTREAMS`,
-`_NOTHREADS`, `_STLP_NO_BAD_ALLOC`. With these, `std::vector`, `std::deque`
+`_NOTHREADS`, `_STLP_NO_NEW_NEW_HEADER`. With these, `std::vector`, `std::deque`
 and the node allocator compile to the original bytes; just `#include <vector>`.
 
 Template instantiations are emitted after a unit's ordinary functions, in the

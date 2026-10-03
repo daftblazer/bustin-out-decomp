@@ -432,8 +432,21 @@ inline int GetNumControllers() { return 4; }
 extern Unk802E5E1C* lbl_8037C0B4;
 extern int lbl_8037C0B8;
 extern Unk8037C11C* lbl_8037C11C;
-extern int lbl_8037CA30;
-extern char lbl_802D1C60[0x1B8];
+// Storage for the application object, and the small global whose constructor
+// builds it there. The compiler places a constructed object ahead of plain
+// uninitialized integers in .sbss, so the flag ESimsApp::Init sets has to be a
+// member of this object for it to sit at 0x8037CA30.
+extern char lbl_802E2C40[];
+struct ESimsAppInit {
+    ESimsAppInit();
+    int unk0; // set to 1 by ESimsApp::Init
+};
+extern ESimsAppInit lbl_8037CA30;
+struct Unk802D1C60Entry {
+    int id;
+    int mask;
+};
+extern Unk802D1C60Entry lbl_802D1C60[55];
 
 extern "C" {
 char* fn_80111E30(const char*, int);                   // strchr

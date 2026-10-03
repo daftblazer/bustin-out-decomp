@@ -203,10 +203,10 @@ cflags_base = [
     # Plain `char` is signed (the code was ported from PS2), unlike the PowerPC default.
     "-fsigned-char",
     # STLport 4.5.3 (libs/stlport), configured as SN shipped it: no iostreams
-    # library, no threads, and no bad_alloc on allocation failure.
+    # library, no threads, and the old-style <new.h> runtime header.
     "-D_STLP_NO_OWN_IOSTREAMS",
     "-D_NOTHREADS",
-    "-D_STLP_NO_BAD_ALLOC",
+    "-D_STLP_NO_NEW_NEW_HEADER",
     "-Ilibs/stlport",
     "-Ilibs/include",
     "-Iinclude",
