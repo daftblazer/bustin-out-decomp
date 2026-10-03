@@ -161,8 +161,6 @@ extern Unk802E6820 lbl_802E6820;
 void fn_80046194();
 void fn_801CD9A8(void*);
 void fn_800FD840();
-void fn_801B8A60(void*);
-void* fn_801B8A3C(unsigned int);
 
 // Cheat-code button sequence tracker.
 class PlayerCheats {

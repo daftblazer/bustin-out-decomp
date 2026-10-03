@@ -1,0 +1,25 @@
+#ifndef __EXCEPTION__
+#define __EXCEPTION__
+extern "C++" {
+namespace std {
+class exception {
+public:
+    exception() {}
+    virtual ~exception() {}
+    virtual const char* what() const;
+};
+class bad_exception : public exception {
+public:
+    bad_exception() {}
+    virtual ~bad_exception() {}
+};
+typedef void (*terminate_handler)();
+typedef void (*unexpected_handler)();
+terminate_handler set_terminate(terminate_handler);
+void terminate();
+unexpected_handler set_unexpected(unexpected_handler);
+void unexpected();
+bool uncaught_exception();
+}
+}
+#endif

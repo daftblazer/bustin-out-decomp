@@ -96,6 +96,33 @@ A unit can only be switched to `Matching` once its data sections are split too.
 Inline member functions are emitted at the end of the object in declaration
 order, so the order of declarations in a class body is observable.
 
+## STL and container templates
+
+The game uses **STLport 4.5.3** (shipped with ProDG), vendored unmodified in
+`libs/stlport`, on top of minimal C/C++ runtime headers in `libs/include`.
+It is configured by the flags in `configure.py`: `_STLP_NO_OWN_IOSTREAMS`,
+`_NOTHREADS`, `_STLP_NO_BAD_ALLOC`. With these, `std::vector`, `std::deque`
+and the node allocator compile to the original bytes; just `#include <vector>`.
+
+Because of `-fno-weak`, every unit that uses a template gets its own local
+copy of each instantiated function, emitted after the unit's ordinary
+functions. Recognise them rather than decompiling them:
+
+- `__node_alloc<false,0>`: `_M_allocate` (0x50), `_M_deallocate` (0x28),
+  `_S_refill` (0xAC), `_S_chunk_alloc` (0x144). Blocks over 128 bytes go to
+  `operator new` instead. Free list is `_S_free_list` in `.data`.
+- `_Deque_base<T*>`: `_M_create_nodes` (0x4C), `_M_initialize_map` (0x104),
+  `_M_destroy_nodes` (0x54), destructor (0x80).
+- STLport containers keep a 4-byte allocator slot before the end-of-storage
+  pointer: a `vector` is `{start, finish, <allocator>, end_of_storage}` (16 bytes).
+- `TArray<T, TArrayDefaultAllocator>` (`include/engine/TArray.h`) is the
+  engine's own array, `{T* mData; int mSize; int mCapacity}`: `Init` (0x14),
+  `Construct`/`Destruct` (0x1C each for trivial `T`; an empty counting loop),
+  `Copy` (0x2C), `SetSize(int, int)` (0x10C).
+
+Global `operator new` / `operator delete` are `__builtin_new` (0x801B8A3C) and
+`__builtin_delete` (0x801B8A60). Exceptions and RTTI are off.
+
 ## Compiler notes (GCC 2.95.2, SN build)
 
 - Flags: `-O2 -G8 -fno-weak -fsigned-char`. Plain `char` is signed (reads of a
@@ -115,8 +142,9 @@ order, so the order of declarations in a class body is observable.
 - A loop bound that shows up unfolded (`cmpwi r31, 4; blt` instead of `cmpwi r31, 3; ble`)
   came from an inline function, not a literal: `i < GetCount()` with
   `inline int GetCount() { return 4; }`.
-- Statement order matters: the scheduler tends to hoist the last of a run of
-  constant stores to the front, so try rotating assignments.
+- Statement order matters: a run of constant stores comes out in a different
+  order than written, with no simple rule. For three or four stores, compile
+  every permutation in a scratch file and compare (see `TArray::Init`).
 - Globals of 8 bytes or less are addressed through `r13`; bigger ones through
   `lis`/`addi`. Give placeholder types a realistic size.
 

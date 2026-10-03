@@ -199,6 +199,13 @@ cflags_base = [
     "-fno-weak",
     # Plain `char` is signed (the code was ported from PS2), unlike the PowerPC default.
     "-fsigned-char",
+    # STLport 4.5.3 (libs/stlport), configured as SN shipped it: no iostreams
+    # library, no threads, and no bad_alloc on allocation failure.
+    "-D_STLP_NO_OWN_IOSTREAMS",
+    "-D_NOTHREADS",
+    "-D_STLP_NO_BAD_ALLOC",
+    "-Ilibs/stlport",
+    "-Ilibs/include",
     "-Iinclude",
     f"-Ibuild/{config.version}/include",
     f"-DBUILD_VERSION={version_num}",

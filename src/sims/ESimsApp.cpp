@@ -1,3 +1,5 @@
+#include <new>
+
 #include "sims/ESimsApp.h"
 
 // 0x800034A0
@@ -96,7 +98,7 @@ void ESimsApp::Shutdown() {
     unk478 = 0;
     unk2B40 = 0;
     unk2B44 = 0;
-    fn_801B8A60(unk2B60);
+    operator delete(unk2B60);
     unk2B60 = 0;
     lbl_802E6700.End();
     lbl_80340094.Shutdown();
@@ -120,7 +122,7 @@ int ESimsApp::GetDefaultLanguage() {
 // NON_MATCHING: 8 of 168 instructions. In the three fn_80177628 calls made through a
 // saved register, the original loads `this` (mr r3) after the other arguments.
 void ESimsApp::Init() {
-    PlayerCheats* cheats = (PlayerCheats*)fn_801B8A3C(sizeof(PlayerCheats));
+    PlayerCheats* cheats = (PlayerCheats*)operator new(sizeof(PlayerCheats));
     unk2B60 = cheats;
     if (cheats) {
         cheats->unk10 = 0;
@@ -264,8 +266,6 @@ unsigned short PlayerCheats::CreateBtnMask() {
     }
     return mask;
 }
-
-inline void* operator new(unsigned int, void* ptr) { return ptr; }
 
 // Storage for the application object. It is constructed in place and never
 // destroyed: the original has no global destructor for it.

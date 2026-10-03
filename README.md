@@ -67,6 +67,13 @@ The DOL is linked with the original SN linker using
 `.sdata2` is addressed through `r13`, and `.ctors` is a GCC-style
 `-1, ..., 0` list.
 
+Third-party code
+----------------
+
+`libs/stlport` is STLport 4.5.3, unmodified (see `libs/stlport/README.STLport`
+for its license). The game was built against it, and its templates have to be
+compiled from the same source to match.
+
 Decompiling
 -----------
 
