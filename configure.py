@@ -197,6 +197,8 @@ cflags_base = [
     # Vtables go to .rodata and inline/template functions are emitted as local
     # copies in every translation unit, as in the original.
     "-fno-weak",
+    # Plain `char` is signed (the code was ported from PS2), unlike the PowerPC default.
+    "-fsigned-char",
     "-Iinclude",
     f"-Ibuild/{config.version}/include",
     f"-DBUILD_VERSION={version_num}",

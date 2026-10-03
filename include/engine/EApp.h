@@ -48,7 +48,10 @@ public:
 
     void fn_8015C6D4(int);
 
-    char unk33C[0x468 - 0x33C];
+    char unk33C[0x348 - 0x33C];
+    int mArgc;      // 0x348
+    char** mArgv;   // 0x34C
+    char unk350[0x468 - 0x350];
     int unk468;
     char unk46C[0x478 - 0x46C];
 };

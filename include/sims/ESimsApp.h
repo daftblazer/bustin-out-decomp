@@ -170,6 +170,13 @@ struct Unk8037C114 {
 };
 
 extern Unk8037C114* lbl_8037C114;
+extern int lbl_8037B3E0; // start lot from the "-lot" command line option
+
+extern "C" {
+char* fn_80111E30(const char*, int);                   // strchr
+int fn_801120A8(const char*, const char*, int);        // case-insensitive strncmp
+int fn_80110874(const char*);                          // atoi
+}
 void fn_801C6BB8();
 void ProfileHook();
 
@@ -194,6 +201,7 @@ public:
     virtual void vfn24();
     virtual void Shutdown();
 
+    void parseCommandLine();
     int GetDefaultLanguage();
     void LoadSimulatorGlobs();
 

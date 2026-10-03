@@ -55,8 +55,9 @@ The disc has no symbols. Sources of real names, best first:
 1. `config/G4ME69/sims2_hints.txt`: names carried over from The Sims 2 (GameCube),
    which shares the engine and shipped with a symbol map. `=` lines have an
    identical function size (reliable); `~` lines are positional guesses.
-   Regenerate with `tools/align_sims2.py`. Even where a function has no hint,
-   the Sims 2 symbol list is worth reading: classes keep their method order
+   Regenerate with
+   `tools/align_sims2.py reference/sims2_symbols.txt`. Even where a function has no hint,
+   the Sims 2 symbol list (`reference/sims2_symbols.txt`) is worth reading: classes keep their method order
    (`ESimsApp`, `EApp`, `PlayerCheats`, ...).
 2. Class-name strings in `.rodata` (`EStorable`, `EResource`, `EInstance`, ...).
 3. Otherwise keep `fn_XXXXXXXX` / `lbl_XXXXXXXX` / `unkNNN` (offset in hex).
@@ -97,7 +98,8 @@ order, so the order of declarations in a class body is observable.
 
 ## Compiler notes (GCC 2.95.2, SN build)
 
-- Flags: `-O2 -G8 -fno-weak`. `-fno-weak` is what puts vtables in `.rodata` and
+- Flags: `-O2 -G8 -fno-weak -fsigned-char`. Plain `char` is signed (reads of a
+  `char` used in comparisons show `extsb`). `-fno-weak` is what puts vtables in `.rodata` and
   gives every translation unit its own local copy of inline and template
   functions (so identical STL helpers appear many times in the binary). `-O1` and `-O3` are ruled out (`-O3` moves inline functions
   to the front of the object; the original has them at the end).

@@ -6,5 +6,5 @@ SRC="$1"; shift
 OUT="build/try/$(basename "$SRC" | sed 's/\.[^.]*$//').o"
 mkdir -p build/try
 V="${PRODG:-3.7}"
-env SN_NGC_PATH="build/compilers/ProDG/$V" build/tools/wibo "build/compilers/ProDG/$V/ngccc.exe" -O2 -G8 -fno-weak -Iinclude -Ibuild/G4ME69/include -c "$SRC" -o "$OUT" || exit 1
+env SN_NGC_PATH="build/compilers/ProDG/$V" build/tools/wibo "build/compilers/ProDG/$V/ngccc.exe" -O2 -G8 -fno-weak -fsigned-char -Iinclude -Ibuild/G4ME69/include -c "$SRC" -o "$OUT" || exit 1
 .venv/bin/python tools/fncmp.py "$OUT" "$@"

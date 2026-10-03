@@ -1,5 +1,71 @@
 #include "sims/ESimsApp.h"
 
+// 0x800034A0
+// NON_MATCHING: same size, but the original tests `space` once (kept in cr4) ahead of
+// the '-' check and lays the inner loop out with the continue test at the bottom.
+void ESimsApp::parseCommandLine() {
+    int argc = mArgc;
+    char** argv = mArgv;
+    if (argc <= 1) {
+        return;
+    }
+    for (int i = 0; i < argc;) {
+        char* arg = *argv;
+        i++;
+        argv++;
+        int used;
+        do {
+            char* space = fn_80111E30(arg, ' ');
+            char* space2 = 0;
+            if (space) {
+                *space = 0;
+                space2 = fn_80111E30(space + 1, ' ');
+                if (space2) {
+                    *space2 = 0;
+                }
+            }
+            used = 0;
+            if (*arg == '-') {
+                char* opt = arg + 1;
+                char* value = 0;
+                if (i < argc) {
+                    value = *argv;
+                }
+                if (space) {
+                    value = space + 1;
+                }
+                if (value && *value == 0) {
+                    value = 0;
+                }
+                switch (*opt) {
+                case 'L':
+                case 'l':
+                    if (fn_801120A8(opt, "lot", 3) == 0) {
+                        lbl_8037B3E0 = fn_80110874(value);
+                        if ((unsigned int)(lbl_8037B3E0 - 1) > 15) {
+                            lbl_8037B3E0 = 0;
+                        }
+                        used = 1;
+                    }
+                    break;
+                }
+            }
+            if (used) {
+                if (!space) {
+                    break;
+                }
+                space = space2;
+                used = 0;
+            }
+            arg = space;
+        } while (arg);
+        if (used) {
+            i += used;
+            argv += used;
+        }
+    }
+}
+
 // 0x8000360C
 ESimsApp::ESimsApp() {
     unk478 = 0;
