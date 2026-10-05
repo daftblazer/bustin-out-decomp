@@ -3,15 +3,15 @@
 void fn_80169EE8(void* ptr);
 
 // 0x80007F88
-// NON_MATCHING: 214 instructions vs 212, 83 differ in the common part. Same calls in
-// the same order; the differences are in how the three two-float temporaries are laid
-// out on the stack and which saved registers hold their addresses.
+// NON_MATCHING: same length (212), 52 differ. Same calls in the same order; the
+// differences are in which saved registers hold the temporaries' addresses and in the
+// order the two-float temporaries are filled.
 void CASSelector::Draw(ERC* rc) {
     if (!(unk18 & 2)) {
         return;
     }
     unk78->fn_8003C95C(1, 14.0f, 1.0f);
-    EVec3 extent = unk78->fn_8003D550(unk68 ? *unk68 : 0, 1, 0);
+    EVec2 extent = unk78->fn_8003D550(unk68 ? *unk68 : 0, 1, 0);
     EVec2 position;
     position.x = unk20.x * 0.5f + unk2C.x;
     position.y = extent.y * 0.5f + unk2C.z;

@@ -694,6 +694,92 @@ void CASTarget::fn_80010520(CASSimDesc* desc, int randomize) {
     }
 }
 
+// 0x800133DC
+// Draws `text` word-wrapped into the description box, one line at a time.
+// NON_MATCHING: same length (234), 81 differ: register numbering (r27/r28 and the
+// r28-r30 loop variables are permuted) and the placement of the `line = 0` load.
+void CASTarget::fn_800133DC(ERC* rc, const unsigned short* text, int centered) {
+    EVec2 box(0.6f, 0.5f);
+    EVec2 pixel(10.0f / (float)lbl_8037C198->unk14, 4.0f / (float)lbl_8037C198->unk18);
+    EVec2 origin(0.22f, 0.3f);
+    EVec2 size(box.x - 32.0f / (float)lbl_8037C198->unk14, 0.0f);
+    EVec2 cursor(origin.x + pixel.x, origin.y + pixel.y);
+    unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+    if (text == 0) {
+        return;
+    }
+    unk52E4->fn_8003DBE8(rc);
+    const unsigned short* in = text;
+    float startX = cursor.x;
+    float maxWidth = size.x - (pixel.x + pixel.x);
+    float lineHeight = unk52E4->fn_8003DC1C(0);
+    int line = 0;
+    while (*in) {
+        unsigned short buffer[0x100];
+        fn_80111C78(buffer, 0, sizeof(buffer));
+        int count = 0;
+        unsigned short* out = buffer;
+        int done = 0;
+        int lastBreak = 0;
+        while (*in) {
+            *out = *in;
+            if (*in == '\n') {
+                in++;
+                done = 1;
+            } else {
+                EVec2 charSize;
+                charSize = unk52E4->fn_8003D550(out, 1, 0);
+                if (fn_800430EC(*in)) {
+                    lastBreak = count;
+                }
+                bool over = unk52E4->fn_8003D550(buffer, 1, 0).x > maxWidth;
+                if (over) {
+                    done = 1;
+                    int back = count - lastBreak;
+                    if (back != 0) {
+                        if (count == back) {
+                            back = 0;
+                        }
+                        in--;
+                        count -= back;
+                        in -= back;
+                        buffer[count] = 0;
+                    } else {
+                        buffer[count] = 0;
+                    }
+                    count--;
+                }
+                count++;
+                out++;
+                in++;
+                if (count > 0xFD) {
+                    break;
+                }
+            }
+            if (done) {
+                break;
+            }
+        }
+        if (done || buffer[0] != 0) {
+            buffer[count] = 0;
+            if (line >= 0) {
+                if (centered == 0) {
+                    unk52E4->fn_8003D93C(rc, buffer, &cursor, 0, 0, &cursor, 2.0f, 1.0f);
+                } else {
+                    EVec2 position;
+                    position.x = size.x * 0.5f + origin.x;
+                    position.y = cursor.y;
+                    unk52E4->fn_8003D93C(rc, buffer, &position, 2, 0, &cursor, 2.0f, 1.0f);
+                }
+                cursor.x = startX;
+                cursor.y += lineHeight;
+            } else {
+                line++;
+            }
+        }
+    }
+}
+
 // 0x80014110
 void CASTarget::fn_80014110() {
     short choices[5];
@@ -707,8 +793,8 @@ void CASTarget::fn_80014110() {
 }
 
 // 0x80014188
-void CASTarget::fn_80014188(ERC* rc, const unsigned short* text, int a, EVec2* position, int b) {
-    unk52E4->fn_8003D93C(rc, text, a, position, b, 0, 2.0f, 1.0f);
+void CASTarget::fn_80014188(ERC* rc, const unsigned short* text, EVec2* position, int a, int b) {
+    unk52E4->fn_8003D93C(rc, text, position, a, b, 0, 2.0f, 1.0f);
 }
 
 // 0x800141C0

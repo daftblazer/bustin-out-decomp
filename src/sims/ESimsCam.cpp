@@ -568,9 +568,6 @@ int ESimsCam::fn_80007430() {
 }
 
 // 0x80007470
-// NON_MATCHING: 23 of 46 instructions. The original keeps the screen position at the
-// bottom of the frame (read straight off the stack) with the cursor temporary above it,
-// its address held in r29 from before the call; this lays the two out the other way.
 int ESimsCam::fn_80007470(float left, float top, float right, float bottom) {
     EVec2 screen;
     mWindow.fn_80156130(fn_80007DD8(), &screen);

@@ -20,10 +20,11 @@ extern EColorF lbl_802E6964; // normal
 // Text renderer (functions around 0x8003C95C).
 struct Unk8003C95C {
     void fn_8003C95C(int, float, float);
-    EVec3 fn_8003D550(const unsigned short* text, int, int); // text extent
+    EVec2 fn_8003D550(const unsigned short* text, int, int); // text extent
     void fn_8003DBE8(ERC* rc);
     void fn_8003D740(ERC* rc, const unsigned short* text, int, EVec2* position, int, int, int);
-    void fn_8003D93C(ERC* rc, const unsigned short* text, int, EVec2* position, int, int, float scaleX, float scaleY);
+    void fn_8003D93C(ERC* rc, const unsigned short* text, EVec2* position, int, int, EVec2* cursor, float scaleX, float scaleY);
+    float fn_8003DC1C(int); // line height
 
     char unk0[0x64];
     EColorF unk64;

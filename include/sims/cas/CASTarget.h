@@ -281,6 +281,15 @@ struct Unk801800FC {
     unsigned int** Get(int node, const char* name) { return fn_8018021C(node, name); }
 };
 
+// Screen size in pixels.
+struct CASScreenInfo {
+    char unk0[0x14];
+    int unk14; // width
+    int unk18; // height
+};
+extern CASScreenInfo* lbl_8037C198;
+int fn_800430EC(unsigned short character); // true for characters a line may break at
+
 // Scoped object used around the loading-thread flag (ctor 0x801BE528).
 struct Unk801BE528 {
     Unk801BE528();
@@ -371,7 +380,8 @@ public:
     void fn_8000FECC(unsigned char view);
     void fn_80014110();
     void fn_800141C0();
-    void fn_80014188(ERC* rc, const unsigned short* text, int a, EVec2* position, int b);
+    void fn_800133DC(ERC* rc, const unsigned short* text, int centered);
+    void fn_80014188(ERC* rc, const unsigned short* text, EVec2* position, int a, int b);
     void fn_80014378();
     void fn_80014564();
     void fn_80014914(int id, unsigned char value);

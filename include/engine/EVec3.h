@@ -4,6 +4,11 @@
 // Two-component vector. Class name from The Sims 2's symbol map.
 class EVec2 {
 public:
+    EVec2() {}
+    EVec2(float x_, float y_) : x(x_), y(y_) {}
+    // User-defined, like EVec3's: this also keeps EVec2 locals in memory from
+    // their declaration, which fixes their stack order.
+    EVec2(const EVec2& other) : x(other.x), y(other.y) {}
     float x, y;
 };
 

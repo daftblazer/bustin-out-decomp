@@ -247,3 +247,7 @@ Single-line commit messages, no co-author or tool attribution.
   - Runs of zero stores of mixed width: when a byte store uses its own zero register (`li r11,0`) but the
     original shares one, a word-sized zero store comes first in the source. In fn_8000D440 the source
     order `unk458C, unk4590, unk45C9` is emitted as `45c9, 458c, 4590`; try moving byte stores last.
+  - `EVec2` has a user-defined copy constructor like `EVec3`. Besides float-wise copies, that makes
+    every `EVec2` local live in memory from its declaration, so locals get stack slots in declaration
+    order (lowest first). If a small struct's slots come out above later locals, its type is missing a
+    user copy constructor. The text-extent function (0x8003D550) returns `EVec2`.
