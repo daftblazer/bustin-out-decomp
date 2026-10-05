@@ -124,6 +124,215 @@ void fn_800183D0() {
     lbl_802E5A54.unk8[14] = 0;
 }
 
+// 0x80018F5C
+// Builds the sim from a saved description: lights, animation lists, a model
+// and textures for every slot's stored choice, then its own skin texture and
+// material.
+// NON_MATCHING: 618 instructions vs 608. The slot set-up half follows the original
+// call for call; the texture and material descriptions at the end are approximate (the
+// material description's layout is only partly understood), so that part differs
+// throughout. One variant tried.
+void Unk80018374::fn_80018F5C(CASSimDesc* desc, Unk8001EE8C* owner) {
+    fn_80169D7C();
+    fn_801B2680();
+    unk8 = 1;
+    unk14 = 0;
+    unk24 = 0;
+    unk18 = 0;
+    unk1C = 0;
+    unk2C = 0;
+    unk30 = 0;
+    unk34 = 0;
+    for (int i = 10; i >= 0; i--) {
+        unk90[i] = 0;
+    }
+    unkDC = (ELightSet*)fn_80169F1C(sizeof(ELightSet), 16);
+    fn_8001A19C();
+    unkC8 = (Unk800226F0*)owner;
+    owner->fn_8001FD00();
+    unk154 = lbl_802E5968;
+    unk160 = lbl_802E5974;
+    unk16C = desc->unkC;
+    unk48 = 0;
+    unk4C = 0;
+    unk50 = 0;
+    unk54 = 0;
+    unk64 = 0;
+    unk68 = 0;
+    unk6C = 0;
+    unk70 = 0;
+    unk74 = 0;
+    unk78 = 0;
+    unk7C = 0;
+    unk80 = 0;
+    unk84 = 0;
+    unk88 = 0;
+    unk8C = 0;
+    unk188 = 0;
+    unk194 = 0;
+    unk18C = (Unk801800FC*)lbl_803401C4.fn_80177628(0x23428ABB, 0, 0);
+    unk190 = (Unk801800FC*)lbl_803401C4.fn_80177628(0xA173A1EE, 0, 0);
+    unk3C = 0;
+    unk38 = 0;
+    if (unk16C.unk0) {
+        if (unk16C.unk4) {
+            fn_800198DC();
+        } else {
+            fn_80019CFC();
+        }
+    } else {
+        if (unk16C.unk4) {
+            fn_80019AEC();
+        } else {
+            fn_80019F4C();
+        }
+    }
+    {
+        CASChoice12* table = (CASChoice12*)unk194[2];
+        unsigned int model = table[unk16C.unk8[6]].unk4;
+        if (model == 0) {
+            model = table[unk16C.unk8[6]].unk0;
+        }
+        fn_8001B53C(5, model);
+    }
+    unkC8->fn_8001FEA8(6, ((CASChoice12*)unk194[2])[unk16C.unk8[6]].unk8);
+    {
+        CASChoice16* table = (CASChoice16*)unk194[1];
+        unsigned int model = table[unk16C.unk8[5]].unk4;
+        if (model == 0) {
+            model = table[unk16C.unk8[5]].unk0;
+        }
+        fn_8001B53C(4, model);
+    }
+    unkC8->fn_8001FEA8(4, ((CASChoice16*)unk194[1])[unk16C.unk8[5]].unk8);
+    unkC8->fn_8001FEA8(5, ((CASChoice16*)unk194[1])[unk16C.unk8[5]].unkC);
+    {
+        CASChoice16* table = (CASChoice16*)unk194[0];
+        unsigned int model = table[unk16C.unk8[4]].unk4;
+        if (model == 0) {
+            model = table[unk16C.unk8[4]].unk0;
+        }
+        fn_8001B53C(3, model);
+    }
+    unkC8->fn_8001FEA8(2, ((CASChoice16*)unk194[0])[unk16C.unk8[4]].unk8);
+    unkC8->fn_8001FEA8(3, ((CASChoice16*)unk194[0])[unk16C.unk8[4]].unkC);
+    {
+        CASChoice16* table = (CASChoice16*)unk194[3];
+        unsigned int model = table[unk16C.unk8[15]].unk4;
+        if (model == 0) {
+            model = table[unk16C.unk8[15]].unk0;
+        }
+        fn_8001B53C(9, model);
+    }
+    unkC8->fn_8001FEA8(8, ((CASChoice16*)unk194[3])[unk16C.unk8[15]].unkC);
+    {
+        CASChoice12* table = (CASChoice12*)unk194[4];
+        unsigned int model = table[unk16C.unk8[16]].unk4;
+        if (model == 0) {
+            model = table[unk16C.unk8[16]].unk0;
+        }
+        fn_8001B53C(10, model);
+    }
+    unkC8->fn_8001FEA8(9, ((CASChoice12*)unk194[4])[unk16C.unk8[16]].unk8);
+    {
+        CASChoice12* table = (CASChoice12*)unk194[5];
+        unsigned int model = table[unk16C.unk8[17]].unk4;
+        if (model == 0) {
+            model = table[unk16C.unk8[17]].unk0;
+        }
+        fn_8001B53C(11, model);
+    }
+    unkC8->fn_8001FEA8(10, ((CASChoice12*)unk194[5])[unk16C.unk8[17]].unk8);
+    {
+        CASChoice16* table = (CASChoice16*)unk194[6];
+        unsigned int model = table[unk16C.unk8[3]].unk4;
+        if (model == 0) {
+            model = table[unk16C.unk8[3]].unk0;
+        }
+        fn_8001B53C(2, model);
+    }
+    unkC8->fn_8001FEA8(13, ((CASChoice16*)unk194[6])[unk16C.unk8[3]].unk8);
+    unkC8->fn_8001FEA8(14, ((CASChoice16*)unk194[6])[unk16C.unk8[3]].unkC);
+    {
+        CASChoice16* table = (CASChoice16*)unk194[8];
+        unsigned int model = table[unk16C.unk8[7]].unk4;
+        if (model == 0) {
+            model = table[unk16C.unk8[7]].unk0;
+        }
+        if (model != 0) {
+            fn_8001B53C(6, model);
+        } else {
+            fn_8001B53C(6, 0);
+        }
+    }
+    unkC8->fn_8001FEA8(12, ((CASChoice16*)unk194[8])[unk16C.unk8[7]].unk8);
+    unkC8->fn_80022724(&unk16C);
+    unkC8->fn_80021DBC(unk16C.unk4, unk16C.unk0);
+    unkC = 0;
+    unkBC = 0;
+    fn_8001B53C(0, ((unsigned int*)unk194[7])[unk16C.unk8[1]]);
+    unkC0 = 0;
+    fn_8001B53C(8, ((CASChoice16*)unk194[3])[unk16C.unk8[15]].unk8);
+    Unk80340AB8* textures = &lbl_80340AB8;
+    unkD4 = textures->fn_80177628(0xA25EBA9A, 0, 0);
+    unkD8 = textures->fn_80177628(0xF469EDCB, 0, 0);
+
+    // The 256x256 paletted texture the outfit textures are composited into.
+    ETextureDesc skin;
+    skin.unk1C = "*charedsim3*";
+    skin.unk1A = 8;
+    skin.unk19 = 5;
+    skin.unk8 = (skin.unk8 | 0x80) & ~3;
+    skin.unk1B = 0x10;
+    skin.unk14 = 0x100;
+    skin.unk18 = 0x84;
+    skin.unk12 = 0x100;
+    skin.unk10 = 0x100;
+    ETextureLike* texture = lbl_8037C198->vfn20(&skin);
+
+    EMaterialDesc material;
+    material.unk54 = EVec3(0.0f);
+    material.unk60 = EVec3(1.0f);
+    material.unk44 = EColorF(material.unk60.x, material.unk60.y, material.unk60.z, 1.0f);
+    material.unk7C = 10.0f;
+    material.unk84 = 0.0f;
+    material.unk80 = 0.0f;
+    material.unk4 = 0x20000007;
+    material.unk0 = 8;
+    material.unk8 = 0;
+    material.unkC = 1;
+    material.unkD = 0;
+    material.unk10 = 0;
+    material.unk8C[0] = EVec2(0.0f, 0.0f);
+    material.unk8C[1] = EVec2(0.0f, 0.0f);
+    material.unk8C[2] = EVec2(1.0f, 1.0f);
+    material.unk8C[3] = EVec2(0.0f, 0.0f);
+    material.stages[0].unk0 = texture;
+    material.unkC = 2;
+    material.stages[1].unk0 = lbl_80340B80.fn_80177628(0xD957C63C, 0, 0)->unk20;
+    material.stages[1].unk15 = 1;
+    material.stages[1].unk16 = 2;
+    material.stages[1].unk4 |= 0x40;
+    material.stages[1].unk10 = 0;
+    material.stages[1].unk11 = 2;
+    material.stages[1].unk12 = 1;
+    material.stages[1].unk13 = 1;
+    material.stages[1].unk14 = 0;
+    unkD0 = lbl_8037C198->vfn30(&material);
+
+    // A 32x32 copy for the family portrait.
+    skin.unk8 = (skin.unk8 & ~0x80) | 0x803;
+    skin.unk10 = 0x20;
+    skin.unk1C = "*charedsim4*";
+    skin.unk12 = 0x20;
+    unkCC = lbl_8037C198->vfn20(&skin);
+    unk28 = 0;
+    unk198 = 0;
+    fn_8001C240();
+    fn_80169D7C();
+    fn_801B2680();
+}
+
 // 0x800198DC
 // Sets the sim up as an adult male: animation lists, model, skin and the table of choices.
 // NON_MATCHING: 131 instructions vs 132. The original forms the address of unk194 early

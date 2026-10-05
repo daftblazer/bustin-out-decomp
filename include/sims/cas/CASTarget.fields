@@ -15,7 +15,7 @@ END 0x5D30
 0x3A8  0xC    EVec3              unk3A8
 0x3B4  4      CASFamilyList*     unk3B4           # family member list widget
 0x3B8  0x10   UnkTargetBase*     unk3B8[4]        # its entries
-0x3C8  4      Unk8001EE8C        unk3C8           # class of the unit at 0x8001EE8C
+0x3C8  0x409C Unk8001EE8C       unk3C8           # skin texture builder
 0x4464 4      Unk80018374*       unk4464
 0x4468 0x10   Unk80018374*       unk4468[4]
 0x4478 4      CASFamily*         unk4478          # family being created or edited

@@ -13,8 +13,7 @@
     EVec3 unk3A8; // 0x3a8
     CASFamilyList* unk3B4; // 0x3b4 family member list widget
     UnkTargetBase* unk3B8[4]; // 0x3b8 its entries
-    Unk8001EE8C unk3C8; // 0x3c8 class of the unit at 0x8001EE8C
-    char pad3CC[0x4098];
+    Unk8001EE8C unk3C8; // 0x3c8 skin texture builder
     Unk80018374* unk4464; // 0x4464
     Unk80018374* unk4468[4]; // 0x4468
     CASFamily* unk4478; // 0x4478 family being created or edited

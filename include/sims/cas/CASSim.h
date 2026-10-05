@@ -16,14 +16,6 @@ class Unk80018374;
 // The sim model shown on the Create-A-Sim screen (the source file at
 // 0x80018310) and the types it shares with the screen.
 
-struct Unk8001EE8C {
-    Unk8001EE8C();
-    ~Unk8001EE8C();
-    void fn_8001EFEC();
-    void fn_8001F34C();
-    void fn_8001FAE0();
-    char unk0[4];
-};
 
 struct Unk801CC464 {
     Unk801CC464();
@@ -98,20 +90,33 @@ struct Unk80156438 {
 
 };
 
-struct Unk800226F0 {
-    char unk0[0x44];
-    Unk80182DE0Inner* unk44; // materials: head, body, clothes
-    Unk80182DE0Inner* unk48;
-    Unk80182DE0Inner* unk4C;
+// Builds and caches the sim's composited skin texture and its materials (the
+// class of the source file at 0x8001EE8C). At most 0x409C bytes. The name is
+// provisional; "Unk800226F0" is the same class.
+struct Unk8001EE8C {
+    Unk8001EE8C();
+    ~Unk8001EE8C();
+    void fn_8001EFEC();
+    void fn_8001F34C();
+    void fn_8001FAE0();
     void fn_800226F0(Unk801CC464* out);
     void fn_80021A14(ETextureLike* texture);
+    void fn_8001FD00();
+    void fn_80022724(Unk801CC464* choices);
+    void fn_80021DBC(int adult, int male);
     void fn_8001FEA8(int, unsigned int textureId);
-    void fn_8001EFEC();
     void fn_80021D94();
     int fn_800218D8(int);
     void fn_80021928(int slot);
     void fn_8002196C(int slot);
+
+    char unk0[0x44];
+    Unk80182DE0Inner* unk44; // materials: head, body, clothes
+    Unk80182DE0Inner* unk48;
+    Unk80182DE0Inner* unk4C;
+    char unk50[0x409C - 0x50];
 };
+typedef Unk8001EE8C Unk800226F0;
 
 class Unk80018374;
 
@@ -179,7 +184,7 @@ struct ETextureDesc {
     unsigned char unk19;
     unsigned char unk1A;  // bits per pixel
     unsigned char unk1B;  // bits per palette entry
-    int unk1C;
+    const char* unk1C;    // name
 };
 // Material: its texture at 0x14, vtable pointer at 0xB8; slot 2 applies it.
 struct Unk80182DE0Inner {
@@ -190,6 +195,48 @@ struct Unk80182DE0Inner {
     virtual void vfn2(ERC* rc);
     virtual void vfn3(ERC* rc);
 };
+// Description of a material (0xD0 bytes), as handed to the renderer. Only the
+// fields the sim's material sets are named; the layout is partly guessed.
+struct EMaterialStage {
+    EMaterialStage() {
+        unk0 = 0;
+        unk4 = 8;
+        unk8 = 0x18;
+        unk10 = 0;
+        unk11 = 1;
+        unk12 = 0;
+        unk13 = 1;
+        unk14 = 0x80;
+        unk15 = 0;
+        unk16 = 0;
+        unkC = 0.5f;
+    }
+    void* unk0;          // texture
+    int unk4;            // flags
+    int unk8;
+    float unkC;
+    unsigned char unk10, unk11, unk12, unk13, unk14, unk15, unk16;
+};
+struct EMaterialDesc {
+    int unk0;
+    int unk4;
+    int unk8;
+    unsigned char unkC;
+    unsigned char unkD;
+    int unk10;
+    EMaterialStage stages[2];   // 0x14
+    EColorF unk44;              // 0x44
+    EVec3 unk54;
+    EVec3 unk60;
+    char unk6C[0x7C - 0x6C];
+    float unk7C;
+    float unk80;
+    float unk84;
+    char unk88[0x8C - 0x88];
+    EVec2 unk8C[4];
+    char unkAC[0xD0 - 0xAC];
+};
+
 // The renderer: screen size in pixels, and the texture and material caches.
 struct CASScreenInfoBase {
     virtual void vfn1();
@@ -221,7 +268,7 @@ struct CASScreenInfoBase {
     virtual void vfn27();
     virtual void vfn28();
     virtual void vfn29();
-    virtual void vfn30();
+    virtual Unk80182DE0Inner* vfn30(EMaterialDesc* desc); // create a material
     virtual void vfn31(void* material);              // release a material
     virtual int vfn32(void* material);
     virtual void vfn33();
@@ -487,6 +534,16 @@ struct CASAnimStep {
     unsigned int unk14; // animation last started from here
 };
 inline CASAnimStep& EStepAt(CASAnimStep* steps, unsigned int index) { return steps[index]; }
+
+struct Unk80340B80 {
+    struct Result {
+        char unk0[0x20];
+        void* unk20;
+    };
+    Result* fn_80177628(unsigned int id, int, int);
+    char unk0[0x100]; // size unknown
+};
+extern Unk80340B80 lbl_80340B80;
 
 // Resource manager used for the sim's animations.
 struct Unk8033F3D8 {
