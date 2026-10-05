@@ -23,10 +23,10 @@ void CASTargetUnk533C::fn_800156C8() {
     unk4C = 0.12f;
     unk50 = 0.267f;
     Unk80340AB8* manager = &lbl_80340AB8;
-    unkD4 = manager->fn_80177628(0xA25EBA9A, 0, 0);
-    unkD8 = manager->fn_80177628(0xE3E852F9, 0, 0);
-    unkDC = manager->fn_80177628(0x19E76F9A, 0, 0);
-    unk7C = lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    unkD4 = (Unk80181824*)manager->fn_80177628(0xA25EBA9A, 0, 0);
+    unkD8 = (Unk80181824*)manager->fn_80177628(0xE3E852F9, 0, 0);
+    unkDC = (Unk80181824*)manager->fn_80177628(0x19E76F9A, 0, 0);
+    unk7C = (Unk8003C95C*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
     unk54 = lbl_802E6964;
     unk64 = lbl_802E6964;
     // Bar brightness ramps: 0.1 to 1.0 going out from the centre, then back.
@@ -75,6 +75,99 @@ void CASTargetUnk533C::fn_8001593C(int value) {
     } else if (value >= 6 && value <= 10) {
         unk4A = value - 5;
         unk49 = 0;
+    }
+}
+
+// 0x80015990
+// The slider: end captions, eleven grey cells, the filled cells either side
+// of the centre, the centre mark, and a pulsing cell at the current value
+// when focused.
+// NON_MATCHING: 623 instructions vs 619. Same calls; the original builds every quad in
+// one fixed set of five temporaries (0x8-0x28, addresses held in r18-r22) and keeps the
+// colour constants in f20-f30, where this build allocates and loads them per call.
+// One variant tried.
+void CASTargetUnk533C::vfn3(ERC* rc) {
+    if (unk18 & 2) {
+        unkD4->fn_80181824(rc);
+        if (unk18 & 8) {
+            rc->vfn47(EVec2(unk2C.x + 0.143f, unk2C.z), EVec2(unk2C.x + 0.243f, unk2C.z + 0.02708f), EVec2(0.0f, 1.0f),
+                      EVec2(1.0f, 0.0f), EColorF(0.0f, 0.0f, 0.0f, 1.0f), 0.0f);
+            EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+            if (controller->fn_8015DF98(4)) {
+                unk64 = lbl_802E69C4;
+            } else {
+                unk64 = lbl_802E6964;
+            }
+            if (controller->fn_8015DF98(3)) {
+                unk54 = lbl_802E69C4;
+            } else {
+                unk54 = lbl_802E6964;
+            }
+            unkD8->fn_80181824(rc);
+            rc->vfn49(EVec2(unk2C.x + unk4C + 0.004f, unk2C.z - 0.022f), EVec2(1.0f, 1.0f), unk54, 0.0f);
+            unkDC->fn_80181824(rc);
+            rc->vfn49(EVec2(unk2C.x + 0.133f + unk4C, unk2C.z - 0.022f), EVec2(1.0f, 1.0f), unk64, 0.0f);
+            unk7C->fn_8003DBE8(rc);
+            unk7C->fn_8003C95C(1, 14.0f, 1.0f);
+            unk7C->unk64 = lbl_802E69C4;
+        } else {
+            unk7C->fn_8003DBE8(rc);
+            unk7C->fn_8003C95C(1, 14.0f, 1.0f);
+            unk7C->unk64 = lbl_802E6964;
+        }
+        {
+            EVec2 at(unk2C.x + unk4C, unk2C.z - 0.005f);
+            unk7C->fn_8003D740(rc, unk74[0].ptr, 1, at, 1, 0, 0);
+        }
+        {
+            EVec2 at(unk2C.x + 0.157f + unk4C, unk2C.z - 0.005f);
+            unk7C->fn_8003D740(rc, unk74[1].ptr, 1, at, 0, 0, 0);
+        }
+        float left = unk2C.x + 0.02613f + unk4C;
+        float top = unk2C.z + 0.00208f;
+        float bottom = unk2C.z + 0.025f;
+        unkD4->fn_80181824(rc);
+        int i;
+        for (i = 0; i <= 10; i++) {
+            float x = (float)i * 0.00969f + left;
+            rc->vfn47(EVec2(x, top), EVec2(x + 0.00656f, bottom), EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f),
+                      EColorF(0.5f, 0.5f, 0.5f, 1.0f), 0.0f);
+        }
+        i = unk49;
+        if (i > 0) {
+            int cell = 5 - i;
+            do {
+                float x = (float)cell * 0.00969f + left;
+                rc->vfn47(EVec2(x, top), EVec2(x + 0.00656f, bottom), EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f),
+                          EColorF(0.1f, 0.5f, 0.9f, 1.0f), 0.0f);
+                cell++;
+            } while (--i > 0);
+        }
+        for (i = 1; i <= unk4A; i++) {
+            float x = (float)(i + 5) * 0.00969f + left;
+            rc->vfn47(EVec2(x, top), EVec2(x + 0.00656f, bottom), EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f),
+                      EColorF(0.1f, 0.5f, 0.9f, 1.0f), 0.0f);
+        }
+        float centre = left + 0.04844f;
+        float centreRight = centre + 0.00656f;
+        rc->vfn47(EVec2(centre, top), EVec2(centreRight, bottom), EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f),
+                  EColorF(1.0f, 0.0f, 0.0f, 1.0f), 0.0f);
+        if (unk18 & 8) {
+            if (unk49 != 0 || unk4A != 0) {
+                int cell;
+                if (unk49) {
+                    cell = 5 - unk49;
+                } else {
+                    cell = unk4A + 5;
+                }
+                float x = (float)cell * 0.00969f + left;
+                rc->vfn47(EVec2(x, top), EVec2(x + 0.00656f, bottom), EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f),
+                          EColorF(0.1f, 0.9f, 0.5f, unk84[unk80++ % 20]), 0.0f);
+            } else {
+                rc->vfn47(EVec2(centre, top), EVec2(centreRight, bottom), EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f),
+                          EColorF(0.1f, 0.9f, 0.5f, unk84[unk80++ % 20]), 0.0f);
+            }
+        }
     }
 }
 

@@ -32,14 +32,14 @@ public:
     EColorF unk54;
     EColorF unk64;
     struct Entry {
-        void* ptr;
-    } unk74[2];
-    void* unk7C;
-    int unk80;
-    float unk84[20];
-    void* unkD4;
-    void* unkD8;
-    void* unkDC;
+        const unsigned short* ptr;
+    } unk74[2];           // captions at the two ends
+    Unk8003C95C* unk7C;   // font
+    unsigned int unk80;   // pulse phase
+    float unk84[20];      // pulse brightness ramp
+    Unk80181824* unkD4;   // bar texture
+    Unk80181824* unkD8;   // left arrow
+    Unk80181824* unkDC;   // right arrow
 };
 
 // Star-sign display. 0x90 bytes, vtable 0x80294830.
