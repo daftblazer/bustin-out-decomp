@@ -4,6 +4,7 @@
 #include "engine/ELightSet.h"
 #include "engine/EMat4.h"
 #include "engine/EVec3.h"
+#include "sims/cas/CASSkin.h"
 #include "engine/ResourceManagers.h"
 #include "engine/Unk801543AC.h"
 #include <new.h>
@@ -18,14 +19,6 @@ class Unk80018374;
 // 0x80018310) and the types it shares with the screen.
 
 
-struct Unk801CC464 {
-    Unk801CC464();
-    Unk801CC464(const Unk801CC464& other);
-    void fn_801CC688();
-    int unk0;
-    int unk4;
-    signed char unk8[0x14]; // one choice per feature slot
-};
 // Description of one sim (0xF8 bytes); copied whole.
 struct CASSimDesc {
     unsigned char unk0[0xC];
@@ -92,34 +85,6 @@ struct Unk80156438 {
 
 };
 
-// Builds and caches the sim's composited skin texture and its materials (the
-// class of the source file at 0x8001EE8C). At most 0x409C bytes. The name is
-// provisional; "Unk800226F0" is the same class.
-struct Unk8001EE8C {
-    Unk8001EE8C();
-    ~Unk8001EE8C();
-    void fn_8001EFEC();
-    void fn_8001F34C();
-    void fn_8001FAE0();
-    void fn_800226F0(Unk801CC464* out);
-    void fn_80021A14(ETextureLike* texture);
-    void fn_8001FD00();
-    void fn_80020EF4(int layer, int choice, int);
-    void fn_80022724(Unk801CC464* choices);
-    void fn_80021DBC(int adult, int male);
-    void fn_8001FEA8(int, unsigned int textureId);
-    void fn_80021D94();
-    int fn_800218D8(int);
-    void fn_80021928(int slot);
-    void fn_8002196C(int slot);
-
-    char unk0[0x44];
-    Unk80182DE0Inner* unk44; // materials: head, body, clothes
-    Unk80182DE0Inner* unk48;
-    Unk80182DE0Inner* unk4C;
-    char unk50[0x409C - 0x50];
-};
-typedef Unk8001EE8C Unk800226F0;
 
 class Unk80018374;
 
