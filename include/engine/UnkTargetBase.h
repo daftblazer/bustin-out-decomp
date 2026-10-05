@@ -58,7 +58,7 @@ public:
     virtual void vfn5();
     virtual void vfn6(const EVec2& position);              // slot 6
     virtual void vfn7(UnkTargetBase* sender, int message); // slot 7
-    virtual void vfn8();
+    virtual void vfn8(const char* name, const char* value); // slot 8: UI script variable set
     virtual char* vfn9(const char* name);                  // slot 9: UI script variable look-up
     virtual void vfn10();
     virtual void vfn11();

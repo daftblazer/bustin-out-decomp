@@ -2491,6 +2491,244 @@ char* CASTarget::vfn9(const char* name) {
     return out;
 }
 
+// 0x800115DC
+// Receives variable assignments from the UI script.
+// NON_MATCHING: 880 instructions vs 882; the mismatches are mostly the two-instruction
+// offset plus register numbering (the original saves r24-r31 and keeps the five selector
+// addresses in registers across the star-sign branch). One variant tried.
+void CASTarget::vfn8(const char* name, const char* value) {
+    EGlobal* global = &lbl_802E6700;
+    int number = fn_80110874(value);
+    if (fn_80111ECC("create_ready", name) == 0) {
+        unk52C8 = 1;
+    } else if (fn_80111ECC("CAS_show_text", name) == 0 || fn_80111ECC("CAF_show_text", name) == 0) {
+        if (fn_80111ECC("true", value) == 0) {
+            unk5310 = 0;
+        } else {
+            unk5310 = 1;
+        }
+    } else if (fn_80111ECC("draw_keyboard", name) == 0) {
+        if (fn_80111ECC("sim_name", value) == 0) {
+            unk52D4 = 0;
+            unk52F8 = 1;
+            fn_80014770();
+            unk52FC = new Unk800C6704((int)unk57A0.unk0, 9, 1, GetText("first"), 0, 0, 0, 0.5f, 0.25f, 0.25f, 10, 0, 16, 0, 0, 0,
+                                      1, 0, 0, 1, 0, 0, 0, 1, 1, 0);
+        }
+    } else if (fn_80112210("Keyboard", name, 8) == 0) {
+    } else if (fn_80112210("SetKeyboard", name, 11) == 0) {
+    } else if (fn_80112210("dialog", name, 6) == 0) {
+        if (fn_80111ECC("dialog_current_button", name) == 0) {
+            fn_8010F7F0(value, "%d", &unk4618);
+        } else if (fn_80111ECC("dialog_status", name) == 0) {
+            if (fn_80111ECC(value, "true") == 0) {
+                unk45D0 = 1;
+            } else {
+                unk45D0 = 0;
+            }
+        } else if (fn_80111ECC("dialog_title_bar_x", name) == 0) {
+            fn_8010F7F0(value, "%f", &unk45E0.x);
+        } else if (fn_80111ECC("dialog_title_bar_y", name) == 0) {
+            fn_8010F7F0(value, "%f", &unk45E0.y);
+        } else if (fn_80111ECC("dialog_button_accept_x", name) == 0) {
+            fn_8010F7F0(value, "%f", &unk4600.x);
+        } else if (fn_80111ECC("dialog_button_accept_y", name) == 0) {
+            fn_8010F7F0(value, "%f", &unk4600.y);
+        } else if (fn_80111ECC("dialog_button_decline_x", name) == 0) {
+            fn_8010F7F0(value, "%f", &unk4610.x);
+        } else if (fn_80111ECC("dialog_button_decline_y", name) == 0) {
+            fn_8010F7F0(value, "%f", &unk4610.y);
+        }
+        // The four button positions are tested again below; after the "dialog"
+        // prefix check those copies cannot be reached.
+    } else if (fn_80111ECC("dialog_button_accept_x", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk4600.x);
+    } else if (fn_80111ECC("dialog_button_accept_y", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk4600.y);
+    } else if (fn_80111ECC("dialog_button_decline_x", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk4610.x);
+    } else if (fn_80111ECC("dialog_button_decline_y", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk4610.y);
+    } else if (fn_80111ECC("bt_1_x", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk45E8.x);
+    } else if (fn_80111ECC("bt_1_y", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk45E8.y);
+    } else if (fn_80111ECC("bt_2_x", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk45F0.x);
+    } else if (fn_80111ECC("bt_2_y", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk45F0.y);
+    } else if (fn_80111ECC("bt_3_x", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk45F8.x);
+    } else if (fn_80111ECC("bt_3_y", name) == 0) {
+        fn_8010F7F0(value, "%f", &unk45F8.y);
+    } else if (fn_80111ECC("current_camera", name) == 0) {
+        if (fn_80111ECC("full_view", value) == 0) {
+            vfn7(this, 0x28);
+            unk4464->unk44 = 0;
+        } else if (fn_80111ECC("body", value) == 0) {
+            vfn7(this, 0x2C);
+            unk4464->unk44 = 1;
+        } else if (fn_80111ECC("upper_body", value) == 0) {
+            vfn7(this, 0x2A);
+        } else if (fn_80111ECC("lower_body", value) == 0) {
+            vfn7(this, 0x2B);
+        } else if (fn_80111ECC("head", value) == 0) {
+            vfn7(this, 0x29);
+            unk4464->unk44 = 1;
+        }
+    } else if (fn_80111ECC("messy_neat", name) == 0) {
+        unk533C[0].fn_80015908(fn_80110874(value));
+        unk5300 = 0;
+        unk5304 = 0;
+        unk52CC = 1;
+        fn_8024254C(unk57A4.unk0, fn_80014110());
+    } else if (fn_80111ECC("shy_outgoing", name) == 0) {
+        unk533C[1].fn_80015908(fn_80110874(value));
+        unk5300 = 0;
+        unk5304 = 0;
+        unk52CC = 2;
+        fn_8024254C(unk57A4.unk0, fn_80014110());
+    } else if (fn_80111ECC("lazy_active", name) == 0) {
+        unk533C[2].fn_80015908(fn_80110874(value));
+        unk5300 = 0;
+        unk5304 = 0;
+        unk52CC = 3;
+        fn_8024254C(unk57A4.unk0, fn_80014110());
+    } else if (fn_80111ECC("serious_playful", name) == 0) {
+        unk533C[3].fn_80015908(fn_80110874(value));
+        unk5300 = 0;
+        unk5304 = 0;
+        unk52CC = 4;
+        fn_8024254C(unk57A4.unk0, fn_80014110());
+    } else if (fn_80111ECC("mean_nice", name) == 0) {
+        unk533C[4].fn_80015908(fn_80110874(value));
+        unk5300 = 0;
+        unk5304 = 0;
+        unk52CC = 5;
+        fn_8024254C(unk57A4.unk0, fn_80014110());
+        vfn7(this, 0x41);
+    } else if (fn_80111ECC("name_active", name) == 0) {
+        unk52CC = 0;
+        unk5304 = 1;
+        unk5300 = 0;
+        vfn7(this, 0x43);
+    } else if (fn_80111ECC("age_active", name) == 0) {
+        unk52CC = 0;
+        unk45A0 = 1;
+        unk5304 = 0;
+        unk5300 = 0;
+        vfn7(this, 0x41);
+    } else if (fn_80111ECC("gender_active", name) == 0) {
+        unk52CC = 0;
+        unk5304 = 0;
+        unk5300 = 0;
+        vfn7(this, 0x41);
+    } else if (fn_80111ECC("sign_active", name) == 0) {
+        unk52CC = 0;
+        unk5300 = 1;
+        unk5304 = 0;
+    } else if (fn_80111ECC("sign", name) == 0) {
+        // A star sign was picked by name: set the personality sliders to its preset.
+        char sign[0x20];
+        fn_801122F0(sign, value, 0x20);
+        sign[0x1F] = 0;
+        unsigned char length = fn_80111FF8(sign);
+        for (int i = 0; i < length; i++) {
+            int c = sign[i];
+            if (lbl_802B6491[c] & 1) {
+                c += 0x20;
+            }
+            sign[i] = c;
+        }
+        if (fn_80111ECC(sign, "sagittarius") == 0) {
+            fn_801122F0(sign, "sagitarius", 0x20);
+        }
+        Unk800669ACResult text = lbl_802E6700.fn_8006670C(sign);
+        fn_8024257C(unk57A4.unk0, (const unsigned short*)(text.ptr ? *text.ptr : 0), 0x20);
+        unk57A4.unk0[0x1F] = 0;
+        short choices[5];
+        fn_800620CC(choices, fn_800621AC(unk57A4.unk0));
+        unk533C[0].fn_80015908((short)(choices[3] / 100));
+        unk533C[1].fn_80015908((short)(choices[0] / 100));
+        unk533C[2].fn_80015908((short)(choices[4] / 100));
+        unk533C[3].fn_80015908((short)(choices[2] / 100));
+        unk533C[4].fn_80015908((short)(choices[1] / 100));
+        fn_80014110();
+    } else if (fn_80111ECC("menu_command", name) == 0) {
+        if (unk4580 == 9) {
+            if (number == 0) {
+                fn_800102B0();
+                unk45BC = unk45C4;
+                vfn7(this, 0x2C);
+                unk52E0 = 0;
+                unk45A0 = 1;
+                unk52CC = 0;
+                unk52D8 = 1;
+                unk52DC = 0;
+                vfn7(this, 0x40);
+                vfn7(this, 0x41);
+            } else if (number == 1) {
+                fn_800102B0();
+                unk45BC = unk45C4;
+                vfn7(this, 0x29);
+                unk52E0 = 0;
+                unk52CC = 0;
+                unk52D8 = 0;
+                unk52DC = 1;
+                unk45A0 = 1;
+                unk4464->unk44 = 1;
+                vfn7(this, 0x40);
+                vfn7(this, 0x41);
+            } else if (number == 2) {
+                fn_800102B0();
+                unk45BC = unk45C4;
+                vfn7(this, 0x2A);
+                unk52DC = 0;
+                unk45A0 = 1;
+                unk52CC = 0;
+                unk52D8 = 0;
+                unk52E0 = 1;
+                vfn7(this, 0x40);
+                vfn7(this, 0x41);
+            } else if (number == 0x46) {
+                if (unk52FC == 0 && unk52D8 == 0 && unk52DC == 0 && unk52E0 == 0) {
+                    unk52E0 = 0;
+                    unk52D4 = 1;
+                    unk52CC = 0;
+                    unk52D8 = 0;
+                    unk52DC = 0;
+                    vfn7(this, 0x46);
+                } else {
+                    unk52CC = 0;
+                    unk52D8 = 0;
+                    unk52DC = 0;
+                    unk52E0 = 0;
+                    unk45A0 = 0;
+                    vfn7(this, 0x28);
+                    fn_80010408();
+                    unk4464->unk44 = 0;
+                    vfn7(this, 0x42);
+                    vfn7(this, 0x41);
+                }
+            } else if (number == 4) {
+                vfn7(this, 0x28);
+                unk52CC = 0;
+                unk52D8 = 0;
+                unk52DC = 0;
+                unk52E0 = 0;
+                unk45A0 = 0;
+                unk4464->unk44 = 0;
+                vfn7(this, 0x42);
+                vfn7(this, 0x41);
+            } else {
+                vfn7(this, number);
+            }
+        } else {
+            vfn7(this, number);
+        }
+    }
+}
+
 // 0x800133DC
 // Draws `text` word-wrapped into the description box, one line at a time.
 // NON_MATCHING: same length (234), 81 differ: register numbering (r27/r28 and the

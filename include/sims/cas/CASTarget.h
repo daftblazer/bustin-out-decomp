@@ -156,7 +156,8 @@ struct Unk80018374 {
     int unk14;
     char unk18[0x40 - 0x18];
     int unk40; // which side the sim is seen from
-    char unk44[0xC8 - 0x44];
+    int unk44;
+    char unk48[0xC8 - 0x48];
     Unk800226F0* unkC8;
     char unkCC[0xE0 - 0xCC];
     Unk80156438 unkE0;
@@ -477,6 +478,14 @@ extern float lbl_8037B45C, lbl_8037B460, lbl_8037B464, lbl_8037B468;
 extern float lbl_8037B46C, lbl_8037B470, lbl_8037B474, lbl_8037B478;
 
 extern "C" int fn_80111ECC(const char*, const char*);     // strcmp
+extern "C" int fn_80112210(const char*, const char*, unsigned int); // strncmp
+extern "C" char* fn_801122F0(char*, const char*, unsigned int);     // strncpy
+extern "C" unsigned int fn_80111FF8(const char*);                   // strlen
+extern "C" int fn_80110874(const char*);                            // atoi
+extern "C" int fn_8010F7F0(const char*, const char* format, ...);   // sscanf
+extern "C" void fn_8024257C(unsigned short* dst, const unsigned short* src, int count); // wide strncpy
+extern unsigned char lbl_802B6491[]; // character class table
+unsigned char fn_800621AC(const unsigned short* signName); // star sign by name
 extern "C" int fn_8010F710(char* out, const char* format, ...); // sprintf
 extern int lbl_802F76D8; // children enabled
 
@@ -550,6 +559,7 @@ public:
     virtual void vfn2();
     virtual void vfn3(ERC* rc);
     virtual void vfn7(UnkTargetBase* sender, int message);
+    virtual void vfn8(const char* name, const char* value);
     virtual char* vfn9(const char* name);
     void fn_800123A4(ERC* rc);
     void fn_8000C458();
