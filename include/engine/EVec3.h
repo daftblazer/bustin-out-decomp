@@ -6,15 +6,10 @@ class EVec3 {
 public:
     EVec3() {}
     EVec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
-    // Copies go float by float in the original (lfs/stfs), not as words.
+    // Copy construction goes float by float in the original (lfs/stfs), while
+    // assignment copies words, i.e. the copy constructor is user-defined and
+    // operator= is the compiler's.
     EVec3(const EVec3& other) : x(other.x), y(other.y), z(other.z) {}
-    EVec3& operator=(const EVec3& other) {
-        x = other.x;
-        y = other.y;
-        z = other.z;
-        return *this;
-    }
-
     void Set(float x_, float y_, float z_) {
         x = x_;
         y = y_;

@@ -176,6 +176,11 @@ Global `operator new` / `operator delete` are `__builtin_new` (0x801B8A3C) and
   still needed in `r3`: typically a pointer converted to another type for the
   store while the original pointer is used as `this` for the next call
   (`T* p = new T; field = p; p->Method();`).
+- Values reloaded from the stack right after being stored there (instead of
+  reusing the registers) were read through a reference parameter of an inline
+  function, e.g. an inline setter `void Set(const EVec3& v) { member = v; }`.
+- `EVec3` copy construction is float by float, assignment is word by word, and
+  `EVec3::Set(x, y, z)` stores x, then z, then y.
 - Statement order matters: a run of constant stores comes out in a different
   order than written, with no simple rule. For three or four stores, compile
   every permutation in a scratch file and compare (see `TArray::Init`).

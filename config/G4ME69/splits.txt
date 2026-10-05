@@ -19,4 +19,4 @@ sims/ESimsApp.cpp:
 	.sbss       start:0x8037CA20 end:0x8037CA3C
 
 sims/Unk800052C8.cpp:
-	.text       start:0x800052C8 end:0x800053D4
+	.text       start:0x800052C8 end:0x8000562C

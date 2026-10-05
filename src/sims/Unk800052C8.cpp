@@ -1,10 +1,10 @@
 #include "sims/Unk800052C8.h"
 
 // 0x800052C8
-Unk800052C8::Unk800052C8(unsigned int resourceId, int unk, Unk800052C8Source* source) {
+Unk800052C8::Unk800052C8(unsigned int resourceId, Unk800053D4Owner* owner, Unk800052C8Source* source) {
     unk4 = source->unk0;
     unk10.Set(source->unk8, source->unkC, source->unk10);
-    unk0 = unk;
+    unk0 = owner;
     unkC = lbl_80340120.fn_80177628(resourceId, 0, 0);
     unk8 = new Unk8016BC18;
     lbl_802E67B0.unk0->unk1C->fn_80179D60(unk8, 0);
@@ -17,4 +17,22 @@ Unk800052C8::~Unk800052C8() {
     unkC = 0;
     unk8 = 0;
     unk0 = 0;
+}
+
+// 0x800053D4
+void Unk800052C8::Update() {
+    if (unk0->unk0->vfn88(0x22)) {
+        unk8->fn_8016C944(0);
+        return;
+    }
+    unk8->fn_8016C944(1);
+    EMat4 mat;
+    unk0->vfn37()->vfn35(unk4, &mat);
+    EVec3 position = unk10;
+    position = position * mat;
+    unk8->fn_8016C878(&position, 0);
+    EVec3 direction = unkC->unk2C;
+    mat.SetRow3(0.0f, 0.0f, 0.0f, 0.0f);
+    direction = direction * mat;
+    unk8->SetUnkE4(direction);
 }
