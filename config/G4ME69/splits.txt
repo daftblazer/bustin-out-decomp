@@ -20,7 +20,11 @@ sims/ESimsApp.cpp:
 
 sims/Unk800052C8.cpp:
 	.text       start:0x800052C8 end:0x8000562C
+	.rodata     start:0x80292438 end:0x80292588
 
 sims/ESimsCam.cpp:
 	.text       start:0x8000562C end:0x80007F88
 	.ctors      start:0x80291CA8 end:0x80291CAC
+	.rodata     start:0x80292588 end:0x80292AE8
+	.bss        start:0x802E57B8 end:0x802E57DC
+	.sdata      start:0x8037B3FC end:0x8037B44C

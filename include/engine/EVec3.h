@@ -28,6 +28,13 @@ public:
         return *this;
     }
 
+    EVec3& operator*=(float scale) {
+        x *= scale;
+        y *= scale;
+        z *= scale;
+        return *this;
+    }
+
     void Set(float x_, float y_, float z_) {
         x = x_;
         y = y_;
@@ -43,6 +50,10 @@ inline EVec3 operator*(float scale, const EVec3& v) { return EVec3(scale * v.x, 
 
 // Single-precision arc cosine from the C library (0x8010DB14).
 extern "C" float fn_8010DB14(float x);
+
+// Absolute value as a macro: the original compares both signs explicitly, where an
+// inline function would be turned into a single fabs instruction.
+#define EABS(value) ((value) >= 0.0f ? (value) : -(value))
 
 // Vector length. This is the Dolphin SDK's PSVECMag (0x80122240).
 extern "C" float fn_80122240(const EVec3* v);

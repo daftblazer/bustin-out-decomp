@@ -23,6 +23,7 @@ public:
     void fn_8018B584(const ERectF& rect);
     void fn_80154490(float fov, float aspect, float nearPlane, float farPlane);
     void fn_801547E0(const ERectF& rect);
+    void fn_80154798(const EVec3& eye, const EVec3& target, const EVec3& up); // look-at
     void fn_80156130(const EVec3& world, EVec2* screen); // project to screen
 
     void* operator new(unsigned int size) { return fn_80169F1C(size, 16); }

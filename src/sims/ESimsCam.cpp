@@ -657,3 +657,128 @@ float ESimsCam::CalcZAxisTheta(EVec3& dir) {
     }
     return angle;
 }
+
+// 0x80007714
+float ESimsCam::fn_80007714(EVec3* current, EVec3 target, float speed, unsigned int mode) {
+    EVec3 diff = target - *current;
+    float distance = diff.Length();
+    if (distance <= 0.0001f) {
+        *current = target;
+        return distance;
+    }
+    float rate = 0.0f;
+    switch (mode) {
+    case 0:
+        rate = speed;
+        break;
+    case 1:
+        rate = speed * distance;
+        if (rate > unk3CC) {
+            rate = unk3CC;
+        }
+        break;
+    case 2:
+        if (distance > 1.5f) {
+            rate = 5.0f;
+        } else {
+            rate = 2.5f;
+        }
+        rate *= distance;
+        break;
+    }
+    float step = rate * lbl_8037BFC8;
+    if (step > distance) {
+        step = distance;
+    }
+    diff *= 1.0f / distance;
+    diff *= step;
+    *current += diff;
+    return distance;
+}
+
+// 0x800078BC
+float ESimsCam::fn_800078BC(float* current, float target, float speed, int mode) {
+    float diff = target - *current;
+    if (EABS(diff) <= 0.0001f) {
+        *current = target;
+        return 0.0f;
+    }
+    float rate = 0.0f;
+    switch (mode) {
+    case 0:
+        rate = speed;
+        if (!(diff > 0.0f)) {
+            rate = -rate;
+        }
+        break;
+    case 1:
+        rate = diff * speed;
+        break;
+    }
+    float step = rate * lbl_8037BFC8;
+    if (EABS(step) >= EABS(diff)) {
+        *current = target;
+    } else {
+        *current = rate * lbl_8037BFC8 + *current;
+    }
+    return diff;
+}
+
+// 0x800079C0
+// NON_MATCHING: 109 instructions vs 110. In the `else` of the wrap-around test the
+// original reads *current from memory again; this reuses the value already loaded.
+float ESimsCam::fn_800079C0(float* current, float target, float speed, int mode) {
+    float diff = target - *current;
+    if (target > *current) {
+        float other = 360.0f - target + *current;
+        if (other < diff) {
+            diff = -other;
+        }
+    } else {
+        float other = 360.0f - *current + target;
+        if (other < -diff) {
+            diff = other;
+        }
+    }
+    if (EABS(diff) <= 0.0001f) {
+        *current = target;
+        return 0.0f;
+    }
+    float rate = 0.0f;
+    switch (mode) {
+    case 0:
+        rate = speed;
+        if (!(diff > 0.0f)) {
+            rate = -rate;
+        }
+        break;
+    case 1:
+        rate = diff * speed;
+        break;
+    }
+    float step = rate * lbl_8037BFC8;
+    if (EABS(step) >= EABS(diff)) {
+        *current = target;
+    } else {
+        *current = rate * lbl_8037BFC8 + *current;
+    }
+    while (*current >= 360.0f) {
+        *current -= 360.0f;
+    }
+    while (*current < 0.0f) {
+        *current += 360.0f;
+    }
+    return diff;
+}
+
+// 0x80007B78
+void ESimsCam::SetWinPos(E3DWindow& window) {
+    if (unk3C8 == 0) {
+        fn_80007714(&unk3B0.unk0, unk398.unk0, 0.0f, 2);
+        fn_800078BC(&unk3B0.unkC, unk398.unkC, 2.0f, 1);
+        fn_800079C0(&unk3B0.unk10, unk398.unk10, 3.0f, 1);
+        fn_800079C0(&unk3B0.unk14, unk398.unk14, 2.5f, 1);
+    }
+    CalcEyePosition(unk378, unk3B0);
+    window.fn_80154798(unk378, unk3B0.unk0, unk384);
+}

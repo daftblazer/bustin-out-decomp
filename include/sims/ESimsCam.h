@@ -175,9 +175,9 @@ public:
     void fn_80005984();
     void fn_8000698C();
     int fn_80007430();
-    float fn_80007714(EVec3* current, EVec3 target, float speed, int mode);
-    void fn_800078BC(float* current, float target, float speed, int mode);
-    void fn_800079C0(float* current, float target, float speed, int mode);
+    float fn_80007714(EVec3* current, EVec3 target, float speed, unsigned int mode);
+    float fn_800078BC(float* current, float target, float speed, int mode);
+    float fn_800079C0(float* current, float target, float speed, int mode);
     void fn_80006C58();
     void fn_80006D90();
     void fn_80006E6C();

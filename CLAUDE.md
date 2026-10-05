@@ -198,6 +198,15 @@ Global `operator new` / `operator delete` are `__builtin_new` (0x801B8A3C) and
 - A destructor called with flag 0 is destroying a base class, 2 a member or local,
   3 a `delete`.
 - An unsigned `switch` operand shows `cmplwi`/`blt` in the dispatch.
+- The constructor table undercounts source files: a file with no static
+  initializer leaves no entry, so a "unit" found that way can be two files. A
+  second run of header strings in its `.rodata` is the tell.
+- Absolute value in the original is a macro (`EABS` in `engine/EVec3.h`): both
+  signs are compared explicitly. An inline function becomes one `fabs`.
+- `rate = speed; if (!(diff > 0.0f)) rate = -rate;` and `if (diff <= 0.0f)` compile
+  differently (`bgt` over the negate vs. a `cror`/`bns` pair).
+- A temporary reuses the stack slot of a variable whose block has closed, so
+  extra `{ }` around a short-lived local can be visible in the frame layout.
 - Statement order matters: a run of constant stores comes out in a different
   order than written, with no simple rule. For three or four stores, compile
   every permutation in a scratch file and compare (see `TArray::Init`).
