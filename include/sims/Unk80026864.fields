@@ -39,6 +39,7 @@ END 0x1C8
 0x144  4      int                unk144
 0x148  0xC    Unk80026864List    unk148           # selection
 0x154  0x28   Unk8002EF48        unk154
+0x188  0xC    EVec3              unk188
 0x194  0xC    Unk80026864List    unk194           # owned objects
 0x1A4  8      ETilePair          unk1A4           # tile the picked-up object came from
 0x1AC  2      short              unk1AC
@@ -47,3 +48,4 @@ END 0x1C8
 0x1B8  4      int                unk1B8
 0x1BC  4      float              unk1BC
 0x1C0  4      int                unk1C0
+0x1C4  4      int                unk1C4           # current floor type

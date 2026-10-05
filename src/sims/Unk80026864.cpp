@@ -1917,7 +1917,7 @@ void fn_8002E1BC(void* key, int flag) {
         char* it = list->unk4;
         if (it != list->unk8) {
             do {
-                fn_800311B0(it, flag, list);
+                fn_800311B0((Unk801C6F20*)it, flag, list);
                 it += 3;
             } while (it != list->unk8);
             if (fn_8007600C()) {
@@ -2031,38 +2031,6 @@ void fn_8002E68C(void* arg, int kind, float x0, float y0, float x1, float y1) {
 }
 
 
-struct Unk80234774 {
-    int fn_80234774(Unk801C6F20* tile, unsigned short** a, unsigned short** b, int* sideA, int* sideB);
-};
-struct Unk8023E354 : Unk8023DFA8 {
-    int fn_8023E354();           // first wall on the tile
-    int fn_8023E3BC(int wall);   // the one after
-};
-int fn_8023E4A4(int side, int);
-void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side);
-struct Unk8037D990G {
-    virtual void vfn1();
-    virtual void vfn2();
-    virtual void vfn3();
-    virtual void vfn4();
-    virtual void vfn5();
-    virtual void vfn6();
-    virtual void vfn7();
-    virtual void vfn8();
-    virtual void vfn9();
-    virtual void vfn10();
-    virtual void vfn11();
-    virtual void vfn12();
-    virtual void vfn13();
-    virtual void vfn14();
-    virtual void vfn15();
-    virtual void vfn16();
-    virtual void vfn17();
-    virtual Unk8023E354 vfn18(Unk801C6F20* tile);
-    virtual void vfn19();
-    virtual void vfn20();
-    virtual int vfn21(Unk801C6F20* tile);
-};
 // The two sides a wall of the given kind has when nothing narrows it down.
 inline void BothSides(int* sides, int& count, int wall) {
     if (wall == 0x10) {

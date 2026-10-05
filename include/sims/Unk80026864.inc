@@ -40,7 +40,8 @@
     int unk144; // 0x144
     Unk80026864List unk148; // 0x148 selection
     Unk8002EF48 unk154; // 0x154
-    char pad17C[0x18];
+    char pad17C[0xc];
+    EVec3 unk188; // 0x188
     Unk80026864List unk194; // 0x194 owned objects
     char pad1A0[0x4];
     ETilePair unk1A4; // 0x1a4 tile the picked-up object came from
@@ -51,4 +52,4 @@
     int unk1B8; // 0x1b8
     float unk1BC; // 0x1bc
     int unk1C0; // 0x1c0
-    char pad1C4[0x4];
+    int unk1C4; // 0x1c4 current floor type

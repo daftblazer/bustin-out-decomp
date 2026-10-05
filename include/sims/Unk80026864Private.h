@@ -5,12 +5,15 @@
 // build-mode tools around it. Everything here is provisional: most of these types
 // belong to engine or game classes that have not been identified yet.
 
+#include <stddef.h>
 #include "sims/Unk80026864.h"
 #include "sims/cas/CASSim.h"
 #include "sims/cas/CASWidgets.h"
 #include "sims/cas/CASSelectors.h"
 #include "engine/EController.h"
 #include "sims/cas/CASTarget.h"
+
+void* fn_80169F1C(unsigned int size, int align);
 
 // Vertex handed to the mesh builder (0x50 bytes).
 struct Unk80173D58Vertex {
@@ -39,11 +42,16 @@ extern float lbl_8037BFC8;
 // A square drawn on the floor (0x48 bytes): a recorded renderer object and where
 // to draw it. unk194 owns a list of these.
 struct Unk8002FC60 {
+    Unk8002FC60(void* owner) {
+        unk0 = owner;
+        unk4 = 0;
+    }
+    void* operator new(size_t size) { return fn_80169F1C(size, 16); }
     void fn_8002FC60(float x, float y);      // create at a position
     void fn_8002FD24();                      // release
     void fn_8002FDC0(const EVec2* at);       // move
 
-    int unk0;
+    void* unk0;      // the tool it belongs to
     void* unk4;      // renderer object
     EMat4 unk8;
 };
@@ -469,7 +477,7 @@ struct Unk80234390 {
 };
 extern void* lbl_8037D998;
 Unk80234390* fn_80234390(void* table, void* key);
-void fn_800311B0(char* entry, int flag, Unk80234390* list);
+void fn_800311B0(Unk801C6F20* tile, int type, void* table);
 int fn_8007600C();
 void fn_80038FC0(EVec2* a, EVec2* b, void* arg, int kind, int* out, int, int, int);
 struct Unk80057920 {
@@ -833,5 +841,78 @@ struct Unk802E67C0Entry {
 struct Unk802E67C0 {
     Unk802E67C0Entry** unk0;
 };
+
+struct Unk80234774 {
+    int fn_80234774(Unk801C6F20* tile, unsigned short** a, unsigned short** b, int* sideA, int* sideB);
+};
+struct Unk8023E354 : Unk8023DFA8 {
+    int fn_8023E354();           // first wall on the tile
+    int fn_8023E3BC(int wall);   // the one after
+};
+int fn_8023E4A4(int side, int);
+void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side);
+struct Unk8037D990G {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023E354 vfn18(Unk801C6F20* tile);
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual int vfn21(Unk801C6F20* tile);
+};
+void* fn_80169F1C(unsigned int size, int align);
+// A floor type as the catalogue hands it to the tool.
+struct Unk8002F000Tool {
+    int unk0;
+    int unk4;
+    int unk8;
+    unsigned int unkC;   // texture id
+};
+struct Unk80235F64 {
+    int fn_80235F64(Unk801C6F20* tile);
+};
+struct Unk8023E420 : Unk8023E354 {
+    int fn_8023E420(int side);   // floor type on one half
+};
+struct Unk8037D990J {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023E420 vfn18(Unk801C6F20* tile);
+};
+void fn_80031084(void* table, Unk801C6F20* tile, Unk8023DFA8* info, int* sideA, int* sideB);
+int fn_8002FEF4(int index);
+int fn_8002FFB8(Unk801C6F20* tile);
+void fn_8002EFAC(ERC* rc, struct Unk8002EFACItem* item);
+// True when purchases are free (the freeitems setting, or the mode fn_80068ED8 tests).
+#define CheatMoney() (lbl_802E6700.unk144 != 0 || lbl_802E6700.fn_80068ED8())
 
 #endif

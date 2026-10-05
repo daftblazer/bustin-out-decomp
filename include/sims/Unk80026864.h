@@ -117,6 +117,7 @@ public:
     void fn_8002917C();
     void fn_80029BF8();
     void fn_80033BAC();
+    void fn_8002F000(struct Unk8002F000Tool* tool);
     void fn_8002F1BC();
     void fn_8002F268();
     void fn_8002F2A4();
