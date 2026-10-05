@@ -935,16 +935,14 @@ void CASTarget::vfn3(ERC* rc) {
             font->fn_8003C95C(1, 16.0f, 1.0f);
             lbl_802E6700.unkEC->unk64 = lbl_802E6964;
             EVec2 position(0.5f, 0.142f);
-            EVec2 at(position);
-            lbl_802E6700.unkEC->fn_8003D740(rc, (const unsigned short*)GetText("last"), 1, &at, 2, 0, 0);
+            lbl_802E6700.unkEC->fn_8003D740(rc, (const unsigned short*)GetText("last"), 1, position, 2, 0, 0);
         } else if (unk4580 == 7) {
             Unk8003C95C* font = lbl_802E6700.unkEC;
             font->fn_8003DBE8(rc);
             font->fn_8003C95C(1, 16.0f, 1.0f);
             lbl_802E6700.unkEC->unk64 = lbl_802E6964;
             EVec2 position(0.5f, 0.142f);
-            EVec2 at(position);
-            lbl_802E6700.unkEC->fn_8003D740(rc, (const unsigned short*)GetText("first"), 1, &at, 2, 0, 0);
+            lbl_802E6700.unkEC->fn_8003D740(rc, (const unsigned short*)GetText("first"), 1, position, 2, 0, 0);
         }
         fn_80106484(unk52C4, rc);
         if (fn_801082B4(unk52C4)) {
@@ -2721,8 +2719,7 @@ void CASTarget::vfn8(const char* name, const char* value) {
 #define CAS_CAPTION(text, x, y)                                                              \
     {                                                                                        \
         EVec2 at(x, y);                                                                      \
-        EVec2 copy(at);                                                                      \
-        unk52E4->fn_8003D740(rc, (const unsigned short*)(text), 1, &copy, 2, 2, 0);          \
+        unk52E4->fn_8003D740(rc, (const unsigned short*)(text), 1, at, 2, 2, 0);          \
     }
 
 // 0x800123A4
@@ -2795,8 +2792,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
         } else {
             unk52E4->unk64 = lbl_802E6954;
             EVec2 at(x, y);
-            EVec2 copy(at);
-            unk52E4->fn_8003D740(rc, unk57A0.unk0, 1, &copy, 2, 0, 0);
+            unk52E4->fn_8003D740(rc, unk57A0.unk0, 1, at, 2, 0, 0);
         }
         unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
         y = 0.52f;
@@ -2807,8 +2803,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
         } else {
             unk52E4->unk64 = lbl_802E6954;
             EVec2 at(x, y);
-            EVec2 copy(at);
-            unk52E4->fn_8003D740(rc, unk57A4.unk0, 1, &copy, 2, 0, 0);
+            unk52E4->fn_8003D740(rc, unk57A4.unk0, 1, at, 2, 0, 0);
         }
         unk52E4->fn_8003C95C(1, 13.0f, 1.0f);
         x = 0.3125f;
@@ -2823,8 +2818,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("neat");
             EVec2 at(x, y);
-            EVec2 copy(at);
-            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
         }
         y += step;
         if (unk52CC == 2) {
@@ -2836,8 +2830,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("outgoing");
             EVec2 at(x, y);
-            EVec2 copy(at);
-            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
         }
         y += step;
         if (unk52CC == 3) {
@@ -2849,8 +2842,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("active");
             EVec2 at(x, y);
-            EVec2 copy(at);
-            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
         }
         y += step;
         if (unk52CC == 4) {
@@ -2862,8 +2854,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("playful");
             EVec2 at(x, y);
-            EVec2 copy(at);
-            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
         }
         y += step;
         if (unk52CC == 5) {
@@ -2875,8 +2866,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("nice");
             EVec2 at(x, y);
-            EVec2 copy(at);
-            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
         }
     }
     if (unk52FC) {
@@ -2889,8 +2879,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
         // Yes/no prompt, once the script has reported where its buttons are.
         if (unk4600.x != 0.0f && unk4600.y != 0.0f && unk4610.x != 0.0f && unk4610.y != 0.0f) {
             unk52E4->unk64 = lbl_802E6954;
-            EVec2 titleAt(unk45E0.x, unk45E0.y);
-            unk52E4->fn_8003D740(rc, (const unsigned short*)(unk45D8 ? *unk45D8 : 0), 1, &titleAt, 2, 2, 0);
+            unk52E4->fn_8003D740(rc, (const unsigned short*)(unk45D8 ? *unk45D8 : 0), 1, EVec2(unk45E0.x, unk45E0.y), 2, 2, 0);
             unk52E4->unk64 = lbl_802E6964;
             unk52E4->fn_8003D93C(rc, (const unsigned short*)GetTextB("yes"), &unk4600, 2, 2, 0, 2.0f, 1.0f);
             unk52E4->fn_8003D93C(rc, (const unsigned short*)GetTextB("no"), &unk4610, 2, 2, 0, 2.0f, 1.0f);

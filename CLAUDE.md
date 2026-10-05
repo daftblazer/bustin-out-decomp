@@ -251,3 +251,12 @@ Single-line commit messages, no co-author or tool attribution.
     every `EVec2` local live in memory from its declaration, so locals get stack slots in declaration
     order (lowest first). If a small struct's slots come out above later locals, its type is missing a
     user copy constructor. The text-extent function (0x8003D550) returns `EVec2`.
+  - The text-drawing call (0x8003D740) takes its position **by value**: write `EVec2 at(x, y); font->Draw(..., at, ...)`
+    (a named local, copied into the argument slot). A temporary built in the call omits the copy and is shorter
+    than the original. The sprite call (ERC slot 49) takes `const EVec2&` positions, so there temporaries are right
+    and their slots swap between consecutive calls.
+  - A string look-up written out (`Result r = global.Find("x"); v = r.ptr ? *r.ptr : 0;`) loads the global's
+    address before the string's; through the inline `GetText("x")` the string comes first. Both occur.
+  - Several destructors that all store the *same* vtable at the end of a file are the inline destructor of a
+    base class emitted once per derived class (each derived class's implicit destructor).
+  - A loop counter reused by two consecutive loops (same register) is one variable declared before both.

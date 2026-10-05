@@ -157,6 +157,57 @@ void Unk80016448::vfn2() {
     }
 }
 
+// 0x80016CF0
+// Caption and value, with an arrow sprite either side when focused; each
+// arrow lights up while its direction is held.
+// NON_MATCHING: 12 of 278 differ: in the by-value copies of the two caption positions
+// the original loads x and y through f13/f0 (first caption) and f0/f0 (second), this
+// build through f0/f13. Six variants tried, including other copy-constructor forms.
+void Unk80016CF0::vfn3(ERC* rc) {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (unk18 & 8) {
+        unk58->fn_8003DBE8(rc);
+        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->unk64 = lbl_802E69C4;
+        {
+            EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+        }
+        {
+            EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+        }
+        EVec2 extent = unk58->fn_8003D550(unk54, 1, 0);
+        EColorF color;
+        if (controller->fn_8015DF98(4)) {
+            color = lbl_802E69C4;
+        } else {
+            color = lbl_802E6964;
+        }
+        unk64->fn_80181824(rc);
+        rc->vfn49(EVec2(unk2C.x + extent.x + 0.1561f, unk2C.z - 0.016f), EVec2(1.0f, 1.0f), color, 0.0f);
+        if (controller->fn_8015DF98(3)) {
+            color = lbl_802E69C4;
+        } else {
+            color = lbl_802E6964;
+        }
+        unk60->fn_80181824(rc);
+        rc->vfn49(EVec2(unk2C.x + 0.124f, unk2C.z - 0.016f), EVec2(1.0f, 1.0f), color, 0.0f);
+    } else {
+        unk58->fn_8003DBE8(rc);
+        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->unk64 = lbl_802E6964;
+        {
+            EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+        }
+        {
+            EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+        }
+    }
+}
+
 // 0x80017148
 void Unk80016CF0::fn_80017148() {
     fn_801767FC(unk58);
@@ -173,6 +224,127 @@ void Unk80016CF0::fn_80017148() {
 void Unk80017218::vfn2() {
     if (unk18 & 8) {
         vfn7(this, 0x43);
+        vfn7(this, 0x40);
+    }
+}
+
+// 0x80017218
+// Caption and value only; dimmed unless flag 0x10 is set.
+// NON_MATCHING: 10 of 162 differ, the same float-register pattern as Unk80016CF0::vfn3.
+void Unk80017218::vfn3(ERC* rc) {
+    if (unk18 & 8) {
+        unk58->fn_8003DBE8(rc);
+        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->unk64 = lbl_802E69C4;
+        {
+            EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+        }
+        {
+            EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+        }
+    } else {
+        unk58->fn_8003DBE8(rc);
+        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        if (unk18 & 0x10) {
+            unk58->unk64 = lbl_802E6964;
+        } else {
+            unk58->unk64 = lbl_802E69E4;
+        }
+        {
+            EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+        }
+        {
+            EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+        }
+    }
+}
+
+// 0x800174A0
+// Either direction flips between the two choices.
+void Unk800176C0::vfn2() {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (controller->fn_8015E0F8(4)) {
+        if (unk68) {
+            lbl_8037D96C->fn_8006186C(0xCF99DB1E);
+            if (unk48 == 0x30) {
+                Unk800669ACResult text = lbl_802E6700.fn_800667EC("child");
+                unk54 = (const unsigned short*)(text.ptr ? *text.ptr : 0);
+                unk48 = 0x31;
+            } else {
+                Unk800669ACResult text = lbl_802E6700.fn_800667EC("adult");
+                unk54 = (const unsigned short*)(text.ptr ? *text.ptr : 0);
+                unk48 = 0x30;
+            }
+            vfn7(this, unk48);
+        } else {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+    } else if (controller->fn_8015E0F8(3)) {
+        if (unk68) {
+            lbl_8037D96C->fn_8006186C(0xCF99DB1E);
+            if (unk48 == 0x30) {
+                Unk800669ACResult text = lbl_802E6700.fn_800667EC("child");
+                unk54 = (const unsigned short*)(text.ptr ? *text.ptr : 0);
+                unk48 = 0x31;
+            } else {
+                Unk800669ACResult text = lbl_802E6700.fn_800667EC("adult");
+                unk54 = (const unsigned short*)(text.ptr ? *text.ptr : 0);
+                unk48 = 0x30;
+            }
+            vfn7(this, unk48);
+        } else {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+    }
+    if (unk18 & 8) {
+        vfn7(this, 0x41);
+        vfn7(this, 0x40);
+    }
+}
+
+// 0x80017B48
+// Either direction flips between the two choices.
+void Unk80017D68::vfn2() {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (controller->fn_8015E0F8(4)) {
+        if (unk68) {
+            lbl_8037D96C->fn_8006186C(0xCF99DB1E);
+            if (unk48 == 0x32) {
+                Unk800669ACResult text = lbl_802E6700.fn_800667EC("female");
+                unk54 = (const unsigned short*)(text.ptr ? *text.ptr : 0);
+                unk48 = 0x33;
+            } else {
+                Unk800669ACResult text = lbl_802E6700.fn_800667EC("male");
+                unk54 = (const unsigned short*)(text.ptr ? *text.ptr : 0);
+                unk48 = 0x32;
+            }
+            vfn7(this, unk48);
+        } else {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+    } else if (controller->fn_8015E0F8(3)) {
+        if (unk68) {
+            lbl_8037D96C->fn_8006186C(0xCF99DB1E);
+            if (unk48 == 0x32) {
+                Unk800669ACResult text = lbl_802E6700.fn_800667EC("female");
+                unk54 = (const unsigned short*)(text.ptr ? *text.ptr : 0);
+                unk48 = 0x33;
+            } else {
+                Unk800669ACResult text = lbl_802E6700.fn_800667EC("male");
+                unk54 = (const unsigned short*)(text.ptr ? *text.ptr : 0);
+                unk48 = 0x32;
+            }
+            vfn7(this, unk48);
+        } else {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+    }
+    if (unk18 & 8) {
+        vfn7(this, 0x41);
         vfn7(this, 0x40);
     }
 }

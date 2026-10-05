@@ -36,20 +36,18 @@ void CASSelector::Draw(ERC* rc) {
         corner.y = unk2C.z - 0.02f;
         size.x = 1.0f;
         size.y = 1.0f;
-        rc->vfn49(&corner, &size, &unk48, 0.0f);
+        rc->vfn49(corner, size, unk48, 0.0f);
         unk84->fn_80181824(rc);
         corner.x = position.x + halfWidth;
         corner.y = unk2C.z - 0.02f;
         size.x = 1.0f;
         size.y = 1.0f;
-        rc->vfn49(&corner, &size, &unk58, 0.0f);
+        rc->vfn49(corner, size, unk58, 0.0f);
     } else {
         unk78->unk64 = lbl_802E6964;
     }
     unk78->fn_8003DBE8(rc);
-    corner.x = position.x;
-    corner.y = position.y;
-    unk78->fn_8003D740(rc, unk68 ? *unk68 : 0, 1, &corner, 2, 2, 0);
+    unk78->fn_8003D740(rc, unk68 ? *unk68 : 0, 1, position, 2, 2, 0);
 }
 
 // 0x800082D8

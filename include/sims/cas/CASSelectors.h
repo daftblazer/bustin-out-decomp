@@ -72,11 +72,15 @@ public:
     virtual void vfn3(ERC* rc);
     void fn_80017148();
 
-    char unk48[0x58 - 0x48];
-    void* unk58;
+    unsigned char unk48;          // current choice (also the message sent)
+    float unk4C;                  // caption indent
+    const unsigned short* unk50;  // caption
+    const unsigned short* unk54;  // value text
+    Unk8003C95C* unk58;           // font
     void* unk5C;
-    void* unk60;
-    void* unk64;
+    Unk80181824* unk60;           // left arrow
+    Unk80181824* unk64;           // right arrow
+    int unk68;                    // enabled
 };
 class Unk80017218 : public Unk80016CF0 { // vtable 0x80294700
 public:

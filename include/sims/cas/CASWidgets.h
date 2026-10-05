@@ -19,13 +19,14 @@ struct EColorF {
 extern EColorF lbl_802E69C4; // highlighted
 extern EColorF lbl_802E6964; // normal
 extern EColorF lbl_802E6954; // title
+extern EColorF lbl_802E69E4; // disabled
 
 // Text renderer (functions around 0x8003C95C).
 struct Unk8003C95C {
     void fn_8003C95C(int, float, float);
     EVec2 fn_8003D550(const unsigned short* text, int, int); // text extent
     void fn_8003DBE8(ERC* rc);
-    void fn_8003D740(ERC* rc, const unsigned short* text, int, EVec2* position, int, int, int);
+    void fn_8003D740(ERC* rc, const unsigned short* text, int, EVec2 position, int, int, int); // position is passed by value
     void fn_8003D93C(ERC* rc, const unsigned short* text, EVec2* position, int, int, EVec2* cursor, float scaleX, float scaleY);
     float fn_8003DC1C(int); // line height
 
@@ -90,7 +91,7 @@ struct ERC {
     virtual void vfn46();
     virtual void vfn47(const EVec2& corner0, const EVec2& corner1, const EVec2& uv0, const EVec2& uv1, const EColorF& color, float); // textured quad
     virtual void vfn48();
-    virtual void vfn49(EVec2* position, EVec2* size, EColorF* color, float);
+    virtual void vfn49(const EVec2& position, const EVec2& size, const EColorF& color, float); // tinted sprite
     virtual void vfn50();
     virtual void vfn51();
     virtual void vfn52();
