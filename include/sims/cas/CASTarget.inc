@@ -32,9 +32,12 @@
     int unk45A8; // 0x45a8
     char pad45AC[0x4];
     float unk45B0; // 0x45b0 camera move progress, 0 to 1
-    char pad45B4[0x14];
+    char pad45B4[0x8];
+    float unk45BC; // 0x45bc
+    char pad45C0[0x4];
+    float unk45C4; // 0x45c4
     unsigned char unk45C8; // 0x45c8 current view
-    unsigned char unk45C9; // 0x45c9
+    signed char unk45C9; // 0x45c9
     signed char unk45CA; // 0x45ca index into unk4478
     char pad45CB[0x1];
     int unk45CC; // 0x45cc view to switch to next
@@ -62,7 +65,7 @@
     int unk52D4; // 0x52d4
     char pad52D8[0xc];
     Unk8003C95C* unk52E4; // 0x52e4 text renderer
-    char pad52E8[0x4];
+    int unk52E8; // 0x52e8
     Unk801B9FEC unk52EC; // 0x52ec
     char pad52F0[0x8];
     int unk52F8; // 0x52f8
@@ -70,7 +73,8 @@
     char pad5300[0xc];
     int unk530C; // 0x530c
     int unk5310; // 0x5310
-    char pad5314[0xc];
+    int unk5314; // 0x5314 editing an existing family
+    char pad5318[0x8];
     int unk5320; // 0x5320 "CAS" dialog showing
     int unk5324; // 0x5324 "CAF" dialog showing
     int unk5328; // 0x5328

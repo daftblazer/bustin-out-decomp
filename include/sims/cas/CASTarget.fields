@@ -29,8 +29,10 @@ END 0x5D30
 0x45A0 4      int                unk45A0
 0x45A8 4      int                unk45A8
 0x45B0 4      float              unk45B0          # camera move progress, 0 to 1
+0x45BC 4      float              unk45BC
+0x45C4 4      float              unk45C4
 0x45C8 1      unsigned char      unk45C8          # current view
-0x45C9 1      unsigned char      unk45C9
+0x45C9 1      signed char        unk45C9
 0x45CA 1      signed char        unk45CA          # index into unk4478
 0x45CC 4      int                unk45CC          # view to switch to next
 0x45D0 4      int                unk45D0
@@ -50,11 +52,13 @@ END 0x5D30
 0x52C8 4      int                unk52C8          # set once loading has finished
 0x52D4 4      int                unk52D4
 0x52E4 4      Unk8003C95C*       unk52E4          # text renderer
+0x52E8 4      int                unk52E8
 0x52EC 4      Unk801B9FEC        unk52EC
 0x52F8 4      int                unk52F8
 0x52FC 4      UnkTargetBase*     unk52FC
 0x530C 4      int                unk530C
 0x5310 4      int                unk5310
+0x5314 4      int                unk5314          # editing an existing family
 0x5320 4      int                unk5320          # "CAS" dialog showing
 0x5324 4      int                unk5324          # "CAF" dialog showing
 0x5328 4      int                unk5328

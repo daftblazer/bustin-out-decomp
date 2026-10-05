@@ -21,6 +21,7 @@ public:
     CASTargetUnk533C();
     virtual ~CASTargetUnk533C();
     short fn_80015900();
+    void fn_80015908(unsigned char choice);
 
     unsigned char unk48;
     unsigned char unk49;
@@ -56,9 +57,11 @@ struct Unk801CC464 {
 };
 // Description of one sim (0xF8 bytes); copied whole.
 struct CASSimDesc {
-    signed char unk0[0xC];
+    unsigned char unk0[0xC];
     Unk801CC464 unkC;
-    char unk28[0xF8 - 0x28];
+    char unk28[0xA8 - 0x28];
+    int unkA8;
+    char unkAC[0xF8 - 0xAC];
 };
 struct Unk80039E78 {
     Unk80039E78();
@@ -100,6 +103,7 @@ struct Unk800226F0 {
 // The sim being shown (0x19C bytes).
 struct Unk80018374 {
     Unk80018374(CASSimDesc* desc, Unk8001EE8C* owner, int);
+    Unk80018374(int, int, Unk8001EE8C* owner);
     ~Unk80018374() { fn_8001A67C(); }
     void fn_8001A67C();
     void fn_8001C240();
@@ -312,6 +316,8 @@ public:
     void fn_8000C588();
     void fn_8000CBD8();
     void fn_8000D010();
+    void fn_8000D020(CASSimDesc* descs, int edit);
+    void fn_8000D228();
     void fn_8000D7D8();
     void fn_800102B0();
     void fn_80010408();

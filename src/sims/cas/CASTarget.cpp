@@ -154,6 +154,86 @@ void CASTarget::fn_8000D010() {
     lbl_8037C230 = 0;
 }
 
+// 0x8000D020
+// NON_MATCHING: 11 of 130 differ: the order of the nine initial stores, and in the
+// delete loop the original steps the array pointer before the counter and addresses the
+// description field as (base + 0xA8) + offset. Eleven variants tried.
+// Starts a session: either editing the family in `descs` or creating one.
+void CASTarget::fn_8000D020(CASSimDesc* descs, int edit) {
+    unk4588 = 0;
+    unk5314 = edit;
+    unk458C = 1;
+    unk45C9 = 0;
+    unk4478 = descs;
+    unk52E8 = 0;
+    unk4590 = 0;
+    unk45A0 = 0;
+    unk45CA = 0;
+    for (int i = 0; i < 4; i++) {
+        delete unk4468[i];
+        unk4468[i] = 0;
+        unk4478[i].unkA8 = 0;
+    }
+    delete unk4464;
+    if (unk5314) {
+        unk4464 = new Unk80018374(&unk4478[unk45CA], &unk3C8, 0);
+        unk4464->unk14 = unk458C;
+        if (unk4464->unk16C.unk4) {
+            if (unk4464->unk16C.unk0) {
+                unk4584 = 0;
+            } else {
+                unk4584 = 1;
+            }
+        } else {
+            if (unk4464->unk16C.unk0) {
+                unk4584 = 2;
+            } else {
+                unk4584 = 3;
+            }
+        }
+    } else {
+        unk4464 = new Unk80018374(unk45A8, 1, &unk3C8);
+        unk4464->unk14 = 1;
+        if (unk45A8) {
+            unk4584 = 0;
+        } else {
+            unk4584 = 1;
+        }
+    }
+    unk4464->unk8 = 1;
+    unk384 = lbl_802E57DC;
+    unk3A8 = lbl_802E57E8;
+    unk45C8 = 0x28;
+    unk45BC = unk45C4;
+}
+
+// 0x8000D228
+// Shows the first page: the sim editor when editing, the family-name dialog
+// when creating.
+void CASTarget::fn_8000D228() {
+    if (unk5314) {
+        CASSimDesc* desc = &unk4478[unk45CA];
+        unk533C[0].fn_80015908(desc->unk0[5]);
+        unk533C[1].fn_80015908(desc->unk0[4]);
+        unk533C[2].fn_80015908(desc->unk0[1]);
+        unk533C[3].fn_80015908(desc->unk0[3]);
+        unk533C[4].fn_80015908(desc->unk0[0]);
+        unk57A8.unk48 = desc->unk0[6];
+        fn_800141C0();
+    } else {
+        if (unk52FC == 0) {
+            fn_80014770();
+            unk52FC = new Unk800C6704(GetText("default_text_lastname"), 9, 0, GetText("last"),
+                                      GetText("create a family"), 20, 0, 0.5f, 0.25f, 0.25f, 10, 0, 16, 0, 0, 0, 1, 0, 0, 1,
+                                      0, 1, 0, 1, 1, 0);
+        }
+        unk4580 = 6;
+        unk45A0 = 0;
+    }
+    vfn7(this, 0x40);
+    vfn7(this, 0x41);
+}
+
 // 0x8000D7D8
 void CASTarget::fn_8000D7D8() {
     if (unk45C9) {
