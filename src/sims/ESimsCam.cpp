@@ -520,3 +520,40 @@ EVec3 ESimsCam::fn_80007DD8() {
     position.z = 0.25f;
     return position;
 }
+
+// 0x80006E6C
+// NON_MATCHING: 197 instructions vs 198, 52 differ. The frame is 8 bytes smaller than
+// the original's, so later temporaries sit 8 bytes lower, and the original zeroes
+// position.z through a saved pointer to `position` where this writes the stack slot.
+void ESimsCam::fn_80006E6C() {
+    Unk800053D4Owner* player = lbl_802E6700.unk9C[unk8];
+    if (player == 0) {
+        return;
+    }
+    EVec3 position;
+    player->vfn37()->vfn34(2, &position);
+    position.z = 0.0f;
+    if (position.LengthSquared() < 0.5f) {
+        position = lbl_802E6700.unk9C[unk8]->unk0->vfn117();
+        position.z = 0.0f;
+    }
+    if (unk324 != 0) {
+        unk324->vfn4(position);
+    }
+    float limit = (float)(lbl_8037D990->vfn6() - 1);
+    if (position.x >= 1.0f && position.x <= limit && position.y >= 1.0f && position.y <= limit) {
+        EVec3 dir = unk398.unk0 - unk378;
+        dir.z = 0.0f;
+        dir.Normalize();
+        unk398.unk0 = position + dir * 2.0f;
+        unk3CC = 100.0f;
+        EVec3 moved = unk398.unk0 - unk3B0.unk0;
+        if (moved.LengthSquared() > 100.0f) {
+            unk3B0.unk0 = unk398.unk0;
+        }
+        CalcEyePosition(unk378, unk3B0);
+        fn_8000650C();
+    } else if (unk328 == 4) {
+        unk328 = unk32C;
+    }
+}

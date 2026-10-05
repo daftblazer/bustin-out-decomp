@@ -19,6 +19,7 @@ public:
     EVec3 operator*(float scale) const { return EVec3(x * scale, y * scale, z * scale); }
 
     float Length() const;
+    float LengthSquared() const;
     EVec3& Normalize();
     EVec3& operator+=(const EVec3& other) {
         x += other.x;
@@ -44,6 +45,11 @@ inline EVec3 operator*(float scale, const EVec3& v) { return EVec3(scale * v.x, 
 extern "C" float fn_80122240(const EVec3* v);
 
 inline float EVec3::Length() const { return fn_80122240(this); }
+
+// Squared length. This is the Dolphin SDK's PSVECSquareMag (0x80122228).
+extern "C" float fn_80122228(const EVec3* v);
+
+inline float EVec3::LengthSquared() const { return fn_80122228(this); }
 
 // Vector normalize. This is the Dolphin SDK's PSVECNormalize (0x801221E4).
 extern "C" void fn_801221E4(const EVec3* src, EVec3* dst);

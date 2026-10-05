@@ -60,6 +60,17 @@ struct ESimsCamRenderer : public ESimsCamRendererBase {
 };
 extern ESimsCamRenderer* lbl_8037C198;
 
+// Level/lot singleton: slot 6 returns the lot size in tiles.
+struct Unk8037D990 {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual int vfn6();
+};
+extern Unk8037D990* lbl_8037D990;
+
 struct Unk8037D96C {
     void fn_8006186C(unsigned int id);
 };

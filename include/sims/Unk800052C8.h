@@ -51,6 +51,14 @@ struct Unk802E67B0 {
     char unk4[0x100]; // size unknown
 };
 
+// Tile position (0x10 bytes here; name from The Sims 2's symbol map, where
+// CTilePt has constructors from EVec3). Conversion at 0x801C6DEC, dtor 0x801C6FCC.
+struct CTilePt {
+    ~CTilePt();
+    operator EVec3() const; // 0x801C6DEC
+    char unk0[0x10];
+};
+
 // Object with its vtable pointer at 0x1C; slot 88 tests a flag.
 struct Unk800053D4Inner {
     char unk0[0x1C];
@@ -142,6 +150,35 @@ struct Unk800053D4Inner {
     virtual void vfn86();
     virtual void vfn87();
     virtual int vfn88(int);
+    virtual void vfn89();
+    virtual void vfn90();
+    virtual void vfn91();
+    virtual void vfn92();
+    virtual void vfn93();
+    virtual void vfn94();
+    virtual void vfn95();
+    virtual void vfn96();
+    virtual void vfn97();
+    virtual void vfn98();
+    virtual void vfn99();
+    virtual void vfn100();
+    virtual void vfn101();
+    virtual void vfn102();
+    virtual void vfn103();
+    virtual void vfn104();
+    virtual void vfn105();
+    virtual void vfn106();
+    virtual void vfn107();
+    virtual void vfn108();
+    virtual void vfn109();
+    virtual void vfn110();
+    virtual void vfn111();
+    virtual void vfn112();
+    virtual void vfn113();
+    virtual void vfn114();
+    virtual void vfn115();
+    virtual void vfn116();
+    virtual struct CTilePt vfn117();
 };
 
 // Skeleton-like object: slot 35 fetches the matrix of a node.
@@ -179,7 +216,7 @@ struct Unk800053D4Skeleton {
     virtual void vfn31();
     virtual void vfn32();
     virtual void vfn33();
-    virtual void vfn34();
+    virtual void vfn34(int node, EVec3* out);
     virtual void vfn35(unsigned int node, EMat4* out);
 };
 
