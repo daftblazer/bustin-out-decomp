@@ -50,7 +50,8 @@
     Unk8003C95C* unk52E4; // 0x52e4 text renderer
     char pad52E8[0x4];
     Unk801B9FEC unk52EC; // 0x52ec
-    char pad52F0[0xc];
+    char pad52F0[0x8];
+    int unk52F8; // 0x52f8
     UnkTargetBase* unk52FC; // 0x52fc
     char pad5300[0xc];
     int unk530C; // 0x530c

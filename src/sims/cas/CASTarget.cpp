@@ -166,11 +166,11 @@ void CASTarget::fn_800102B0() {
     unk447C.unkC = sim->unk16C;
     fn_80010520(&unk447C, 0);
     for (int i = 0; i < 5; i++) {
-        unk5838[i].fn_800150F8(&unk533C[i]);
+        unk5838[i] = unk533C[i];
     }
     unk5C98.Assign(unk57A0);
     unk5C9C.Assign(unk57A4);
-    unk5CA0.fn_800152A8(&unk57A8);
+    unk5CA0 = unk57A8;
     unk48 = 1;
 }
 
@@ -198,11 +198,39 @@ void CASTarget::fn_80010408() {
         }
         unk45A0 = 0;
         for (int i = 0; i < 5; i++) {
-            unk533C[i].fn_800150F8(&unk5838[i]);
+            unk533C[i] = unk5838[i];
         }
         unk57A0.Assign(unk5C98);
         unk57A4.Assign(unk5C9C);
-        unk57A8.fn_800152A8(&unk5CA0);
+        unk57A8 = unk5CA0;
+    }
+}
+
+// 0x80010520
+// NON_MATCHING: 36 of 81 differ, all in the random branch: the original keeps the
+// random preset in r29 (here r30) and reads the five shorts in the order 2, 3, 0, 1, 4.
+// Statement order (all 120 permutations) and setter-style inlines do not reproduce it.
+// Fills in a description's five feature bytes, from the selectors or, when
+// asked and no preset is chosen, from a random preset.
+void CASTarget::fn_80010520(CASSimDesc* desc, int randomize) {
+    unsigned char preset = unk57A8.unk48;
+    if (preset != 0 || randomize == 0) {
+        desc->unk0[5] = unk533C[0].fn_80015900();
+        desc->unk0[4] = unk533C[1].fn_80015900();
+        desc->unk0[1] = unk533C[2].fn_80015900();
+        desc->unk0[3] = unk533C[3].fn_80015900();
+        desc->unk0[0] = unk533C[4].fn_80015900();
+        desc->unk0[6] = preset;
+    } else {
+        short choices[5];
+        short random = fn_801115C4() % 11 + 1;
+        fn_800620CC(choices, random);
+        desc->unk0[6] = random;
+        desc->unk0[5] = choices[0] / 100;
+        desc->unk0[4] = choices[1] / 100;
+        desc->unk0[1] = choices[2] / 100;
+        desc->unk0[3] = choices[3] / 100;
+        desc->unk0[0] = choices[4] / 100;
     }
 }
 
@@ -231,6 +259,27 @@ void CASTarget::fn_80014378() {
     }
     unk4590 = 0;
     unk5310 = 1;
+}
+
+// 0x800143E4
+void CASTarget::fn_800143E4() {
+    vfn7(this, 0x42);
+    vfn7(this, 0x41);
+    unk45A0 = 0;
+    vfn7(this, 0x2D);
+    unk4590 = 0;
+    if (unk52F8) {
+        unk52F8 = 0;
+    } else if (unk5324 == 0) {
+        fn_80106164(unk52C4, "showCAF", 0, 0, 0);
+        fn_800145C8();
+        unk5324 = 1;
+    }
+    fn_80106164(unk52C4, "setButtonContext", 0, 0, 1, "CAS");
+    fn_80106164(unk52C4, "showButton", 0, 0, 1, "accept");
+    fn_80106164(unk52C4, "showButton", 0, 0, 1, "decline");
+    fn_80106164(unk52C4, "resetButtonContext", 0, 0, 0);
+    unk4580 = 10;
 }
 
 // 0x80014564
@@ -288,6 +337,28 @@ void CASTarget::fn_80014840() {
     }
 }
 
+// 0x80014914
+// Finds the user record with the given id in the save file, sets one byte in
+// it and writes it back.
+void CASTarget::fn_80014914(int id, unsigned char value) {
+    int count = lbl_8037D94C->vfn15('User');
+    CASUserRecord record;
+    for (short i = 1; i <= count; i++) {
+        void* data = lbl_8037D94C->vfn18('User', i, 0);
+        if (data) {
+            fn_80014AA8(&record, data, 'User', 0);
+            if (record.unk0 == id) {
+                if (lbl_8037D988->vfn14(record.unk0)) {
+                    record.unkC.unk10 = value;
+                    fn_80014B00(&record, lbl_8037D94C, 'User', i, lbl_8037C3F4);
+                    fn_801DA828(lbl_8037D948->vfn64(), lbl_8037D94C);
+                    break;
+                }
+            }
+        }
+    }
+}
+
 // 0x80014A88
 void CASTarget::fn_80014A88() {
     char unused[64];
@@ -306,17 +377,17 @@ struct CASCallback : Unk802316EC {
 };
 
 // 0x80014AA8
-void fn_80014AA8(void* a, int b, int c) {
-    CASCallback callback(a, c);
+void fn_80014AA8(CASUserRecord* record, void* data, int tag, int) {
+    CASCallback callback(record, tag);
     Unk80231598 caller;
-    caller.fn_80231598(&callback, b);
+    caller.fn_80231598(&callback, (int)data);
 }
 
 // 0x80014B00
-int fn_80014B00(void* a, int b, int c, int d, int e) {
-    CASCallback callback(a, c);
+int fn_80014B00(CASUserRecord* record, void* file, int tag, int index, int e) {
+    CASCallback callback(record, tag);
     Unk80231598 caller;
-    return caller.fn_802313B4(&callback, e, b, d);
+    return caller.fn_802313B4(&callback, e, (int)file, index);
 }
 
 // 0x80015070
@@ -325,6 +396,23 @@ int fn_80014B00(void* a, int b, int c, int d, int e) {
 EMat4& fn_80015070(EMat4& dst, const EMat4& src) {
     dst.Copy64(src);
     return dst;
+}
+
+// 0x800152A8
+// Member-by-member assignment. In the original this is probably the
+// compiler-generated operator (the one for CASTargetUnk533C at 0x800150F8 is);
+// here the generated version gets inlined into its callers, so it is spelled out.
+Unk80016448& Unk80016448::operator=(const Unk80016448& other) {
+    UnkTargetBase::operator=(other);
+    unk48 = other.unk48;
+    for (int i = 0; i < 13; i++) {
+        unk4C[i] = other.unk4C[i];
+    }
+    unk80 = other.unk80;
+    unk84 = other.unk84;
+    unk88 = other.unk88;
+    unk8C = other.unk8C;
+    return *this;
 }
 
 // 0x800155D4

@@ -10,18 +10,33 @@
 void* fn_80169F1C(unsigned int size, int align); // aligned allocate
 extern "C" void* fn_80111C78(void*, int, unsigned int); // memset
 
-extern "C" void fn_8024254C(unsigned short* dst, const unsigned short* src); // wide string copy
-
 // Member classes, known only by their constructors. Sizes are lower bounds
 // except where an array fixes them.
 
 // 0xE0 bytes, constructor 0x8001562C (the next unit); its method at 0x80015900
-// returns the current choice.
-struct CASTargetUnk533C {
+// returns the current choice. Members come from its generated assignment.
+class CASTargetUnk533C : public UnkTargetBase {
+public:
     CASTargetUnk533C();
-    void fn_800150F8(CASTargetUnk533C* other);
+    virtual ~CASTargetUnk533C();
     short fn_80015900();
-    char unk0[0xE0];
+
+    unsigned char unk48;
+    unsigned char unk49;
+    unsigned char unk4A;
+    float unk4C;
+    float unk50;
+    EColorF unk54;
+    EColorF unk64;
+    struct Entry {
+        void* ptr;
+    } unk74[2];
+    int unk7C;
+    int unk80;
+    float unk84[20];
+    int unkD4;
+    int unkD8;
+    int unkDC;
 };
 struct Unk801543AC {
     Unk801543AC();
@@ -38,26 +53,13 @@ struct Unk801CC464 {
     int unk4;
     int unk8;
     int unkC;
-    int unk10;
+    unsigned char unk10;
     int unk14;
     int unk18;
-
-    int GetKind() const {
-        if (unk4) {
-            if (unk0) {
-                return 0;
-            }
-            return 1;
-        }
-        if (unk0) {
-            return 2;
-        }
-        return 3;
-    }
 };
 // Description of one sim (0xF8 bytes); copied whole.
 struct CASSimDesc {
-    char unk0[0xC];
+    signed char unk0[0xC];
     Unk801CC464 unkC;
     char unk28[0xF8 - 0x28];
 };
@@ -74,18 +76,22 @@ struct Unk801B9FEC {
     Unk801B9FEC();
     char unk0[4];
 };
-struct Unk801BA678 {
-    Unk801BA678();
-    unsigned short* unk0; // text buffer
-    unsigned short* Get() const { return unk0; }
-    void Assign(const Unk801BA678& other) { fn_8024254C(Get(), other.Get()); }
-};
-struct Unk80016448 {
+// 0x90 bytes, constructor 0x80016448.
+class Unk80016448 : public UnkTargetBase {
+public:
     Unk80016448();
-    void fn_800152A8(Unk80016448* other);
-    char unk0[0x48];
+    virtual ~Unk80016448();
+
     unsigned char unk48;
-    char unk49[0x90 - 0x49];
+    int unk4C[13];
+    int unk80;
+    int unk84;
+    int unk88;
+    int unk8C;
+
+    // Declared so that it stays out of line, as in the original (see the
+    // definition in CASTarget.cpp).
+    Unk80016448& operator=(const Unk80016448& other);
 };
 
 struct Unk800226F0 {
@@ -115,6 +121,133 @@ public:
                 int, int, int, int, int, int, int, int);
     char unk48[0x178 - 0x48];
 };
+
+// Save-data record for one user (ctor/dtor inline from its members).
+struct Unk801C4E90 {
+    Unk801C4E90();
+    ~Unk801C4E90();
+    char unk0[4];
+};
+struct CASUserRecord {
+    int unk0;
+    Unk801C4E90 unk4;
+    Unk801C4E90 unk8;
+    Unk801CC464 unkC;
+};
+void fn_80014AA8(CASUserRecord* record, void* data, int tag, int);
+int fn_80014B00(CASUserRecord* record, void* file, int tag, int index, int);
+
+// Resource file object: vtable pointer at 0x10.
+struct Unk8037D94C {
+    char unk0[0x10];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual int vfn15(int tag);                    // number of records
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void* vfn18(int tag, int index, int);  // record data
+};
+extern Unk8037D94C* lbl_8037D94C;
+struct Unk8037D988 {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual int vfn14(int id);
+};
+extern Unk8037D988* lbl_8037D988;
+struct Unk8037D948 {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26();
+    virtual void vfn27();
+    virtual void vfn28();
+    virtual void vfn29();
+    virtual void vfn30();
+    virtual void vfn31();
+    virtual void vfn32();
+    virtual void vfn33();
+    virtual void vfn34();
+    virtual void vfn35();
+    virtual void vfn36();
+    virtual void vfn37();
+    virtual void vfn38();
+    virtual void vfn39();
+    virtual void vfn40();
+    virtual void vfn41();
+    virtual void vfn42();
+    virtual void vfn43();
+    virtual void vfn44();
+    virtual void vfn45();
+    virtual void vfn46();
+    virtual void vfn47();
+    virtual void vfn48();
+    virtual void vfn49();
+    virtual void vfn50();
+    virtual void vfn51();
+    virtual void vfn52();
+    virtual void vfn53();
+    virtual void vfn54();
+    virtual void vfn55();
+    virtual void vfn56();
+    virtual void vfn57();
+    virtual void vfn58();
+    virtual void vfn59();
+    virtual void vfn60();
+    virtual void vfn61();
+    virtual void vfn62();
+    virtual void vfn63();
+    virtual void* vfn64();
+};
+extern Unk8037D948* lbl_8037D948;
+extern int lbl_8037C3F4;
+void fn_801DA828(void*, Unk8037D94C* file);
+extern "C" int fn_801115C4(); // rand
+void fn_800620CC(short* choices, int preset);
 
 // Scoped object used around the loading-thread flag (ctor 0x801BE528).
 struct Unk801BE528 {
@@ -192,6 +325,7 @@ public:
     void fn_80014188(ERC* rc, const unsigned short* text, int a, EVec2* position, int b);
     void fn_80014378();
     void fn_80014564();
+    void fn_80014914(int id, unsigned char value);
     void fn_800145C8();
     void fn_800146A0();
     void fn_80014770();

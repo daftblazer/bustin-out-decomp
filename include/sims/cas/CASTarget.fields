@@ -36,6 +36,7 @@ END 0x5D30
 0x52D4 4      int                unk52D4
 0x52E4 4      Unk8003C95C*       unk52E4          # text renderer
 0x52EC 4      Unk801B9FEC        unk52EC
+0x52F8 4      int                unk52F8
 0x52FC 4      UnkTargetBase*     unk52FC
 0x530C 4      int                unk530C
 0x5310 4      int                unk5310

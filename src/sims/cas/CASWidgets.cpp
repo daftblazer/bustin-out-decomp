@@ -13,8 +13,8 @@ void CASSelector::Draw(ERC* rc) {
     unk78->fn_8003C95C(1, 14.0f, 1.0f);
     EVec3 extent = unk78->fn_8003D550(unk68 ? *unk68 : 0, 1, 0);
     EVec2 position;
-    position.x = unk20 * 0.5f + unk2C;
-    position.y = extent.y * 0.5f + unk34;
+    position.x = unk20.x * 0.5f + unk2C.x;
+    position.y = extent.y * 0.5f + unk2C.z;
     EVec2 corner;
     if (unk18 & 8) {
         unk78->unk64 = lbl_802E69C4;
@@ -33,13 +33,13 @@ void CASSelector::Draw(ERC* rc) {
         unk80->fn_80181824(rc);
         EVec2 size;
         corner.x = position.x - halfWidth - 0.018f;
-        corner.y = unk34 - 0.02f;
+        corner.y = unk2C.z - 0.02f;
         size.x = 1.0f;
         size.y = 1.0f;
         rc->vfn49(&corner, &size, &unk48, 0.0f);
         unk84->fn_80181824(rc);
         corner.x = position.x + halfWidth;
-        corner.y = unk34 - 0.02f;
+        corner.y = unk2C.z - 0.02f;
         size.x = 1.0f;
         size.y = 1.0f;
         rc->vfn49(&corner, &size, &unk58, 0.0f);
