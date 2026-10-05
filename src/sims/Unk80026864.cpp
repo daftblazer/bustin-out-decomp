@@ -119,7 +119,9 @@ inline void DeleteAll(Unk80026864List& list) {
 }
 
 // 0x80027780
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 8 instructions. The list walk keeps its node in r3 instead of r9, and
+// the load of the first resource is hoisted above the store that clears unkC8.
+// Four variants tried.
 void Unk80026864::fn_80027780() {
     unk148.Clear();
     DeleteAll(unk194);
@@ -237,18 +239,19 @@ void Unk80026864::vfn18(int flags, int set) {
     }
 }
 
+// World coordinate of a tile index. Taking the index by reference is what makes the
+// original copy the tile pair to the stack first.
+inline float TileToWorld(const int& tile, float origin) { return (float)tile * 0.0625f + origin; }
+
 // 0x80027EAC
 // Puts the cursor on the tile the player's sim stands on.
-// NON_MATCHING: not yet compared.
 void Unk80026864::fn_80027EAC() {
     EGlobal* global = &lbl_802E6700;
     if (global->unk9C[0] || global->unk9C[1]) {
         Unk800053D4Owner* owner = global->unk9C[unk38];
         if (owner) {
             ETilePair tile = *owner->unk0->vfn115();
-            unkA0.x = (float)tile.x * 0.0625f + global->unk7C;
-            unkA0.z = 0.05f;
-            unkA0.y = (float)tile.y * 0.0625f + global->unk80;
+            unkA0.Set(TileToWorld(tile.x, global->unk7C), TileToWorld(tile.y, global->unk80), 0.05f);
             unk94 = unkA0;
         }
     }
