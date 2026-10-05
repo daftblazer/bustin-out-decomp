@@ -3,6 +3,10 @@
 #include "engine/EController.h"
 
 // 0x800230AC
+// NON_MATCHING: six instructions at the entry are in a different order (the original
+// stores the vtable pointer before loading unk7C; here the load is hoisted above the
+// store). The rest, including the member destructors, is identical. Three variants
+// tried (plain ifs, an inline member, a reference-taking helper).
 Unk800230AC::~Unk800230AC() {
     if (unk7C) {
         fn_801767FC(unk7C);
@@ -70,6 +74,11 @@ void Unk800230AC::fn_80023488(ERC* rc) {
 }
 
 // 0x800236E4
+// NON_MATCHING: 306 instructions vs 305, 144 differing, same frame. In the family
+// branch the original reaches its three temporaries through second copies of their
+// addresses (r23-r25) and stores the caption position's y without reloading it; the
+// other branch uses the first copies as here. Two variants tried (named locals with
+// and without their own blocks).
 void Unk800230AC::fn_800236E4(ERC* rc) {
     unk7C->fn_80181824(rc);
     rc->vfn47(EVec2(0.0f, 0.0f), EVec2(1.0f, 0.2f), EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(0.0f, 0.125f, 0.67f, 0.33f), 0.0f);
@@ -119,11 +128,13 @@ void Unk800230AC::vfn2() {
         unk48.Advance(lbl_8037BFC8);
         if (unk48.Cur() < unk48.Max()) {
             float t = 1.0f - unk48.Fraction();
-            float eased = (-t * t * t + t * t + t) * (0.2f - 0.0f) + 0.0f;
+            float lo = 0.0f;
+            float hi = 0.2f;
+            float eased = (-t * t * t + t * t + t) * hi + lo;
             if (unk72) {
                 unk54 = eased;
             } else {
-                unk54 = 0.2f - eased;
+                unk54 = hi - eased;
             }
         } else if (!unk72) {
             unk48.Set(0.0f, 0.5f);
