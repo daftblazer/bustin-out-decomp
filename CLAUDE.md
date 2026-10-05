@@ -85,6 +85,11 @@ to the GCC 2.95 mangled name the compiler emits (`tools/rename.py OLD NEW`):
   `Object(NonMatching, ...)` entry in `configure.py`. Translation units end at
   the static-initializer functions listed in `.ctors`.
 
+Compiler-generated functions (`__static_initialization_and_destruction_0`) have
+the same name in every unit. Give each one that name in `symbols.txt` **with
+`scope:local`**; without it the linker binds every unit's call to one copy and
+`main.dol` no longer matches. Always run `ninja` before committing.
+
 ## Splitting a unit's data
 
 A unit can only be switched to `Matching` once its data sections are split too.
@@ -187,6 +192,12 @@ Global `operator new` / `operator delete` are `__builtin_new` (0x801B8A3C) and
   function, e.g. an inline setter `void Set(const EVec3& v) { member = v; }`.
 - `EVec3` copy construction is float by float, assignment is word by word, and
   `EVec3::Set(x, y, z)` stores x, then z, then y.
+- Binding a returned object to a `const` reference (`const EVec3& p = Get();`) makes
+  the compiler hold the temporary's address in a saved register from that point; a
+  plain local copy does not. `EVec3::Normalize()` returns `EVec3&`.
+- A destructor called with flag 0 is destroying a base class, 2 a member or local,
+  3 a `delete`.
+- An unsigned `switch` operand shows `cmplwi`/`blt` in the dispatch.
 - Statement order matters: a run of constant stores comes out in a different
   order than written, with no simple rule. For three or four stores, compile
   every permutation in a scratch file and compare (see `TArray::Init`).
