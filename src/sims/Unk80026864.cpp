@@ -330,9 +330,26 @@ int fn_80028AA4(Unk800053D4Inner* object);
 struct Unk80026864Cam {
     float fn_8000562C();          // ESimsCam::GetCurZoomRatio, 0..1 (ESimsCam.h cannot be
                                   // included next to CASSim.h yet)
+    void fn_80007528(int player, EVec3& move);   // ESimsCam::CursorMoved
     char unk0[0x328];
     int unk328;                   // camera mode
+    char unk32C[0x378 - 0x32C];
+    EVec3 unk378;                 // eye
+    char unk384[0x390 - 0x384];
+    float unk390;                 // cursor speed
+    char unk394[4];
+    EVec3 unk398;                 // target
 };
+extern float lbl_8037B4A0;
+extern "C" float fn_8010DD60(float y, float x); // atan2f
+void fn_800328F4(struct Unk801C6F20* tile);
+// A stick axis squared, keeping its sign.
+inline float SignedSquare(float value) {
+    if (value < 0.0f) {
+        return value * -value;
+    }
+    return value * value;
+}
 extern float lbl_8037B4A4;
 extern float lbl_8037B4A8;
 void fn_800686D4(Unk800053D4Inner* object);
@@ -1593,6 +1610,80 @@ void Unk80026864::vfn2() {
             }
             break;
         }
+    }
+}
+
+// 0x80029BF8
+// Moves the cursor with the stick, relative to the camera, and keeps it on the lot.
+// NON_MATCHING: 297 instructions vs 300. Calls and arithmetic are the original's; the
+// stack layout of the vector temporaries and the two range tests differ. One variant.
+void Unk80026864::fn_80029BF8() {
+    unk94 = unkA0;
+    Unk80026864Cam* camera = (Unk80026864Cam*)unkBC;
+    if (camera->unk328 == 4) {
+        return;
+    }
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (unk84 == 4 && (unk88 & 2) && controller->fn_8015DF98(0x11)) {
+        return;
+    }
+    float stickX = controller->fn_8015DEE4(0, 0);
+    float stickY = controller->fn_8015DEE4(0, 1);
+    float moveX = SignedSquare(stickX);
+    float moveY = SignedSquare(stickY);
+    EVec3 move;
+    move.x = moveX * camera->unk390 * lbl_8037BFC8;
+    move.z = 0.0f;
+    move.y = moveY * camera->unk390 * lbl_8037BFC8;
+    float limit = (float)((Unk8037D990F*)lbl_8037D990)->vfn6() - 1.0f;
+    lbl_8037B4A0 += lbl_8037BFC8;
+    if (move.x != 0.0f || move.y != 0.0f) {
+        EVec3 eye(camera->unk378);
+        EVec3 target(camera->unk398);
+        EVec3 direction = target - eye;
+        direction.Normalize();
+        EVec3 flat(direction);
+        float angle = fn_8010DD60(flat.x, flat.y);
+        EMat4 rotation;
+        rotation.fn_801B2AFC();
+        rotation.fn_801B2CC8(-angle);
+        move = move * rotation;
+        unkA0 += move;
+        bool inX = unkA0.x >= 1.0f && unkA0.x <= limit;
+        bool inY = unkA0.y >= 1.0f && unkA0.y <= limit;
+        if (!inX) {
+            move.x = 0.0f;
+        }
+        if (!inY) {
+            move.y = 0.0f;
+        }
+        float x;
+        if (unkA0.x < 1.0f) {
+            x = 1.0f;
+        } else if (unkA0.x > limit) {
+            x = limit;
+        } else {
+            x = unkA0.x;
+        }
+        unkA0.x = x;
+        float y;
+        if (unkA0.y < 1.0f) {
+            y = 1.0f;
+        } else if (unkA0.y > limit) {
+            y = limit;
+        } else {
+            y = unkA0.y;
+        }
+        unkA0.y = y;
+        ((UnkTargetBase*)unkC)->vfn7(this, unk38 == 0 ? 0x15 : 0x16);
+        camera->fn_80007528(unk38, move);
+    }
+    int tileX;
+    int tileY;
+    fn_8002BB64(&tileX, &tileY);
+    if (tileY >= 0 && tileX >= 0) {
+        Unk801C6F44 tile(tileY, tileX, 1);
+        fn_800328F4(&tile);
     }
 }
 
