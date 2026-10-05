@@ -13,8 +13,10 @@ void fn_801767FC(void* resource);
 // Virtual base of the in-game screens (vtable 0x802A2AC0): one word and three virtuals.
 class Unk802A2AC0 {
 public:
-    Unk802A2AC0() { unk0 = 0; }
-    int unk0;
+    Unk802A2AC0() { mode = 0; }
+    // True for four of the modes (8 to 11).
+    bool IsBuildMode() const { return mode == 8 || mode == 10 || mode == 11 || mode == 9; }
+    int mode;   // current mode
     virtual ~Unk802A2AC0() {}
     virtual void vfn2(int);   // not inline: the vtable lives with its definition
     virtual void vfn3();
@@ -80,6 +82,16 @@ public:
     int fn_80027BF0();                                 // confirm button, selection of several
     int fn_80027D24();                                 // confirm button, single selection
     void fn_80027FCC(struct Unk800053D4Inner* object);
+    void fn_800285D4();
+    void fn_80029BF8();
+    void fn_80033BAC();
+    void fn_8002F1BC();
+    void fn_80031928();
+    void Common() {
+        fn_80033BAC();
+        fn_8002F1BC();
+        fn_80031928();
+    }
     void fn_8002A0A8();
     void fn_8002D1D0();
     int fn_80027AD8();                                 // run the current state's handler

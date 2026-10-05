@@ -3,6 +3,7 @@
 #include "sims/cas/CASWidgets.h"
 #include "sims/cas/CASSelectors.h"
 #include "engine/EController.h"
+#include "sims/cas/CASTarget.h"
 
 extern float lbl_8037BFC8;
 struct Unk8002FD24 {
@@ -20,7 +21,7 @@ struct Unk801FD05CResult {
     virtual void vfn5();
     virtual void vfn6();
     virtual void vfn7();
-    virtual void vfn8();
+    virtual void* vfn8b();
     virtual int vfn9();
 };
 // The part of a game object at +0x20: vtable pointer at 0x1C, slot 19 gives its model.
@@ -49,10 +50,9 @@ struct Unk801FD05C {
 Unk801FD05CResult* fn_801FD05C(Unk801FD05C* object, int kind);
 inline Unk801FD05C* GetUnk20(Unk800053D4Inner* object) { return *(Unk801FD05C**)((char*)object + 0x20); }
 
-// True for four of the camera's modes.
+// The camera object's own mode word (its virtual base, at +0x1F0).
 inline bool IsBuildCameraMode() {
-    int mode = *(int*)((char*)lbl_802E6700.unkBC + 0x1F0);
-    return mode == 8 || mode == 10 || mode == 11 || mode == 9;
+    return ((Unk802A2AC0*)((char*)lbl_802E6700.unkBC + 0x1F0))->IsBuildMode();
 }
 
 struct Unk8037BFA8 {
@@ -110,6 +110,59 @@ struct Unk8007FFE8 {
     void fn_8007FFE8(int);
 };
 extern void* lbl_8037D990;
+
+// Object manager (0x8037D98C): slot 18 finds an object by id.
+struct Unk8037D98C {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk800053D4Inner* vfn18(int id);
+    int fn_801C8858(void* definition, int arg, int);
+};
+extern Unk8037D98C* lbl_8037D98C;
+struct Unk801FD05CGroup {
+    int unk0;
+    virtual void vfn1();
+    char unk8[4];
+    struct Unk801FD05CGroupNode* unkC;
+};
+struct Unk801FD05CGroupNode {
+    int unk0;
+    Unk800053D4Inner** unk4;
+};
+struct Unk8004F7EC {
+    void fn_8004F7EC();
+    void fn_8004F720();
+};
+struct Unk8007F3B4 {
+    void fn_8007F3B4();
+};
+inline Unk801FD05CResult* GetPart(Unk800053D4Inner* object, int kind) {
+    if (object) {
+        return fn_801FD05C(GetUnk20(object), kind);
+    }
+    return 0;
+}
+inline bool IsActive(UnkTargetBase* screen) {
+    if (screen) {
+        return (screen->unk18 & 4) != 0;
+    }
+    return false;
+}
 
 // Callback table copied over the engine's defaults (0x30 bytes at 0x802D1ED8).
 struct Unk802DBAEC {
@@ -584,6 +637,132 @@ void Unk80026864::fn_80027FCC(Unk800053D4Inner* object) {
         view->fn_8004AD08();
     } else if (lbl_802E6700.fn_80068D9C(object)) {
         view->fn_8004AD08();
+    }
+}
+
+// 0x80028080
+// Messages from the child screen: 0x1C picks up the chosen object, 0x1D leaves.
+// NON_MATCHING: not yet compared.
+void Unk80026864::vfn7(UnkTargetBase* sender, int message) {
+    if (message == 0x1D) {
+        if (!IsBuildMode()) {
+            ((UnkTargetBase*)unkC)->vfn7(this, 0x14);
+            ((Unk8007F3B4*)((Unk8004AD08*)lbl_802E67B0.unk0)->unk4)->fn_8007F3B4();
+            unk84 = 0;
+        } else {
+            ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
+            unk84 = 0;
+        }
+    } else if (message == 0x1C) {
+        if (IsBuildMode()) {
+            Unk800053D4Inner* object = lbl_8037D98C->vfn18((int)sender);
+            if (object && object->vfn124()) {
+                if (((Unk801FD05CGroup*)GetPart(object, 8))->unkC != 0) {
+                    Unk801FD05CGroupNode* node = ((Unk801FD05CGroup*)GetPart(object, 8))->unkC;
+                    if (node) {
+                        object = *node->unk4;
+                    } else {
+                        object = 0;
+                    }
+                }
+            }
+            if (object && object->vfn54()) {
+                unk90 = 0;
+                unk1B0 = 0;
+                unk8C = 1;
+                unk1A4 = *object->vfn115();
+                unk1AC = object->vfn88(1);
+                int arg = lbl_8037D988->vfn14(0x437);
+                Unk8037D98C* manager = lbl_8037D98C;
+                int id = manager->fn_801C8858(object->vfn111(), arg, 1);
+                unkF0 = GetPart(lbl_8037D98C->vfn18(id), 4);
+                (**(Unk800053D4Inner***)unkF0)->vfn48();
+                if (unkF0) {
+                    lbl_8037D96C->fn_8006186C(0xD9552AE4);
+                    ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
+                    unk84 = 0;
+                    fn_80027FCC((Unk800053D4Inner*)((Unk801FD05CResult*)unkF0)->vfn8b());
+                    return;
+                }
+            }
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+    } else {
+        if (message == 0x1A) {
+            message = 0x11;
+        } else if (message == 0x1B) {
+            message = 0x12;
+        }
+        ((UnkTargetBase*)unkC)->vfn7(sender, message);
+    }
+}
+
+// 0x8002840C
+// Mode change (the virtual base's slot 2).
+// NON_MATCHING: not yet compared.
+void Unk80026864::vfn2(int mode) {
+    Unk802A2AC0::mode = mode;
+    switch (mode) {
+    case 0:
+        Common();
+        ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
+        unk84 = mode;
+        vfn10(2, 1);
+        unk18 |= 2;
+        break;
+    case 8:
+        Common();
+        ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
+        fn_801888F4(2, 0);
+        unk84 = 6;
+        break;
+    case 3:
+        if (unk38 == 0) {
+            Common();
+            ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
+            fn_801888F4(2, 0);
+            unk84 = unk38;
+        }
+        break;
+    case 4:
+        if (unk38 != 1) {
+            break;
+        }
+    case 1:
+    case 2:
+    case 6:
+    case 7:
+        Common();
+        ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
+        fn_801888F4(2, 0);
+        unk84 = 0;
+        break;
+    case 9:
+        fn_801888F4(2, 1);
+        break;
+    case 5:
+        break;
+    default:
+        Common();
+        break;
+    }
+}
+
+// 0x800285D4
+// NON_MATCHING: not yet compared.
+void Unk80026864::fn_800285D4() {
+    if (!(*(int*)((char*)lbl_802E6700.unkBC + 0x2958) != 0)) {
+        UnkTargetBase* child = unkC8;
+        if (unk84 == 1 && IsActive(child)) {
+            child->vfn2();
+            return;
+        }
+        if (IsActive(child)) {
+            ((Unk8004F7EC*)child)->fn_8004F720();
+        }
+        if (!fn_80027BF0()) {
+            fn_80029BF8();
+        }
     }
 }
 

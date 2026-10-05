@@ -60,7 +60,7 @@ public:
     virtual void vfn7(UnkTargetBase* sender, int message); // slot 7
     virtual void vfn8(const char* name, const char* value); // slot 8: UI script variable set
     virtual char* vfn9(const char* name);                  // slot 9: UI script variable look-up
-    virtual void vfn10();
+    virtual void vfn10(int flags, int set);
     virtual void vfn11();
     virtual void vfn12();
     virtual void vfn13();
@@ -73,6 +73,7 @@ public:
     void fn_801887C8(); // base update
     void fn_80188B10(UnkTargetBase* child); // detach a child
     void fn_80188850(struct ERC* rc); // base draw
+    void fn_801888F4(int flags, int set);
 
     Unk801B4760 unk0;
     int unkC;

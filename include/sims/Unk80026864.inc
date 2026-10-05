@@ -13,7 +13,7 @@
     UnkTargetBase* unkC8; // 0xc8 child screen
     char unkCC; // 0xcc
     char padCD[0x23];
-    int unkF0; // 0xf0
+    struct Unk801FD05CResult* unkF0; // 0xf0 the object being placed
     float unkF4; // 0xf4
     char unkF8; // 0xf8
     char padF9[0x3];
@@ -40,7 +40,10 @@
     Unk8002EF48 unk154; // 0x154
     char pad17C[0x18];
     Unk80026864List unk194; // 0x194 owned objects
-    char pad1A0[0x10];
+    char pad1A0[0x4];
+    ETilePair unk1A4; // 0x1a4 tile the picked-up object came from
+    short unk1AC; // 0x1ac
+    char pad1AE[0x2];
     int unk1B0; // 0x1b0
     int unk1B4; // 0x1b4
     int unk1B8; // 0x1b8
