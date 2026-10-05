@@ -190,7 +190,7 @@ public:
     int unk32C;         // camera mode to return to
     int unk330;
     int unk334;
-    char unk338[0x378 - 0x338];
+    EMat4 unk338;       // transform applied in camera mode 3
     EVec3 unk378;       // eye position
     EVec3 unk384;
     float unk390;

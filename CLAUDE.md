@@ -10,6 +10,7 @@ the toolchain is unusual (SN ProDG / GCC 2.95.2, patched decomp-toolkit, `ngcld`
 .venv/bin/ninja                                         # must end with "main.dol: OK"
 tools/tu.sh src/sims/ESimsApp.cpp [-v]                  # compile one file, compare every function
 tools/trycc.sh [-v VERSION] file.cpp [flags]            # compile a scratch snippet, print asm
+.venv/bin/python tools/sort_functions.py src/x/File.cpp # put a file's functions in address order
 .venv/bin/python tools/ppcdis.py ADDR [COUNT]           # disassemble the original
 .venv/bin/python tools/findref.py ADDR                  # who references an address
 ```

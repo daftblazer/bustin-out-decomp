@@ -354,6 +354,18 @@ int ESimsCam::fn_800060A8() {
     return 0;
 }
 
+// 0x8000633C
+int ESimsCam::fn_8000633C() {
+    if (unk328 == 3 && lbl_802E6700.unk9C[unk8] != 0) {
+        unk378 = EVec3(0.0f, 0.0f, 0.0f);
+        unk398.unk0 = EVec3(0.0f, 10.0f, 0.0f);
+        unk378 = unk378 * unk338;
+        unk398.unk0 = unk398.unk0 * unk338;
+        return 1;
+    }
+    return 0;
+}
+
 // 0x8000650C
 void ESimsCam::fn_8000650C() {
     unk390 = (unk398.unkC - lbl_8037B408) / (lbl_8037B404 - lbl_8037B408) * (lbl_8037B414 - lbl_8037B418) + lbl_8037B418;
@@ -392,25 +404,6 @@ void ESimsCam::CalcEyePosition(EVec3& eye, CameraParameters& params) {
     eye = back;
     EVec3 toEye = (eye - lbl_802E57C4).Normalize();
     eye = params.unk0 + toEye * params.unkC;
-}
-
-// 0x80006D90
-void ESimsCam::fn_80006D90() {
-    unk398.unk0 = lbl_802E57C4;
-    unk384 = lbl_802E57D0;
-    unk3B0.unk0 = lbl_802E57C4;
-    unk3B0.unk14 = lbl_8037B420;
-    unk3B0.unk10 = lbl_8037B41C;
-    unk3B0.unkC = lbl_8037B428;
-    unk398.unk14 = lbl_8037B420;
-    unk398.unk10 = lbl_8037B41C;
-    unk398.unkC = lbl_8037B428;
-    CalcEyePosition(unk378, unk3B0);
-    if (unk324) {
-        unk324->fn_80027EAC();
-    }
-    fn_8000650C();
-    fn_80006E6C();
 }
 
 // 0x8000698C
@@ -479,46 +472,23 @@ void ESimsCam::fn_80006C58() {
     }
 }
 
-// 0x80007184
-void ESimsCam::GetPos(EVec3& eye, EVec3& target, EVec3& unk) {
-    eye = unk378;
-    target = unk398.unk0;
-    unk = unk384;
-}
-
-// 0x80007430
-int ESimsCam::fn_80007430() {
-    return fn_80007470(0.15f, 0.3f, 0.85f, 0.75f);
-}
-
-// 0x80007470
-// NON_MATCHING: 23 of 46 instructions. The original keeps the screen position at the
-// bottom of the frame (read straight off the stack) with the cursor temporary above it,
-// its address held in r29 from before the call; this lays the two out the other way.
-int ESimsCam::fn_80007470(float left, float top, float right, float bottom) {
-    EVec2 screen;
-    fn_80156130(fn_80007DD8(), &screen);
-    int flags = 0;
-    if (screen.x < left) {
-        flags = 1;
+// 0x80006D90
+void ESimsCam::fn_80006D90() {
+    unk398.unk0 = lbl_802E57C4;
+    unk384 = lbl_802E57D0;
+    unk3B0.unk0 = lbl_802E57C4;
+    unk3B0.unk14 = lbl_8037B420;
+    unk3B0.unk10 = lbl_8037B41C;
+    unk3B0.unkC = lbl_8037B428;
+    unk398.unk14 = lbl_8037B420;
+    unk398.unk10 = lbl_8037B41C;
+    unk398.unkC = lbl_8037B428;
+    CalcEyePosition(unk378, unk3B0);
+    if (unk324) {
+        unk324->fn_80027EAC();
     }
-    if (screen.x > right) {
-        flags |= 2;
-    }
-    if (screen.y < top) {
-        flags |= 4;
-    }
-    if (screen.y > bottom) {
-        flags |= 8;
-    }
-    return flags;
-}
-
-// 0x80007DD8
-EVec3 ESimsCam::fn_80007DD8() {
-    EVec3 position = *unk324->fn_8002D2C8();
-    position.z = 0.25f;
-    return position;
+    fn_8000650C();
+    fn_80006E6C();
 }
 
 // 0x80006E6C
@@ -558,6 +528,68 @@ void ESimsCam::fn_80006E6C() {
     }
 }
 
+// 0x80007184
+void ESimsCam::GetPos(EVec3& eye, EVec3& target, EVec3& unk) {
+    eye = unk378;
+    target = unk398.unk0;
+    unk = unk384;
+}
+
+// 0x800071DC
+void ESimsCam::SetPos(EVec3& eye, EVec3& target, EVec3& unk) {
+    unk378 = eye;
+    EVec3 dir = target - eye;
+    float pitch = CalcPitch(dir);
+    float theta = CalcZAxisTheta(dir);
+    EVec3 reference = lbl_802E57C4 - lbl_802E57B8;
+    theta -= CalcZAxisTheta(reference);
+    if (theta < 0.0f) {
+        theta += 6.2831855f;
+    }
+    unk3B0.unk14 = unk398.unk14 = pitch * 180.0f / 3.1415927f;
+    unk3B0.unk10 = unk398.unk10 = theta * 180.0f / 3.1415927f;
+    unk3B0.unkC = unk398.unkC = dir.Length();
+    unk398.unk0 = target;
+    unk3B0.unk0 = unk398.unk0;
+    unk384 = unk;
+    float fov = GetFov();
+    fov *= (float)lbl_8037C198->unk18;
+    fov /= (float)lbl_8037C198->unk14;
+    float aspect = lbl_8037C198->vfn37();
+    float nearPlane = GetNearPlane();
+    float farPlane = GetFarPlane();
+    fn_80154490(fov, aspect, nearPlane, farPlane);
+    SetWinPos(*this);
+}
+
+// 0x80007430
+int ESimsCam::fn_80007430() {
+    return fn_80007470(0.15f, 0.3f, 0.85f, 0.75f);
+}
+
+// 0x80007470
+// NON_MATCHING: 23 of 46 instructions. The original keeps the screen position at the
+// bottom of the frame (read straight off the stack) with the cursor temporary above it,
+// its address held in r29 from before the call; this lays the two out the other way.
+int ESimsCam::fn_80007470(float left, float top, float right, float bottom) {
+    EVec2 screen;
+    fn_80156130(fn_80007DD8(), &screen);
+    int flags = 0;
+    if (screen.x < left) {
+        flags = 1;
+    }
+    if (screen.x > right) {
+        flags |= 2;
+    }
+    if (screen.y < top) {
+        flags |= 4;
+    }
+    if (screen.y > bottom) {
+        flags |= 8;
+    }
+    return flags;
+}
+
 // 0x80007528
 void ESimsCam::CursorMoved(int player, EVec3& delta) {
     switch (unk3C8) {
@@ -592,70 +624,6 @@ void ESimsCam::CursorMoved(int player, EVec3& delta) {
         }
         break;
     }
-}
-
-// 0x800071DC
-void ESimsCam::SetPos(EVec3& eye, EVec3& target, EVec3& unk) {
-    unk378 = eye;
-    EVec3 dir = target - eye;
-    float pitch = CalcPitch(dir);
-    float theta = CalcZAxisTheta(dir);
-    EVec3 reference = lbl_802E57C4 - lbl_802E57B8;
-    theta -= CalcZAxisTheta(reference);
-    if (theta < 0.0f) {
-        theta += 6.2831855f;
-    }
-    unk3B0.unk14 = unk398.unk14 = pitch * 180.0f / 3.1415927f;
-    unk3B0.unk10 = unk398.unk10 = theta * 180.0f / 3.1415927f;
-    unk3B0.unkC = unk398.unkC = dir.Length();
-    unk398.unk0 = target;
-    unk3B0.unk0 = unk398.unk0;
-    unk384 = unk;
-    float fov = GetFov();
-    fov *= (float)lbl_8037C198->unk18;
-    fov /= (float)lbl_8037C198->unk14;
-    float aspect = lbl_8037C198->vfn37();
-    float nearPlane = GetNearPlane();
-    float farPlane = GetFarPlane();
-    fn_80154490(fov, aspect, nearPlane, farPlane);
-    SetWinPos(*this);
-}
-
-// 0x80007C68
-// NON_MATCHING: 15 of 43 instructions. Same code, but the original keeps the length in
-// f31 and the 0.0 constant in f30 (this has them swapped), and copies `dir` in x, y, z
-// order where this stores z before y.
-float ESimsCam::CalcPitch(EVec3& dir) {
-    float length = dir.Length();
-    if (length < 0.00001f) {
-        return 0.0f;
-    }
-    EVec3 flat = dir;
-    flat.z = 0.0f;
-    float angle = fn_8010DB14(flat.Length() / length);
-    if (dir.z > 0.0f) {
-        angle = 6.2831855f - angle;
-    }
-    return angle;
-}
-
-// 0x80007D14
-float ESimsCam::CalcZAxisTheta(EVec3& dir) {
-    EVec3 flat = dir;
-    flat.z = 0.0f;
-    flat.Normalize();
-    float x = flat.x;
-    if (x > 1.0f) {
-        x = 1.0f;
-    }
-    if (x < -1.0f) {
-        x = -1.0f;
-    }
-    float angle = fn_8010DB14(x);
-    if (flat.y < 0.0f) {
-        angle = 6.2831855f - angle;
-    }
-    return angle;
 }
 
 // 0x80007714
@@ -781,4 +749,48 @@ void ESimsCam::SetWinPos(E3DWindow& window) {
     }
     CalcEyePosition(unk378, unk3B0);
     window.fn_80154798(unk378, unk3B0.unk0, unk384);
+}
+
+// 0x80007C68
+// NON_MATCHING: 15 of 43 instructions. Same code, but the original keeps the length in
+// f31 and the 0.0 constant in f30 (this has them swapped), and copies `dir` in x, y, z
+// order where this stores z before y.
+float ESimsCam::CalcPitch(EVec3& dir) {
+    float length = dir.Length();
+    if (length < 0.00001f) {
+        return 0.0f;
+    }
+    EVec3 flat = dir;
+    flat.z = 0.0f;
+    float angle = fn_8010DB14(flat.Length() / length);
+    if (dir.z > 0.0f) {
+        angle = 6.2831855f - angle;
+    }
+    return angle;
+}
+
+// 0x80007D14
+float ESimsCam::CalcZAxisTheta(EVec3& dir) {
+    EVec3 flat = dir;
+    flat.z = 0.0f;
+    flat.Normalize();
+    float x = flat.x;
+    if (x > 1.0f) {
+        x = 1.0f;
+    }
+    if (x < -1.0f) {
+        x = -1.0f;
+    }
+    float angle = fn_8010DB14(x);
+    if (flat.y < 0.0f) {
+        angle = 6.2831855f - angle;
+    }
+    return angle;
+}
+
+// 0x80007DD8
+EVec3 ESimsCam::fn_80007DD8() {
+    EVec3 position = *unk324->fn_8002D2C8();
+    position.z = 0.25f;
+    return position;
 }
