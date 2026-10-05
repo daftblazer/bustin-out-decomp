@@ -1,5 +1,6 @@
 #include "sims/Unk80026864.h"
 #include "sims/cas/CASSim.h"
+#include "sims/cas/CASWidgets.h"
 
 extern float lbl_8037BFC8;
 struct Unk8002FD24 {
@@ -93,6 +94,126 @@ Unk80026864::Unk80026864(int player) {
 // 0x80026B34
 Unk80026864::~Unk80026864() {
     fn_80027780();
+}
+
+// Vertex handed to the mesh builder (0x50 bytes).
+struct Unk80173D58Vertex {
+    float unk0[4];   // position
+    int unk10[3];    // normal, -127..127
+    int unk1C;
+    float unk20[4];  // texture coordinates
+    int unk30[4];    // colour
+};
+Unk80173D58Vertex* fn_80173D58(int size, int align);
+struct Unk8016F034 {
+    char unk0[0x44];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3(Unk80173D58Vertex* vertices, int count);
+    void fn_8016F034(float, float);
+};
+// The child screen created by fn_80026C78 (0x60 bytes, constructor 0x8004E19C).
+class Unk8004E19C : public UnkTargetBase {
+public:
+    Unk8004E19C(int player);
+    char unk48[0x60 - 0x48];
+};
+extern EVec3 lbl_802E6A14;
+extern EVec3 lbl_802E6A24;
+
+// Component of a unit normal scaled to a signed byte range.
+inline int QuantizeNormal(float value) {
+    if (value < -127.0f) {
+        return -0x7F;
+    }
+    if (value > 127.0f) {
+        return 0x7F;
+    }
+    return (signed char)(int)value;
+}
+
+inline void SetVertexNormal(Unk80173D58Vertex* vertex, float x, float y, float z) {
+    EVec3 normal(x, y, z);
+    fn_801221E4(&normal, &normal);
+    normal.x *= 127.0f;
+    normal.y *= 127.0f;
+    normal.z *= 127.0f;
+    vertex->unk10[0] = QuantizeNormal(normal.x);
+    vertex->unk10[1] = QuantizeNormal(normal.y);
+    vertex->unk10[2] = QuantizeNormal(normal.z);
+    vertex->unk1C = 0;
+}
+
+inline void SetVertex(Unk80173D58Vertex* vertex, float x, float y, float u, float v) {
+    vertex->unk20[0] = u;
+    vertex->unk20[2] = v;
+    vertex->unk20[3] = 1.0f;
+    vertex->unk20[1] = 1.0f;
+    vertex->unk0[1] = y;
+    vertex->unk0[2] = 0.035f;
+    vertex->unk0[3] = 1.0f;
+    vertex->unk0[0] = x;
+}
+
+// 0x80026C78
+// Builds the two cursor quads (a 3.5 and a 4.5 tile square, as two triangle
+// strips of four vertices each), loads the cursor's textures and models, and
+// creates the child screen.
+// NON_MATCHING: condensed draft. The renderer and resource calls are the original's,
+// in order; the vertex data is written through helpers here where the original has
+// eight open-coded vertices built by copying the first one, so most of the function
+// differs. One variant tried.
+void Unk80026864::fn_80026C78() {
+    lbl_802E5B40[1].numPoint = 0;
+    lbl_802E5D00.ambient = EVec3(1.0f, 1.0f, 1.0f);
+    lbl_802E5B40[0].numDirectional = 0;
+    lbl_802E5B40[0].numPoint = 0;
+    lbl_802E5B40[1].numDirectional = 0;
+    lbl_802E5D00.numDirectional = 0;
+    lbl_802E5D00.numPoint = 0;
+    unk84 = 0;
+    unk18 |= 2;
+    Unk8016F034* builder = (Unk8016F034*)lbl_8037C198->vfn13(1);
+    builder->fn_8016F034(1.0f, 1.0f);
+    unkC0 = lbl_8037C198->vfn14((ERC*)builder);
+    builder = (Unk8016F034*)lbl_8037C198->vfn13(1);
+    Unk80173D58Vertex* vertices = fn_80173D58(0x280, 0x20);
+    for (int quad = 0; quad < 2; quad++) {
+        float size = quad == 0 ? 3.5f : 4.5f;
+        Unk80173D58Vertex* v = vertices + quad * 4;
+        v[0].unk30[3] = 0x80;
+        v[0].unk30[0] = 0x80;
+        v[0].unk30[1] = 0x80;
+        v[0].unk30[2] = 0x80;
+        SetVertexNormal(&v[0], 1.0f, 0.0f, -1.0f);
+        SetVertex(&v[0], size, 0.0f, 1.0f, 0.0f);
+        v[1] = v[0];
+        SetVertex(&v[1], 0.0f, 0.0f, 0.0f, 0.0f);
+        v[2] = v[0];
+        SetVertex(&v[2], size, size, 1.0f, 1.0f);
+        v[3] = v[0];
+        SetVertex(&v[3], 0.0f, size, 0.0f, 1.0f);
+        builder->vfn3(v, 4);
+    }
+    unkC4 = lbl_8037C198->vfn14((ERC*)builder);
+    unkFC = lbl_80340AB8.fn_80177628(unk38 == 0 ? 0x9A1FBCDE : 0xE8136BD8, 0, 0);
+    lbl_802E5B40[unk38].ambient = unk38 == 0 ? lbl_802E6A24 : lbl_802E6A14;
+    unk108 = lbl_8033FF34.fn_80177628(0x18DD79EC, 0, 0);
+    unk10C = lbl_8033FF34.fn_80177628(0xDFEFF763, 0, 0);
+    unk110 = lbl_8033FF34.fn_80177628(0x295792E6, 0, 0);
+    unk114 = lbl_8033FF34.fn_80177628(0xF6140AD9, 0, 0);
+    unk118 = lbl_8033FF34.fn_80177628(0xB4D2FB9A, 0, 0);
+    unk11C = lbl_8033FF34.fn_80177628(0xC1A394FD, 0, 0);
+    unk120 = lbl_8033FF34.fn_80177628(0x528D93C8, 0, 0);
+    unk124 = lbl_8033FF34.fn_80177628(0x68DE8AE2, 0, 0);
+    unk128 = lbl_8033FF34.fn_80177628(0xC2706DA9, 0, 0);
+    unk130 = lbl_8033FF34.fn_80177628(0x483B42F3, 0, 0);
+    unk12C = lbl_8033FF34.fn_80177628(0xD9CFD517, 0, 0);
+    unk134 = lbl_8033FF34.fn_80177628(0x05ADADD6, 0, 0);
+    unk13C = lbl_8033FF34.fn_80177628(0x7BF822A7, 0, 0);
+    unk138 = lbl_8033FF34.fn_80177628(0xB5FA839A, 0, 0);
+    unkC8 = new Unk8004E19C(unk38);
+    vfn14(unkC8);
 }
 
 // 0x8002775C

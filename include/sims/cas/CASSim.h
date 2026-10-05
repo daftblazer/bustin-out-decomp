@@ -294,7 +294,7 @@ struct CASScreenInfoBase {
     virtual void vfn11();
     virtual void vfn12();
     virtual ERC* vfn13(int);                        // begin drawing
-    virtual void vfn14(ERC* rc);                    // end drawing
+    virtual void* vfn14(ERC* rc);                   // end drawing; returns what was recorded
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();

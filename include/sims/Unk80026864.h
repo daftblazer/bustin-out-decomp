@@ -71,6 +71,7 @@ public:
     virtual void vfn2(int);                            // Unk802A2AC0
     virtual void vfn3();                               // Unk802A2AC0 (empty)
 
+    void fn_80026C78();                                // create the cursor meshes, load resources
     void fn_8002775C(int value);
     void fn_80027780();                                // release everything
     int fn_80027AD8();                                 // run the current state's handler
