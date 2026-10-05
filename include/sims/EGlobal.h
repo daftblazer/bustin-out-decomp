@@ -62,7 +62,8 @@ public:
     struct Unk324* unkA8[4];      // per player, set from ESimsCam+0x324
     char unkB8[0xBC - 0xB8];
     ESimsCamUnkBC* unkBC;
-    char unkC0[0xE4 - 0xC0];
+    void* unkC0b;                 // floor types
+    char unkC4[0xE4 - 0xC4];
     struct Unk80181824* unkE4;    // plain white texture
     char unkE8[0xEC - 0xE8];
     struct Unk8003C95C* unkEC;    // default font

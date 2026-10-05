@@ -58,7 +58,7 @@ struct Unk80026864List {
 struct Unk8002EF48 {
     Unk8002EF48() { fn_8002EF48(); }
     void fn_8002EF48(); // zero everything
-    int unk0, unk4, unk8, unkC, unk10, unk14, unk18, unk1C, unk20, unk24;
+    int unk0, unk4, unk8, unkC, unk10, unk14, unk18, unk1C, unk20, unk24;   // unk1C: texture
 };
 
 class Unk80026864;
@@ -118,6 +118,8 @@ public:
     void fn_80029BF8();
     void fn_80033BAC();
     void fn_8002F1BC();
+    void fn_8002F268();
+    void fn_8002F2A4();
     void fn_80031928();
     void Common() {
         fn_80033BAC();

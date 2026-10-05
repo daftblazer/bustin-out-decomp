@@ -83,3 +83,6 @@ sims/Unk80026864.cpp:
 	.ctors      start:0x80291CC0 end:0x80291CC4
 	.rodata     start:0x802968E0 end:0x80296F58
 	.bss        start:0x802E5B28 end:0x802E5DEC
+
+sims/Unk8002EFAC.cpp:
+	.text       start:0x8002EFAC end:0x800315FC
