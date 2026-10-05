@@ -5,7 +5,6 @@ unsigned int fn_8003E3E8(void* resource);
 
 // 0x8001EE8C
 Unk8001EE8C::Unk8001EE8C() {
-    unk4098 = 0;
     unk0[0] = 0;
     unk0[1] = 0;
     unk0[2] = 0;
@@ -28,6 +27,7 @@ Unk8001EE8C::Unk8001EE8C() {
     unk4C = 0;
     unk50 = 0;
     unk4094 = 0;
+    unk4098 = 0;
     fn_8001F34C();
 }
 
@@ -52,6 +52,98 @@ void Unk8001EE8C::fn_8001EF98(void* resource, int* out) {
             *out = fn_80022B3C(*out, value);
         }
     }
+}
+
+// 0x8001FAE0
+// Releases the materials, the composited texture and the two resources.
+void Unk8001EE8C::fn_8001FAE0() {
+    fn_80022C6C();
+    if (unk44) {
+        if (lbl_8037C198->vfn32(unk44)) {
+            lbl_8037C198->vfn8();
+        }
+        lbl_8037C198->vfn31(unk44);
+        unk44 = 0;
+    }
+    if (unk4C) {
+        if (lbl_8037C198->vfn32(unk4C)) {
+            lbl_8037C198->vfn8();
+        }
+        lbl_8037C198->vfn31(unk4C);
+        unk4C = 0;
+    }
+    if (unk48) {
+        if (lbl_8037C198->vfn32(unk48)) {
+            lbl_8037C198->vfn8();
+        }
+        lbl_8037C198->vfn31(unk48);
+        unk48 = 0;
+    }
+    if (unk50) {
+        if (lbl_8037C198->vfn22(unk50)) {
+            lbl_8037C198->vfn8();
+        }
+        lbl_8037C198->vfn21(unk50);
+        unk50 = 0;
+    }
+    lbl_80340B80.fn_801778B4(0x3EB7D688);
+    lbl_80340B80.fn_801778B4(0xD958C63C);
+}
+
+// 0x8001FD00
+// Restores every layer's palette and resets the choices.
+void Unk8001EE8C::fn_8001FD00() {
+    if (unk0[1]) {
+        fn_80021D40(unk0[1], 1);
+    }
+    if (unk0[2]) {
+        fn_80021D40(unk0[2], 2);
+    }
+    if (unk0[3]) {
+        fn_80021D40(unk0[3], 3);
+    }
+    if (unk0[4]) {
+        fn_80021D40(unk0[4], 4);
+    }
+    if (unk0[5]) {
+        fn_80021D40(unk0[5], 5);
+    }
+    if (unk0[6]) {
+        fn_80021D40(unk0[6], 6);
+    }
+    if (unk0[7]) {
+        fn_80021D40(unk0[7], 7);
+    }
+    if (unk0[8]) {
+        fn_80021D40(unk0[8], 8);
+    }
+    if (unk0[9]) {
+        fn_80021D40(unk0[9], 9);
+    }
+    if (unk0[10]) {
+        fn_80021D40(unk0[10], 10);
+    }
+    if (unk0[12]) {
+        fn_80021D40(unk0[12], 11);
+    }
+    if (unk0[13]) {
+        fn_80021D40(unk0[13], 12);
+    }
+    if (unk0[15]) {
+        fn_80021D40(unk0[15], 14);
+    }
+    if (unk0[16]) {
+        fn_80021D40(unk0[16], 15);
+    }
+    signed char* p = unk406C + 16;
+    for (int i = 16; i > 0; i--) {
+        *--p = 1;
+    }
+    unk406C[0] = 0;
+    unk406C[6] = 0;
+    unk406C[7] = 0;
+    unk406C[8] = 0;
+    unk406C[9] = 0;
 }
 
 // 0x800218D8

@@ -46,12 +46,13 @@ struct Unk8001EE8C {
     void fn_800226F0(Unk801CC464* out);      // store the layer choices in a description
     void fn_80022724(Unk801CC464* choices);  // and take them from one
     int fn_80022B3C(int, unsigned int);
+    void fn_80022C6C();
 
-    void* unk0[17];
+    Unk80021CEC* unk0[17];    // source images of the texture layers
     Unk80182DE0Inner* unk44; // materials: head, body, clothes
     Unk80182DE0Inner* unk48;
     Unk80182DE0Inner* unk4C;
-    void* unk50;
+    ETextureLike* unk50;
     char unk54[0x6C - 0x54];
     unsigned int unk6C[16][0x100]; // saved palettes
     signed char unk406C[16];       // choice of each texture layer

@@ -283,7 +283,7 @@ void Unk80018374::fn_8001857C(int male, int adult, Unk8001EE8C* owner) {
     unkC = 0;
     Unk80340AB8* textures = &lbl_80340AB8;
     unkD4 = textures->fn_80177628(0xA25EBA9A, 0, 0);
-    unkD8 = textures->fn_80177628(0xF469EDCB, 0, 0);
+    unkD8 = textures->fn_80177628(0xF46AEDCB, 0, 0);
 
     // The 256x256 paletted texture the outfit textures are composited into.
     ETextureDesc skin;
@@ -317,7 +317,7 @@ void Unk80018374::fn_8001857C(int male, int adult, Unk8001EE8C* owner) {
     material.unk8C[3] = EVec2(0.0f, 0.0f);
     material.stages[0].unk0 = texture;
     material.unkC = 2;
-    material.stages[1].unk0 = lbl_80340B80.fn_80177628(0xD957C63C, 0, 0)->unk20;
+    material.stages[1].unk0 = lbl_80340B80.fn_80177628(0xD958C63C, 0, 0)->unk20;
     material.stages[1].unk15 = 1;
     material.stages[1].unk16 = 2;
     material.stages[1].unk4 |= 0x40;
@@ -492,7 +492,7 @@ void Unk80018374::fn_80018F5C(CASSimDesc* desc, Unk8001EE8C* owner) {
     fn_8001B53C(8, ((CASChoice16*)unk194[3])[unk16C.unk8[15]].unk8);
     Unk80340AB8* textures = &lbl_80340AB8;
     unkD4 = textures->fn_80177628(0xA25EBA9A, 0, 0);
-    unkD8 = textures->fn_80177628(0xF469EDCB, 0, 0);
+    unkD8 = textures->fn_80177628(0xF46AEDCB, 0, 0);
 
     // The 256x256 paletted texture the outfit textures are composited into.
     ETextureDesc skin;
@@ -526,7 +526,7 @@ void Unk80018374::fn_80018F5C(CASSimDesc* desc, Unk8001EE8C* owner) {
     material.unk8C[3] = EVec2(0.0f, 0.0f);
     material.stages[0].unk0 = texture;
     material.unkC = 2;
-    material.stages[1].unk0 = lbl_80340B80.fn_80177628(0xD957C63C, 0, 0)->unk20;
+    material.stages[1].unk0 = lbl_80340B80.fn_80177628(0xD958C63C, 0, 0)->unk20;
     material.stages[1].unk15 = 1;
     material.stages[1].unk16 = 2;
     material.stages[1].unk4 |= 0x40;

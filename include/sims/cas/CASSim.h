@@ -555,6 +555,7 @@ struct Unk80340B80 {
         void* unk20;
     };
     Result* fn_80177628(unsigned int id, int, int);
+    void fn_801778B4(unsigned int id);
     char unk0[0x100]; // size unknown
 };
 extern Unk80340B80 lbl_80340B80;
