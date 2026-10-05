@@ -28,6 +28,7 @@ public:
     Unk800669ACResult fn_8006670C(const char* format, ...);
     void fn_80068DE8(Unk80340120Resource*, Unk8016BC18*);
     void fn_800690E0(int);
+    void fn_80068054(int, int);
     int fn_800690B0(int);
 
     Unk800053D4Owner* GetUnk9C(int player) { return unk9C[player]; }

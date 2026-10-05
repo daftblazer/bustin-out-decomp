@@ -8,6 +8,7 @@
 // These three globals share the method at 0x80177628 (resource managers?).
 struct Unk803401C4 {
     void* fn_80177628(unsigned int id, int, int); // look up / load a resource by id
+    void fn_801777B0(unsigned int id);            // reload
     char unk0[0xA4];
     int unkA4; // default language
 };
