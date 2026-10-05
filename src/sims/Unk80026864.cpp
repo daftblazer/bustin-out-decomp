@@ -837,6 +837,7 @@ Unk80026864::~Unk80026864() {
 
 // Vertex handed to the mesh builder (0x50 bytes).
 struct Unk80173D58Vertex {
+    Unk80173D58Vertex() {}
     float unk0[4];   // position
     int unk10[3];    // normal, -127..127
     int unk1C;
@@ -2169,6 +2170,128 @@ EVec3* Unk80026864::fn_8002D2C8() {
 
 // 0x8002D2D0
 void Unk80026864::fn_8002D2D0() {
+}
+
+// A flat, upward-facing vertex of the overlay quads.
+inline void SetFlatVertex(Unk80173D58Vertex* vertex, float x, float y, float u, float v) {
+    vertex->unk10[2] = 0x7F;
+    vertex->unk30[0] = 0x80;
+    vertex->unk30[1] = 0x80;
+    vertex->unk30[2] = 0x80;
+    vertex->unk30[3] = 0x80;
+    vertex->unk10[0] = 0;
+    vertex->unk10[1] = 0;
+    vertex->unk1C = 0;
+    EVec2 uv(u, v);
+    vertex->unk20[0] = uv.x;
+    vertex->unk20[1] = uv.y;
+    vertex->unk0[0] = x;
+    vertex->unk0[1] = y;
+    vertex->unk0[2] = 0.05f;
+    vertex->unk0[3] = 1.0f;
+}
+struct Unk8002D2D4RC {
+    char unk0[0x44];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3(Unk80173D58Vertex* vertices, int count);
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26();
+    virtual void vfn27();
+    virtual void vfn28();
+    virtual void vfn29();
+};
+struct Unk801C727CEntry {
+    int fn_801C727C();
+    int fn_801C7288();
+    char unk0[3];
+};
+
+// 0x8002D2D4
+// Draws a textured square over every tile filed under the item's key.
+// NON_MATCHING: condensed draft, 189 instructions vs 234. The original builds the
+// four vertices in the open, copying the first into the others; here a helper sets
+// each. One variant tried.
+void fn_8002D2D4(ERC* rc, Unk8002D67CItem* item) {
+    unsigned short key = item->unk6;
+    Unk80234390* list = FindList((void*)key);
+    if (list && key) {
+        char* it = list->unk4;
+        if (it != list->unk8) {
+            item->unk28->fn_80181824(rc);
+            const EVec2& origin = ((Unk8004AD08B*)lbl_802E67B0.unk0)->unk34;
+            for (; it != list->unk8; it += 3) {
+                float tileY = (float)((Unk801C727CEntry*)it)->fn_801C7288();
+                float tileX = (float)((Unk801C727CEntry*)it)->fn_801C727C();
+                float x1 = tileY + 0.5f + origin.x;
+                float x0 = tileY - 0.5f + origin.x;
+                float y0 = tileX - 0.5f + origin.y;
+                float y1 = tileX + 0.5f + origin.y;
+                Unk80173D58Vertex vertices[4];
+                SetFlatVertex(&vertices[0], x1, y0, 1.0f, 1.0f);
+                SetFlatVertex(&vertices[1], x0, y0, 0.0f, 1.0f);
+                SetFlatVertex(&vertices[2], x1, y1, 1.0f, 0.0f);
+                SetFlatVertex(&vertices[3], x0, y1, 0.0f, 0.0f);
+                ((Unk8002D2D4RC*)rc)->vfn29();
+                ((Unk8002D2D4RC*)rc)->vfn3(vertices, 4);
+            }
+        }
+    }
+}
+
+// 0x8002D67C
+// Draws one quad over the item's rectangle of tiles, the texture repeating per tile.
+// NON_MATCHING: condensed draft (194 instructions vs 256), as fn_8002D2D4.
+void fn_8002D67C(ERC* rc, Unk8002D67CItem* item) {
+    int ax = (int)item->unk8;
+    int ay = (int)item->unkC;
+    int bx = (int)item->unk10;
+    int by = (int)item->unk14;
+    const EVec2& origin = ((Unk8004AD08B*)lbl_802E67B0.unk0)->unk34;
+    float x0 = (float)(ax > bx ? bx : ax) - 0.5f;
+    float x1 = (float)(ax < bx ? bx : ax) + 0.5f;
+    float y0 = (float)(ay > by ? by : ay) - 0.5f;
+    float y1 = (float)(ay < by ? by : ay) + 0.5f;
+    x1 += origin.x;
+    x0 += origin.x;
+    y0 += origin.y;
+    y1 += origin.y;
+    float width = x1 - x0;
+    if (!(width > 1.0f)) {
+        width = 1.0f;
+    }
+    float height = y1 - y0;
+    if (!(height > 1.0f)) {
+        height = 1.0f;
+    }
+    Unk80173D58Vertex vertices[4];
+    SetFlatVertex(&vertices[0], x1, y0, width, height);
+    SetFlatVertex(&vertices[1], x0, y0, 0.0f, height);
+    SetFlatVertex(&vertices[2], x1, y1, width, 0.0f);
+    SetFlatVertex(&vertices[3], x0, y1, 0.0f, 0.0f);
+    ((Unk8002D2D4RC*)rc)->vfn29();
+    ((Unk8002D2D4RC*)rc)->vfn3(vertices, 4);
 }
 
 // 0x8002DA7C
