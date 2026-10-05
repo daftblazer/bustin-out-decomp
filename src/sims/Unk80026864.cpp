@@ -3053,3 +3053,11 @@ void Unk80026864::vfn3(ERC* rc) {
 // 0x8002EF7C
 void Unk80026864::vfn3() {
 }
+
+// 0x8002EE28
+// NON_MATCHING (not emitted): this is STLport's _Rb_global<bool>::_M_increment (the
+// red-black tree iterator's ++), a template function that lives in this unit because
+// it is the first one in link order to offer it; units further on call it. Nothing
+// in this file uses a std::map or std::set yet, so the compiler has no instance to
+// emit. Its symbol carries the mangled name, so including the header that uses the
+// tree here (once it is identified) is all that is missing.
