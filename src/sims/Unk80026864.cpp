@@ -17,8 +17,10 @@ struct Unk801FD05CResult {
     Unk800053D4Inner** unk0;
     Unk800053D4Inner* Object() const { return *unk0; }
     virtual void vfn1();
-    virtual Unk800053D4Inner** vfn2();   // first contained object
-    virtual Unk800053D4Inner** vfn3();   // next
+    virtual Unk801FD05CResult* vfn2();   // first contained object's node
+    virtual Unk801FD05CResult* vfn3();   // the node after this one
+    // In a container's nodes the first word is the object itself.
+    Unk800053D4Inner* Direct() const { return (Unk800053D4Inner*)unk0; }
     virtual int vfn4();
     virtual void vfn5();
     virtual void vfn6();
@@ -354,10 +356,7 @@ void fn_800266C0(int* id) {
 
 // 0x800266EC
 // Collects the models of an object (or of everything it contains) into a list.
-// NON_MATCHING: 3 instructions. The original keeps the loop's iterator in r30 across
-// the calls; here it stays in r3. Two variants tried.
 void fn_800266EC(Unk800053D4Inner* object, Unk80026864List* out) {
-    Unk800053D4Inner** it;
     out->fn_801B4760();
     if (object) {
         if (object->vfn124()) {
@@ -368,8 +367,8 @@ void fn_800266EC(Unk800053D4Inner* object, Unk80026864List* out) {
                     out->fn_801B4600(model);
                 }
             } else {
-                for (it = group->vfn2(); it; it = group->vfn3()) {
-                    void* model = GetUnk20(*it)->vfn19();
+                for (group = group->vfn2(); group; group = group->vfn3()) {
+                    void* model = GetUnk20(group->Direct())->vfn19();
                     int present = out->fn_801B484C(model);
                     if (model != 0 && present == 0) {
                         out->fn_801B4600(model);
@@ -1061,7 +1060,6 @@ void Unk80026864::fn_80028ECC() {
 
 // 0x80028F30
 // Whether the held object may be put down where it is.
-// NON_MATCHING: not yet compared.
 int Unk80026864::fn_80028F30() {
     Unk800053D4Inner* object;
     if (unkF0 == 0 || (object = unkF0->vfn8b()) == 0) {
@@ -1070,7 +1068,10 @@ int Unk80026864::fn_80028F30() {
     if (unk90) {
         return 1;
     }
-    bool ok = (object->vfn88(0x2B) & 8) ? true : false;
+    bool ok = true;
+    if (!(object->vfn88(0x2B) & 8)) {
+        ok = false;
+    }
     if (ok) {
         if (!object->vfn124()) {
             if (object->vfn98(0)) {
@@ -1079,8 +1080,8 @@ int Unk80026864::fn_80028F30() {
         } else {
             Unk801FD05CResult* group = fn_801FD05C(GetUnk20(object), 3);
             if (!group->vfn9()) {
-                for (Unk800053D4Inner** it = group->vfn2(); it; it = group->vfn3()) {
-                    if ((*it)->vfn98(0)) {
+                for (group = group->vfn2(); group; group = group->vfn3()) {
+                    if (group->Direct()->vfn98(0)) {
                         ok = false;
                         break;
                     }
