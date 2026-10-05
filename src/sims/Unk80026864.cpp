@@ -723,8 +723,8 @@ struct Unk802DBAEC {
 };
 extern Unk802DBAEC lbl_802D1ED8;
 extern Unk802DBAEC lbl_802DBAEC;
-void fn_8002EA74();
 void fn_8002E1BC(void* key, int flag);
+void fn_8002EA74(int arg, int kind, float x0, float y0, float x1, float y1);
 void fn_8002E73C(int key, int arg);
 void fn_8002E2A0(int flag, int x0, int y0, int x1, int y1);
 void fn_8002E498(void* arg, int kind, float x0, float x1, float y0, float y1);
@@ -736,7 +736,7 @@ extern void (*lbl_80381440)(void*, int, float, float, float, float);
 extern void (*lbl_80381444)(void*, int, float, float, float, float);
 extern void (*lbl_80381448)(void*, int, float, float, float, float);
 extern void (*lbl_8038144C)(int, int);
-extern void (*lbl_80381450)();
+extern void (*lbl_80381450)(int, int, float, float, float, float);
 extern void (*lbl_80381454)(void*);
 extern int (*lbl_80381458)(int);
 
@@ -2632,6 +2632,101 @@ void fn_8002E73C(int key, int arg) {
             }
         }
     }
+    Unk80026864::fn_80028ECC();
+}
+
+// Tile position with the operations the wall-run callback uses (the same 8-byte
+// CTilePt as above).
+struct Unk801C6EF4 {
+    Unk801C6EF4();                                         // 0x801C6EF4
+    Unk801C6EF4(const Unk801C6EF4& other);                 // 0x801C6F00
+    ~Unk801C6EF4();                                        // 0x801C6FCC
+    Unk801C6EF4& operator=(const Unk801C6EF4& other);      // 0x801C6FF4
+    int operator==(const Unk801C6EF4& other) const;        // 0x801C7014
+    Unk801C6EF4 operator+(const struct Unk8035ABB0& step) const;   // 0x801C7144
+    char unk0[2];
+    char unk2;
+    char unk3[5];
+};
+struct Unk8035ABB0 {
+    char unk0[3];
+};
+extern Unk8035ABB0 lbl_8035ABB0[];   // one step per direction
+void fn_8003739C(EVec2* a, EVec2* b, Unk801C6EF4* start, Unk801C6EF4* end);
+void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end);
+int fn_800369A0(Unk801C6EF4* start, Unk801C6EF4* end);
+int fn_8023DC04(int direction);
+void fn_800323D8(int* wall, int kind, int* side, Unk801C6EF4* from, Unk801C6EF4* to);
+struct Unk8023E110 : Unk8023DFA8 {
+    void fn_8023E110(int arg, int wall, int side);
+};
+struct Unk8037D990H {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual int vfn6();
+    virtual void vfn7();
+    virtual int vfn8(Unk801C6EF4* tile);
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023E110 vfn18(Unk801C6EF4* tile);
+    virtual void vfn19(Unk801C6EF4* tile, Unk8023DDC4* packed);
+};
+struct Unk80233FC0 {
+    void fn_80233FC0();
+};
+
+// 0x8002EA74
+// Callback: walks the tiles from one point to another and applies an action to the
+// wall on each.
+// NON_MATCHING: same length (157), 67 instructions differ: register assignment and
+// the order in which the locals' addresses are taken. One variant tried.
+void fn_8002EA74(int arg, int kind, float x0, float y0, float x1, float y1) {
+    EVec2 a(x0, y0);
+    EVec2 b(x1, y1);
+    Unk801C6EF4 start;
+    Unk801C6EF4 end;
+    fn_8003739C(&a, &b, &start, &end);
+    int steps = 0;
+    fn_800315FC(&start, &end);
+    bool done = false;
+    int direction = fn_800369A0(&start, &end);
+    int wall = fn_8023DC04(direction);
+    Unk801C6EF4 current(start);
+    Unk801C6EF4 last(end);
+    int side = 0;
+    fn_800323D8(&wall, kind, &side, &current, &last);
+    Unk8037D990H* level = (Unk8037D990H*)lbl_8037D990;
+    do {
+        Unk8023E110 info = level->vfn18(&current);
+        if (info.fn_8023DEA4(wall)) {
+            info.fn_8023E110(arg, wall, side);
+            Unk8023DDC4 packed(info);
+            level->vfn19(&current, &packed);
+        }
+        current = current + lbl_8035ABB0[direction];
+        current.unk2 = 1;
+        if (level->vfn8(&current)) {
+            done = true;
+        }
+        if (!done && current == last) {
+            done = true;
+        }
+        steps++;
+        if (steps >= level->vfn6()) {
+            break;
+        }
+    } while (!done);
+    ((Unk80233FC0*)lbl_8037D998)->fn_80233FC0();
     Unk80026864::fn_80028ECC();
 }
 
