@@ -4,6 +4,11 @@
 #include "engine/Unk8018A44C.h"
 #include "sims/cas/CASWidgets.h"
 
+// Text colours of the family screens' buttons.
+extern EColorF lbl_802E5AEC;
+extern EColorF lbl_802E5AFC; // focused, inactive
+extern EColorF lbl_802E5B0C; // inactive
+
 // Small polymorphic class (0x14 bytes of data, then the vtable pointer) whose only
 // virtual is an inline destructor. Its vtable is emitted in each unit that includes
 // this header and the destructor once, at 0x80023D08. Other units build one on the
@@ -18,7 +23,7 @@ struct Unk80023D08 {
 };
 
 // Menu button of the family screens (0xC8 bytes). The name is unknown.
-class Unk80023D3C : public Unk8018A44C {
+class Unk80023D3C : public Unk8018918C {
 public:
     virtual ~Unk80023D3C();
     virtual void vfn2();          // update
