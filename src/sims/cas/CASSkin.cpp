@@ -151,6 +151,69 @@ void Unk8001EE8C::fn_8001EFEC() {
     }
 }
 
+// 0x8001F34C
+// Creates the 256x256 skin texture and the three shaders that use it, and
+// loads the first layer.
+// NON_MATCHING: 470 instructions vs 485, frame 0x298 vs 0x2B0. The three inline
+// shader-description constructors are the bulk of the function; the original keeps
+// separate temporaries for the vectors (0xD8 and 0xE8) and more addresses in saved
+// registers, so nearly every instruction differs. Two variants tried.
+void Unk8001EE8C::fn_8001F34C() {
+    ETextureDesc desc;
+    EMaterialDesc material;
+    desc.unk8 = (desc.unk8 | 0x80) & ~3;
+    desc.unk14 = 0;
+    desc.unk19 = 0;
+    desc.unk1B = 0;
+    desc.unk10 = 0x100;
+    desc.unk1C = "*charedskin*";
+    desc.unk18 = 0x82;
+    desc.unk1A = 0x10;
+    desc.unk12 = 0x100;
+    material.stages[0].unk0 = unk50 = lbl_8037C198->vfn20(&desc);
+    unk44 = lbl_8037C198->vfn30(&material);
+    EMaterialDesc material2;
+    material2.stages[0].unk0 = unk50;
+    material2.unkC = 2;
+    material2.stages[1].unk0 = lbl_80340B80.fn_80177628(0xD958C63C, 0, 0)->unk20;
+    material2.stages[1].unk15 = 1;
+    material2.stages[1].unk16 = 2;
+    material2.stages[1].unk4 |= 0x40;
+    material2.stages[1].unk14 = 0;
+    material2.stages[1].unk10 = 0;
+    material2.stages[1].unk11 = 2;
+    material2.stages[1].unk12 = 1;
+    material2.stages[1].unk13 = 1;
+    unk48 = lbl_8037C198->vfn30(&material2);
+    EMaterialDesc material3;
+    material3.stages[0].unk0 = unk50;
+    material3.unkC = 2;
+    material3.stages[1].unk0 = lbl_80340B80.fn_80177628(0x3EB7D688, 0, 0)->unk20;
+    material3.stages[1].unk15 = 1;
+    material3.stages[1].unk16 = 2;
+    material3.stages[1].unk4 |= 0x40;
+    material3.stages[1].unk14 = 0;
+    material3.stages[1].unk10 = 0;
+    material3.stages[1].unk11 = 2;
+    material3.stages[1].unk12 = 1;
+    material3.stages[1].unk13 = 1;
+    unk4C = lbl_8037C198->vfn30(&material3);
+    signed char one = 1;
+    signed char* p = &unk406C[15];
+    for (int i = 16; i > 0; i--) {
+        *p-- = one;
+    }
+    unk406C[0] = 0;
+    unk406C[6] = 0;
+    unk406C[7] = 0;
+    unk406C[8] = 0;
+    unk406C[9] = 0;
+    unk0[11] = (Unk80021CEC*)lbl_802E5E1C.fn_80177628(0xC9E921E7, 0, 0);
+    fn_8001FEA8(11, 0xD57882B9);
+    unk408C = 0;
+    unk4090 = 0;
+}
+
 // 0x8001FAE0
 // Releases the materials, the composited texture and the two resources.
 void Unk8001EE8C::fn_8001FAE0() {

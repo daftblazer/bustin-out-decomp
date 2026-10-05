@@ -163,8 +163,7 @@ struct Unk80182DE0Inner {
     virtual void vfn2(ERC* rc);
     virtual void vfn3(ERC* rc);
 };
-// Description of a material (0xD0 bytes), as handed to the renderer. Only the
-// fields the sim's material sets are named; the layout is partly guessed.
+// One texture stage of a shader description (0x18 bytes).
 struct EMaterialStage {
     EMaterialStage() {
         unk0 = 0;
@@ -185,24 +184,60 @@ struct EMaterialStage {
     float unkC;
     unsigned char unk10, unk11, unk12, unk13, unk14, unk15, unk16;
 };
-struct EMaterialDesc {
+// Four floats with the compiler's own (word-wise) assignment.
+struct EShaderColor {
+    void Set3(const EVec3& v) {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+    }
+    float x, y, z, w;
+};
+// Description of a shader ("material"), as handed to the renderer's slot 30
+// (0xB0 bytes). The constructor is inline: fn_8001F34C contains three copies.
+struct EMaterialDescBase {
+    EMaterialDescBase() {
+        unk70 = EVec3(0.0f);
+        unk64 = EVec3(1.0f);
+        unk54.Set3(unk64);
+        unk44 = unk54;
+        unk7C = 10.0f;
+        unk80 = 0.0f;
+        unk84 = 0.0f;
+    }
     int unk0;
     int unk4;
     int unk8;
-    unsigned char unkC;
+    unsigned char unkC;         // number of stages
     unsigned char unkD;
     int unk10;
     EMaterialStage stages[2];   // 0x14
-    EColorF unk44;              // 0x44
-    EVec3 unk54;
-    EVec3 unk60;
-    char unk6C[0x7C - 0x6C];
+    EShaderColor unk44;
+    EShaderColor unk54;
+    EVec3 unk64;
+    EVec3 unk70;
     float unk7C;
     float unk80;
     float unk84;
     char unk88[0x8C - 0x88];
-    EVec2 unk8C[4];
-    char unkAC[0xD0 - 0xAC];
+};
+struct EMaterialDesc : EMaterialDescBase {
+    EMaterialDesc() {
+        unk8 = 0;
+        unkD = 0;
+        unk4 = 0x20000007;
+        unk0 = 8;
+        unkC = 1;
+        unk10 = 0;
+        unk8C = EVec3(0.0f, 0.0f, 0.0f);
+        unk98 = EVec2(0.0f, 0.0f);
+        unkA0 = EVec2(1.0f, 1.0f);
+        unkA8 = EVec2(0.0f, 0.0f);
+    }
+    EVec3 unk8C;
+    EVec2 unk98;
+    EVec2 unkA0;
+    EVec2 unkA8;
 };
 
 // Off-screen render target: vtable pointer at 0x1C; slot 10 copies it into a texture.

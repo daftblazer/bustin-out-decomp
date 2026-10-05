@@ -61,7 +61,8 @@ struct Unk8001EE8C {
     unsigned int unk6C[16][0x100]; // saved palettes
     signed char unk406C[16];       // choice of each texture layer
     signed char unk407C[16];       // the same, as last applied
-    char unk408C[0x4094 - 0x408C];
+    char unk408C;
+    int unk4090;
     int unk4094;
     int unk4098;
 };

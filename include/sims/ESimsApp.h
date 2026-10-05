@@ -98,14 +98,8 @@ struct Unk80340094 {
     void Shutdown();
 };
 
-struct Unk802E5E1C {
-    char unk0[0x100]; // size unknown
-    void Shutdown();
-    void fn_80176C78(const char*, int);
-};
 
 extern Unk80340094 lbl_80340094;
-extern Unk802E5E1C lbl_802E5E1C;
 extern void* lbl_8037C3D8;
 extern int lbl_8037B3E8;
 

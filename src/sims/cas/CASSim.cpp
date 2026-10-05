@@ -299,22 +299,6 @@ void Unk80018374::fn_8001857C(int male, int adult, Unk8001EE8C* owner) {
     ETextureLike* texture = lbl_8037C198->vfn20(&skin);
 
     EMaterialDesc material;
-    material.unk54 = EVec3(0.0f);
-    material.unk60 = EVec3(1.0f);
-    material.unk44 = EColorF(material.unk60.x, material.unk60.y, material.unk60.z, 1.0f);
-    material.unk7C = 10.0f;
-    material.unk84 = 0.0f;
-    material.unk80 = 0.0f;
-    material.unk4 = 0x20000007;
-    material.unk0 = 8;
-    material.unk8 = 0;
-    material.unkC = 1;
-    material.unkD = 0;
-    material.unk10 = 0;
-    material.unk8C[0] = EVec2(0.0f, 0.0f);
-    material.unk8C[1] = EVec2(0.0f, 0.0f);
-    material.unk8C[2] = EVec2(1.0f, 1.0f);
-    material.unk8C[3] = EVec2(0.0f, 0.0f);
     material.stages[0].unk0 = texture;
     material.unkC = 2;
     material.stages[1].unk0 = lbl_80340B80.fn_80177628(0xD958C63C, 0, 0)->unk20;
@@ -508,22 +492,6 @@ void Unk80018374::fn_80018F5C(CASSimDesc* desc, Unk8001EE8C* owner) {
     ETextureLike* texture = lbl_8037C198->vfn20(&skin);
 
     EMaterialDesc material;
-    material.unk54 = EVec3(0.0f);
-    material.unk60 = EVec3(1.0f);
-    material.unk44 = EColorF(material.unk60.x, material.unk60.y, material.unk60.z, 1.0f);
-    material.unk7C = 10.0f;
-    material.unk84 = 0.0f;
-    material.unk80 = 0.0f;
-    material.unk4 = 0x20000007;
-    material.unk0 = 8;
-    material.unk8 = 0;
-    material.unkC = 1;
-    material.unkD = 0;
-    material.unk10 = 0;
-    material.unk8C[0] = EVec2(0.0f, 0.0f);
-    material.unk8C[1] = EVec2(0.0f, 0.0f);
-    material.unk8C[2] = EVec2(1.0f, 1.0f);
-    material.unk8C[3] = EVec2(0.0f, 0.0f);
     material.stages[0].unk0 = texture;
     material.unkC = 2;
     material.stages[1].unk0 = lbl_80340B80.fn_80177628(0xD958C63C, 0, 0)->unk20;
