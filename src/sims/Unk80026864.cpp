@@ -348,7 +348,8 @@ struct Unk8002D67CItem {
     float unkC;
     float unk10;
     float unk14;
-    char unk18[0x24 - 0x18];
+    EVec2 unk18;          // offset
+    char unk20[0x24 - 0x20];
     unsigned char unk24;
     Unk80181824* unk28;   // texture
 };
@@ -1547,7 +1548,6 @@ void fn_8002DB04(ERC* rc, Unk8002D67CItem* item) {
 }
 
 // 0x8002DF60
-// NON_MATCHING: not yet compared.
 void fn_8002DF60(ERC* rc, Unk8002D67CItem* item) {
     EVec2 a(item->unk8, item->unkC);
     EVec2 b(item->unk10, item->unk14);
@@ -1559,11 +1559,8 @@ void fn_8002DF60(ERC* rc, Unk8002D67CItem* item) {
         width = 3.5f;
     }
     fn_80031CF0(rc, lbl_8037B4B0, &a, &b, 0, width, 0.0f);
-    EVec2* offset = (EVec2*)item->unk18;
-    a.x += offset->x;
-    b.x += offset->x;
-    a.y += offset->y;
-    b.y += offset->y;
+    a += item->unk18;
+    b += item->unk18;
     int out;
     fn_8003849C(rc, &a, &b, item->unk28, &out, kind, 0);
 }
@@ -1582,16 +1579,12 @@ void fn_8002E058(ERC* rc, Unk8002D67CItem* item) {
 }
 
 // 0x8002E0C4
-// NON_MATCHING: not yet compared.
 void fn_8002E0C4(ERC* rc, Unk8002D67CItem* item) {
     EVec2 a(item->unk8, item->unkC);
     EVec2 b(item->unk10, item->unk14);
     fn_80031CF0(rc, lbl_8037B4B0, &a, &b, 0, 3.5f, 0.0f);
-    EVec2* offset = (EVec2*)item->unk18;
-    a.x += offset->x;
-    a.y += offset->y;
-    b.x += offset->x;
-    b.y += offset->y;
+    a += item->unk18;
+    b += item->unk18;
     int out;
     fn_8003849C(rc, &a, &b, item->unk28, &out, 3, 0);
 }

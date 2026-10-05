@@ -9,6 +9,10 @@ public:
     // User-defined, like EVec3's: this also keeps EVec2 locals in memory from
     // their declaration, which fixes their stack order.
     EVec2(const EVec2& other) : x(other.x), y(other.y) {}
+    void operator+=(const EVec2& other) {
+        x += other.x;
+        y += other.y;
+    }
     float x, y;
 };
 
