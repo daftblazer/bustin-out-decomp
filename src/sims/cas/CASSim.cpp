@@ -486,6 +486,130 @@ void Unk80018374::fn_8001AC88() {
     unkE0.fn_801569F8(0, 0, EVec3(1.0f));
 }
 
+// 0x8001AE1C
+// Per-frame animation for the sim being edited: follows the personality
+// slider for the active trait through its body-language sequence, plays the
+// reactions to outfit changes, and blends between animations.
+// NON_MATCHING: 354 instructions vs 343. Same branches and calls; the four reaction
+// cases share one tail in the original (three of them merged, the fourth a copy) and the
+// blend arithmetic is kept in double precision there with one fewer conversion.
+// One variant tried.
+void Unk80018374::fn_8001AE1C(int trait, CASTargetUnk533C* selectors) {
+    int waiting = fn_8001AC00();
+    if (waiting) {
+        return;
+    }
+    int value = 0;
+    CASAnimStep** steps = 0;
+    unk2C = waiting;
+    if (unk18 == 0) {
+        switch (trait) {
+        case 0:
+            value = 0;
+            if (unk38 == 0) {
+                steps = (CASAnimStep**)unk74;
+            } else {
+                steps = (CASAnimStep**)unk78;
+            }
+            break;
+        case 1:
+            value = selectors[0].fn_80015900();
+            steps = unk7C;
+            break;
+        case 2:
+            value = selectors[1].fn_80015900();
+            steps = unk80;
+            break;
+        case 3:
+            value = selectors[trait - 1].fn_80015900();
+            steps = unk84;
+            break;
+        case 4:
+            value = selectors[3].fn_80015900();
+            steps = unk88;
+            break;
+        case 5:
+            value = selectors[4].fn_80015900();
+            steps = unk8C;
+            break;
+        }
+        if (fn_8001B378(steps, value, trait) == 0 && unkE0.fn_8015AA0C(0) && steps != 0) {
+            int reaction = unk24;
+            int busy = unk44;
+            if (reaction != -1 && busy == 0) {
+                // React to the outfit piece that was just changed.
+                switch ((unsigned int)reaction) {
+                case 3:
+                    fn_8001AB8C(EAt(*unk64, (fn_801115C4() >> 4) % ECount((int*)*unk64)));
+                    break;
+                case 5:
+                    fn_8001AB8C(EAt(*unk68, (fn_801115C4() >> 4) % ECount((int*)*unk68)));
+                    break;
+                case 2:
+                    fn_8001AB8C(EAt(*unk6C, (fn_801115C4() >> 4) % ECount((int*)*unk6C)));
+                    break;
+                case 4:
+                    fn_8001AB8C(EAt(*unk70, (fn_801115C4() >> 4) % ECount((int*)*unk70)));
+                    break;
+                }
+                unk2C = 0;
+                unk24 = -1;
+            } else if (unk40 == 1 && lbl_8037B488 == 0 && busy == 0 && trait == 0) {
+                // Facing the mirror for the first time.
+                fn_8001AB8C(EAt(*unk58, (fn_801115C4() >> 4) % ECount((int*)*unk58)));
+                lbl_8037B488 = 1;
+            } else if (busy == 0) {
+                lbl_8037B488 = 0;
+                unsigned int* ids = EStepAt(*steps, value).unk4;
+                int pick = (fn_801115C4() >> 4) % ECount((int*)ids);
+                fn_8001AB8C(EAt(ids, pick));
+                EStepAt(*steps, value).unk14 = EAt(EStepAt(*steps, value).unk4, pick);
+            } else {
+                fn_8001AB8C((*steps)->unk4[0]);
+            }
+            unk30 = value;
+        }
+        unk34 = trait;
+    } else {
+        // A transition between two animations is being blended.
+        bool ready = unkE0.unk2C.fn_801B5CE8(1, 0) != 0;
+        if (ready) {
+            float time = unkE0.fn_8015A82C(0);
+            if (time == 1.0) {
+                unkE0.fn_8015980C(0);
+                unkE0.fn_801598A8(1, 0);
+                unkE0.fn_80159FE4(0, 1.0f, 5.0f, 0.01f);
+                unk18 = 0;
+            } else {
+                float blend = (time - unk20) / (1.0 - unk20);
+                unkE0.fn_80159CBC(0, 1.0 - blend);
+                unkE0.fn_80159CBC(1, blend);
+            }
+        } else if (unk1C) {
+            if (unkE0.fn_8015AA0C(0)) {
+                unkE0.fn_8015A520(0);
+                unk1C = 0;
+            }
+        } else {
+            float time = unkE0.fn_8015A82C(0);
+            if (time > unk20) {
+                float blend = (time - unk20) / (1.0 - unk20);
+                if (lbl_8033F3D8.fn_801770C0(unk28)) {
+                    unkE0.fn_80159994(1, unk28);
+                    lbl_8033F3D8.fn_801778B4(unk28);
+                    unk28 = 0;
+                    unkE0.fn_8015A100(0, 1.0f, 0.5f, 0.0f, 0.0f);
+                    unkE0.fn_8015A100(1, 1.0f, 0.5f, 0.0f, 0.0f);
+                    unkE0.fn_80159CBC(0, 1.0 - blend);
+                    unkE0.fn_80159CBC(1, blend);
+                    unkE0.fn_8015A520(1);
+                }
+            }
+        }
+    }
+    unkE0.fn_801569F8(0, 0, EVec3(1.0f));
+}
+
 // 0x8001B378
 // Moves the body-shape sequence one step towards `step` (or restarts it for the
 // other gender), starting the transition animation. False when already there.

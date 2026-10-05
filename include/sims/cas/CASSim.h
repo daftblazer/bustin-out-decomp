@@ -66,6 +66,11 @@ struct Unk80156438 {
     void fn_80159994(int, unsigned int animationId);
     void fn_8015AB78(float);
     float fn_8015A82C(int);
+    void fn_8015980C(int);
+    void fn_801598A8(int, int);
+    void fn_80159FE4(int, float, float, float);
+    void fn_80159CBC(int channel, float weight);
+    void fn_8015A100(int channel, float, float, float, float);
     void SetUnk54(float value) { unk54 = value; }
     void SetCallback(void (*callback)(Unk80018374*, int, int, EMat4*), void* owner) {
         unk6C = owner;
@@ -79,7 +84,12 @@ struct Unk80156438 {
         char unk0[0x24];
         int unk24;
     }* unk18;
-    char unk1C[0x54 - 0x1C];
+    char unk1C[0x2C - 0x1C];
+    struct Unk801B5CE8 {
+        int fn_801B5CE8(int, int);
+        char unk0[4];
+    } unk2C;
+    char unk30[0x54 - 0x30];
     float unk54;
     char unk58[0x68 - 0x58];
     void (*unk68)(Unk80018374*, int, int, EMat4*); // callback applied to the bone matrices
@@ -488,6 +498,7 @@ extern EVec3 lbl_802E59EC, lbl_802E59F8;
 extern EVec3 lbl_802E5A04, lbl_802E5A10;
 
 // Last choices made for each of the four body types, kept between sessions.
+extern int lbl_8037B488; // set once the mirror reaction has played
 extern Unk801CC464 lbl_802E5A1C;
 extern Unk801CC464 lbl_802E5A38;
 extern Unk801CC464 lbl_802E5A54;
