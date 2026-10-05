@@ -1415,7 +1415,9 @@ EVec2 Unk80026864::fn_8002BD98() {
 // 0x8002C7B4
 // The object on the tile under the cursor that matches `kind` (0 any, 1 without
 // either wall flag, 2 and 3 with one of them).
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 100 instructions vs 99. The switch and the loop agree; the original
+// does not keep the iterator's address in a register, and loads both tile indices
+// before shifting them. Two variants tried.
 Unk800053D4Inner* Unk80026864::fn_8002C7B4(int kind) {
     int tileX;
     int tileY;
@@ -1463,7 +1465,8 @@ Unk800053D4Inner* Unk80026864::fn_8002C7B4(int kind) {
 
 // 0x8002C940
 // Releases the overlay's shared textures.
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 3 instructions at the entry are in a different order (the store that
+// clears lbl_8037B4BC and the first load). One variant tried.
 void Unk80026864::fn_8002C940() {
     lbl_8037B4BC = 0;
     if (lbl_8037B4C0) {
@@ -1596,7 +1599,8 @@ void fn_8002E19C(ERC* rc, Unk8002D67CItem* item) {
 
 // 0x8002E1BC
 // Callback: applies an action to every entry filed under a key.
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 56 instructions vs 57; the loop over the three-byte entries is laid
+// out differently. One variant tried.
 void fn_8002E1BC(void* key, int flag) {
     Unk80234390* list = FindList(key);
     if (list && key) {
@@ -1621,7 +1625,8 @@ void fn_8002E1BC(void* key, int flag) {
 }
 
 // 0x8002E5DC
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 8 instructions; the address of the first point is loaded into r3
+// last in the original (after the other arguments) and first here. One variant.
 void fn_8002E5DC(void* arg, int kind, float x0, float y0, float x1, float y1) {
     EVec2 a(x0, y0);
     EVec2 b(x1, y1);
@@ -1636,7 +1641,7 @@ void fn_8002E5DC(void* arg, int kind, float x0, float y0, float x1, float y1) {
 }
 
 // 0x8002E68C
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: as fn_8002E5DC.
 void fn_8002E68C(void* arg, int kind, float x0, float y0, float x1, float y1) {
     EVec2 a(x0, y0);
     EVec2 b(x1, y1);
