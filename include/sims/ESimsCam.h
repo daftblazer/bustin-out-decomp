@@ -102,6 +102,10 @@ struct CameraParameters {
     float unk14;  // tilt, degrees
 };
 
+struct Unk324 {
+    void fn_80027EAC();
+};
+
 // The game camera. Class and method names follow The Sims 2's symbol map where
 // the functions line up; member names are provisional.
 class ESimsCam {
@@ -135,22 +139,18 @@ public:
     int unkC;
     int unk10;
     E3DWindow unk14;
-    void* unk324;
+    struct Unk324* unk324;
     int unk328;         // camera mode
     int unk32C;         // camera mode to return to
     int unk330;
     int unk334;
-    char unk338[0x380 - 0x338];
-    float unk380;
-    char unk384[0x390 - 0x384];
+    char unk338[0x378 - 0x338];
+    EVec3 unk378;       // eye position
+    EVec3 unk384;
     float unk390;
     float unk394;
-    EVec3 unk398;       // 0x398..0x3A4: includes what Update code reads as unk3A0
-
-    float unk3A4;       // current zoom distance
-    float unk3A8;       // rotation, degrees, wraps at 360
-    float unk3AC;       // tilt, clamped
-    char unk3B0[0x3C8 - 0x3B0];
+    CameraParameters unk398; // current
+    CameraParameters unk3B0; // wanted
     int unk3C8;
     float unk3CC;
 };

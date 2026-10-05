@@ -42,7 +42,7 @@ public:
     char unk94[0x9C - 0x94];
     Unk800053D4Owner* unk9C[2];   // per player
     int unkA4;
-    void* unkA8[4];               // per player, set from ESimsCam+0x324
+    struct Unk324* unkA8[4];      // per player, set from ESimsCam+0x324
     char unkB8[0xBC - 0xB8];
     ESimsCamUnkBC* unkBC;
     char unkC0[0x170 - 0xC0];

@@ -23,10 +23,11 @@ float lbl_8037B43C = 10.0f;  // near plane at the far zoom limit
 // offset for any target is derived from the direction between them.
 extern EVec3 lbl_802E57B8;
 extern EVec3 lbl_802E57C4;
+extern EVec3 lbl_802E57D0;
 
 // 0x8000562C
 float ESimsCam::GetCurZoomRatio() {
-    return (unk3A4 - lbl_8037B408) / (lbl_8037B404 - lbl_8037B408);
+    return (unk398.unkC - lbl_8037B408) / (lbl_8037B404 - lbl_8037B408);
 }
 
 // 0x80005648
@@ -130,7 +131,7 @@ void ESimsCam::fn_80005984() {
         fn_80006E6C();
         lbl_802E6700.unkBC->vfn7(0, 0x18);
     } else {
-        unk398.z = unk380;
+        unk398.unk0.z = unk378.z;
         unk328 = 3;
         lbl_802E6700.unkBC->vfn7(0, 0x17);
     }
@@ -276,16 +277,16 @@ int ESimsCam::fn_80005EE4() {
         }
         input = input * lbl_8037BFC8 * unk394;
         if (input != 0.0f) {
-            unk3A8 = unk3A8 + input;
+            unk398.unk10 = unk398.unk10 + input;
             float wrapped;
-            if (unk3A8 < 0.0f) {
+            if (unk398.unk10 < 0.0f) {
                 wrapped = 360.0f;
-            } else if (unk3A8 > 360.0f) {
+            } else if (unk398.unk10 > 360.0f) {
                 wrapped = 0.0f;
             } else {
-                wrapped = unk3A8;
+                wrapped = unk398.unk10;
             }
-            unk3A8 = wrapped;
+            unk398.unk10 = wrapped;
             return 1;
         }
     }
@@ -298,16 +299,16 @@ int ESimsCam::fn_80005FC8() {
         if (unk324 != 0) {
             float input = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk8))->fn_8015DEE4(1, 1) * lbl_8037BFC8 * unk394;
             if (input != 0.0f) {
-                unk3AC = unk3AC + input;
+                unk398.unk14 = unk398.unk14 + input;
                 float clamped;
-                if (unk3AC < 20.0f) {
+                if (unk398.unk14 < 20.0f) {
                     clamped = 20.0f;
-                } else if (unk3AC > 88.0f) {
+                } else if (unk398.unk14 > 88.0f) {
                     clamped = 88.0f;
                 } else {
-                    clamped = unk3AC;
+                    clamped = unk398.unk14;
                 }
-                unk3AC = clamped;
+                unk398.unk14 = clamped;
                 return 1;
             }
         }
@@ -331,11 +332,11 @@ int ESimsCam::fn_800060A8() {
                 } else {
                     maxZoom = lbl_8037B404;
                 }
-                unk3A4 = unk3A4 - input;
-                unk3A4 = unk3A4 < lbl_8037B408 ? lbl_8037B408 : (unk3A4 > maxZoom ? maxZoom : unk3A4);
-                unk3AC = (unk3A4 - lbl_8037B408) / (maxZoom - lbl_8037B408) * (lbl_8037B410 - lbl_8037B40C) + lbl_8037B40C;
+                unk398.unkC = unk398.unkC - input;
+                unk398.unkC = unk398.unkC < lbl_8037B408 ? lbl_8037B408 : (unk398.unkC > maxZoom ? maxZoom : unk398.unkC);
+                unk398.unk14 = (unk398.unkC - lbl_8037B408) / (maxZoom - lbl_8037B408) * (lbl_8037B410 - lbl_8037B40C) + lbl_8037B40C;
                 if (unk3C8 != 0 && input > 0.0f) {
-                    EVec3 offset = unk398 - fn_80007DD8();
+                    EVec3 offset = unk398.unk0 - fn_80007DD8();
                     float distance = offset.Length();
                     float limit = 0.0f;
                     if (GetCurZoomRatio() > 0.1f) {
@@ -343,7 +344,7 @@ int ESimsCam::fn_800060A8() {
                     }
                     if (distance > limit) {
                         unk3CC = 100.0f;
-                        unk398 = fn_80007DD8() + limit * offset * (1.0f / distance);
+                        unk398.unk0 = fn_80007DD8() + limit * offset * (1.0f / distance);
                     }
                 }
                 return 1;
@@ -355,7 +356,7 @@ int ESimsCam::fn_800060A8() {
 
 // 0x8000650C
 void ESimsCam::fn_8000650C() {
-    unk390 = (unk3A4 - lbl_8037B408) / (lbl_8037B404 - lbl_8037B408) * (lbl_8037B414 - lbl_8037B418) + lbl_8037B418;
+    unk390 = (unk398.unkC - lbl_8037B408) / (lbl_8037B404 - lbl_8037B408) * (lbl_8037B414 - lbl_8037B418) + lbl_8037B418;
     unk14.fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
     float fov = GetFov();
     fov *= (float)lbl_8037C198->unk18;
@@ -391,4 +392,23 @@ void ESimsCam::CalcEyePosition(EVec3& eye, CameraParameters& params) {
     eye = back;
     EVec3 toEye = (eye - lbl_802E57C4).Normalize();
     eye = params.unk0 + toEye * params.unkC;
+}
+
+// 0x80006D90
+void ESimsCam::fn_80006D90() {
+    unk398.unk0 = lbl_802E57C4;
+    unk384 = lbl_802E57D0;
+    unk3B0.unk0 = lbl_802E57C4;
+    unk3B0.unk14 = lbl_8037B420;
+    unk3B0.unk10 = lbl_8037B41C;
+    unk3B0.unkC = lbl_8037B428;
+    unk398.unk14 = lbl_8037B420;
+    unk398.unk10 = lbl_8037B41C;
+    unk398.unkC = lbl_8037B428;
+    CalcEyePosition(unk378, unk3B0);
+    if (unk324) {
+        unk324->fn_80027EAC();
+    }
+    fn_8000650C();
+    fn_80006E6C();
 }
