@@ -313,6 +313,7 @@ void Unk8001EE8C::fn_8002196C(int layer) {
 // Reduces the composited texture to 256 colours and writes the palette and the
 // indices into the given texture.
 void Unk8001EE8C::fn_80021A14(ETextureLike* texture) {
+    unsigned char color[3];
     unsigned char sub = 0;
     unsigned char column = 0;
     int first = 1;
@@ -322,14 +323,13 @@ void Unk8001EE8C::fn_80021A14(ETextureLike* texture) {
     int b;
     unsigned short* source = (unsigned short*)unk50->vfn6(0, &a, &b);
     Unk801B7464 quantizer;
-    unsigned char color[3];
     unsigned short* p = source;
     int i;
     quantizer.fn_801B7538(0x100, 0x7C00, 0, 0, 1);
-    for (i = 0x10000; i != 0; i--) {
-        color[0] = (*p >> 7) & 0xF8;
-        color[1] = (*p >> 2) & 0xF8;
-        color[2] = (*p << 3) & 0xF8;
+    for (i = 0; i < 0x10000; i++) {
+        color[0] = ((*p >> 10) & 0x1F) << 3;
+        color[1] = ((*p >> 5) & 0x1F) << 3;
+        color[2] = (*p & 0x1F) << 3;
         p++;
         quantizer.fn_801B79B4(color);
     }
@@ -348,11 +348,11 @@ void Unk8001EE8C::fn_80021A14(ETextureLike* texture) {
         palette[i] += color[2];
     }
     unsigned char* indices = (unsigned char*)texture->vfn6(0, &a, &b);
-    p = source;
-    for (i = 0x10000; i != 0; i--) {
-        color[0] = (*p >> 7) & 0xF8;
-        color[1] = (*p >> 2) & 0xF8;
-        color[2] = (*p << 3) & 0xF8;
+    unsigned short* q = source;
+    for (i = 0; i < 0x10000; i++) {
+        color[0] = ((*q >> 10) & 0x1F) << 3;
+        color[1] = ((*q >> 5) & 0x1F) << 3;
+        color[2] = (*q & 0x1F) << 3;
         indices[offset] = quantizer.fn_801B8664(color);
         sub++;
         if (sub > 3) {
@@ -373,7 +373,7 @@ void Unk8001EE8C::fn_80021A14(ETextureLike* texture) {
         } else {
             offset++;
         }
-        p++;
+        q++;
     }
     texture->vfn8();
     unk50->vfn8();
