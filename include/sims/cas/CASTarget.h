@@ -170,7 +170,6 @@ struct Unk8037D948 {
 extern Unk8037D948* lbl_8037D948;
 extern int lbl_8037C3F4;
 void fn_801DA828(void*, Unk8037D94C* file);
-extern "C" int fn_801115C4(); // rand
 void fn_800620CC(short* choices, int preset);
 
 // Data set resource with named nodes.
@@ -304,15 +303,9 @@ struct Unk80182DE0 {
     Unk80182DE0Inner* unk20;
     void fn_80182DE0(float);
 };
-struct Unk8037C0E0 {
-    char unk0[0xA0];
-    EMat4 unkA0;
-};
-extern Unk8037C0E0* lbl_8037C0E0; // the active view
 void fn_8017AA14(void* scene, ERC* rc);
 void fn_80106484(void* viewer, ERC* rc);
 int fn_801082B4(void* viewer);
-EMat4& fn_80015070(EMat4& dst, const EMat4& src);
 // Placement of three props: x, y, z and a turn angle each (small data, 0x8037B44C).
 extern float lbl_8037B44C, lbl_8037B450, lbl_8037B454, lbl_8037B458;
 extern float lbl_8037B45C, lbl_8037B460, lbl_8037B464, lbl_8037B468;
@@ -363,7 +356,6 @@ struct Unk80231598 {
     int fn_802313B4(Unk802316EC* callback, int, int, int);
 };
 void fn_801FC174(void*);
-void fn_800183D0();
 
 struct UnkViewer {
     int fn_801082CC();

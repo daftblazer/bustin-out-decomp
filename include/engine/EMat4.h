@@ -39,6 +39,9 @@ public:
     }
     void fn_801B2AFC();                              // set identity
     void fn_801B2888(const EMat4* a, const EMat4* b); // this = a concatenated with b
+    // The same function seen as a member returning its result by value (r3 is then
+    // the return slot and r4 `this`): the product of this and other.
+    EMat4 Mul(const EMat4& other) const;
     void fn_801B3024(const EVec3& axis, float angle); // rotate about an axis
     void fn_801B3388(float angle);                   // rotate about Z
     void fn_801B2CC8(float angle);

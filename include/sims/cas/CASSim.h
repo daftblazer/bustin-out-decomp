@@ -90,7 +90,7 @@ public:
     void fn_8001AE1C(int, CASTargetUnk533C* selectors);
     void fn_8001B850(int slot);
     void fn_8001B8E4(int slot, int choice);
-    int fn_8001BF1C(int slot);
+    int fn_8001BF1C(unsigned int slot); // current choice for a slot
     void fn_8001C028(int slot); // next choice
     void fn_8001C0A4(int slot); // previous choice
     void fn_8001C240();
@@ -98,6 +98,7 @@ public:
     void fn_8001C384();
     void fn_8001C3B8();
     int fn_8001D04C();
+    void fn_8001D6D8(ERC* rc); // draw the shadow
     int fn_8001DB38(int slot, int choice, int);
     void fn_8001E6E8(int, int);
     int fn_8001E794(int, int, int slot, int choice);
@@ -120,12 +121,15 @@ public:
     char unk48[0x50 - 0x48];
     unsigned int** unk50; // animation id lists
     unsigned int** unk54;
-    char unk58[0x90 - 0x58];
+    char unk58[0x74 - 0x58];
+    unsigned int*** unk74; // idle animation lists (by gender)
+    unsigned int*** unk78;
+    char unk7C[0x90 - 0x7C];
     void* unk90[7];       // per-slot resources (slots 1 to 7)
     char unkAC[0xBC - 0xAC];
     void* unkBC;          // slot 0 resource
     void* unkC0;          // slot 8 resource
-    char unkC4[0xC8 - 0xC4];
+    struct Unk8017CE68* unkC4; // shadow model
     Unk800226F0* unkC8;
     char unkCC[0xD0 - 0xCC];
     struct UnkD0 {
@@ -137,9 +141,32 @@ public:
     EVec3 unk154; // position in the line-up
     char unk160[0x16C - 0x160];
     Unk801CC464 unk16C;
-    char unk188[0x198 - 0x188];
+    char unk188[0x194 - 0x188];
+    int** unk194;         // nine lists of choices, one per slot kind
     unsigned int unk198;  // animation waiting for its resource to load
 };
+
+struct Unk8017CE68 {
+    void fn_8017CE68(ERC* rc);
+};
+struct Unk8037C0E0 {
+    char unk0[0xA0];
+    EMat4 unkA0;
+};
+extern Unk8037C0E0* lbl_8037C0E0; // the active view
+EMat4& fn_80015070(EMat4& dst, const EMat4& src);
+extern "C" int fn_801115C4(); // rand
+void fn_800183D0();
+
+// Number of entries in one of the engine's counted arrays (the count is kept
+// in the word before the data).
+inline int ECount(const int* array) {
+    int count = 0;
+    if (array) {
+        count = array[-1];
+    }
+    return count;
+}
 
 // Resource manager used for the sim's animations.
 struct Unk8033F3D8 {
