@@ -48,3 +48,7 @@ sims/cas/CASTarget.cpp:
 sims/cas/CASSelectors.cpp:
 	.text       start:0x8001562C end:0x80018310
 	.rodata     start:0x80294220 end:0x80294960
+
+sims/cas/CASSim.cpp:
+	.text       start:0x80018310 end:0x8001EE8C
+	.ctors      start:0x80291CB0 end:0x80291CB4

@@ -265,6 +265,7 @@ config.libs = [
             Object(NonMatching, "sims/cas/CASState.cpp"),
             Object(NonMatching, "sims/cas/CASTarget.cpp"),
             Object(NonMatching, "sims/cas/CASSelectors.cpp"),
+            Object(NonMatching, "sims/cas/CASSim.cpp"),
         ],
     ),
 ]

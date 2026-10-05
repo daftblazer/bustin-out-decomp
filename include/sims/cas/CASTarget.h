@@ -9,6 +9,7 @@
 #include "sims/EGlobal.h"
 #include "sims/cas/CASWidgets.h"
 #include "sims/cas/CASSelectors.h"
+#include "sims/cas/CASSim.h"
 
 void* fn_80169F1C(unsigned int size, int align); // aligned allocate
 extern "C" void* fn_80111C78(void*, int, unsigned int); // memset
@@ -16,43 +17,6 @@ extern "C" void* fn_80111C78(void*, int, unsigned int); // memset
 // Member classes, known only by their constructors. Sizes are lower bounds
 // except where an array fixes them.
 
-struct Unk8001EE8C {
-    Unk8001EE8C();
-    ~Unk8001EE8C();
-    void fn_8001EFEC();
-    void fn_8001F34C();
-    void fn_8001FAE0();
-    char unk0[4];
-};
-struct Unk801CC464 {
-    Unk801CC464();
-    Unk801CC464(const Unk801CC464& other);
-    void fn_801CC688();
-    int unk0;
-    int unk4;
-    signed char unk8[0x14]; // one choice per feature slot
-};
-// Description of one sim (0xF8 bytes); copied whole.
-struct CASSimDesc {
-    unsigned char unk0[0xC];
-    Unk801CC464 unkC;
-    unsigned short unk28[0x20]; // first name
-    unsigned short unk68[0x20]; // family name
-    int unkA8;
-    int unkAC;
-    int unkB0[14];
-    char unkE8[0xF8 - 0xE8];
-};
-// A family of up to four sims.
-struct CASFamily {
-    CASSimDesc sims[4];
-    int present[4];
-    int unk3F0[4];
-    void* unk400; // name object
-};
-extern "C" const unsigned short* fn_8023C9EC(void* name);
-extern "C" void fn_8023C9FC(void* name, const unsigned short* text);
-extern "C" void fn_8023CA3C(void* name, void* other);
 struct Unk80039E78 {
     Unk80039E78();
     ~Unk80039E78();
@@ -60,21 +24,6 @@ struct Unk80039E78 {
     void fn_8003A0C0(EVec2* position, int, int* captions, int text, int, int, float width);
     void fn_80039F1C();
     char unk0[4];
-};
-// Animated model instance (0x74 bytes).
-struct Unk80156438 {
-    Unk80156438();
-    void fn_80156700(unsigned int modelId);
-    int fn_8015AA0C(int);  // animation finished
-    void fn_8015A520(int); // restart
-    void fn_801569F8(int, int, const EVec3& scale);
-    void fn_8015B044(ERC* rc, Unk8033FF34Resource* model, const EMat4* transform); // draw
-    void fn_80159994(int, unsigned int animationId);
-    void SetUnk54(float value) { unk54 = value; }
-    char unk0[0x54];
-    float unk54;
-    char unk58[0x70 - 0x58];
-    virtual ~Unk80156438();
 };
 struct Unk801B9FEC {
     Unk801B9FEC();
@@ -84,47 +33,6 @@ struct Unk801B9FEC {
     char* unk0;
 };
 
-struct Unk800226F0 {
-    void fn_800226F0(Unk801CC464* out);
-    int fn_800218D8(int);
-    void fn_80021928(int slot);
-    void fn_8002196C(int slot);
-};
-// The sim being shown (0x19C bytes).
-struct Unk80018374 {
-    Unk80018374(CASSimDesc* desc, Unk8001EE8C* owner, int);
-    Unk80018374(int, int, Unk8001EE8C* owner);
-    ~Unk80018374() { fn_8001A67C(); }
-    void fn_8001A67C();
-    void fn_8001C240();
-    void fn_8001C384();
-    void fn_8001C028(int slot); // next choice
-    void fn_8001C0A4(int slot); // previous choice
-    void fn_8001A908(ERC* rc, float turn, int); // draw
-    void fn_8001C3B8();
-    int fn_8001D04C();
-    void fn_8001AC88();
-    void fn_8001AE1C(int, CASTargetUnk533C* selectors);
-    int fn_8001E9D8(int, int, int slot, signed char choice); // true when the slot's choice is locked
-    void fn_8001E6E8(int, int);
-    void SetUnk154(EVec3 position) { unk154 = position; }
-
-    char unk0[8];
-    int unk8;
-    char unkC[0x14 - 0xC];
-    int unk14;
-    char unk18[0x40 - 0x18];
-    int unk40; // which side the sim is seen from
-    int unk44;
-    char unk48[0xC8 - 0x48];
-    Unk800226F0* unkC8;
-    char unkCC[0xE0 - 0xCC];
-    Unk80156438 unkE0;
-    EVec3 unk154; // position in the line-up
-    char unk160[0x16C - 0x160];
-    Unk801CC464 unk16C;
-    char unk188[0x19C - 0x188];
-};
 // Text-entry dialog (0x178 bytes).
 class Unk800C6704 : public UnkTargetBase {
 public:
