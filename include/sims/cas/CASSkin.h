@@ -2,7 +2,9 @@
 #define SIMS_CAS_CASSKIN_H
 
 #include "engine/EVec3.h"
+#include "engine/ResourceManagers.h"
 
+void fn_801767FC(void* resource);
 struct Unk80182DE0Inner;
 struct ETextureLike;
 
@@ -35,7 +37,21 @@ struct Unk8001EE8C {
     void fn_8001F34C();
     void fn_8001FAE0();
     void fn_8001FD00();
-    void fn_8001FEA8(int, unsigned int textureId);
+    void fn_8001FEA8(int layer, unsigned int textureId); // load a layer's image
+    // Loads a skin layer and shifts its palette by the current skin tone.
+    void LoadSkinLayer(int slot, int layer, unsigned int textureId);
+    // Loads any other layer and remembers its palette.
+    void LoadLayer(int slot, int index, unsigned int textureId) {
+        if (unk0[slot]) {
+            fn_80021D40(unk0[slot], index);
+            fn_801767FC(unk0[slot]);
+            unk0[slot] = 0;
+        }
+        if (textureId != 0) {
+            unk0[slot] = (Unk80021CEC*)lbl_802E5E1C.fn_80177628(textureId, 0, 0);
+            fn_80021CEC(unk0[slot], index);
+        }
+    }
     void fn_80020EF4(int layer, int choice, int);
     int fn_800218D8(int layer);              // current choice of a texture layer
     void fn_80021928(int layer);             // next
@@ -67,6 +83,98 @@ struct Unk8001EE8C {
     int unk4098;
 };
 typedef Unk8001EE8C Unk800226F0;
+
+// Hue, saturation and lightness offsets of the eight skin tones.
+extern EVec3 lbl_802E5A8C;
+extern EVec3 lbl_802E5A98;
+extern EVec3 lbl_802E5AA4;
+extern EVec3 lbl_802E5AB0;
+extern EVec3 lbl_802E5ABC;
+extern EVec3 lbl_802E5AC8;
+extern EVec3 lbl_802E5AD4;
+extern EVec3 lbl_802E5AE0;
+
+inline void Unk8001EE8C::LoadSkinLayer(int slot, int layer, unsigned int textureId) {
+    if (unk0[slot]) {
+        fn_80021D40(unk0[slot], slot);
+        fn_801767FC(unk0[slot]);
+        unk0[slot] = 0;
+    }
+    if (textureId != 0) {
+        unk0[slot] = (Unk80021CEC*)lbl_802E5E1C.fn_80177628(textureId, 0, 0);
+        fn_80021CEC(unk0[slot], slot);
+        EVec3 hsl;
+        hsl[0] = hsl[1] = hsl[2] = 0.0f;
+        unsigned int count = 0x100;
+        if (unk0[slot]->unk3C) {
+            count = 0x10;
+        }
+        unsigned int* palette = unk0[slot]->unk24;
+        float dh;
+        float ds;
+        float dl;
+        switch (unk406C[0]) {
+        case 7:
+            dh = lbl_802E5AE0.x; ds = lbl_802E5AE0.y; dl = lbl_802E5AE0.z;
+            break;
+        case 1:
+            dh = lbl_802E5A98.x; ds = lbl_802E5A98.y; dl = lbl_802E5A98.z;
+            break;
+        case 2:
+            dh = lbl_802E5AA4.x; ds = lbl_802E5AA4.y; dl = lbl_802E5AA4.z;
+            break;
+        case 3:
+            dh = lbl_802E5AB0.x; ds = lbl_802E5AB0.y; dl = lbl_802E5AB0.z;
+            break;
+        case 4:
+            dh = lbl_802E5ABC.x; ds = lbl_802E5ABC.y; dl = lbl_802E5ABC.z;
+            break;
+        case 5:
+            dh = lbl_802E5AC8.x; ds = lbl_802E5AC8.y; dl = lbl_802E5AC8.z;
+            break;
+        case 6:
+            dh = lbl_802E5AD4.x; ds = lbl_802E5AD4.y; dl = lbl_802E5AD4.z;
+            break;
+        default:
+            dh = lbl_802E5A8C.x; ds = lbl_802E5A8C.y; dl = lbl_802E5A8C.z;
+            break;
+        }
+        for (unsigned int i = 0; i < count; i++) {
+            unsigned int color = unk6C[layer - 1][i];
+            unsigned int alpha = color & 0xFF000000;
+            if (alpha) {
+                fn_80022940(color, &hsl);
+                float h = hsl[0] + dh;
+                if (h > 1.0f) {
+                    hsl[0] = h - 1.0f;
+                } else if (h < 0.0f) {
+                    hsl[0] = h + 1.0f;
+                } else {
+                    hsl[0] = h;
+                }
+                float s = hsl[1] + ds;
+                if (s > 1.0f) {
+                    hsl[1] = 1.0f;
+                } else if (s < 0.0f) {
+                    hsl[1] = 0.0f;
+                } else {
+                    hsl[1] = s;
+                }
+                float l = hsl[2] + dl;
+                if (l > 1.0f) {
+                    hsl[2] = 1.0f;
+                } else if (l < 0.0f) {
+                    hsl[2] = 0.0f;
+                } else {
+                    hsl[2] = l;
+                }
+                palette[i] = alpha + fn_80022778(EVec3(hsl[0], hsl[1], hsl[2]));
+            } else {
+                palette[i] = alpha;
+            }
+        }
+    }
+}
 
 void fn_8001EF5C(void* resource, int* done);
 

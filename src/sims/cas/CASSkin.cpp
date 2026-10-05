@@ -1,6 +1,6 @@
 #include "sims/cas/CASSim.h"
 
-// Hue, saturation and lightness offsets (unidentified use).
+// Hue, saturation and lightness offsets of the eight skin tones.
 EVec3 lbl_802E5A8C(0.007f, -0.006f, -0.03f);
 EVec3 lbl_802E5A98(0.015f, 0.04f, -0.1f);
 EVec3 lbl_802E5AA4(0.028f, -0.16f, -0.2f);
@@ -304,6 +304,97 @@ void Unk8001EE8C::fn_8001FD00() {
     unk406C[7] = 0;
     unk406C[8] = 0;
     unk406C[9] = 0;
+}
+
+// 0x8001FEA8
+// Replaces the image of one texture layer. The first head image loaded picks
+// the body type; skin layers are recoloured to the current skin tone.
+// NON_MATCHING: 1019 instructions vs 1043, frame 0x70 vs 0x80. Control flow and calls
+// agree; the four inlined skin-layer blocks differ. The original keeps the address of
+// the HSL vector in a register (zeroing z and y through it, x directly) and has 16
+// more bytes of locals, and its saturation/lightness clamps store in each branch.
+// Four variants tried (tone as floats or a copied vector, chained and indexed zeroing).
+void Unk8001EE8C::fn_8001FEA8(int layer, unsigned int textureId) {
+    if (unk4098 == 0 && layer == 1) {
+        switch (textureId) {
+        case 0x29F28D35:
+        case 0x4D9094C3:
+            unk4094 = 0;
+            break;
+        case 0x78EEA303:
+        case 0x5E63299A:
+            unk4094 = 1;
+            break;
+        case 0x4FA86F95:
+        case 0x2BCA7663:
+            unk4094 = 2;
+            break;
+        case 0x98EDFAE4:
+        case 0xBE60707D:
+            unk4094 = 3;
+            break;
+        }
+        unk4098 = 1;
+    }
+    switch (layer) {
+    case 1:
+        if (unk0[0]) {
+            fn_801767FC(unk0[0]);
+            unk0[0] = 0;
+        }
+        if (textureId != 0) {
+            unk0[0] = (Unk80021CEC*)lbl_802E5E1C.fn_80177628(textureId, 0, 0);
+        }
+        break;
+    case 7:
+        LoadSkinLayer(6, layer, textureId);
+        break;
+    case 8:
+        LoadSkinLayer(7, layer, textureId);
+        break;
+    case 9:
+        LoadSkinLayer(8, layer, textureId);
+        break;
+    case 10:
+        LoadSkinLayer(9, layer, textureId);
+        break;
+    case 2:
+        LoadLayer(1, 1, textureId);
+        break;
+    case 3:
+        LoadLayer(2, 2, textureId);
+        break;
+    case 4:
+        LoadLayer(3, 3, textureId);
+        break;
+    case 5:
+        LoadLayer(4, 4, textureId);
+        break;
+    case 6:
+        LoadLayer(5, 5, textureId);
+        break;
+    case 11:
+        LoadLayer(10, 10, textureId);
+        break;
+    case 12:
+        LoadLayer(12, 11, textureId);
+        break;
+    case 15:
+        LoadLayer(15, 14, textureId);
+        break;
+    case 16:
+        LoadLayer(16, 15, textureId);
+        break;
+    case 13:
+        LoadLayer(13, 12, textureId);
+        break;
+    case 14:
+        LoadLayer(14, 13, textureId);
+        break;
+    }
+    if (layer != 13 && layer != 1 && layer != 7) {
+        unk406C[layer - 1] = 1;
+    }
 }
 
 // 0x800218D8
