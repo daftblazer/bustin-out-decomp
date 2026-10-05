@@ -116,8 +116,8 @@ struct Unk800053D4Inner {
     virtual void vfn46();
     virtual void vfn47();
     virtual void vfn48();
-    virtual void vfn49();
-    virtual void vfn50();
+    virtual int vfn49(struct ETilePair* tile, int, int, int);   // can it stand there
+    virtual void vfn50(struct ETilePair* tile, int, int, int);  // move it there
     virtual void vfn51();
     virtual void vfn52();
     virtual void vfn53();
@@ -128,7 +128,7 @@ struct Unk800053D4Inner {
     virtual void vfn58();
     virtual void vfn59();
     virtual void vfn60();
-    virtual void vfn61();
+    virtual int vfn61(void* query, struct ETilePair* out);       // find a free tile
     virtual void vfn62();
     virtual void vfn63();
     virtual int vfn64();
@@ -181,12 +181,12 @@ struct Unk800053D4Inner {
     virtual void* vfn111();
     virtual void vfn112();
     virtual void vfn113();
-    virtual void vfn114();
+    virtual void vfn114(struct ETilePair* out);
     virtual struct ETilePair* vfn115();   // tile the object stands on
     virtual void vfn116();
     virtual struct CTilePt vfn117();
     virtual void vfn118();
-    virtual void vfn119();
+    virtual void* vfn119();
     virtual void vfn120();
     virtual void vfn121();
     virtual void vfn122();

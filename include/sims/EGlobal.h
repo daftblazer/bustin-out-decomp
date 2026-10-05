@@ -30,6 +30,7 @@ public:
     void fn_800690E0(int);
     void fn_80068054(int, int);
     void fn_800673EC(int);
+    void fn_80068838();
     int fn_80068D9C(void* object);
     int fn_800690B0(int);
 

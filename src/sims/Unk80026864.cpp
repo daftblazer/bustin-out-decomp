@@ -11,18 +11,21 @@ struct Unk8002FD24 {
 };
 int fn_80068758(int arg);
 
-// Interface returned by fn_801FD05C: vtable pointer at 4.
+// Interface returned by fn_801FD05C: a pointer to the object's own pointer, then
+// the vtable pointer.
 struct Unk801FD05CResult {
-    int unk0;
+    Unk800053D4Inner** unk0;
+    Unk800053D4Inner* Object() const { return *unk0; }
     virtual void vfn1();
     virtual Unk800053D4Inner** vfn2();   // first contained object
     virtual Unk800053D4Inner** vfn3();   // next
-    virtual void vfn4();
+    virtual int vfn4();
     virtual void vfn5();
     virtual void vfn6();
     virtual void vfn7();
     virtual void* vfn8b();
     virtual int vfn9();
+    virtual void vfn10(int);
 };
 // The part of a game object at +0x20: vtable pointer at 0x1C, slot 19 gives its model.
 struct Unk801FD05C {
@@ -194,6 +197,67 @@ inline bool IsActive(UnkTargetBase* screen) {
 }
 // A flag of the camera object.
 inline bool IsCameraBusy() { return *(int*)((char*)lbl_802E6700.unkBC + 0x2958) != 0; }
+
+struct Unk8037D990C {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10(ETilePair* tile);
+};
+struct Unk80217FDC {
+    char unk0[0x18];
+    struct Unk80217FDCInfo* unk18;
+};
+struct Unk80217FDCInfo {
+    char unk0[0x12];
+    short unk12;
+};
+Unk80217FDC* fn_80217FDC(void* definition);
+// Search parameters for an object's "find a free tile" call.
+struct Unk80028AA4Query {
+    Unk80028AA4Query() {
+        unk0 = 0;
+        unk1C = 0;
+        unk10 = -1;
+        unk14 = 1;
+        unk18 = 1;
+    }
+    int unk0;
+    char unk4[0x10 - 0x4];
+    int unk10;
+    int unk14;
+    int unk18;
+    int unk1C;
+};
+struct Unk8037D994 {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+};
+extern Unk8037D994* lbl_8037D994;
+int fn_80028AA4(Unk800053D4Inner* object);
 
 // Callback table copied over the engine's defaults (0x30 bytes at 0x802D1ED8).
 struct Unk802DBAEC {
@@ -701,7 +765,7 @@ void Unk80026864::vfn7(UnkTargetBase* sender, int message) {
                 Unk8037D98C* manager = lbl_8037D98C;
                 int id = manager->fn_801C8858(object->vfn111(), arg, 1);
                 unkF0 = GetPart(lbl_8037D98C->vfn18(id), 4);
-                (**(Unk800053D4Inner***)unkF0)->vfn48();
+                unkF0->Object()->vfn48();
                 if (unkF0) {
                     lbl_8037D96C->fn_8006186C(0xD9552AE4);
                     ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
@@ -789,6 +853,101 @@ void Unk80026864::fn_800285D4() {
             fn_80029BF8();
         }
     }
+}
+
+// 0x800286CC
+// NON_MATCHING: same length, 51 instructions differ. The original evaluates and
+// discards a two-mode test of the camera (`cmpwi 8; beq; cmpwi 10`) before the state
+// check; no form tried here keeps it, and the rest is shifted by it. Three variants.
+void Unk80026864::fn_800286CC() {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    IsBuildCameraMode();
+    if (unk84 - 2 <= 3) {
+        int up = controller->fn_8015E0F8(0x33);
+        int down = controller->fn_8015E0F8(0x34);
+        int left = controller->fn_8015E0F8(0x35);
+        int right = controller->fn_8015E0F8(0x36);
+        bool moved = up || down || left || right;
+        if (moved || (controller->fn_8015E0F8(7) && !(unk88 & 1))) {
+            ((UnkTargetBase*)unkC)->vfn7(this, 0x27);
+        }
+    }
+    switch (unk84) {
+    case 2:
+        fn_80029BF8();
+        fn_8003043C();
+        break;
+    case 3:
+    case 5:
+        fn_80029BF8();
+        fn_80033C3C();
+        break;
+    case 4:
+        fn_80029BF8();
+        fn_80031980();
+        break;
+    default:
+        fn_8002917C();
+        break;
+    }
+}
+
+// 0x80028860
+// Puts the object being moved back where it was picked up.
+int Unk80026864::fn_80028860() {
+    if (unkF0) {
+        ETilePair tile;
+        unkF0->Object()->vfn114(&tile);
+        if (unkF0->Object()->vfn64()) {
+            unkF0->Object()->vfn48();
+        }
+        unkF0->Object()->vfn50(&tile, 1, 0, 0);
+        if (unkF0->Object()->vfn64()) {
+            unkF0->Object()->vfn48();
+        }
+        unkF0->vfn10(unk1AC);
+        ETilePair home = unk1A4;
+        ((Unk8037D990C*)lbl_8037D990)->vfn10(&home);
+        if (unkF0->Object()->vfn49(&home, 1, 0, 0)) {
+            unkF0->Object()->vfn50(&home, 1, 0, 0);
+            if (unkF0->vfn3() && unkF0->vfn4()) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+// 0x80028AA4
+// Moves an object to the nearest free tile; false when there is none.
+// NON_MATCHING: 66 instructions vs 67. The original places the object right after the
+// first successful search and jumps back to that code after the second; here the
+// placement comes after both searches. Three variants tried.
+int fn_80028AA4(Unk800053D4Inner* object) {
+    if (object && fn_80217FDC(object->vfn119())->unk18->unk12 != 7) {
+        Unk80028AA4Query query;
+        ETilePair tile;
+        if (!object->vfn61(&query, &tile)) {
+            query.unk14 = 0;
+            if (!object->vfn61(&query, &tile)) {
+                return 0;
+            }
+        }
+        object->vfn50(&tile, 1, 0, 0);
+    }
+    return 1;
+}
+
+// 0x80028E84
+void* Unk80026864::fn_80028E84() {
+    return unkF0 ? unkF0->vfn8b() : 0;
+}
+
+// 0x80028ECC
+void Unk80026864::fn_80028ECC() {
+    ((Unk8037D990B*)lbl_8037D990)->vfn34(0);
+    lbl_802E6700.fn_80068838();
+    lbl_8037D994->vfn19();
 }
 
 // 0x8002ECE8

@@ -16,6 +16,7 @@ public:
     Unk802A2AC0() { mode = 0; }
     // True for four of the modes (8 to 11).
     bool IsBuildMode() const { return mode == 8 || mode == 10 || mode == 11 || mode == 9; }
+    bool IsMode8Or10() const { return mode == 8 || mode == 10; }
     int mode;   // current mode
     virtual ~Unk802A2AC0() {}
     virtual void vfn2(int);   // not inline: the vtable lives with its definition
@@ -83,6 +84,14 @@ public:
     int fn_80027D24();                                 // confirm button, single selection
     void fn_80027FCC(struct Unk800053D4Inner* object);
     void fn_800285D4();
+    void fn_800286CC();
+    int fn_80028860();
+    void* fn_80028E84();
+    static void fn_80028ECC();
+    void fn_8003043C();
+    void fn_80033C3C();
+    void fn_80031980();
+    void fn_8002917C();
     void fn_80029BF8();
     void fn_80033BAC();
     void fn_8002F1BC();
