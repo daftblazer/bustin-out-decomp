@@ -1185,7 +1185,8 @@ void Unk80026864::fn_8002A1BC(ERC* rc) {
 
 // 0x8002A234
 // Draws the tile cursor under the pointer (or, while dragging, at the grabbed spot).
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 137 instructions vs 144. Draft; the early-out tests and the discarded
+// camera-mode test differ as in fn_800286CC. One variant tried.
 void Unk80026864::fn_8002A234(ERC* rc) {
     if (unk38 == 1 && !lbl_802E6700.fn_800655C4()) {
         return;
@@ -1225,7 +1226,8 @@ void Unk80026864::fn_8002A234(ERC* rc) {
 
 // 0x8002A474
 // Draws every piece of a model with its own texture.
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 51 instructions vs 53. The original reaches the group array through
+// the address of the {pointer, count} pair (inline accessors). One variant tried.
 void fn_8002A474(ERC* rc, Unk8033FF34Resource* model) {
     for (int i = 0; i < model->unk24; i++) {
         EModelGroup* group = &model->unk20[i];
@@ -1243,36 +1245,36 @@ float Unk80026864::fn_8002B9D0() {
     return ((Unk80026864Cam*)unkBC)->fn_8000562C() * (lbl_8037B4A8 - lbl_8037B4A4) + lbl_8037B4A4;
 }
 
+// Keeps a direction (0, 2, 4, 6) in range.
+inline int WrapDirection(int direction) {
+    int result;
+    if (direction < 0) {
+        result = 6;
+    } else {
+        result = 0;
+        if (direction <= 6) {
+            result = direction;
+        }
+    }
+    return result;
+}
+
 // 0x8002BA04
 // Turns the held object a quarter turn.
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 87 instructions vs 88; the wrap of the direction is laid out
+// differently (the original tests the sign straight after each add). Four variants.
 void Unk80026864::fn_8002BA04(int forward) {
     Unk801FD05CResult* part = unkF0;
     Unk800053D4Inner* object = part->vfn8b();
     int direction = object->vfn88(1);
-    int next;
     if (forward) {
         direction += 2;
-        if (direction >= 0) {
-            next = 0;
-            if (direction <= 6) {
-                next = direction;
-            }
-        } else {
-            next = 6;
-        }
+        direction = WrapDirection(direction);
     } else {
         direction -= 2;
-        if (direction < 0) {
-            next = 6;
-        } else {
-            next = 0;
-            if (direction <= 6) {
-                next = direction;
-            }
-        }
+        direction = WrapDirection(direction);
     }
-    part->vfn10(next);
+    part->vfn10(direction);
     lbl_8037D96C->fn_8006186C(0x0C21C2A9);
     ETilePair tile;
     part->Object()->vfn114(&tile);
@@ -1284,7 +1286,6 @@ void Unk80026864::fn_8002BA04(int forward) {
 
 // 0x8002BB64
 // The tile under the cursor, rounded to the nearest.
-// NON_MATCHING: not yet compared.
 void Unk80026864::fn_8002BB64(int* tileX, int* tileY) {
     Unk8004AD08B* view = (Unk8004AD08B*)lbl_802E67B0.unk0;
     EVec2 offset(unkA0.x - view->unk34, unkA0.y - view->unk38);
