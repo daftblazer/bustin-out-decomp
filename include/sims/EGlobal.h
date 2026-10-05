@@ -61,4 +61,16 @@ public:
 
 extern EGlobal lbl_802E6700;
 
+// Looks up a localized string by name; null when it does not exist.
+inline int GetText(const char* name) {
+    Unk800669ACResult result = lbl_802E6700.fn_800667EC(name);
+    return result.ptr ? *result.ptr : 0;
+}
+
+// As GetText, through the other look-up (0x8006670C).
+inline int GetTextB(const char* name) {
+    Unk800669ACResult result = lbl_802E6700.fn_8006670C(name);
+    return result.ptr ? *result.ptr : 0;
+}
+
 #endif

@@ -42,18 +42,6 @@ EVec3 lbl_802E5944(0.2f, 0.2f, 0.1f);
 EVec3 lbl_802E5950(2.0f, 0.5f, 0.0f);
 EVec3 lbl_802E595C(0.0f, 0.0f, 0.0f);
 
-// Looks up a localized string by name; null when it does not exist.
-inline int GetText(const char* name) {
-    Unk800669ACResult result = lbl_802E6700.fn_800667EC(name);
-    return result.ptr ? *result.ptr : 0;
-}
-
-// As GetText, through the other look-up (0x8006670C).
-inline int GetTextB(const char* name) {
-    Unk800669ACResult result = lbl_802E6700.fn_8006670C(name);
-    return result.ptr ? *result.ptr : 0;
-}
-
 // 0x80008AA0
 CASTarget::CASTarget() {
     unk52C0 = 0;

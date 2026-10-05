@@ -1,6 +1,8 @@
 #include "sims/cas/CASSelectors.h"
 
 #include "engine/EController.h"
+#include "engine/ResourceManagers.h"
+#include "sims/EGlobal.h"
 
 // 0x8001562C
 CASTargetUnk533C::CASTargetUnk533C() {
@@ -10,6 +12,31 @@ CASTargetUnk533C::CASTargetUnk533C() {
 // 0x80015670
 CASTargetUnk533C::~CASTargetUnk533C() {
     fn_800158A4();
+}
+
+// 0x800156C8
+void CASTargetUnk533C::fn_800156C8() {
+    unk48 = 0;
+    unk49 = 0;
+    unk4A = 0;
+    unk80 = 0;
+    unk4C = 0.12f;
+    unk50 = 0.267f;
+    Unk80340AB8* manager = &lbl_80340AB8;
+    unkD4 = manager->fn_80177628(0xA25EBA9A, 0, 0);
+    unkD8 = manager->fn_80177628(0xE3E852F9, 0, 0);
+    unkDC = manager->fn_80177628(0x19E76F9A, 0, 0);
+    unk7C = lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    unk54 = lbl_802E6964;
+    unk64 = lbl_802E6964;
+    // Bar brightness ramps: 0.1 to 1.0 going out from the centre, then back.
+    int i;
+    for (i = 1; i <= 10; i++) {
+        unk84[i - 1] = (float)i / 10.0;
+    }
+    for (i = 10; i > 0; i--) {
+        unk84[20 - i] = (float)i / 10.0;
+    }
 }
 
 // 0x800158A4
@@ -76,6 +103,30 @@ Unk80016448::Unk80016448() {
 // 0x8001648C
 Unk80016448::~Unk80016448() {
     fn_8001680C();
+}
+
+// 0x800164D4
+void Unk80016448::fn_800164D4() {
+    unk48 = 0;
+    Unk800669ACResult first = lbl_802E6700.fn_800667EC("no sign");
+    unk4C[0] = first.ptr ? *first.ptr : 0;
+    unk4C[1] = GetText("aries");
+    unk4C[2] = GetText("taurus");
+    unk4C[3] = GetText("gemini");
+    unk4C[4] = GetText("cancer");
+    unk4C[5] = GetText("leo");
+    unk4C[6] = GetText("virgo");
+    unk4C[7] = GetText("libra");
+    unk4C[8] = GetText("scorpio");
+    unk4C[9] = GetText("sagitarius");
+    unk4C[10] = GetText("capricorn");
+    unk4C[11] = GetText("aquarius");
+    unk4C[12] = GetText("pisces");
+    unk80 = lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    Unk80340AB8* manager = &lbl_80340AB8;
+    unk84 = manager->fn_80177628(0xA25EBA9A, 0, 0);
+    unk88 = manager->fn_80177628(0xE3E852F9, 0, 0);
+    unk8C = manager->fn_80177628(0x19E76F9A, 0, 0);
 }
 
 // 0x8001680C
