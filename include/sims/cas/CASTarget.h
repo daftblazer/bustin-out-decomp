@@ -104,7 +104,9 @@ struct Unk80018374 {
     void fn_8001A67C();
     void fn_8001C240();
 
-    char unk0[0x14];
+    char unk0[8];
+    int unk8;
+    char unkC[0x14 - 0xC];
     int unk14;
     char unk18[0xC8 - 0x18];
     Unk800226F0* unkC8;

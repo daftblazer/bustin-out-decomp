@@ -1,7 +1,46 @@
 #include "sims/cas/CASTarget.h"
 
 void fn_8000C3C8();
-int fn_80014B6C(int, int);
+
+// Camera eye/target pairs for each view of the sim (indices 0-19), followed by
+// lighting and layout constants. Built at start-up by the static initializer at
+// 0x80014B6C.
+// NON_MATCHING (__static_initialization_and_destruction_0, 0x80014B6C): same length, 146
+// of 321 differ. The values and store order are right; the compiler assigns the forty-odd
+// address and constant registers differently.
+EVec3 lbl_802E57DC(2.545f, -2.243f, 2.165f);
+EVec3 lbl_802E57E8(-0.285f, 1.279f, 1.213f);
+EVec3 lbl_802E57F4(0.388f, 0.133f, 1.7f);
+EVec3 lbl_802E5800(0.323f, 1.442f, 1.6f);
+EVec3 lbl_802E580C(0.388f, -0.288f, 1.223f);
+EVec3 lbl_802E5818(0.342f, 1.018f, 1.129f);
+EVec3 lbl_802E5824(0.397f, -0.623f, 1.467f);
+EVec3 lbl_802E5830(0.328f, 1.308f, 1.514f);
+EVec3 lbl_802E583C(0.397f, -0.623f, 1.067f);
+EVec3 lbl_802E5848(0.328f, 1.308f, 1.114f);
+EVec3 lbl_802E5854(0.188f, -1.136f, 0.85f);
+EVec3 lbl_802E5860(0.26f, 1.227f, 0.586f);
+EVec3 lbl_802E586C(0.188f, -1.136f, 0.85f);
+EVec3 lbl_802E5878(0.26f, 1.227f, 0.586f);
+EVec3 lbl_802E5884(0.011f, -2.874f, 1.569f);
+EVec3 lbl_802E5890(-0.113f, 1.151f, 1.064f);
+EVec3 lbl_802E589C(0.011f, -3.348f, 1.569f);
+EVec3 lbl_802E58A8(0.274f, -5.759f, 1.297f);
+EVec3 lbl_802E58B4(0.011f, -3.348f, 1.569f);
+EVec3 lbl_802E58C0(2.324f, -3.402f, 1.311f);
+EVec3 lbl_802E58CC(0.0f, 0.0f, 0.0f);
+EVec3 lbl_802E58D8(3.5f, 2.0f, -0.5f);
+EVec3 lbl_802E58E4(1.2f, 1.2f, 1.0f);
+EVec3 lbl_802E58F0(-3.5f, -2.5f, -3.7f);
+EVec3 lbl_802E58FC(0.8f, 0.8f, 0.8f);
+EVec3 lbl_802E5908(-1.0f, 1.0f, 1.0f);
+EVec3 lbl_802E5914(0.5f, 0.5f, 0.5f);
+EVec3 lbl_802E5920(-0.546f, 1.905f, 2.5f);
+EVec3 lbl_802E592C(0.15f, 0.15f, 0.2f);
+EVec3 lbl_802E5938(-0.5f, 1.0f, 0.0f);
+EVec3 lbl_802E5944(0.2f, 0.2f, 0.1f);
+EVec3 lbl_802E5950(2.0f, 0.5f, 0.0f);
+EVec3 lbl_802E595C(0.0f, 0.0f, 0.0f);
 
 // Looks up a localized string by name; null when it does not exist.
 inline int GetText(const char* name) {
@@ -250,6 +289,90 @@ void CASTarget::fn_8000FCE4() {
     } else if (unk45CC) {
         unk45C8 = unk45CC;
         fn_8000FECC(unk45C8);
+    }
+}
+
+// 0x8000FECC
+// NON_MATCHING: 248 instructions vs 249. Same logic and case layout; the original
+// schedules the two vector copies one instruction earlier and ends the default case with
+// `beq; blr` where this build emits `bnelr`, which shifts everything after. Eight variants tried.
+// Starts a camera move to the given view.
+void CASTarget::fn_8000FECC(unsigned char view) {
+    float progress;
+    if (unk45B0 < 1.0) {
+        if (unk45B0 > 0.5) {
+            progress = 1.0 - unk45B0;
+        } else {
+            progress = unk45B0;
+        }
+    } else {
+        progress = 0.0f;
+    }
+    unk45B0 = progress;
+    unk378 = unk36C;
+    unk39C = unk390;
+    unk45CC = 0;
+    switch (view) {
+    case 0x28:
+    case 0x2F:
+        unk4464->unk8 = 1;
+        unk384 = lbl_802E57DC;
+        unk3A8 = lbl_802E57E8;
+        unk4590 = 1;
+        break;
+    case 0x29:
+        unk4464->unk8 = 0;
+        if ((unsigned int)unk4584 <= 1) {
+            unk384 = lbl_802E57F4;
+            unk3A8 = lbl_802E5800;
+        } else {
+            unk384 = lbl_802E580C;
+            unk3A8 = lbl_802E5818;
+        }
+        unk4590 = 1;
+        break;
+    case 0x2A:
+        unk4464->unk8 = 1;
+        if ((unsigned int)unk4584 <= 1) {
+            unk384 = lbl_802E5824;
+            unk3A8 = lbl_802E5830;
+        } else {
+            unk384 = lbl_802E583C;
+            unk3A8 = lbl_802E5848;
+        }
+        unk4590 = 1;
+        break;
+    case 0x2B:
+        unk4464->unk8 = 1;
+        if ((unsigned int)unk4584 <= 1) {
+            unk384 = lbl_802E5854;
+            unk3A8 = lbl_802E5860;
+        } else {
+            unk384 = lbl_802E586C;
+            unk3A8 = lbl_802E5878;
+        }
+        unk4590 = 1;
+        break;
+    case 0x2C:
+        unk4464->unk8 = 1;
+        unk384 = lbl_802E5884;
+        unk3A8 = lbl_802E5890;
+        unk4590 = 1;
+        break;
+    case 0x2D:
+        unk384 = lbl_802E589C;
+        unk3A8 = lbl_802E58A8;
+        unk4590 = 0;
+        break;
+    case 0x2E:
+        unk384 = lbl_802E58B4;
+        unk3A8 = lbl_802E58C0;
+        if (unk4590) {
+            unk45CC = 0x2D;
+        } else {
+            unk45CC = 0x2F;
+        }
+        break;
     }
 }
 
@@ -555,9 +678,4 @@ void CASCallback::vfn2() {
 // 0x800155F8
 int CASCallback::vfn3() {
     return unk8;
-}
-
-// 0x80015600
-void fn_80015600() {
-    fn_80014B6C(1, 0xFFFF);
 }
