@@ -593,3 +593,67 @@ void ESimsCam::CursorMoved(int player, EVec3& delta) {
         break;
     }
 }
+
+// 0x800071DC
+void ESimsCam::SetPos(EVec3& eye, EVec3& target, EVec3& unk) {
+    unk378 = eye;
+    EVec3 dir = target - eye;
+    float pitch = CalcPitch(dir);
+    float theta = CalcZAxisTheta(dir);
+    EVec3 reference = lbl_802E57C4 - lbl_802E57B8;
+    theta -= CalcZAxisTheta(reference);
+    if (theta < 0.0f) {
+        theta += 6.2831855f;
+    }
+    unk3B0.unk14 = unk398.unk14 = pitch * 180.0f / 3.1415927f;
+    unk3B0.unk10 = unk398.unk10 = theta * 180.0f / 3.1415927f;
+    unk3B0.unkC = unk398.unkC = dir.Length();
+    unk398.unk0 = target;
+    unk3B0.unk0 = unk398.unk0;
+    unk384 = unk;
+    float fov = GetFov();
+    fov *= (float)lbl_8037C198->unk18;
+    fov /= (float)lbl_8037C198->unk14;
+    float aspect = lbl_8037C198->vfn37();
+    float nearPlane = GetNearPlane();
+    float farPlane = GetFarPlane();
+    fn_80154490(fov, aspect, nearPlane, farPlane);
+    SetWinPos(*this);
+}
+
+// 0x80007C68
+// NON_MATCHING: 15 of 43 instructions. Same code, but the original keeps the length in
+// f31 and the 0.0 constant in f30 (this has them swapped), and copies `dir` in x, y, z
+// order where this stores z before y.
+float ESimsCam::CalcPitch(EVec3& dir) {
+    float length = dir.Length();
+    if (length < 0.00001f) {
+        return 0.0f;
+    }
+    EVec3 flat = dir;
+    flat.z = 0.0f;
+    float angle = fn_8010DB14(flat.Length() / length);
+    if (dir.z > 0.0f) {
+        angle = 6.2831855f - angle;
+    }
+    return angle;
+}
+
+// 0x80007D14
+float ESimsCam::CalcZAxisTheta(EVec3& dir) {
+    EVec3 flat = dir;
+    flat.z = 0.0f;
+    flat.Normalize();
+    float x = flat.x;
+    if (x > 1.0f) {
+        x = 1.0f;
+    }
+    if (x < -1.0f) {
+        x = -1.0f;
+    }
+    float angle = fn_8010DB14(x);
+    if (flat.y < 0.0f) {
+        angle = 6.2831855f - angle;
+    }
+    return angle;
+}

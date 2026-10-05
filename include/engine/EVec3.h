@@ -41,6 +41,9 @@ inline EVec3 operator+(const EVec3& a, const EVec3& b) { return EVec3(a.x + b.x,
 inline EVec3 operator-(const EVec3& a, const EVec3& b) { return EVec3(a.x - b.x, a.y - b.y, a.z - b.z); }
 inline EVec3 operator*(float scale, const EVec3& v) { return EVec3(scale * v.x, scale * v.y, scale * v.z); }
 
+// Single-precision arc cosine from the C library (0x8010DB14).
+extern "C" float fn_8010DB14(float x);
+
 // Vector length. This is the Dolphin SDK's PSVECMag (0x80122240).
 extern "C" float fn_80122240(const EVec3* v);
 

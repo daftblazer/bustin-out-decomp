@@ -154,6 +154,9 @@ public:
     void operator delete(void* ptr) { fn_80169EE8(ptr); }
 
     void GetPos(EVec3& eye, EVec3& target, EVec3& unk);
+    void SetPos(EVec3& eye, EVec3& target, EVec3& unk);
+    static float CalcPitch(EVec3& dir);
+    static float CalcZAxisTheta(EVec3& dir);
     void CursorMoved(int player, EVec3& delta);
     int fn_80007470(float left, float top, float right, float bottom);
     float GetCurZoomRatio();
