@@ -61,7 +61,7 @@ void ESimsCam::fn_800056C8() {
 
 // 0x80005838
 void ESimsCam::Reset() {
-    unk3CC = 0.0f;
+    unk3CC = 100.0f;
     unk334 = 0;
     unkC = 0;
     unk3C8 = 0;
@@ -258,4 +258,54 @@ other:
     }
     unk330 = 0;
     fn_8000650C();
+}
+
+// 0x80005EE4
+int ESimsCam::fn_80005EE4() {
+    if (unk324 != 0) {
+        float input = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk8))->fn_8015DEE4(1, 0);
+        if (input < 0.0f) {
+            input = input * -input;
+        } else {
+            input = input * input;
+        }
+        input = input * lbl_8037BFC8 * unk394;
+        if (input != 0.0f) {
+            unk3A8 = unk3A8 + input;
+            float wrapped;
+            if (unk3A8 < 0.0f) {
+                wrapped = 360.0f;
+            } else if (unk3A8 > 360.0f) {
+                wrapped = 0.0f;
+            } else {
+                wrapped = unk3A8;
+            }
+            unk3A8 = wrapped;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// 0x80005FC8
+int ESimsCam::fn_80005FC8() {
+    if (unk328 == 1 || (unk328 == 4 && unk32C == 1)) {
+        if (unk324 != 0) {
+            float input = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk8))->fn_8015DEE4(1, 1) * lbl_8037BFC8 * unk394;
+            if (input != 0.0f) {
+                unk3AC = unk3AC + input;
+                float clamped;
+                if (unk3AC < 20.0f) {
+                    clamped = 20.0f;
+                } else if (unk3AC > 88.0f) {
+                    clamped = 88.0f;
+                } else {
+                    clamped = unk3AC;
+                }
+                unk3AC = clamped;
+                return 1;
+            }
+        }
+    }
+    return 0;
 }

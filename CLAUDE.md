@@ -26,6 +26,12 @@ bytes (`tools/tu.sh` prints `MATCH`). No inline asm, no byte arrays, no
 post-processing of compiler output. If a function can't be matched, leave the
 best attempt in place with a `// NON_MATCHING: <what differs>` comment and move on.
 
+`tools/tu.sh` masks relocated fields, so it does **not** check the value of a float
+constant or the text of a string: those live in `.rodata` and are only verified by
+comparing the unit's data. Read constants from the original (`tools/ppcdis.py` won't
+show them; unpack the bytes) rather than guessing. Float constants are pooled per
+function, in order of first use, so each function has its own `0.0f`.
+
 `tools/tu.sh` also rejects a function whose length differs from the original's
 size in `symbols.txt`, so a short function can't pass by matching a prefix.
 

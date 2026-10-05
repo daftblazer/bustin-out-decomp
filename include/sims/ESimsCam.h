@@ -129,7 +129,9 @@ public:
     char unk398[0x3A0 - 0x398];
     float unk3A0;
     float unk3A4;       // current zoom distance
-    char unk3A8[0x3C8 - 0x3A8];
+    float unk3A8;       // rotation, degrees, wraps at 360
+    float unk3AC;       // tilt, clamped
+    char unk3B0[0x3C8 - 0x3B0];
     int unk3C8;
     float unk3CC;
 };
