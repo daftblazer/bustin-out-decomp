@@ -36,6 +36,7 @@ public:
     void fn_80068054(int, int);
     int fn_800673EC(int);
     void* fn_80068FE0();
+    int fn_80067434(void* entry);
     int fn_80068ED8();
     void fn_80068838();
     int fn_80068D9C(void* object);
@@ -63,7 +64,9 @@ public:
     char unkB8[0xBC - 0xB8];
     ESimsCamUnkBC* unkBC;
     void* unkC0b;                 // floor types
-    char unkC4[0xE4 - 0xC4];
+    void* unkC4b;                 // wall coverings
+    void* unkC8b;                 // wall and fence kinds
+    char unkCC[0xE4 - 0xCC];
     struct Unk80181824* unkE4;    // plain white texture
     char unkE8[0xEC - 0xE8];
     struct Unk8003C95C* unkEC;    // default font

@@ -991,7 +991,7 @@ void Unk80026864::fn_80029BF8() {
     fn_8002BB64(&tileX, &tileY);
     if (tileY >= 0 && tileX >= 0) {
         Unk801C6F44 tile(tileY, tileX, 1);
-        fn_800328F4(&tile);
+        fn_800328F4((Unk801C6F20*)&tile);
     }
 }
 
@@ -1097,7 +1097,6 @@ void fn_80034968();
 void fn_80035B4C(Unk80026864* self, ERC* rc);
 void fn_80035724(Unk80026864* self, ERC* rc);
 void fn_800359C0(Unk80026864* self, ERC* rc);
-void fn_800329D8(Unk80026864* self, ERC* rc);
 void fn_80031B1C(Unk80026864* self, ERC* rc);
 
 // 0x8002A548
@@ -1149,7 +1148,7 @@ void Unk80026864::fn_8002A548(ERC* rc) {
         EVec2 corner = fn_8002BD98();
         fn_8002B114(rc);
         if (controller->fn_8015DF98(0x11)) {
-            fn_800329D8(this, rc);
+            fn_800329D8(rc);
         }
         fn_80031B1C(this, rc);
     }
@@ -2077,56 +2076,6 @@ void fn_8002E73C(int key, int arg) {
     }
     Unk80026864::fn_80028ECC();
 }
-
-// Tile position with the operations the wall-run callback uses (the same 8-byte
-// CTilePt as above).
-struct Unk801C6EF4 {
-    Unk801C6EF4();                                         // 0x801C6EF4
-    Unk801C6EF4(const Unk801C6EF4& other);                 // 0x801C6F00
-    ~Unk801C6EF4();                                        // 0x801C6FCC
-    Unk801C6EF4& operator=(const Unk801C6EF4& other);      // 0x801C6FF4
-    int operator==(const Unk801C6EF4& other) const;        // 0x801C7014
-    Unk801C6EF4 operator+(const struct Unk8035ABB0& step) const;   // 0x801C7144
-    char unk0[2];
-    char unk2;
-    char unk3[5];
-};
-struct Unk8035ABB0 {
-    char unk0[3];
-};
-extern Unk8035ABB0 lbl_8035ABB0[];   // one step per direction
-void fn_8003739C(EVec2* a, EVec2* b, Unk801C6EF4* start, Unk801C6EF4* end);
-void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end);
-int fn_800369A0(Unk801C6EF4* start, Unk801C6EF4* end);
-int fn_8023DC04(int direction);
-void fn_800323D8(int* wall, int kind, int* side, Unk801C6EF4* from, Unk801C6EF4* to);
-struct Unk8023E110 : Unk8023DFA8 {
-    void fn_8023E110(int arg, int wall, int side);
-};
-struct Unk8037D990H {
-    virtual void vfn1();
-    virtual void vfn2();
-    virtual void vfn3();
-    virtual void vfn4();
-    virtual void vfn5();
-    virtual int vfn6();
-    virtual void vfn7();
-    virtual int vfn8(Unk801C6EF4* tile);
-    virtual void vfn9();
-    virtual void vfn10();
-    virtual void vfn11();
-    virtual void vfn12();
-    virtual void vfn13();
-    virtual void vfn14();
-    virtual void vfn15();
-    virtual void vfn16();
-    virtual void vfn17();
-    virtual Unk8023E110 vfn18(Unk801C6EF4* tile);
-    virtual void vfn19(Unk801C6EF4* tile, Unk8023DDC4* packed);
-};
-struct Unk80233FC0 {
-    void fn_80233FC0();
-};
 
 // 0x8002EA74
 // Callback: walks the tiles from one point to another and applies an action to the

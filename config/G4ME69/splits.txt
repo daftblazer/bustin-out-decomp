@@ -87,3 +87,7 @@ sims/Unk80026864.cpp:
 sims/Unk8002EFAC.cpp:
 	.text       start:0x8002EFAC end:0x800315FC
 	.rodata     start:0x80296F58 end:0x802971A8
+
+sims/Unk800315FC.cpp:
+	.text       start:0x800315FC end:0x80033974
+	.rodata     start:0x802971A8 end:0x802973B0

@@ -8,13 +8,21 @@
     EVec3 unkA0; // 0xa0 cursor position
     float unkAC; // 0xac start of a drag
     float unkB0; // 0xb0
-    char padB4[0x8];
+    EVec2 unkB4; // 0xb4
     int unkBC; // 0xbc
     void* unkC0; // 0xc0 renderer object
     void* unkC4; // 0xc4 renderer object
     UnkTargetBase* unkC8; // 0xc8 child screen
     char unkCC; // 0xcc
-    char padCD[0x23];
+    char padCD[0x3];
+    float unkD0; // 0xd0 wall run being dragged: from
+    float unkD4; // 0xd4
+    float unkD8; // 0xd8 to
+    float unkDC; // 0xdc
+    char padE0[0x8];
+    unsigned short unkE8; // 0xe8 walls the pending action covers
+    char padEA[0x2];
+    int unkEC; // 0xec
     struct Unk801FD05CResult* unkF0; // 0xf0 the object being placed
     float unkF4; // 0xf4
     char unkF8; // 0xf8
@@ -43,7 +51,7 @@
     char pad17C[0xc];
     EVec3 unk188; // 0x188
     Unk80026864List unk194; // 0x194 owned objects
-    char pad1A0[0x4];
+    void* unk1A0; // 0x1a0 the tool's catalogue entry
     ETilePair unk1A4; // 0x1a4 tile the picked-up object came from
     short unk1AC; // 0x1ac
     char pad1AE[0x2];

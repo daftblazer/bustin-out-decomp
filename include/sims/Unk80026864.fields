@@ -10,11 +10,18 @@ END 0x1C8
 0xA0   0xC    EVec3              unkA0            # cursor position
 0xAC   4      float              unkAC            # start of a drag
 0xB0   4      float              unkB0
+0xB4   8      EVec2              unkB4
 0xBC   4      int                unkBC
 0xC0   4      void*              unkC0            # renderer object
 0xC4   4      void*              unkC4            # renderer object
 0xC8   4      UnkTargetBase*     unkC8            # child screen
 0xCC   1      char               unkCC
+0xD0   4      float              unkD0            # wall run being dragged: from
+0xD4   4      float              unkD4
+0xD8   4      float              unkD8            # to
+0xDC   4      float              unkDC
+0xE8   2      unsigned short     unkE8            # walls the pending action covers
+0xEC   4      int                unkEC
 0xF0   4      struct Unk801FD05CResult* unkF0     # the object being placed
 0xF4   4      float              unkF4
 0xF8   1      char               unkF8
@@ -41,6 +48,7 @@ END 0x1C8
 0x154  0x28   Unk8002EF48        unk154
 0x188  0xC    EVec3              unk188
 0x194  0xC    Unk80026864List    unk194           # owned objects
+0x1A0  4      void*              unk1A0           # the tool's catalogue entry
 0x1A4  8      ETilePair          unk1A4           # tile the picked-up object came from
 0x1AC  2      short              unk1AC
 0x1B0  4      int                unk1B0

@@ -272,6 +272,7 @@ config.libs = [
             Object(NonMatching, "sims/ECheats.cpp"),
             Object(NonMatching, "sims/Unk80026864.cpp"),
             Object(NonMatching, "sims/Unk8002EFAC.cpp"),
+            Object(NonMatching, "sims/Unk800315FC.cpp"),
         ],
     ),
 ]

@@ -120,6 +120,13 @@ public:
     void fn_80029BF8();
     void fn_80033BAC();
     void fn_8002F000(struct Unk8002F000Tool* tool);
+    void fn_800318B0(struct Unk800318B0Tool* tool);
+    void fn_800329D8(struct ERC* rc);
+    int fn_80032518(EVec2* from, EVec2* to, int type, int flag);
+    int fn_80032FF0();
+    int fn_800330A0();
+    int fn_8003214C();
+    void fn_8003386C(int kind);
     void fn_8002F1BC();
     void fn_8002F268();
     void fn_8002F2A4();

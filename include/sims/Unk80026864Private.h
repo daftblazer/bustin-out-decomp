@@ -389,7 +389,7 @@ struct Unk80026864Cam {
 };
 extern float lbl_8037B4A0;
 extern "C" float fn_8010DD60(float y, float x); // atan2f
-void fn_800328F4(struct Unk801C6F20* tile);
+int fn_800328F4(struct Unk801C6F20* tile);
 // A stick axis squared, keeping its sign.
 inline float SignedSquare(float value) {
     if (value < 0.0f) {
@@ -1114,5 +1114,111 @@ struct Unk8002F794RC {
     virtual void vfn51();
     virtual void vfn52(float);
 };
+
+// Tile position with the operations the wall-run callback uses (the same 8-byte
+// CTilePt as above).
+struct Unk801C6EF4 {
+    Unk801C6EF4();                                         // 0x801C6EF4
+    Unk801C6EF4(const Unk801C6EF4& other);                 // 0x801C6F00
+    ~Unk801C6EF4();                                        // 0x801C6FCC
+    Unk801C6EF4& operator=(const Unk801C6EF4& other);      // 0x801C6FF4
+    int operator==(const Unk801C6EF4& other) const;        // 0x801C7014
+    Unk801C6EF4 operator+(const struct Unk8035ABB0& step) const;   // 0x801C7144
+    char unk0[2];
+    char unk2;
+    char unk3[5];
+};
+struct Unk8035ABB0 {
+    char unk0[3];
+};
+extern Unk8035ABB0 lbl_8035ABB0[];   // one step per direction
+void fn_8003739C(EVec2* a, EVec2* b, Unk801C6EF4* start, Unk801C6EF4* end);
+void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end);
+int fn_800369A0(Unk801C6EF4* start, Unk801C6EF4* end);
+int fn_8023DC04(int direction);
+void fn_800323D8(int* wall, int kind, int* side, Unk801C6EF4* from, Unk801C6EF4* to);
+struct Unk8023E110 : Unk8023DFA8 {
+    void fn_8023E110(int arg, int wall, int side);
+};
+struct Unk8037D990H {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual int vfn6();
+    virtual void vfn7();
+    virtual int vfn8(Unk801C6EF4* tile);
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023E110 vfn18(Unk801C6EF4* tile);
+    virtual void vfn19(Unk801C6EF4* tile, Unk8023DDC4* packed);
+};
+struct Unk80233FC0 {
+    void fn_80233FC0();
+};
+
+// A wall type as the catalogue hands it to the tool.
+struct Unk800318B0Tool {
+    int unk0;
+    int unk4;
+    unsigned int unk8;   // texture id
+};
+extern int lbl_802D1F00[];           // direction -> index into lbl_8035ABB0
+int fn_8023DB98(int wall);
+struct Unk801C711C : Unk801C6EF4 {
+    void fn_801C711C(const Unk8035ABB0* step);   // +=
+    void fn_801C70F4(const Unk8035ABB0* step);   // -=
+};
+struct Unk800563C0 {
+    int fn_800563C0(int a, int b);
+};
+struct Unk801E3F54 {
+    void fn_801E3F54(int type, int flag, float x0, float y0, float x1, float y1);
+};
+struct Unk8023E088 : Unk8023E110 {
+    int fn_8023E088(int wall, int side);
+};
+struct Unk8037D990M {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023E088 vfn18(Unk801C6F20* tile);
+    virtual void vfn19(Unk801C6F20* tile, Unk8023DDC4* packed);
+};
+// The camera at the global's +0xB8 (the same ESimsCam fields as Unk80026864Cam).
+// Counted array of {.., value at 4, .., id at 0xC} records at the global's +0xC8.
+struct Unk802E67C8Entry {
+    int unk0;
+    int unk4;
+    int unk8;
+    int unkC;
+};
+int fn_80033814(int id);
+struct Unk80056498B {
+    unsigned short fn_80056498(ERC* rc, unsigned short room, EVec2* at);
+};
+void fn_801E36E4b(void* history, int kind, unsigned short* room, int, int, void* a, void* b, int, int, void* texture, int);
 
 #endif
