@@ -165,7 +165,7 @@ struct Unk800053D4Inner {
     virtual void vfn95();
     virtual void vfn96();
     virtual void vfn97();
-    virtual int vfn98(int);
+    virtual Unk800053D4Inner* vfn98(int);   // the object standing on this one
     virtual void vfn99();
     virtual void vfn100();
     virtual void vfn101();

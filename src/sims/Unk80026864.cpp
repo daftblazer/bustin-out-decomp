@@ -633,6 +633,74 @@ struct Unk800053D4InnerB {
     virtual void vfn116();
     virtual Unk801C727C vfn117();
 };
+// An object's model: vtable pointer at 0, and at +0x320 a part with its own vtable
+// whose slot 2 resets it.
+struct Unk80068758Part {
+    virtual void vfn1();
+    virtual void vfn2();
+};
+struct Unk80068758 {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26();
+    virtual void vfn27();
+    virtual void vfn28();
+    virtual void vfn29();
+    virtual void vfn30();
+    virtual void vfn31();
+    virtual void vfn32();
+    virtual void vfn33();
+    virtual void vfn34();
+    virtual void vfn35();
+    virtual void vfn36();
+    virtual void vfn37();
+    virtual void vfn38();
+    virtual void vfn39();
+    virtual void vfn40();
+    virtual void vfn41();
+    virtual void vfn42();
+    virtual void vfn43();
+    virtual void vfn44();
+    virtual void vfn45();
+    virtual void vfn46();
+    virtual void vfn47();
+    virtual void vfn48();
+    virtual void vfn49();
+    virtual void vfn50(int highlight);
+    virtual int vfn51();          // made of several models
+    char unk4[0x320 - 0x4];
+    Unk80068758Part unk320;
+};
+Unk80068758* fn_80068758(Unk800053D4Inner* object);
+inline Unk80068758* GetModel(Unk800053D4Inner* object) { return (Unk80068758*)GetUnk20(object)->vfn19(); }
+inline bool IsOffLot(Unk801C727C& tile) {
+    return !(tile.fn_801C727C() >= 0 && tile.fn_801C727C() <= ((Unk8037D990F*)lbl_8037D990)->vfn6() &&
+             tile.fn_801C7288() >= 0 && tile.fn_801C7288() <= ((Unk8037D990F*)lbl_8037D990)->vfn6());
+}
+
 inline bool CanCommit(Unk801FD05CResult* part, bool onLot) {
     if (part) {
         bool ok = false;
@@ -895,11 +963,11 @@ void Unk80026864::fn_8002775C(int value) {
 
 // Deletes the objects a list owns, then empties it.
 inline void DeleteAll(Unk80026864List& list) {
-    if (list.tail) {
-        Unk80026864Node* node = list.head;
+    if (list.head) {
+        Unk80026864Node* node = list.tail;
         while (EIsValid(node)) {
             Unk8002FD24* item = (Unk8002FD24*)node->item;
-            Unk80026864Node* next = node->next;
+            Unk80026864Node* next = node->prev;
             if (list.owns && item) {
                 item->fn_8002FD24();
                 fn_80169EE8(item);
@@ -1056,8 +1124,8 @@ int Unk80026864::fn_80027D24() {
     if (unk84 != 1 && controller->fn_8015E0F8(button)) {
         int state;
         fn_8002A0A8();
-        if (unk148.Tail() != 0 && unk148.Tail() == unk148.Head()) {
-            vfn7((UnkTargetBase*)fn_80080418(unk148.tail->item)->vfn111(), 0x1C);
+        if (unk148.Head() != 0 && unk148.Head() == unk148.Tail()) {
+            vfn7((UnkTargetBase*)fn_80080418(unk148.head->item)->vfn111(), 0x1C);
             state = 0;
         } else {
             int ok = ((Unk8004E8C8*)unkC8)->fn_8004ED28();
@@ -1857,6 +1925,51 @@ EVec2 Unk80026864::fn_8002BD98() {
     return tile + view->unk34;
 }
 
+// 0x8002BE48
+// Clears the highlight of an object's model and of everything standing on it.
+// NON_MATCHING: 178 instructions vs 196. Draft: calls and loops are the original's;
+// the original duplicates the walk over stacked objects per branch. One variant.
+void Unk80026864::fn_8002BE48(Unk800053D4Inner* object) {
+    Unk80068758* model = fn_80068758(object);
+    if (model) {
+        if (!model->vfn51()) {
+            model->unk320.vfn2();
+            Unk801C727C tile = ((Unk800053D4InnerB*)object)->vfn117();
+            model->vfn50(0);
+            if (!object->vfn124()) {
+                for (Unk800053D4Inner* above = object->vfn98(0); above; above = above->vfn98(0)) {
+                    Unk80068758* part = GetModel(above);
+                    if (part) {
+                        part->unk320.vfn2();
+                        part->vfn50(0);
+                    }
+                }
+            } else {
+                Unk801FD05CResult* group = GetPart(object, 3);
+                if (!group->vfn9()) {
+                    for (group = group->vfn2(); group; group = group->vfn3()) {
+                        for (Unk800053D4Inner* above = group->Direct()->vfn98(0); above; above = above->vfn98(0)) {
+                            Unk80068758* part = GetModel(above);
+                            if (part) {
+                            part->unk320.vfn2();
+                        part->vfn50(0);
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Unk80026864List models;
+            fn_800266EC(object, &models);
+            for (Unk80026864Node* node = models.head; node; node = node->next) {
+                Unk80068758* part = (Unk80068758*)node->item;
+                part->unk320.vfn2();
+                part->vfn50(0);
+            }
+        }
+    }
+}
+
 // 0x8002C158
 // Moves the held object to the middle of the tile under the cursor if it fits.
 // NON_MATCHING: 131 instructions vs 134. The original stores the sub-tile pair and
@@ -1887,6 +2000,57 @@ void Unk80026864::fn_8002C158() {
     Unk800053D4Inner* object = part->vfn8b();
     if (object) {
         fn_8002C370(object);
+    }
+}
+
+// 0x8002C370
+// Resets an object's model and marks it when the object is off the lot.
+// NON_MATCHING: 265 instructions vs 273. Draft, as fn_8002BE48. One variant.
+void Unk80026864::fn_8002C370(Unk800053D4Inner* object) {
+    Unk80068758* model = fn_80068758(object);
+    if (model) {
+        if (!model->vfn51()) {
+            model->unk320.vfn2();
+            Unk801C727C tile = ((Unk800053D4InnerB*)object)->vfn117();
+            if (IsOffLot(tile)) {
+                model->vfn50(1);
+            } else {
+                model->vfn50(0);
+            }
+            if (!object->vfn124()) {
+                for (Unk800053D4Inner* above = object->vfn98(0); above; above = above->vfn98(0)) {
+                    Unk80068758* part = GetModel(above);
+                    if (part) {
+                        part->unk320.vfn2();
+                    }
+                }
+            } else {
+                Unk801FD05CResult* group = GetPart(object, 3);
+                if (!group->vfn9()) {
+                    for (group = group->vfn2(); group; group = group->vfn3()) {
+                        for (Unk800053D4Inner* above = group->Direct()->vfn98(0); above; above = above->vfn98(0)) {
+                            Unk80068758* part = GetModel(above);
+                            if (part) {
+                            part->unk320.vfn2();
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Unk80026864List models;
+            fn_800266EC(object, &models);
+            for (Unk80026864Node* node = models.head; node; node = node->next) {
+                Unk80068758* part = (Unk80068758*)node->item;
+                part->unk320.vfn2();
+                Unk801C727C tile = ((Unk800053D4InnerB*)object)->vfn117();
+                if (IsOffLot(tile)) {
+                    part->vfn50(1);
+                } else {
+                    part->vfn50(0);
+                }
+            }
+        }
     }
 }
 
@@ -2199,7 +2363,7 @@ void fn_8002E68C(void* arg, int kind, float x0, float y0, float x1, float y1) {
 
 // 0x8002ECE8
 void fn_8002ECE8(void* arg) {
-    ((Unk80026864*)lbl_802E6700.unkA8[0])->fn_8002C370(arg);
+    ((Unk80026864*)lbl_802E6700.unkA8[0])->fn_8002C370((Unk800053D4Inner*)arg);
 }
 
 // 0x8002ED14
