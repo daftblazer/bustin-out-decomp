@@ -29,6 +29,7 @@ public:
     void fn_80068DE8(Unk80340120Resource*, Unk8016BC18*);
     void fn_800690E0(int);
     void fn_80068054(int, int);
+    void fn_800673EC(int);
     int fn_800690B0(int);
 
     Unk800053D4Owner* GetUnk9C(int player) { return unk9C[player]; }
@@ -41,7 +42,10 @@ public:
         unsigned short codes[8][6]; // 0x02 button sequences, zero-terminated
         unsigned short masks[8];    // 0x62 buttons used by each sequence
     } cheats;
-    char unk72[0x90 - 0x72];
+    char unk72[0x7C - 0x72];
+    float unk7C;                  // world origin of tile (0, 0)
+    float unk80;
+    char unk84[0x90 - 0x84];
     void* unk90;
     char unk94[0x9C - 0x94];
     Unk800053D4Owner* unk9C[2];   // per player

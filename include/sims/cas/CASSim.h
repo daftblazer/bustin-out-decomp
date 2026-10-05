@@ -298,8 +298,8 @@ struct CASScreenInfoBase {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual void vfn18();
-    virtual void vfn19();
+    virtual void vfn18(void* object);   // release a renderer object
+    virtual int vfn19(void* object);    // is it still in use
     virtual ETextureLike* vfn20(ETextureDesc* desc); // create a texture
     virtual void vfn21(void* texture);               // release a texture
     virtual int vfn22(void* texture);

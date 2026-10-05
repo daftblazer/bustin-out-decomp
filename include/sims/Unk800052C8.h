@@ -59,6 +59,12 @@ struct CTilePt {
     char unk0[0x10];
 };
 
+// Tile coordinates as a pair of ints.
+struct ETilePair {
+    int x;
+    int y;
+};
+
 // Object with its vtable pointer at 0x1C; slot 88 tests a flag.
 struct Unk800053D4Inner {
     char unk0[0x1C];
@@ -176,9 +182,16 @@ struct Unk800053D4Inner {
     virtual void vfn112();
     virtual void vfn113();
     virtual void vfn114();
-    virtual void vfn115();
+    virtual struct ETilePair* vfn115();   // tile the object stands on
     virtual void vfn116();
     virtual struct CTilePt vfn117();
+    virtual void vfn118();
+    virtual void vfn119();
+    virtual void vfn120();
+    virtual void vfn121();
+    virtual void vfn122();
+    virtual void vfn123();
+    virtual int vfn124();
 };
 
 // Skeleton-like object: slot 35 fetches the matrix of a node.

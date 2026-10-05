@@ -3,6 +3,8 @@
 
 #include "engine/UnkTargetBase.h"
 #include "sims/EGlobal.h"
+#include "sims/Unk800052C8.h"
+#include "engine/ELightSet.h"
 
 extern "C" void* fn_80111C78(void* dst, int value, unsigned int size); // memset
 void fn_80169EE8(void* ptr);
@@ -32,6 +34,11 @@ struct Unk80026864List {
     }
     ~Unk80026864List() { fn_801B4760(); }
     void fn_801B4760();                 // clear
+    void Clear() {
+        if (count) {
+            fn_801B4760();
+        }
+    }
     void fn_801B4600(void* item);       // append
     int fn_801B484C(void* item);        // contains
 
@@ -74,8 +81,20 @@ public:
     int fn_80033754();
     int fn_80033954();
     static void fn_8002ED34();
+    void fn_8002C370(void* arg);
 
 #include "sims/Unk80026864.inc"
 };
+
+// Two points, both zero to begin with.
+struct Unk802E5B28 {
+    Unk802E5B28() { unk0 = unkC = EVec3(0.0f); }
+    EVec3 unk0;
+    EVec3 unkC;
+};
+
+void fn_800266C0(int* id);
+void fn_8002ECE8(void* arg);
+int fn_8002ED14(int arg);
 
 #endif
