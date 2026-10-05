@@ -18,6 +18,7 @@ struct EColorF {
 };
 extern EColorF lbl_802E69C4; // highlighted
 extern EColorF lbl_802E6964; // normal
+extern EColorF lbl_802E6954; // title
 
 // Text renderer (functions around 0x8003C95C).
 struct Unk8003C95C {

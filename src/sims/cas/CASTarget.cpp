@@ -2729,6 +2729,205 @@ void CASTarget::vfn8(const char* name, const char* value) {
     }
 }
 
+// Draws a caption centred on (x, y) with the screen font.
+#define CAS_CAPTION(text, x, y)                                                              \
+    {                                                                                        \
+        EVec2 at(x, y);                                                                      \
+        EVec2 copy(at);                                                                      \
+        unk52E4->fn_8003D740(rc, (const unsigned short*)(text), 1, &copy, 2, 2, 0);          \
+    }
+
+// 0x800123A4
+// Draws the screen's text: page title, the personality page, the open dialog,
+// and the yes/no prompt or the accept/decline captions.
+// NON_MATCHING: 1,063 instructions vs 1,038. Same calls and branch structure; the
+// original holds the caption position in f30/f31 across the whole function and fills
+// one shared pair of two-float temporaries (0x8 and 0x10), where this build creates
+// separate temporaries per caption. One variant tried.
+void CASTarget::fn_800123A4(ERC* rc) {
+    unk52E4->fn_8003DBE8(rc);
+    unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+    unk52E4->unk64 = lbl_802E6954;
+    float x = 0.512f;
+    unk52E4->unk64 = lbl_802E6964;
+    float y = 0.087f;
+    if (unk5338) {
+        CAS_CAPTION(unk57A0.unk0, 0.5f, 0.8f);
+    }
+    unk52E4->unk64 = lbl_802E6954;
+    if (unk52E0) {
+        CAS_CAPTION(GetText("body"), x, y);
+    } else if (unk52DC) {
+        CAS_CAPTION(GetText("head"), x, y);
+    } else if (unk52D8) {
+        CAS_CAPTION(GetText("personal"), x, y);
+    } else if (unk52FC == 0 && unk5310 == 0) {
+        if (unk4590 == 0) {
+            x = 0.5f;
+            y = 0.083f;
+            int* text;
+            if (unk4580 == 11) {
+                if (unk531C) {
+                    text = lbl_802E6700.fn_800667EC("button1").ptr;
+                } else {
+                    text = lbl_802E6700.fn_800667EC("button2").ptr;
+                }
+            } else {
+                if (unk5314) {
+                    text = lbl_802E6700.fn_800667EC("customize a family").ptr;
+                } else {
+                    text = lbl_802E6700.fn_800667EC("create a family").ptr;
+                }
+            }
+            int hidden = unk5318;
+            if (!(unk45D0 && (unk45D4 == 8 || unk45D4 == 2) && unk5318) && hidden == 0) {
+                CAS_CAPTION(text ? *text : 0, x, y);
+            }
+        } else if (unk5318 == 0) {
+            int* text;
+            if (unk5314 && unk52E8 == 0) {
+                text = lbl_802E6700.fn_800667EC("customize a sim").ptr;
+            } else {
+                text = lbl_802E6700.fn_800667EC("create a sim").ptr;
+            }
+            CAS_CAPTION(text ? *text : 0, x, y);
+        }
+    }
+
+    if (unk52D8 && unk52FC == 0) {
+        // Personality page: name, star sign and the five traits; the selected
+        // line is drawn highlighted.
+        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        x = 0.311f;
+        y = 0.16f;
+        if (unk5304) {
+            unk52E4->unk64 = lbl_802E6964;
+            EVec2 at(x, y);
+            fn_80014188(rc, unk57A0.unk0, &at, 2, 0);
+        } else {
+            unk52E4->unk64 = lbl_802E6954;
+            EVec2 at(x, y);
+            EVec2 copy(at);
+            unk52E4->fn_8003D740(rc, unk57A0.unk0, 1, &copy, 2, 0, 0);
+        }
+        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        y = 0.52f;
+        if (unk5300) {
+            unk52E4->unk64 = lbl_802E6964;
+            EVec2 at(x, y);
+            fn_80014188(rc, unk57A4.unk0, &at, 2, 0);
+        } else {
+            unk52E4->unk64 = lbl_802E6954;
+            EVec2 at(x, y);
+            EVec2 copy(at);
+            unk52E4->fn_8003D740(rc, unk57A4.unk0, 1, &copy, 2, 0, 0);
+        }
+        unk52E4->fn_8003C95C(1, 13.0f, 1.0f);
+        x = 0.3125f;
+        y = 0.578f;
+        float step = 0.0379f;
+        if (unk52CC == 1) {
+            unk52E4->unk64 = lbl_802E6964;
+            const unsigned short* text = (const unsigned short*)GetText("neat");
+            EVec2 at(x, y);
+            fn_80014188(rc, text, &at, 0, 0);
+        } else {
+            unk52E4->unk64 = lbl_802E6954;
+            const unsigned short* text = (const unsigned short*)GetText("neat");
+            EVec2 at(x, y);
+            EVec2 copy(at);
+            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+        }
+        y += step;
+        if (unk52CC == 2) {
+            unk52E4->unk64 = lbl_802E6964;
+            const unsigned short* text = (const unsigned short*)GetText("outgoing");
+            EVec2 at(x, y);
+            fn_80014188(rc, text, &at, 0, 0);
+        } else {
+            unk52E4->unk64 = lbl_802E6954;
+            const unsigned short* text = (const unsigned short*)GetText("outgoing");
+            EVec2 at(x, y);
+            EVec2 copy(at);
+            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+        }
+        y += step;
+        if (unk52CC == 3) {
+            unk52E4->unk64 = lbl_802E6964;
+            const unsigned short* text = (const unsigned short*)GetText("active");
+            EVec2 at(x, y);
+            fn_80014188(rc, text, &at, 0, 0);
+        } else {
+            unk52E4->unk64 = lbl_802E6954;
+            const unsigned short* text = (const unsigned short*)GetText("active");
+            EVec2 at(x, y);
+            EVec2 copy(at);
+            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+        }
+        y += step;
+        if (unk52CC == 4) {
+            unk52E4->unk64 = lbl_802E6964;
+            const unsigned short* text = (const unsigned short*)GetText("playful");
+            EVec2 at(x, y);
+            fn_80014188(rc, text, &at, 0, 0);
+        } else {
+            unk52E4->unk64 = lbl_802E6954;
+            const unsigned short* text = (const unsigned short*)GetText("playful");
+            EVec2 at(x, y);
+            EVec2 copy(at);
+            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+        }
+        y += step;
+        if (unk52CC == 5) {
+            unk52E4->unk64 = lbl_802E6964;
+            const unsigned short* text = (const unsigned short*)GetText("nice");
+            EVec2 at(x, y);
+            fn_80014188(rc, text, &at, 0, 0);
+        } else {
+            unk52E4->unk64 = lbl_802E6954;
+            const unsigned short* text = (const unsigned short*)GetText("nice");
+            EVec2 at(x, y);
+            EVec2 copy(at);
+            unk52E4->fn_8003D740(rc, text, 1, &copy, 0, 0, 0);
+        }
+    }
+    if (unk52FC) {
+        unk52FC->vfn3(rc);
+    }
+
+    unk52E4->fn_8003C95C(1, 15.0f, 1.0f);
+    unk52E4->unk64 = lbl_802E6964;
+    if (unk45D0) {
+        // Yes/no prompt, once the script has reported where its buttons are.
+        if (unk4600.x != 0.0f && unk4600.y != 0.0f && unk4610.x != 0.0f && unk4610.y != 0.0f) {
+            unk52E4->unk64 = lbl_802E6954;
+            EVec2 titleAt(unk45E0.x, unk45E0.y);
+            unk52E4->fn_8003D740(rc, (const unsigned short*)(unk45D8 ? *unk45D8 : 0), 1, &titleAt, 2, 2, 0);
+            unk52E4->unk64 = lbl_802E6964;
+            unk52E4->fn_8003D93C(rc, (const unsigned short*)GetTextB("yes"), &unk4600, 2, 2, 0, 2.0f, 1.0f);
+            unk52E4->fn_8003D93C(rc, (const unsigned short*)GetTextB("no"), &unk4610, 2, 2, 0, 2.0f, 1.0f);
+            fn_800133DC(rc, (const unsigned short*)(unk45DC ? *unk45DC : 0), 1);
+        }
+    } else if (unk52FC == 0 && unk5328) {
+        unk52E4->unk64 = lbl_802E6964;
+        if (unk45A0) {
+            unk4ED8 = lbl_802E6700.fn_800667EC("accept").ptr;
+        } else {
+            unk4ED8 = lbl_802E6700.fn_800667EC("select").ptr;
+        }
+        // Tell the script to relabel the accept button when the caption changes.
+        static int lastAccept = unk45A0 ^ 1;
+        if (lastAccept != unk45A0) {
+            lastAccept = unk45A0;
+            fn_80106164(unk52C4, "setButtonContext", 0, 0, 1, "CAS");
+            fn_80106164(unk52C4, "resetButton", 0, 0, 1, "accept");
+            fn_80106164(unk52C4, "resetButtonContext", 0, 0, 0);
+        }
+        unk52E4->fn_8003D93C(rc, (const unsigned short*)(unk4ED8 ? *unk4ED8 : 0), (EVec2*)&unk4ED0, 2, 2, 0, 2.0f, 1.0f);
+        unk52E4->fn_8003D93C(rc, (const unsigned short*)(unk4EE4 ? *unk4EE4 : 0), (EVec2*)&unk4EDC, 2, 2, 0, 2.0f, 1.0f);
+    }
+}
+
 // 0x800133DC
 // Draws `text` word-wrapped into the description box, one line at a time.
 // NON_MATCHING: same length (234), 81 differ: register numbering (r27/r28 and the
