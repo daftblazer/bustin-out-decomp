@@ -22,6 +22,10 @@ public:
     // the compiler does not fold the zeros into the following transform.
     void SetRow3(float x, float y, float z, float w) { new (m[3]) EVec4(x, y, z, w); }
 
+    void fn_801B2AFC();                              // set identity
+    void fn_801B3024(const EVec3& axis, float angle); // rotate about an axis
+    void fn_801B3388(float angle);                   // rotate about Z
+
     float m[4][4];
 };
 

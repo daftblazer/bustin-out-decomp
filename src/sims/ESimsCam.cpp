@@ -19,6 +19,11 @@ float lbl_8037B434 = 200.0f; // far plane
 float lbl_8037B438 = 2.0f;   // near plane at the near zoom limit
 float lbl_8037B43C = 10.0f;  // near plane at the far zoom limit
 
+// Reference camera rig: an eye position and the point it looks at. The eye
+// offset for any target is derived from the direction between them.
+extern EVec3 lbl_802E57B8;
+extern EVec3 lbl_802E57C4;
+
 // 0x8000562C
 float ESimsCam::GetCurZoomRatio() {
     return (unk3A4 - lbl_8037B408) / (lbl_8037B404 - lbl_8037B408);
@@ -367,4 +372,23 @@ void ESimsCam::fn_8000650C() {
     } else {
         SetWinPos(unk14);
     }
+}
+
+// 0x80006688
+// NON_MATCHING: 197 instructions vs 193. Same operations in the same order, but the
+// original writes the first two temporaries (`back` and the rotation axis) straight to
+// the stack and keeps only one vector address in a saved register (r29); this keeps two.
+void ESimsCam::CalcEyePosition(EVec3& eye, CameraParameters& params) {
+    EMat4 mat;
+    mat.fn_801B2AFC();
+    EVec3 dir = lbl_802E57C4 - lbl_802E57B8;
+    EVec3 back(-dir.x, -dir.y, 0.0f);
+    EVec3 axis = EVec3(-dir.y, dir.x, 0.0f).Normalize();
+    mat.fn_801B3024(axis, params.unk14 * 0.017453292f);
+    mat.fn_801B3388(params.unk10 * 0.017453292f);
+    back = back * mat;
+    back += lbl_802E57B8 + dir;
+    eye = back;
+    EVec3 toEye = (eye - lbl_802E57C4).Normalize();
+    eye = params.unk0 + toEye * params.unkC;
 }

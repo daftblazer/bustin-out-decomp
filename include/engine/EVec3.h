@@ -13,6 +13,13 @@ public:
     EVec3 operator*(float scale) const { return EVec3(x * scale, y * scale, z * scale); }
 
     float Length() const;
+    EVec3 Normalize();
+    EVec3& operator+=(const EVec3& other) {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+        return *this;
+    }
 
     void Set(float x_, float y_, float z_) {
         x = x_;
@@ -31,5 +38,16 @@ inline EVec3 operator*(float scale, const EVec3& v) { return EVec3(scale * v.x, 
 extern "C" float fn_80122240(const EVec3* v);
 
 inline float EVec3::Length() const { return fn_80122240(this); }
+
+// Vector normalize. This is the Dolphin SDK's PSVECNormalize (0x801221E4).
+extern "C" void fn_801221E4(const EVec3* src, EVec3* dst);
+
+// Normalizes in place (unless zero) and returns a copy.
+inline EVec3 EVec3::Normalize() {
+    if (x != 0.0f || y != 0.0f || z != 0.0f) {
+        fn_801221E4(this, this);
+    }
+    return *this;
+}
 
 #endif

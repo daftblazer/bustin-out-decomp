@@ -2,6 +2,7 @@
 #define SIMS_ESIMSCAM_H
 
 #include "engine/ERectF.h"
+#include "engine/EMat4.h"
 #include "engine/EVec3.h"
 #include "engine/EController.h"
 #include "sims/EGlobal.h"
@@ -92,6 +93,15 @@ struct ESimsCamUnkBC {
     virtual void vfn7(int, int);
 };
 
+// Where the camera looks and from how far. Name from The Sims 2's symbol map
+// (ESimsCam::CalcEyePosition(EVec3&, ESimsCam::CameraParameters&)).
+struct CameraParameters {
+    EVec3 unk0;   // target
+    float unkC;   // distance
+    float unk10;  // rotation, degrees
+    float unk14;  // tilt, degrees
+};
+
 // The game camera. Class and method names follow The Sims 2's symbol map where
 // the functions line up; member names are provisional.
 class ESimsCam {
@@ -100,6 +110,7 @@ public:
     float GetNearPlane();
     float GetFarPlane();
     float GetFov();
+    void CalcEyePosition(EVec3& eye, CameraParameters& params);
     void Update();
     int fn_80005EE4();
     int fn_80005FC8();
