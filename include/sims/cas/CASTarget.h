@@ -1,7 +1,7 @@
 #ifndef SIMS_CAS_CASTARGET_H
 #define SIMS_CAS_CASTARGET_H
 
-#include "engine/E3DWindow.h"
+#include "engine/Unk801543AC.h"
 #include "engine/EMat4.h"
 #include "engine/UnkTargetBase.h"
 #include "engine/ResourceManagers.h"
@@ -38,14 +38,6 @@ public:
     int unkD4;
     int unkD8;
     int unkDC;
-};
-// 3D view built on E3DWindow (0x36C bytes at most, vtable 0x802A7BC8); it has
-// no destructor of its own.
-class Unk801543AC : public E3DWindow {
-public:
-    Unk801543AC();
-    void fn_801546D8(const EMat4* matrix); // set the view matrix
-    EMat4 unkA0;                           // view matrix
 };
 struct Unk8001EE8C {
     Unk8001EE8C();

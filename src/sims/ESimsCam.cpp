@@ -60,9 +60,9 @@ void ESimsCam::fn_800056C8() {
     float aspect = lbl_8037C198->vfn37();
     float nearPlane = GetNearPlane();
     float farPlane = GetFarPlane();
-    fn_80154490(fov, aspect, nearPlane, farPlane);
-    SetWinPos(*this);
-    fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
+    mWindow.fn_80154490(fov, aspect, nearPlane, farPlane);
+    SetWinPos(mWindow);
+    mWindow.fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
 // 0x80005838
@@ -369,21 +369,21 @@ int ESimsCam::fn_8000633C() {
 // 0x8000650C
 void ESimsCam::fn_8000650C() {
     unk390 = (unk398.unkC - lbl_8037B408) / (lbl_8037B404 - lbl_8037B408) * (lbl_8037B414 - lbl_8037B418) + lbl_8037B418;
-    fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
+    mWindow.fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
     float fov = GetFov();
     fov *= (float)lbl_8037C198->unk18;
     fov /= (float)lbl_8037C198->unk14;
     float aspect = lbl_8037C198->vfn37();
     float nearPlane = GetNearPlane();
     float farPlane = GetFarPlane();
-    fn_80154490(fov, aspect, nearPlane, farPlane);
+    mWindow.fn_80154490(fov, aspect, nearPlane, farPlane);
     if (unk328 != 3) {
         fn_8000698C();
         if (unk3C8 == 0) {
             fn_80006C58();
         }
     } else {
-        SetWinPos(*this);
+        SetWinPos(mWindow);
     }
 }
 
@@ -458,7 +458,7 @@ void ESimsCam::fn_8000698C() {
         break;
     }
     }
-    SetWinPos(*this);
+    SetWinPos(mWindow);
 }
 
 // 0x80006C58
@@ -558,8 +558,8 @@ void ESimsCam::SetPos(EVec3& eye, EVec3& target, EVec3& unk) {
     float aspect = lbl_8037C198->vfn37();
     float nearPlane = GetNearPlane();
     float farPlane = GetFarPlane();
-    fn_80154490(fov, aspect, nearPlane, farPlane);
-    SetWinPos(*this);
+    mWindow.fn_80154490(fov, aspect, nearPlane, farPlane);
+    SetWinPos(mWindow);
 }
 
 // 0x80007430
@@ -573,7 +573,7 @@ int ESimsCam::fn_80007430() {
 // its address held in r29 from before the call; this lays the two out the other way.
 int ESimsCam::fn_80007470(float left, float top, float right, float bottom) {
     EVec2 screen;
-    fn_80156130(fn_80007DD8(), &screen);
+    mWindow.fn_80156130(fn_80007DD8(), &screen);
     int flags = 0;
     if (screen.x < left) {
         flags = 1;

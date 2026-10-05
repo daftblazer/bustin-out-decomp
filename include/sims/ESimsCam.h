@@ -3,6 +3,7 @@
 
 #include "engine/ERectF.h"
 #include "engine/E3DWindow.h"
+#include "engine/Unk801543AC.h"
 #include "engine/EMat4.h"
 #include "engine/EVec3.h"
 #include "engine/EController.h"
@@ -142,11 +143,9 @@ public:
     int unk10;
 };
 
-class ESimsCam : public ESimsCamBase2, public E3DWindow {
+class ESimsCam : public ESimsCamBase2 {
 public:
-    // 0x80007EC0. NON_MATCHING: 28 instructions vs 25. The original destroys the window
-    // as a base class (destructor flag 0) but does not store a second vtable pointer
-    // at 0xB0 first, which this compiler does for a polymorphic second base.
+    // 0x80007EC0
     virtual ~ESimsCam() { fn_800058CC(); }
     virtual void SetState(int state);
     virtual void vfn3() {}
@@ -184,7 +183,7 @@ public:
     void SetWinPos(E3DWindow& window);
     EVec3 fn_80007DD8();
 
-    char unkB4[0x324 - 0xB4];
+    Unk801543AC mWindow; // 0x14
     struct Unk324* unk324;
     int unk328;         // camera mode
     int unk32C;         // camera mode to return to

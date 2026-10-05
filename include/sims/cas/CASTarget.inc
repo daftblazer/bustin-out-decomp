@@ -5,7 +5,7 @@
     void* unk54; // 0x54
     void* unk58; // 0x58
     Unk801543AC unk5C; // 0x5c 3D view
-    char pad13C[0x28c];
+    char pad36C[0x5c];
     Unk8001EE8C unk3C8; // 0x3c8 class of the unit at 0x8001EE8C
     char pad3CC[0x4098];
     Unk80018374* unk4464; // 0x4464
