@@ -259,10 +259,10 @@ config.libs = [
         "sims",
         [
             Object(NonMatching, "sims/ESimsApp.cpp"),
-            Object(NonMatching, "sims/Unk800052C8.cpp"),
+            Object(Matching, "sims/Unk800052C8.cpp"),
             Object(NonMatching, "sims/ESimsCam.cpp"),
             Object(NonMatching, "sims/cas/CASWidgets.cpp"),
-            Object(NonMatching, "sims/cas/CASState.cpp"),
+            Object(Matching, "sims/cas/CASState.cpp"),
             Object(NonMatching, "sims/cas/CASTarget.cpp"),
             Object(NonMatching, "sims/cas/CASSelectors.cpp"),
             Object(NonMatching, "sims/cas/CASSim.cpp"),

@@ -21,7 +21,9 @@ SECTIONS
 	.bss : { *(.bss) }
 	. = ALIGN(32);
 	.sdata : { *(.sdata) }
-	.sbss : { *(.sbss) }
+	/* Objects compiled from source carry an empty .sbss2; left as an orphan it is
+	 * placed after the ALIGN(32) and stretches the DOL's bss range. */
+	.sbss : { *(.sbss) *(.sbss2) }
 	. = ALIGN(32);
 	.sdata2 : { *(.sdata2) }
 

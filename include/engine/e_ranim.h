@@ -11,5 +11,7 @@ inline const char* EngineHeaderString34() { return "ERAnim TArray SetSize"; }
 inline const char* EngineHeaderString35() { return "ERAnimBitArray SetSize"; }
 inline const char* EngineHeaderString36() { return "ERAnim"; }
 inline const char* EngineHeaderString37() { return "ERAnim operator new"; }
+// Follows the header's strings in every unit seen so far; it may belong to the next header.
+inline const char* EngineHeaderString38() { return "N/A"; }
 
 #endif

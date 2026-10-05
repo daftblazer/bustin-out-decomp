@@ -1,3 +1,15 @@
+#include "engine/e_storable.h"
+#include "engine/e_resource.h"
+#include "engine/e_instance.h"
+#include "engine/e_ilight.h"
+#include "engine/e_rlevel.h"
+#include "engine/e_engine.h"
+#include "engine/e_particle.h"
+#include "engine/e_igameinstance.h"
+#include "engine/e_iparticleemit.h"
+#include "engine/e_rparticletype.h"
+#include "engine/e_rfont.h"
+#include "engine/e_texture.h"
 #include "sims/Unk800052C8.h"
 
 // 0x800052C8
