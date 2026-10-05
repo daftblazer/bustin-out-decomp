@@ -473,6 +473,165 @@ struct Unk8037D990E {
     virtual void vfn19(Unk801C6F20* tile, Unk8023DDC4* packed);
 };
 
+struct Unk801C727C : Unk801C6F20 {
+    int fn_801C727C();   // tile x
+    int fn_801C7288();   // tile y
+};
+struct Unk8037D990F {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual int vfn6();   // lot size in tiles
+};
+struct Unk8037D988B {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+};
+// vfn117 of a game object returns its tile; declared here with the 8-byte type.
+struct Unk800053D4InnerB {
+    char unk0[0x1C];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26();
+    virtual void vfn27();
+    virtual void vfn28();
+    virtual void vfn29();
+    virtual void vfn30();
+    virtual void vfn31();
+    virtual void vfn32();
+    virtual void vfn33();
+    virtual void vfn34();
+    virtual void vfn35();
+    virtual void vfn36();
+    virtual void vfn37();
+    virtual void vfn38();
+    virtual void vfn39();
+    virtual void vfn40();
+    virtual void vfn41();
+    virtual void vfn42();
+    virtual void vfn43();
+    virtual void vfn44();
+    virtual void vfn45();
+    virtual void vfn46();
+    virtual void vfn47();
+    virtual void vfn48();
+    virtual void vfn49();
+    virtual void vfn50();
+    virtual void vfn51();
+    virtual void vfn52();
+    virtual void vfn53();
+    virtual void vfn54();
+    virtual void vfn55();
+    virtual void vfn56();
+    virtual void vfn57();
+    virtual void vfn58();
+    virtual void vfn59();
+    virtual void vfn60();
+    virtual void vfn61();
+    virtual void vfn62();
+    virtual void vfn63();
+    virtual void vfn64();
+    virtual void vfn65();
+    virtual void vfn66();
+    virtual void vfn67();
+    virtual void vfn68();
+    virtual void vfn69();
+    virtual void vfn70();
+    virtual void vfn71();
+    virtual void vfn72();
+    virtual void vfn73();
+    virtual void vfn74();
+    virtual void vfn75();
+    virtual void vfn76();
+    virtual void vfn77();
+    virtual void vfn78();
+    virtual void vfn79();
+    virtual void vfn80();
+    virtual void vfn81();
+    virtual void vfn82();
+    virtual void vfn83();
+    virtual void vfn84();
+    virtual void vfn85();
+    virtual void vfn86();
+    virtual void vfn87();
+    virtual void vfn88();
+    virtual void vfn89();
+    virtual void vfn90();
+    virtual void vfn91();
+    virtual void vfn92();
+    virtual void vfn93();
+    virtual void vfn94();
+    virtual void vfn95();
+    virtual void vfn96();
+    virtual void vfn97();
+    virtual void vfn98();
+    virtual void vfn99();
+    virtual void vfn100();
+    virtual void vfn101();
+    virtual void vfn102();
+    virtual void vfn103();
+    virtual void vfn104();
+    virtual void vfn105();
+    virtual void vfn106();
+    virtual void vfn107();
+    virtual void vfn108();
+    virtual void vfn109();
+    virtual void vfn110();
+    virtual void vfn111();
+    virtual void vfn112();
+    virtual void vfn113();
+    virtual void vfn114();
+    virtual void vfn115();
+    virtual void vfn116();
+    virtual Unk801C727C vfn117();
+};
+inline bool CanCommit(Unk801FD05CResult* part, bool onLot) {
+    if (part) {
+        bool ok = false;
+        if (part->vfn3() && onLot) {
+            ok = true;
+        }
+        return ok;
+    }
+    return false;
+}
+inline void Refund(int kind, int amount) {
+    if (lbl_802E6700.unk144 == 0 && !lbl_802E6700.fn_80068ED8()) {
+        ((Unk8037D944B*)lbl_8037D944)->vfn26(kind, -amount, 0);
+    }
+}
+
 // Callback table copied over the engine's defaults (0x30 bytes at 0x802D1ED8).
 struct Unk802DBAEC {
     int unk0[10];
@@ -1261,6 +1420,153 @@ int Unk80026864::fn_800290B0() {
         value = object->vfn131();
     }
     return -value;
+}
+
+// 0x8002917C
+// The cursor while an object is held (or none is): the directions drop it, the
+// confirm button places it, 0xF sells it, 7 cancels, 0xD and 0xE turn it.
+// NON_MATCHING: 609 instructions vs 620. The structure and every call are the
+// original's; it has not been tuned (register use and the layout of the sell branch
+// differ). One variant tried.
+void Unk80026864::fn_8002917C() {
+    int confirm = IsBuildCameraMode() ? 5 : 6;
+    if (unk84 == 1) {
+        UnkTargetBase* child = unkC8;
+        bool active = IsActive(child);
+        if (!active) {
+            if (child) {
+                ((Unk8004F7EC*)child)->fn_8004F7EC();
+            }
+            unk84 = active;
+        }
+    }
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    int up = controller->fn_8015E204(0x33);
+    int down = controller->fn_8015E204(0x34);
+    int left = controller->fn_8015E204(0x35);
+    int right = controller->fn_8015E204(0x36);
+    if (!(unk84 == 1 && IsActive(unkC8)) && (up || down || left || right)) {
+        fn_80028BB0(1);
+        return;
+    }
+    Unk801FD05CResult* part = unkF0;
+    if (part == 0) {
+        if (controller->fn_8015E0F8(7)) {
+            ((UnkTargetBase*)unkC)->vfn7(this, 0x27);
+            unk84 = 0;
+            return;
+        }
+        if (unk84 == 1 && IsActive(unkC8)) {
+            unkC8->vfn2();
+            return;
+        }
+        fn_80029BF8();
+        fn_80027D24();
+        return;
+    }
+    fn_80029BF8();
+    fn_8002C158();
+    if (controller->fn_8015E0F8(confirm)) {
+        bool onLot = false;
+        Unk800053D4Inner* object = unkF0->vfn8b();
+        Unk801C727C tile = ((Unk800053D4InnerB*)object)->vfn117();
+        if (tile.fn_801C727C() >= 0 && tile.fn_801C727C() <= ((Unk8037D990F*)lbl_8037D990)->vfn6() &&
+            tile.fn_801C7288() >= 0) {
+            onLot = tile.fn_801C7288() <= ((Unk8037D990F*)lbl_8037D990)->vfn6();
+        }
+        if (CanCommit(unkF0, onLot)) {
+            Unk800053D4Inner* left;
+            if (unkF0->vfn4() && (left = unkF0->vfn8b()) == 0) {
+                if (object) {
+                    fn_800686D4(object);
+                    fn_80027FCC(object);
+                }
+                ((Unk8037D98CB*)lbl_8037D98C)->vfn11(unkF0->Object()->vfn111());
+                unk8C = 0;
+                unkF0 = 0;
+                unk90 = 0;
+                lbl_8037D96C->fn_8006186C(0xD9552AE4);
+                ((Unk800914D0*)((char*)lbl_802E6700.unkBC + 0x2970))->fn_800914D0();
+            } else {
+                unkF0->vfn6();
+                lbl_8037D96C->fn_8006186C(0x3804219F);
+                ((Unk8037D98CB*)lbl_8037D98C)->vfn11(unkF0->Object()->vfn111());
+                unkF0 = 0;
+            }
+        } else {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+        return;
+    }
+    if (controller->fn_8015E0F8(0xF)) {
+        bool ok = true;
+        Unk800053D4Inner* object = unkF0->vfn8b();
+        if (object == 0) {
+            ok = false;
+        }
+        if (ok) {
+            if (!(object->vfn88(0x2B) & 8)) {
+                ok = false;
+            }
+        }
+        if (ok) {
+            if (!object->vfn124()) {
+                if (object->vfn98(0)) {
+                    ok = false;
+                }
+            } else {
+                Unk801FD05CResult* group = GetPart(object, 3);
+                if (!group->vfn9()) {
+                    for (group = group->vfn2(); group; group = group->vfn3()) {
+                        if (group->Direct()->vfn98(0)) {
+                            ok = false;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!ok) {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+            return;
+        }
+        if (unk90) {
+            unk90 = 0;
+            int kind = 7;
+            if (!object->vfn137()) {
+                kind = 6;
+            }
+            Refund(kind, ((Unk80217FDCInfoB*)fn_80217FDC(object->vfn119())->unk18)->unk24);
+        } else if (object->vfn137() != 4) {
+            int value = object->vfn131();
+            if (object->vfn137()) {
+                value = (int)((float)value * 0.8f + 0.5f);
+                Refund(7, value);
+            } else {
+                Refund(6, value);
+            }
+        }
+        unkF0->vfn6();
+        ((Unk8037D98CB*)lbl_8037D98C)->vfn11(unkF0->Object()->vfn111());
+        unkF0 = 0;
+        lbl_8037D994->vfn19();
+        ((Unk8037D988B*)lbl_8037D988)->vfn8();
+        lbl_8037D96C->fn_8006186C(0x994E8974);
+        ((Unk800914D0*)((char*)lbl_802E6700.unkBC + 0x2970))->fn_800914D0();
+        return;
+    }
+    if (controller->fn_8015E0F8(7)) {
+        fn_80028BB0(0);
+        ((Unk800914D0*)((char*)lbl_802E6700.unkBC + 0x2970))->fn_800914D0();
+        return;
+    }
+    if (controller->fn_8015E0F8(0xD)) {
+        fn_8002BA04(1);
+        return;
+    }
+    if (controller->fn_8015E0F8(0xE)) {
+        fn_8002BA04(0);
+    }
 }
 
 // 0x80029B2C
