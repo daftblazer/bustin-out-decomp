@@ -1526,6 +1526,185 @@ void Unk80018374::fn_8001C384() {
     unkC8->fn_80021A14(unkD0->unk14);
 }
 
+// 0x8001C3B8
+// Renders a 64x64 head-and-shoulders portrait of the sim to an off-screen
+// target, reduces it to a 255-colour palette and writes the result, shrunk to
+// 32x32, into the portrait texture (unkCC).
+// NON_MATCHING: 804 instructions vs 805, but only by coincidence: this is a condensed
+// draft. The sequence of calls is the original's; the field stores of the descriptions,
+// the camera positions per body type and the pixel loops are approximate, so most
+// instructions differ. One variant tried.
+void Unk80018374::fn_8001C3B8() {
+    ERC* rc = lbl_8037C198->vfn13(0);
+    Unk801543AC camera;
+    EViewportDesc viewport;
+    viewport.unk4 = 0x40;
+    viewport.unk0 = 0x40;
+    viewport.unk8 = 3;
+    viewport.unk18 = 1;
+    viewport.unkC = EVec3(0.0f);
+    viewport.unkC = EVec3(0.0f);
+    viewport.unk0 = 0x40;
+    viewport.unk4 = 0x40;
+    lbl_8037C198->vfn8();
+    lbl_8037C198->vfn44();
+    ERenderTarget* target = lbl_8037C198->vfn23(&viewport);
+    camera.fn_80154490(14.0f, 1.0f, 0.5f, 5.0f);
+    camera.fn_8018ACF4(target, 5);
+    // Eye and look-at point for each body type.
+    if (unk16C.unk4) {
+        if (unk16C.unk0) {
+            camera.fn_80154798(EVec3(-0.185f, 2.5f, 1.55f), EVec3(-0.165f, 0.0f, 1.6f), EVec3(0.0f, 0.0f, 1.0f));
+        } else {
+            camera.fn_80154798(EVec3(-0.185f, 2.5f, 1.55f), EVec3(-0.185f, 0.0f, 1.56f), EVec3(0.0f, 0.0f, 1.0f));
+        }
+    } else {
+        if (unk16C.unk0) {
+            camera.fn_80154798(EVec3(-0.185f, 2.5f, 1.0f), EVec3(-0.15f, 0.0f, 1.14f), EVec3(0.0f, 0.0f, 1.0f));
+        } else {
+            camera.fn_80154798(EVec3(-0.185f, 2.5f, 1.0f), EVec3(-0.15f, 0.0f, 1.14f), EVec3(0.0f, 0.0f, 1.0f));
+        }
+    }
+    rc->vfn57(target, 5);
+    camera.fn_80156018(rc);
+    lbl_802E6700.unkE4->fn_80181824(rc);
+    rc->vfn47(EVec2(0.0f, 0.0f), EVec2(1.0f, 1.0f), EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 0.0f, 1.0f, 1.0f), 0.0f);
+    if (unkC) {
+        unkD0->vfn2(rc);
+    } else {
+        unkC8->unk44->vfn2(rc);
+    }
+    ELightSet lights;
+    lights.numDirectional = 2;
+    lights.numPoint = 0;
+    lights.ambient = EVec3(0.6f);
+    lights.directional[0].color = EVec3(0.4f, 0.4f, 0.6f);
+    lights.directional[1].color = EVec3(0.6f);
+    lights.directional[0].direction = EVec3(-10.0f, -10.0f, -11.0f);
+    lights.directional[1].direction = EVec3(10.0f, 10.0f, -11.0f);
+    lights.directional[0].direction.Normalize();
+    lights.directional[1].direction.Normalize();
+    rc->vfn44(&lights);
+
+    // A second model instance in the idle pose, drawn with the sim's own pieces.
+    Unk80156438 model;
+    if (unk16C.unk4) {
+        if (unk16C.unk0) {
+            model.fn_80156700(0xFFA60350);
+        } else {
+            model.fn_80156700(0x1FB80AF4);
+        }
+    } else {
+        model.fn_80156700(0xD5E79699);
+    }
+    model.SetUnk54(0.0002f);
+    model.fn_80159994(0, **unk48);
+    EMat4 transform;
+    fn_80156964(&EVec3(0.0f), &EVec3(0.0f), &unk160, &transform);
+    model.fn_80156954();
+    model.fn_80157BD0(&transform, lbl_8037BFBC);
+    model.fn_80156954();
+    Unk80156438::Unk80156438Inner* inner = model.unk18;
+    int skeleton;
+    if (EIsValid(inner)) {
+        skeleton = inner->unk24;
+    } else {
+        skeleton = 0;
+    }
+    rc->vfn26(model.unk4, skeleton);
+    unk90[1]->fn_8017CBEC(rc);
+    for (int i = 0; i < 4; i++) {
+        if (unk90[7 + i]) {
+            unk90[7 + i]->fn_8017CBEC(rc);
+        }
+    }
+    if (unkBC) {
+        unkBC->fn_8017CC58(rc);
+    }
+    if (unkC0) {
+        unkC0->fn_8017CC58(rc);
+    }
+    rc->vfn57(0, 5);
+    camera.fn_8018ACF4(0, 5);
+    camera.fn_80156018(rc);
+    lbl_8037C198->vfn8();
+
+    // Copy the target into a temporary 64x64 texture and read it back.
+    ETextureDesc desc;
+    desc.unk1C = "*charedsim5*";
+    desc.unk8 |= 0x80;
+    desc.unk10 = 0x40;
+    desc.unk12 = 0x40;
+    ETextureLike* capture = lbl_8037C198->vfn20(&desc);
+    target->vfn10(capture);
+    rc->vfn57(0, 5);
+    lbl_8037C198->vfn24(target);
+    lbl_8037C198->vfn14(rc);
+    int a;
+    int b;
+    capture->vfn5(0);
+    unsigned char* pixels = (unsigned char*)capture->vfn6(0, &a, &b);
+    unkCC->vfn5(2);
+    unsigned short* palette = (unsigned short*)unkCC->vfn7();
+    unsigned char* indices = (unsigned char*)unkCC->vfn6(0, &a, &b);
+
+    Unk801B7464 quantizer;
+    quantizer.fn_801B7538(0xFF, 0x7C00, 0, 0, 1);
+    unsigned char color[4];
+    int blocks = (desc.unk10 >> 2) * (desc.unk12 >> 2);
+    for (int block = 0; block < blocks; block++) {
+        unsigned char* top = pixels + block * 0x40;
+        unsigned char* bottom = top + 0x20;
+        for (int n = 0; n < 16; n++) {
+            color[0] = top[1 + n * 2];
+            color[1] = bottom[n * 2];
+            color[2] = bottom[n * 2 + 1];
+            quantizer.fn_801B79B4(color);
+        }
+    }
+    quantizer.fn_801B8308();
+    int colors = quantizer.fn_801B8630();
+    for (int i = 0; i < colors; i++) {
+        quantizer.fn_801B8638(i, color);
+        color[0] >>= 3;
+        color[1] >>= 3;
+        color[2] >>= 3;
+        palette[i] = 0x8000;
+        palette[i] += color[0] << 10;
+        palette[i] += color[1] << 5;
+        palette[i] += color[2];
+    }
+    palette[colors] = 0;
+    unsigned char* rgba = (unsigned char*)fn_80169F1C(0x4000, 4);
+    fn_801AD298(pixels, 0x40, 0x40, rgba);
+    int out = 0;
+    for (int y = 0; y <= 0x1F; y++) {
+        for (int x = 0; x <= 0x1F; x++) {
+            unsigned char* p = rgba + ((0x1F - y) * desc.unk10 + x) * 4;
+            color[0] = p[0];
+            color[1] = p[1];
+            color[2] = p[2];
+            // Pure magenta (the background) becomes the transparent last entry.
+            if (color[0] > 0xFA && color[1] == 0 && color[2] > 0xFA) {
+                indices[out] = colors;
+            } else {
+                indices[out] = quantizer.fn_801B8664(color);
+            }
+            out++;
+        }
+    }
+    fn_80169EE8(rgba);
+    quantizer.fn_801B74E8();
+    capture->vfn8();
+    unkCC->vfn8();
+    if (capture) {
+        if (lbl_8037C198->vfn22(capture)) {
+            lbl_8037C198->vfn8();
+        }
+        lbl_8037C198->vfn21(capture);
+    }
+}
+
 // 0x8001D04C
 // Makes a 32x32 paletted copy of the sim's skin texture (kept with the saved
 // family) and returns it.

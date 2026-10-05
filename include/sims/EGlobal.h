@@ -48,7 +48,9 @@ public:
     struct Unk324* unkA8[4];      // per player, set from ESimsCam+0x324
     char unkB8[0xBC - 0xB8];
     ESimsCamUnkBC* unkBC;
-    char unkC0[0xEC - 0xC0];
+    char unkC0[0xE4 - 0xC0];
+    struct Unk80181824* unkE4;    // plain white texture
+    char unkE8[0xEC - 0xE8];
     struct Unk8003C95C* unkEC;    // default font
     char unkF0[0x118 - 0xF0];
     struct EGlobalUnk118* unk118;

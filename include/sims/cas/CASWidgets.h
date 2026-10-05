@@ -101,7 +101,7 @@ struct ERC {
     virtual void vfn54(int, int, int, int);
     virtual void vfn55(int, int, int, float);
     virtual void vfn56(int, int, int);
-    virtual void vfn57();
+    virtual void vfn57(void* target, int); // select the render target
     virtual void vfn58();
     virtual void vfn59();
     virtual void vfn60(int, int);

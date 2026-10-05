@@ -5,6 +5,7 @@
 #include "engine/EMat4.h"
 #include "engine/EVec3.h"
 #include "engine/ResourceManagers.h"
+#include "engine/Unk801543AC.h"
 #include <new.h>
 #include "sims/cas/CASSelectors.h"
 #include "sims/cas/CASWidgets.h"
@@ -69,6 +70,7 @@ struct Unk80156438 {
         unk68 = callback;
     }
     void fn_80157BD0(const EMat4* transform, int);
+    void fn_80156954();
     char unk0[4];
     int unk4;
     char unk8[0x18 - 0x8];
@@ -238,6 +240,45 @@ struct EMaterialDesc {
     char unkAC[0xD0 - 0xAC];
 };
 
+// Off-screen render target: vtable pointer at 0x1C; slot 10 copies it into a texture.
+struct ERenderTarget {
+    char unk0[0x1C];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10(ETextureLike* texture);
+};
+// Size and clear colour of a render target (0x20 bytes).
+struct EViewportDesc {
+    int unk0;   // width
+    int unk4;   // height
+    int unk8;
+    EVec3 unkC; // clear colour
+    int unk18;
+    int unk1C;
+};
+// Colour quantizer (0x1CF8 bytes): collects colours, builds a palette, maps
+// colours to palette indices.
+struct Unk801B7464 {
+    Unk801B7464();
+    ~Unk801B7464();
+    void fn_801B7538(int maxColors, int, int, int, int);
+    void fn_801B79B4(const unsigned char* rgb);            // add a sample
+    void fn_801B8308();                                    // build the palette
+    int fn_801B8630();                                     // palette size
+    void fn_801B8638(int index, unsigned char* rgb);       // palette entry
+    unsigned char fn_801B8664(const unsigned char* rgb);   // nearest index
+    void fn_801B74E8();
+    char unk0[0x1CF8];
+};
+void fn_801AD298(const void* pixels, int width, int height, unsigned char* rgbaOut);
+
 // The renderer: screen size in pixels, and the texture and material caches.
 struct CASScreenInfoBase {
     virtual void vfn1();
@@ -252,8 +293,8 @@ struct CASScreenInfoBase {
     virtual void vfn10();
     virtual void vfn11();
     virtual void vfn12();
-    virtual void vfn13();
-    virtual void vfn14();
+    virtual ERC* vfn13(int);                        // begin drawing
+    virtual void vfn14(ERC* rc);                    // end drawing
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
@@ -262,8 +303,8 @@ struct CASScreenInfoBase {
     virtual ETextureLike* vfn20(ETextureDesc* desc); // create a texture
     virtual void vfn21(void* texture);               // release a texture
     virtual int vfn22(void* texture);
-    virtual void vfn23();
-    virtual void vfn24();
+    virtual struct ERenderTarget* vfn23(struct EViewportDesc* desc); // create a render target
+    virtual void vfn24(ERenderTarget* target);       // release it
     virtual void vfn25();
     virtual void vfn26();
     virtual void vfn27();
@@ -277,6 +318,13 @@ struct CASScreenInfoBase {
     virtual void vfn35();
     virtual void vfn36();
     virtual float vfn37(); // pixel aspect
+    virtual void vfn38();
+    virtual void vfn39();
+    virtual void vfn40();
+    virtual void vfn41();
+    virtual void vfn42();
+    virtual void vfn43();
+    virtual void vfn44();
 };
 struct CASScreenInfo : CASScreenInfoBase {
     char unk4[0x10];
@@ -311,7 +359,7 @@ public:
     void fn_8001C240();
     void fn_8001C2F4();
     void fn_8001C384();
-    void fn_8001C3B8();
+    void fn_8001C3B8(); // render the portrait into unkCC
     ETextureLike* fn_8001D04C();
     void fn_8001D6D8(ERC* rc); // draw the shadow
     void fn_8001D844(const Unk801B9FEC& suffix);
@@ -442,8 +490,8 @@ struct Unk8037D948 {
     virtual void vfn10();
     virtual void vfn11();
     virtual void vfn12();
-    virtual void vfn13();
-    virtual void vfn14();
+    virtual ERC* vfn13(int);                        // begin drawing
+    virtual void vfn14(ERC* rc);                    // end drawing
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();

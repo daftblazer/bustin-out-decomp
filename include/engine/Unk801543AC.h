@@ -14,6 +14,7 @@ public:
     Unk801543AC();
     void fn_801546D8(const EMat4* matrix); // set the view matrix
     void fn_80156018(struct ERC* rc);      // make this the render context's view
+    void fn_8018ACF4(void* target, int);   // attach a render target
 
     EMat4 unkA0; // view matrix
     char unkE0[0x310 - 0xE0];
