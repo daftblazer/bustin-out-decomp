@@ -112,6 +112,8 @@ public:
     void* fn_80028E84();
     static void fn_80028ECC();
     void fn_8003043C();
+    void fn_8002F2E0(struct ERC* rc, int* a, int* b, int* c, int* d);
+    void fn_8002F794(struct ERC* rc);
     void fn_80033C3C();
     void fn_80031980();
     void fn_8002917C();
@@ -149,7 +151,7 @@ struct Unk802E5B28 {
     EVec3 unkC;
 };
 
-void fn_800266C0(int* id);
+int fn_800266C0(int* id);
 void fn_800266EC(Unk800053D4Inner* object, Unk80026864List* out);
 void fn_8002ECE8(void* arg);
 int fn_8002ED14(int arg);

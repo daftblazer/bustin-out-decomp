@@ -804,7 +804,7 @@ struct Unk8002EFACItem {
     void* unk18;
     Unk80181824* unk1C;
 };
-void fn_8002F2E0(void* arg, ERC* rc, int* a, int* b, int* c, int* d);
+
 int fn_8002FF30(int index);
 struct Unk8037D990I {
     virtual void vfn1();
@@ -914,5 +914,205 @@ int fn_8002FFB8(Unk801C6F20* tile);
 void fn_8002EFAC(ERC* rc, struct Unk8002EFACItem* item);
 // True when purchases are free (the freeitems setting, or the mode fn_80068ED8 tests).
 #define CheatMoney() (lbl_802E6700.unk144 != 0 || lbl_802E6700.fn_80068ED8())
+
+struct Unk8037D990K {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual int vfn24(Unk801C6F20* tile);   // room a tile belongs to
+};
+int fn_80030084(int* any, int x0, int x1, int y0, int y1, int type);
+int fn_80030170(int* any, int x0, int x1, int y0, int y1, int flag);
+int fn_8003025C(int* any, void* table, Unk80234390* tiles, int type);
+inline float EMinF(float a, float b) {
+    if (a < b) {
+        return a;
+    }
+    return b;
+}
+inline float EMaxF(float a, float b) {
+    if (a > b) {
+        return a;
+    }
+    return b;
+}
+
+struct Unk8002D2D4RC {
+    char unk0[0x44];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3(Unk80173D58Vertex* vertices, int count);
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26();
+    virtual void vfn27();
+    virtual void vfn28();
+    virtual void vfn29();
+};
+struct Unk801C727CEntry {
+    int fn_801C727C();
+    int fn_801C7288();
+    char unk0[3];
+};
+
+// Money: slot 25 reads the household's funds, slot 26 changes them.
+struct Unk8037D944C {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual int vfn25(int);
+    virtual void vfn26(int kind, int amount, int);
+};
+// Undo record of a build action (constructor 0x801E6424, commit 0x801E6BC4,
+// discard 0x801E64B0).
+struct Unk801E6424 {
+    Unk801E6424(int kind, int width, int height, struct Unk801C3E30* name);
+    ~Unk801E6424();                    // 0x801E64B0
+    void fn_801E6BC4(void* levelState);
+    char unk0[0x18];
+};
+struct Unk801C3E30 {
+    Unk801C3E30(const char* text);     // 0x801C3E30
+    ~Unk801C3E30();                    // 0x801C3E78
+    char unk0[0x78];
+};
+struct Unk8037D990L {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void* vfn13();             // state for an undo record
+};
+struct Unk802E6820 {
+    void fn_801E3C80(int room, int type);
+    void fn_801E3CE4(int x0, int x1, int y0, int y1, int type);
+};
+extern Unk802E6820* lbl_802E6820[3];   // part of a larger object; size guessed
+int fn_8015E298(EController* controller, int button);
+void fn_801E36E4(ERC* rc, Unk80173D58Vertex* vertices, int count);
+struct Unk8002F794RC {
+    char unk0[0x44];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26();
+    virtual void vfn27();
+    virtual void vfn28();
+    virtual void vfn29();
+    virtual void vfn30();
+    virtual void vfn31();
+    virtual void vfn32();
+    virtual void vfn33();
+    virtual void vfn34();
+    virtual void vfn35();
+    virtual void vfn36();
+    virtual void vfn37();
+    virtual void vfn38();
+    virtual void vfn39();
+    virtual void vfn40();
+    virtual void vfn41();
+    virtual void vfn42();
+    virtual void vfn43();
+    virtual void vfn44();
+    virtual void vfn45();
+    virtual void vfn46();
+    virtual void vfn47();
+    virtual void vfn48();
+    virtual void vfn49();
+    virtual void vfn50();
+    virtual void vfn51();
+    virtual void vfn52(float);
+};
 
 #endif

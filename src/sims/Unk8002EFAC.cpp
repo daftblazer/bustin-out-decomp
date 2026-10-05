@@ -35,7 +35,7 @@ void fn_8002EFAC(ERC* rc, Unk8002EFACItem* item) {
     int c;
     int d;
     item->unk1C->fn_80181824(rc);
-    fn_8002F2E0(item->unk18, rc, &a, &b, &c, &d);
+    ((Unk80026864*)item->unk18)->fn_8002F2E0(rc, &a, &b, &c, &d);
 }
 
 // 0x8002F000
@@ -103,6 +103,100 @@ void Unk80026864::fn_8002F2A4() {
     if (lbl_8037B4B0) {
         unk154.unk1C = (int)lbl_8037B4B0;
         ((Unk8004B740*)lbl_802E67B0.unk0)->fn_8004B740(&unk154);
+    }
+}
+
+// 0x8002F2E0
+// Draws the rectangle being dragged with the floor tool, textured with the floor,
+// and returns its bounds in tiles.
+// NON_MATCHING: condensed draft (the original is 301 instructions and builds the
+// four vertices in the open). One variant tried.
+void Unk80026864::fn_8002F2E0(ERC* rc, int* outX0, int* outY0, int* outX1, int* outY1) {
+    const EVec2& origin = ((Unk8004AD08B*)lbl_802E67B0.unk0)->unk34;
+    int startX = (int)(unkAC - origin.x);
+    int startY = (int)(unkB0 - origin.y);
+    int tileX;
+    int tileY;
+    fn_8002BB64(&tileX, &tileY);
+    *(float*)outX0 = (float)startX;
+    *(float*)outY0 = (float)startY;
+    *(float*)outX1 = (float)tileX;
+    *(float*)outY1 = (float)tileY;
+    float x0 = (float)(startX > tileX ? tileX : startX) - 0.5f + origin.x;
+    float x1 = (float)(startX < tileX ? tileX : startX) + 0.5f + origin.x;
+    float y0 = (float)(startY > tileY ? tileY : startY) - 0.5f + origin.y;
+    float y1 = (float)(startY < tileY ? tileY : startY) + 0.5f + origin.y;
+    Unk80173D58Vertex vertices[4];
+    for (int i = 0; i < 4; i++) {
+        vertices[i].unk10[0] = 0;
+        vertices[i].unk10[1] = 0;
+        vertices[i].unk10[2] = 0x7F;
+        vertices[i].unk1C = 0;
+        vertices[i].unk30[0] = 0x80;
+        vertices[i].unk30[1] = 0x80;
+        vertices[i].unk30[2] = 0x80;
+        vertices[i].unk30[3] = 0x80;
+        vertices[i].unk0[0] = (i & 1) ? x0 : x1;
+        vertices[i].unk0[1] = (i & 2) ? y1 : y0;
+        vertices[i].unk0[2] = 0.05f;
+        vertices[i].unk0[3] = 1.0f;
+        vertices[i].unk20[0] = vertices[i].unk0[0];
+        vertices[i].unk20[1] = vertices[i].unk0[1];
+    }
+    ((Unk8002D2D4RC*)rc)->vfn3(vertices, 4);
+}
+
+// 0x8002F794
+// Draws the floor texture over every tile of the room under the cursor.
+// NON_MATCHING: condensed draft (the original is 307 instructions; it also handles
+// tiles cut by a diagonal wall). One variant tried.
+void Unk80026864::fn_8002F794(ERC* rc) {
+    int tileX;
+    int tileY;
+    fn_8002BB64(&tileX, &tileY);
+    Unk801C6F44 tile(tileY, tileX, 1);
+    unsigned short room = ((Unk8037D990K*)lbl_8037D990)->vfn24(&tile);
+    if (room == 0xFFFB) {
+        unsigned short* a;
+        unsigned short* b;
+        int sideA;
+        int sideB;
+        ((Unk80234774*)lbl_8037D998)->fn_80234774(&tile, &a, &b, &sideA, &sideB);
+        room = *a;
+    }
+    Unk80234390* list = FindList((void*)room);
+    if (list && room) {
+        char* it = list->unk4;
+        if (it != list->unk8) {
+            if (unk100 == 0) {
+                return;
+            }
+            ((Unk80181824*)unk100)->fn_80181824(rc);
+            ((Unk8002F794RC*)rc)->vfn52(0.2f);
+            const EVec2& origin = ((Unk8004AD08B*)lbl_802E67B0.unk0)->unk34;
+            for (; it != list->unk8; it += 3) {
+                float x = (float)((Unk801C727CEntry*)it)->fn_801C7288() + origin.x;
+                float y = (float)((Unk801C727CEntry*)it)->fn_801C727C() + origin.y;
+                Unk80173D58Vertex vertices[4];
+                for (int i = 0; i < 4; i++) {
+                    vertices[i].unk10[0] = 0;
+                    vertices[i].unk10[1] = 0;
+                    vertices[i].unk10[2] = 0x7F;
+                    vertices[i].unk1C = 0;
+                    vertices[i].unk30[0] = 0x80;
+                    vertices[i].unk30[1] = 0x80;
+                    vertices[i].unk30[2] = 0x80;
+                    vertices[i].unk30[3] = 0x80;
+                    vertices[i].unk0[0] = x + ((i & 1) ? -0.5f : 0.5f);
+                    vertices[i].unk0[1] = y + ((i & 2) ? 0.5f : -0.5f);
+                    vertices[i].unk0[2] = 0.05f;
+                    vertices[i].unk0[3] = 1.0f;
+                    vertices[i].unk20[0] = (i & 1) ? 0.0f : 1.0f;
+                    vertices[i].unk20[1] = (i & 2) ? 0.0f : 1.0f;
+                }
+                fn_801E36E4(rc, vertices, 4);
+            }
+        }
     }
 }
 
@@ -291,6 +385,91 @@ int fn_8003025C(int* any, void* table, Unk80234390* tiles, int type) {
     return total;
 }
 
+// 0x8003043C
+// The floor tool: with button 0x11 held, button 5 floors the whole room under the
+// cursor; otherwise button 5 floors the dragged rectangle and 0xF clears it. Each
+// action is priced, checked against the household's money, recorded for undo,
+// applied tile by tile and paid for.
+// NON_MATCHING: skeleton only (the original is 786 instructions). The room branch
+// follows the original call for call; the two rectangle branches, which repeat the
+// per-tile code of fn_800311B0 inline, are reduced to calls of it. One variant tried.
+void Unk80026864::fn_8003043C() {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (controller->fn_8015DF98(0x11)) {
+        if (!fn_8015E298(controller, 5) || unk194.head == 0) {
+            return;
+        }
+        int type = fn_800266C0((int*)unk194.head->item);
+        int tileX;
+        int tileY;
+        fn_8002BB64(&tileX, &tileY);
+        Unk801C6F44 tile(tileY, tileX, 1);
+        int room = ((Unk8037D990K*)lbl_8037D990)->vfn24(&tile);
+        Unk80234390* list = FindList((void*)room);
+        if (list == 0 || room == 0 || list->unk4 == list->unk8) {
+            return;
+        }
+        int any = 0;
+        int cost = fn_8003025C(&any, list, (Unk80234390*)&list->unk4, type);
+        int funds = ((Unk8037D944C*)lbl_8037D944)->vfn25(0);
+        if (!CheatMoney() && cost > funds) {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+            return;
+        }
+        Unk801C3E30 name("");
+        Unk801E6424 undo(1, 0x40, 0x40, &name);
+        undo.fn_801E6BC4(((Unk8037D990L*)lbl_8037D990)->vfn13());
+        for (char* it = list->unk4; it != list->unk8; it += 3) {
+            fn_800311B0((Unk801C6F20*)it, type, list);
+        }
+        if (fn_8007600C()) {
+            lbl_802E6820[0]->fn_801E3C80(room, type);
+            ((Unk8037D944C*)lbl_8037D944)->vfn26(7, cost, 0);
+            lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+            fn_80028ECC();
+        } else {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+        return;
+    }
+    bool lay = fn_8015E298(controller, 5) != 0;
+    bool clear = !lay && fn_8015E298(controller, 0xF) != 0;
+    if ((!lay && !clear) || unk194.head == 0) {
+        return;
+    }
+    int type = lay ? fn_800266C0((int*)unk194.head->item) : 0;
+    int tileX;
+    int tileY;
+    fn_8002BB64(&tileX, &tileY);
+    int y0 = (int)EMinF((float)tileY, unkB0);
+    int x0 = (int)EMinF((float)tileX, unkAC);
+    int y1 = (int)EMaxF((float)tileY, unkB0);
+    int x1 = (int)EMaxF((float)tileX, unkAC);
+    int any = 0;
+    int cost = lay ? fn_80030084(&any, y0, y1, x0, x1, type) : fn_80030170(&any, y0, y1, x0, x1, 0);
+    if (!CheatMoney() && cost > ((Unk8037D944C*)lbl_8037D944)->vfn25(0)) {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+        return;
+    }
+    Unk801C3E30 name("");
+    Unk801E6424 undo(1, 0x40, 0x40, &name);
+    undo.fn_801E6BC4(((Unk8037D990L*)lbl_8037D990)->vfn13());
+    for (int x = y0; x <= y1; x++) {
+        for (int y = x0; y <= x1; y++) {
+            Unk801C6F44 tile(x, y, 1);
+            fn_800311B0(&tile, type, 0);
+        }
+    }
+    if (fn_8007600C()) {
+        lbl_802E6820[0]->fn_801E3CE4(y0, y1, x0, x1, type);
+        ((Unk8037D944C*)lbl_8037D944)->vfn26(lay ? 7 : 6, cost, 0);
+        lbl_8037D96C->fn_8006186C(lay ? 0xB2AD3ECD : 0x994E8974);
+        fn_80028ECC();
+    } else {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+    }
+}
+
 // 0x80031084
 // Which halves of a diagonally cut tile lie inside the room: looks for the room on
 // the tiles to the left and right.
@@ -347,4 +526,50 @@ void fn_800311B0(Unk801C6F20* tile, int type, void* table) {
             level->vfn15(tile, 0xFF);
         }
     }
+}
+
+// 0x80031324
+// State 2's handler: what the floor tool's pending action would cost. With button
+// 0x11 held it prices the room under the cursor, otherwise the dragged rectangle;
+// button 0xF turns the action into removal.
+// NON_MATCHING: 157 instructions vs 182; the original converts and compares each
+// bound separately where the min/max helpers are used here. One variant tried.
+int Unk80026864::fn_80031324() {
+    if (unk194.head == 0) {
+        return 0;
+    }
+    int* marker = (int*)unk194.head->item;
+    if (marker == 0) {
+        return 0;
+    }
+    int type = fn_800266C0(marker);
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (controller->fn_8015DF98(0x11)) {
+        int tileX;
+        int tileY;
+        fn_8002BB64(&tileX, &tileY);
+        Unk801C6F44 tile(tileY, tileX, 1);
+        int room = ((Unk8037D990K*)lbl_8037D990)->vfn24(&tile);
+        Unk80234390* list = FindList((void*)room);
+        if (list == 0 || room == 0) {
+            return 0;
+        }
+        int any = 0;
+        return fn_8003025C(&any, list, (Unk80234390*)&list->unk4, type);
+    }
+    int tileX;
+    int tileY;
+    fn_8002BB64(&tileX, &tileY);
+    int y0 = (int)EMinF((float)tileY, unkB0);
+    int x0 = (int)EMinF((float)tileX, unkAC);
+    int y1 = (int)EMaxF((float)tileY, unkB0);
+    int x1 = (int)EMaxF((float)tileX, unkAC);
+    int any = 0;
+    if (controller->fn_8015DF98(0xF)) {
+        type = 0;
+    }
+    if (type == 0) {
+        return fn_80030170(&any, y0, y1, x0, x1, 0);
+    }
+    return fn_80030084(&any, y0, y1, x0, x1, type);
 }

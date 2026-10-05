@@ -8,8 +8,8 @@ ELightSet lbl_802E5D00;
 EVec3 lbl_802E5DE0(0.0f, 0.0f, 0.0f);
 
 // 0x800266C0
-void fn_800266C0(int* id) {
-    lbl_802E6700.fn_800673EC(*id);
+int fn_800266C0(int* id) {
+    return lbl_802E6700.fn_800673EC(*id);
 }
 
 // 0x800266EC
@@ -1094,7 +1094,6 @@ int fn_8003401C(Unk80026864* self, EVec2* from, EVec2* to, float* scale);
 void fn_80034E10();
 void fn_800351E4();
 void fn_80034968();
-void fn_8002F794(Unk80026864* self, ERC* rc);
 void fn_80035B4C(Unk80026864* self, ERC* rc);
 void fn_80035724(Unk80026864* self, ERC* rc);
 void fn_800359C0(Unk80026864* self, ERC* rc);
@@ -1124,7 +1123,7 @@ void Unk80026864::fn_8002A548(ERC* rc) {
     fn_8002D1CC();
     if (unk84 == 2) {
         if (controller->fn_8015DF98(0x11)) {
-            fn_8002F794(this, rc);
+            fn_8002F794(rc);
         }
         if (controller->fn_8015DF98(0x12)) {
             fn_8002F268();
@@ -1704,44 +1703,6 @@ inline void SetFlatVertex(Unk80173D58Vertex* vertex, float x, float y, float u, 
     vertex->unk0[2] = 0.05f;
     vertex->unk0[3] = 1.0f;
 }
-struct Unk8002D2D4RC {
-    char unk0[0x44];
-    virtual void vfn1();
-    virtual void vfn2();
-    virtual void vfn3(Unk80173D58Vertex* vertices, int count);
-    virtual void vfn4();
-    virtual void vfn5();
-    virtual void vfn6();
-    virtual void vfn7();
-    virtual void vfn8();
-    virtual void vfn9();
-    virtual void vfn10();
-    virtual void vfn11();
-    virtual void vfn12();
-    virtual void vfn13();
-    virtual void vfn14();
-    virtual void vfn15();
-    virtual void vfn16();
-    virtual void vfn17();
-    virtual void vfn18();
-    virtual void vfn19();
-    virtual void vfn20();
-    virtual void vfn21();
-    virtual void vfn22();
-    virtual void vfn23();
-    virtual void vfn24();
-    virtual void vfn25();
-    virtual void vfn26();
-    virtual void vfn27();
-    virtual void vfn28();
-    virtual void vfn29();
-};
-struct Unk801C727CEntry {
-    int fn_801C727C();
-    int fn_801C7288();
-    char unk0[3];
-};
-
 // 0x8002D2D4
 // Draws a textured square over every tile filed under the item's key.
 // NON_MATCHING: condensed draft, 189 instructions vs 234. The original builds the
