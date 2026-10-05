@@ -19,7 +19,7 @@
     CASSimDesc* unk4478; // 0x4478 array of descriptions
     CASSimDesc unk447C; // 0x447c description being edited
     void* unk4574; // 0x4574
-    void* unk4578; // 0x4578
+    Unk801800FC* unk4578; // 0x4578 data set holding the animation id lists
     void* unk457C; // 0x457c
     int unk4580; // 0x4580
     int unk4584; // 0x4584
@@ -37,7 +37,7 @@
     char pad45C0[0x4];
     float unk45C4; // 0x45c4
     unsigned char unk45C8; // 0x45c8 current view
-    signed char unk45C9; // 0x45c9
+    unsigned char unk45C9; // 0x45c9
     signed char unk45CA; // 0x45ca index into unk4478
     char pad45CB[0x1];
     int unk45CC; // 0x45cc view to switch to next
@@ -45,19 +45,25 @@
     char pad45D4[0x48];
     Unk80039E78 unk461C; // 0x461c
     char pad4620[0x8c8];
-    void* unk4EE8; // 0x4ee8
-    void* unk4EEC; // 0x4eec
+    Unk8033FF34Resource* unk4EE8; // 0x4ee8 models for the animated props
+    Unk8033FF34Resource* unk4EEC; // 0x4eec
     Unk80156438 unk4EF0; // 0x4ef0
     Unk80156438 unk4F64; // 0x4f64
-    void* unk4FD8; // 0x4fd8
+    Unk8033FF34Resource* unk4FD8; // 0x4fd8
     Unk80156438 unk4FDC; // 0x4fdc
-    char pad5050[0x8];
+    unsigned int** unk5050; // 0x5050 "Window" animation ids
+    Unk8033FF34Resource* unk5054; // 0x5054
     Unk80156438 unk5058; // 0x5058
-    char pad50CC[0x10];
+    char pad50CC[0x4];
+    Unk8033FF34Resource* unk50D0; // 0x50d0
+    Unk8033FF34Resource* unk50D4; // 0x50d4
+    Unk8033FF34Resource* unk50D8; // 0x50d8
     Unk80156438 unk50DC[3]; // 0x50dc
-    void* unk5238; // 0x5238
+    Unk8033FF34Resource* unk5238; // 0x5238
     Unk80156438 unk523C; // 0x523c
-    char pad52B0[0x10];
+    unsigned int** unk52B0; // 0x52b0 "Parrot" animation ids
+    unsigned int** unk52B4; // 0x52b4 "Thief" animation ids
+    char pad52B8[0x8];
     int unk52C0; // 0x52c0
     void* unk52C4; // 0x52c4 UI viewer the dialogs are driven through
     int unk52C8; // 0x52c8 set once loading has finished

@@ -172,11 +172,56 @@ void CASTarget::fn_8000CBD8() {
 void CASTarget::fn_8000CC40() {
     Unk803401C4* manager = &lbl_803401C4;
     unk4574 = manager->fn_80177628(0x2A2AF469, 0, 0);
-    unk4578 = manager->fn_80177628(0x23428ABB, 0, 0);
+    unk4578 = (Unk801800FC*)manager->fn_80177628(0x23428ABB, 0, 0);
     unk457C = manager->fn_80177628(0xA173A1EE, 0, 0);
     Unk8033FA38* manager2 = &lbl_8033FA38;
     unk54 = manager2->fn_80177628(0xF56854CE, 0, 0);
     unk58 = manager2->fn_80177628(0x3A7628B6, 0, 0);
+}
+
+// 0x8000CD04
+// Last loading step: the default sim and the animated props around it.
+void CASTarget::fn_8000CD04() {
+    unk4580 = 0;
+    unk4464 = new Unk80018374(unk45A8, 1, &unk3C8);
+    if (unk45A8) {
+        unk4584 = 0;
+    } else {
+        unk4584 = 1;
+    }
+    int list = unk4578->Find("CasAnimationIDList");
+    unk52B4 = unk4578->fn_8018021C(list, "Thief");
+    Unk8033FF34* models = &lbl_8033FF34;
+    unk4EE8 = models->fn_80177628(0x992EEB73, 0, 0);
+    unk4EF0.fn_80156700(0x1FB80AF4);
+    unk4EF0.SetUnk54(unk4EE8->unk6C);
+    unk4EEC = models->fn_80177628(0x21995ECE, 0, 0);
+    unk4F64.fn_80156700(0x6264D711);
+    unk4F64.SetUnk54(unk4EEC->unk6C);
+    unk4F64.fn_80159994(1, 0x21995ECE);
+    unk5050 = unk4578->Get(list, "Window");
+    unk4FD8 = models->fn_80177628(0xA5D1396A, 0, 0);
+    unk4FDC.fn_80156700(0xA5D1396A);
+    unk4FDC.SetUnk54(unk4FD8->unk6C);
+    unk4FDC.fn_80159994(1, **unk5050);
+    unk5054 = models->fn_80177628(0xAE65D4A9, 0, 0);
+    unk5058.fn_80156700(0xAE65D4A9);
+    unk5058.SetUnk54(unk5054->unk6C);
+    unk5058.fn_80159994(1, 0x04EB1CCF);
+    unk50D0 = models->fn_80177628(0x4072E590, 0, 0);
+    unk50DC[0].fn_80156700(0x4072E590);
+    unk50DC[0].SetUnk54(unk50D0->unk6C);
+    unk50DC[0].fn_80159994(1, 0x561D9AAC);
+    unk50D4 = models->fn_80177628(0x2925E2DF, 0, 0);
+    unk50DC[1].fn_80156700(0x2925E2DF);
+    unk50DC[1].SetUnk54(unk50D4->unk6C);
+    unk50DC[1].fn_80159994(1, 0x73565E14);
+    unk50D8 = models->fn_80177628(0x08559636, 0, 0);
+    unk52B0 = unk4578->fn_8018021C(list, "Parrot");
+    unk5238 = models->fn_80177628(0xF911768A, 0, 0);
+    unk523C.fn_80156700(0xF911768A);
+    unk523C.SetUnk54(unk5238->unk6C);
+    unk523C.fn_80159994(1, **unk52B0);
 }
 
 // 0x8000D010

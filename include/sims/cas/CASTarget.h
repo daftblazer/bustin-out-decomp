@@ -68,9 +68,15 @@ struct Unk80039E78 {
     ~Unk80039E78();
     char unk0[4];
 };
+// Animated model instance (0x74 bytes).
 struct Unk80156438 {
     Unk80156438();
-    char unk0[0x70];
+    void fn_80156700(unsigned int modelId);
+    void fn_80159994(int, unsigned int animationId);
+    void SetUnk54(float value) { unk54 = value; }
+    char unk0[0x54];
+    float unk54;
+    char unk58[0x70 - 0x58];
     virtual ~Unk80156438();
 };
 struct Unk801B9FEC {
@@ -254,6 +260,14 @@ extern int lbl_8037C3F4;
 void fn_801DA828(void*, Unk8037D94C* file);
 extern "C" int fn_801115C4(); // rand
 void fn_800620CC(short* choices, int preset);
+
+// Data set resource with named nodes.
+struct Unk801800FC {
+    int fn_801800FC(const char* name);
+    int Find(const char* name) { return fn_801800FC(name); }
+    unsigned int** fn_8018021C(int node, const char* name);
+    unsigned int** Get(int node, const char* name) { return fn_8018021C(node, name); }
+};
 
 // Scoped object used around the loading-thread flag (ctor 0x801BE528).
 struct Unk801BE528 {

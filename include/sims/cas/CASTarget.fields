@@ -19,7 +19,7 @@ END 0x5D30
 0x4478 4      CASSimDesc*        unk4478          # array of descriptions
 0x447C 0xF8   CASSimDesc         unk447C          # description being edited
 0x4574 4      void*              unk4574
-0x4578 4      void*              unk4578
+0x4578 4      Unk801800FC*       unk4578          # data set holding the animation id lists
 0x457C 4      void*              unk457C
 0x4580 4      int                unk4580
 0x4584 4      int                unk4584
@@ -32,21 +32,28 @@ END 0x5D30
 0x45BC 4      float              unk45BC
 0x45C4 4      float              unk45C4
 0x45C8 1      unsigned char      unk45C8          # current view
-0x45C9 1      signed char        unk45C9
+0x45C9 1      unsigned char      unk45C9
 0x45CA 1      signed char        unk45CA          # index into unk4478
 0x45CC 4      int                unk45CC          # view to switch to next
 0x45D0 4      int                unk45D0
 0x461C 4      Unk80039E78        unk461C
-0x4EE8 4      void*              unk4EE8
-0x4EEC 4      void*              unk4EEC
+0x4EE8 4      Unk8033FF34Resource* unk4EE8        # models for the animated props
+0x4EEC 4      Unk8033FF34Resource* unk4EEC
 0x4EF0 0x74   Unk80156438        unk4EF0
 0x4F64 0x74   Unk80156438        unk4F64
-0x4FD8 4      void*              unk4FD8
+0x4FD8 4      Unk8033FF34Resource* unk4FD8
 0x4FDC 0x74   Unk80156438        unk4FDC
+0x5050 4      unsigned int**     unk5050          # "Window" animation ids
+0x5054 4      Unk8033FF34Resource* unk5054
 0x5058 0x74   Unk80156438        unk5058
+0x50D0 4      Unk8033FF34Resource* unk50D0
+0x50D4 4      Unk8033FF34Resource* unk50D4
+0x50D8 4      Unk8033FF34Resource* unk50D8
 0x50DC 0x15C  Unk80156438        unk50DC[3]
-0x5238 4      void*              unk5238
+0x5238 4      Unk8033FF34Resource* unk5238
 0x523C 0x74   Unk80156438        unk523C
+0x52B0 4      unsigned int**     unk52B0          # "Parrot" animation ids
+0x52B4 4      unsigned int**     unk52B4          # "Thief" animation ids
 0x52C0 4      int                unk52C0
 0x52C4 4      void*              unk52C4          # UI viewer the dialogs are driven through
 0x52C8 4      int                unk52C8          # set once loading has finished

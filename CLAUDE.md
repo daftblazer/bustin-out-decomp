@@ -236,3 +236,11 @@ Single-line commit messages, no co-author or tool attribution.
   - A look-up helper used inside `new T(Get("a"), ..., Get("b"))` runs after `__builtin_new` and before the
     constructor; write it as an inline function, not as locals ahead of the `new`.
   - `tools/gen_fields.py Class.fields` generates padded member lists for large, partly known classes.
+  - A call whose object pointer is loaded from a member *after* the other arguments are set up
+    (`lis r4; lwz r3,off(r31); addi r4`) goes through an inline forwarding member
+    (`int Find(const char* n) { return fn_801800FC(n); }`); a direct call loads `this` first. This does
+    not explain every late-`r3` case (see fn_800102B0).
+  - Accessing a member object's field through an inline setter keeps the object's address register
+    (`stfs f0,0x54(r25)`); direct access folds the offset into `this` (`stfs f0,0x4f44(r31)`).
+  - An inline function with a constant float argument keeps its multiplication unfolded
+    (`EDegToRad(175.0f)` is two loads and an `fmuls`).
