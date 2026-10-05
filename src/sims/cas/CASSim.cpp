@@ -1,5 +1,7 @@
 #include "sims/cas/CASSim.h"
 
+#include "sims/EGlobal.h"
+
 // 0x80018310
 Unk80018374::Unk80018374(int a, int b, Unk8001EE8C* owner) {
     unk0 = 0;
@@ -128,8 +130,6 @@ int Unk80018374::fn_8001AC00() {
 // 0x8001AC88
 // Per-frame animation: the turn-round animation when one is queued, otherwise
 // an idle animation picked at random every few loops.
-// NON_MATCHING: 1 of 101 differs: the indexed load of the random animation id has its
-// base and index registers the other way round (`lwzx r4, r11, r9`). Five forms tried.
 void Unk80018374::fn_8001AC88() {
     if (fn_8001AC00()) {
         return;
@@ -157,7 +157,7 @@ void Unk80018374::fn_8001AC88() {
                     unk10 = 0;
                     int roll = fn_801115C4();
                     unsigned int* ids = (*list)[1];
-                    fn_8001AB8C(ids[(roll >> 4) % ECount((int*)ids)]);
+                    fn_8001AB8C(EAt(ids, (roll >> 4) % ECount((int*)ids)));
                     unk2C = fn_801115C4() % 4 + 2;
                 }
             } else {
@@ -167,6 +167,61 @@ void Unk80018374::fn_8001AC88() {
         }
     }
     unkE0.fn_801569F8(0, 0, EVec3(1.0f));
+}
+
+// 0x8001B378
+// Moves the body-shape sequence one step towards `step` (or restarts it for the
+// other gender), starting the transition animation. False when already there.
+// NON_MATCHING: same length (113), 87 differ: the saved registers are numbered
+// differently (r27-r31 against r28-r31 plus r27 for a late constant) and the blend value
+// travels in f13 instead of f0. Two variants tried.
+int Unk80018374::fn_8001B378(CASAnimStep** steps, unsigned int step, int which) {
+    unsigned int animation;
+    float blend;
+    if (which != unk34) {
+        step = 6;
+        if (which == 0) {
+            step = 0;
+        }
+        animation = *EStepAt(*steps, step).unk4;
+        blend = 0.8f;
+    } else if (step > unk30) {
+        unsigned int next = unk30 + 1;
+        if (next >= (unsigned int)ECount((int*)*steps)) {
+            next = ECount((int*)*steps);
+        }
+        step = next;
+        animation = EStepAt(*steps, step).unk0;
+        blend = EStepAt(*steps, unk30).unk10;
+    } else if (step < unk30) {
+        step = unk30 - 1;
+        blend = EStepAt(*steps, unk30).unkC;
+        animation = EStepAt(*steps, step).unk8;
+    } else {
+        return 0;
+    }
+    unk20 = blend;
+    if (animation == EStepAt(*steps, unk30).unk14) {
+        unk30 = step;
+        EStepAt(*steps, step).unk14 = animation;
+    } else if (unk28 == 0) {
+        if (unk20 == 1.0) {
+            if (!unkE0.fn_8015AA0C(0)) {
+                return 1;
+            }
+            fn_8001AB8C(animation);
+        } else {
+            unk18 = 1;
+            if (unkE0.fn_8015A82C(0) > unk20) {
+                unk1C = 1;
+            }
+            unk28 = animation;
+            lbl_8033F3D8.fn_801776C0(animation);
+        }
+        EStepAt(*steps, step).unk14 = animation;
+        unk30 = step;
+    }
+    return 1;
 }
 
 // 0x8001B850
@@ -378,4 +433,149 @@ void Unk80018374::fn_8001E6E8(int a, int b) {
     }
     unk38 = a;
     unk2C = 0;
+}
+
+// 0x8001E794
+// True when the choice is in the unlockables table for this body type and its
+// unlock flag has not been earned yet.
+int Unk80018374::fn_8001E794(int adult, int male, int slot, int choice) {
+    if (lbl_802E6700.unk14C == 0 && lbl_802E6700.fn_800690B0(6) == 0) {
+        int node = unk190->Find("Unlockables");
+        CASLockTable* table = (CASLockTable*)unk190->Get(node, "Bustin Out Unlockables");
+        int kind;
+        switch ((unsigned int)slot) {
+        case 2:
+            kind = 0;
+            break;
+        case 6:
+            kind = 1;
+            break;
+        case 9:
+            kind = 2;
+            break;
+        case 10:
+            kind = 3;
+            break;
+        case 11:
+            kind = 4;
+            break;
+        case 0:
+            kind = 5;
+            break;
+        case 3:
+            kind = 6;
+            break;
+        case 4:
+            kind = 7;
+            break;
+        case 5:
+            kind = 8;
+            break;
+        default:
+            return 0;
+        }
+        for (int i = 0; i < ECount((int*)table->unk8); i++) {
+            int mask = 1 << (i % 16);
+            if ((lbl_8037D948->vfn23(i / 16 + 16, 0) & mask) == 0) {
+                CASLockEntry entry = table->At(i);
+                if (entry.unkC != (short)choice) {
+                    continue;
+                }
+                if (entry.unk8 != kind) {
+                    continue;
+                }
+                if (entry.unk4) {
+                    if (adult != 1) {
+                        continue;
+                    }
+                } else {
+                    if (adult != 0) {
+                        continue;
+                    }
+                }
+                if (entry.unk5) {
+                    if (male != 1) {
+                        continue;
+                    }
+                } else {
+                    if (male != 0) {
+                        continue;
+                    }
+                }
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+// 0x8001E9D8
+// As fn_8001E794 without the unlock-flag test: true when the choice is in the
+// table at all (used to draw the padlocks).
+int Unk80018374::fn_8001E9D8(int adult, int male, int slot, int choice) {
+    if (lbl_802E6700.unk14C == 0) {
+        int node = unk190->Find("Unlockables");
+        CASLockTable* table = (CASLockTable*)unk190->Get(node, "Bustin Out Unlockables");
+        int kind;
+        switch ((unsigned int)slot) {
+        case 2:
+            kind = 0;
+            break;
+        case 6:
+            kind = 1;
+            break;
+        case 9:
+            kind = 2;
+            break;
+        case 10:
+            kind = 3;
+            break;
+        case 11:
+            kind = 4;
+            break;
+        case 0:
+            kind = 5;
+            break;
+        case 3:
+            kind = 6;
+            break;
+        case 4:
+            kind = 7;
+            break;
+        case 5:
+            kind = 8;
+            break;
+        default:
+            return 0;
+        }
+        for (int i = 0; i < ECount((int*)table->unk8); i++) {
+            CASLockEntry entry = table->At(i);
+            if (entry.unkC != (short)choice) {
+                continue;
+            }
+            if (entry.unk8 != kind) {
+                continue;
+            }
+            if (entry.unk4) {
+                if (adult != 1) {
+                    continue;
+                }
+            } else {
+                if (adult != 0) {
+                    continue;
+                }
+            }
+            if (entry.unk5) {
+                if (male != 1) {
+                    continue;
+                }
+            } else {
+                if (male != 0) {
+                    continue;
+                }
+            }
+            return 1;
+        }
+    }
+    return 0;
 }

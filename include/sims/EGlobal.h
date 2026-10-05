@@ -28,6 +28,7 @@ public:
     Unk800669ACResult fn_8006670C(const char* format, ...);
     void fn_80068DE8(Unk80340120Resource*, Unk8016BC18*);
     void fn_800690E0(int);
+    int fn_800690B0(int);
 
     Unk800053D4Owner* GetUnk9C(int player) { return unk9C[player]; }
     void* GetUnk90() { return unk90; }
@@ -51,7 +52,9 @@ public:
     struct Unk8003C95C* unkEC;    // default font
     char unkF0[0x118 - 0xF0];
     struct EGlobalUnk118* unk118;
-    char unk11C[0x170 - 0x11C];
+    char unk11C[0x14C - 0x11C];
+    int unk14C;                   // everything unlocked
+    char unk150[0x170 - 0x150];
     int unk170;
     char unk174[0x17C - 0x174];
     int unk17C;

@@ -57,6 +57,7 @@ struct Unk80156438 {
     void fn_801569F8(int, int, const EVec3& scale);
     void fn_8015B044(ERC* rc, Unk8033FF34Resource* model, const EMat4* transform); // draw
     void fn_80159994(int, unsigned int animationId);
+    float fn_8015A82C(int);
     void SetUnk54(float value) { unk54 = value; }
     char unk0[0x54];
     float unk54;
@@ -73,6 +74,9 @@ struct Unk800226F0 {
     void fn_8002196C(int slot);
 };
 
+struct CASAnimStep;
+struct Unk801800FC;
+
 // The sim being shown: its model, outfit resources and current choices.
 // 0x19C bytes. The class name is provisional.
 class Unk80018374 {
@@ -86,6 +90,7 @@ public:
     void fn_8001A908(ERC* rc, float turn, int); // draw
     void fn_8001AB8C(unsigned int animationId);
     int fn_8001AC00();
+    int fn_8001B378(CASAnimStep** steps, unsigned int step, int which);
     void fn_8001AC88();
     void fn_8001AE1C(int, CASTargetUnk533C* selectors);
     void fn_8001B850(int slot);
@@ -101,8 +106,8 @@ public:
     void fn_8001D6D8(ERC* rc); // draw the shadow
     int fn_8001DB38(int slot, int choice, int);
     void fn_8001E6E8(int, int);
-    int fn_8001E794(int, int, int slot, int choice);
-    int fn_8001E9D8(int, int, int slot, signed char choice); // true when the slot's choice is locked
+    int fn_8001E794(int adult, int male, int slot, int choice); // true when the choice is still locked
+    int fn_8001E9D8(int adult, int male, int slot, int choice); // true when the choice starts out locked
     void SetUnk154(EVec3 position) { unk154 = position; }
 
     int unk0;
@@ -111,9 +116,14 @@ public:
     int unkC;
     int unk10;
     int unk14;
-    char unk18[0x2C - 0x18];
+    int unk18;
+    int unk1C;
+    float unk20;
+    int unk24;
+    unsigned int unk28;   // animation being loaded
     int unk2C;
-    char unk30[0x38 - 0x30];
+    unsigned int unk30;   // current step
+    int unk34;
     int unk38;
     int unk3C;
     int unk40; // which side the sim is seen from
@@ -141,7 +151,8 @@ public:
     EVec3 unk154; // position in the line-up
     char unk160[0x16C - 0x160];
     Unk801CC464 unk16C;
-    char unk188[0x194 - 0x188];
+    char unk188[0x190 - 0x188];
+    Unk801800FC* unk190;  // data set
     int** unk194;         // nine lists of choices, one per slot kind
     unsigned int unk198;  // animation waiting for its resource to load
 };
@@ -158,6 +169,10 @@ EMat4& fn_80015070(EMat4& dst, const EMat4& src);
 extern "C" int fn_801115C4(); // rand
 void fn_800183D0();
 
+// Element of a counted array; going through this inline accessor is what puts
+// the array pointer first in the indexed load.
+inline unsigned int& EAt(unsigned int* array, int index) { return array[index]; }
+
 // Number of entries in one of the engine's counted arrays (the count is kept
 // in the word before the data).
 inline int ECount(const int* array) {
@@ -167,6 +182,107 @@ inline int ECount(const int* array) {
     }
     return count;
 }
+
+// Data set resource with named nodes.
+struct Unk801800FC {
+    int fn_801800FC(const char* name);
+    int Find(const char* name) { return fn_801800FC(name); }
+    unsigned int** fn_8018021C(int node, const char* name);
+    unsigned int** Get(int node, const char* name) { return fn_8018021C(node, name); }
+};
+struct Unk8037D948 {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual int vfn23(int word, int); // a 16-bit word of the unlock flags
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26();
+    virtual void vfn27();
+    virtual void vfn28();
+    virtual void vfn29();
+    virtual void vfn30();
+    virtual void vfn31();
+    virtual void vfn32();
+    virtual void vfn33();
+    virtual void vfn34();
+    virtual void vfn35();
+    virtual void vfn36();
+    virtual void vfn37();
+    virtual void vfn38();
+    virtual void vfn39();
+    virtual void vfn40();
+    virtual void vfn41();
+    virtual void vfn42();
+    virtual void vfn43();
+    virtual void vfn44();
+    virtual void vfn45();
+    virtual void vfn46();
+    virtual void vfn47();
+    virtual void vfn48();
+    virtual void vfn49();
+    virtual void vfn50();
+    virtual void vfn51();
+    virtual void vfn52();
+    virtual void vfn53();
+    virtual void vfn54();
+    virtual void vfn55();
+    virtual void vfn56();
+    virtual void vfn57();
+    virtual void vfn58();
+    virtual void vfn59();
+    virtual void vfn60();
+    virtual void vfn61();
+    virtual void vfn62();
+    virtual void vfn63();
+    virtual void* vfn64();
+};
+extern Unk8037D948* lbl_8037D948;
+
+// One entry of the "Bustin Out Unlockables" table: a choice of one slot kind
+// that starts out locked for one gender and age.
+struct CASLockEntry {
+    int unk0;
+    unsigned char unk4; // adult
+    unsigned char unk5; // male
+    int unk8;           // slot kind
+    short unkC;         // choice
+};
+struct CASLockTable {
+    int unk0;
+    int unk4;
+    CASLockEntry* unk8;
+    CASLockEntry& At(int index) { return unk8[index]; }
+};
+// One step of the body-shape animation sequence (0x18 bytes).
+struct CASAnimStep {
+    unsigned int unk0;  // animation to the next step
+    unsigned int* unk4;
+    unsigned int unk8;  // animation to the previous step
+    float unkC;
+    float unk10;
+    unsigned int unk14; // animation last started from here
+};
+inline CASAnimStep& EStepAt(CASAnimStep* steps, unsigned int index) { return steps[index]; }
 
 // Resource manager used for the sim's animations.
 struct Unk8033F3D8 {

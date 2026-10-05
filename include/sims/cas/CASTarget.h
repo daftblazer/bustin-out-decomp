@@ -101,84 +101,10 @@ struct Unk8037D988 {
     virtual int vfn14(int id);
 };
 extern Unk8037D988* lbl_8037D988;
-struct Unk8037D948 {
-    virtual void vfn1();
-    virtual void vfn2();
-    virtual void vfn3();
-    virtual void vfn4();
-    virtual void vfn5();
-    virtual void vfn6();
-    virtual void vfn7();
-    virtual void vfn8();
-    virtual void vfn9();
-    virtual void vfn10();
-    virtual void vfn11();
-    virtual void vfn12();
-    virtual void vfn13();
-    virtual void vfn14();
-    virtual void vfn15();
-    virtual void vfn16();
-    virtual void vfn17();
-    virtual void vfn18();
-    virtual void vfn19();
-    virtual void vfn20();
-    virtual void vfn21();
-    virtual void vfn22();
-    virtual void vfn23();
-    virtual void vfn24();
-    virtual void vfn25();
-    virtual void vfn26();
-    virtual void vfn27();
-    virtual void vfn28();
-    virtual void vfn29();
-    virtual void vfn30();
-    virtual void vfn31();
-    virtual void vfn32();
-    virtual void vfn33();
-    virtual void vfn34();
-    virtual void vfn35();
-    virtual void vfn36();
-    virtual void vfn37();
-    virtual void vfn38();
-    virtual void vfn39();
-    virtual void vfn40();
-    virtual void vfn41();
-    virtual void vfn42();
-    virtual void vfn43();
-    virtual void vfn44();
-    virtual void vfn45();
-    virtual void vfn46();
-    virtual void vfn47();
-    virtual void vfn48();
-    virtual void vfn49();
-    virtual void vfn50();
-    virtual void vfn51();
-    virtual void vfn52();
-    virtual void vfn53();
-    virtual void vfn54();
-    virtual void vfn55();
-    virtual void vfn56();
-    virtual void vfn57();
-    virtual void vfn58();
-    virtual void vfn59();
-    virtual void vfn60();
-    virtual void vfn61();
-    virtual void vfn62();
-    virtual void vfn63();
-    virtual void* vfn64();
-};
-extern Unk8037D948* lbl_8037D948;
 extern int lbl_8037C3F4;
 void fn_801DA828(void*, Unk8037D94C* file);
 void fn_800620CC(short* choices, int preset);
 
-// Data set resource with named nodes.
-struct Unk801800FC {
-    int fn_801800FC(const char* name);
-    int Find(const char* name) { return fn_801800FC(name); }
-    unsigned int** fn_8018021C(int node, const char* name);
-    unsigned int** Get(int node, const char* name) { return fn_8018021C(node, name); }
-};
 
 // The renderer: screen size in pixels, and the texture cache.
 struct CASScreenInfoBase {

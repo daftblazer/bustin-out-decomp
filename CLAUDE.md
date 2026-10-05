@@ -265,3 +265,11 @@ Single-line commit messages, no co-author or tool attribution.
     the original evaluates the branchy one first: put it in a local before the call.
   - `EMat4::SetPos(EVec3(x, y, z))` writes a temporary and then copies it float by float into row 3
     (placement-new copy construction), like `SetRow3`.
+  - Indexed loads `lwzx rD, rBase, rIndex` with the array pointer first come from an inline accessor
+    (`T& At(int i) { return data[i]; }`); plain `data[i]` puts the index register first.
+  - Two calls on the same member pointer that reload it between them (`lwz r3, off(r30)` twice) are two
+    statements; nesting one call inside the other's arguments caches the pointer in a saved register.
+  - `if (flag) { if (x != 1) continue; } else { if (x != 0) continue; }` gives `cmpwi 1; b; cmpwi 0; bne`
+    (the branches merge); `flag ? x == 1 : x == 0` keeps two separate branches.
+  - A bit test whose mask is computed before a call (`li r30,1; slw` ... `and.`) needs the mask in a local;
+    written inline it becomes a shift of the tested value and `andi. 1`.
