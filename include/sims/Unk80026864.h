@@ -20,7 +20,7 @@ public:
     virtual void vfn3();
 };
 
-// Singly linked list of pointers with a count and an "owns its items" flag.
+// Singly linked list of pointers (last node, first node, "owns its items" flag).
 // It shares its clearing function (0x801B4760) with the screen objects' child list.
 struct Unk80026864Node {
     void* item;
@@ -29,20 +29,23 @@ struct Unk80026864Node {
 struct Unk80026864List {
     Unk80026864List() {
         head = 0;
-        count = 0;
+        tail = 0;
         owns = 1;
     }
     ~Unk80026864List() { fn_801B4760(); }
     void fn_801B4760();                 // clear
     void Clear() {
-        if (count) {
+        if (tail) {
             fn_801B4760();
         }
     }
     void fn_801B4600(void* item);       // append
     int fn_801B484C(void* item);        // contains
 
-    int count;
+    Unk80026864Node* Tail() const { return tail; }
+    Unk80026864Node* Head() const { return head; }
+
+    Unk80026864Node* tail;
     Unk80026864Node* head;
     int owns;
 };
@@ -74,6 +77,11 @@ public:
     void fn_80026C78();                                // create the cursor meshes, load resources
     void fn_8002775C(int value);
     void fn_80027780();                                // release everything
+    int fn_80027BF0();                                 // confirm button, selection of several
+    int fn_80027D24();                                 // confirm button, single selection
+    void fn_80027FCC(struct Unk800053D4Inner* object);
+    void fn_8002A0A8();
+    void fn_8002D1D0();
     int fn_80027AD8();                                 // run the current state's handler
     void fn_80027EAC();                                // move the cursor to the player's sim
     int fn_800290B0();
@@ -95,6 +103,7 @@ struct Unk802E5B28 {
 };
 
 void fn_800266C0(int* id);
+void fn_800266EC(Unk800053D4Inner* object, Unk80026864List* out);
 void fn_8002ECE8(void* arg);
 int fn_8002ED14(int arg);
 

@@ -1,12 +1,115 @@
 #include "sims/Unk80026864.h"
 #include "sims/cas/CASSim.h"
 #include "sims/cas/CASWidgets.h"
+#include "sims/cas/CASSelectors.h"
+#include "engine/EController.h"
 
 extern float lbl_8037BFC8;
 struct Unk8002FD24 {
     void fn_8002FD24();
 };
 int fn_80068758(int arg);
+
+// Interface returned by fn_801FD05C: vtable pointer at 4.
+struct Unk801FD05CResult {
+    int unk0;
+    virtual void vfn1();
+    virtual Unk800053D4Inner** vfn2();   // first contained object
+    virtual Unk800053D4Inner** vfn3();   // next
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual int vfn9();
+};
+// The part of a game object at +0x20: vtable pointer at 0x1C, slot 19 gives its model.
+struct Unk801FD05C {
+    char unk0[0x1C];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void* vfn19();
+};
+Unk801FD05CResult* fn_801FD05C(Unk801FD05C* object, int kind);
+inline Unk801FD05C* GetUnk20(Unk800053D4Inner* object) { return *(Unk801FD05C**)((char*)object + 0x20); }
+
+// True for four of the camera's modes.
+inline bool IsBuildCameraMode() {
+    int mode = *(int*)((char*)lbl_802E6700.unkBC + 0x1F0);
+    return mode == 8 || mode == 10 || mode == 11 || mode == 9;
+}
+
+struct Unk8037BFA8 {
+    char unk0[0x468];
+    int unk468;
+};
+extern Unk8037BFA8* lbl_8037BFA8;
+struct Unk8004E8C8 {
+    int fn_8004E8C8(Unk80026864List* selection);
+    int fn_8004ED28();
+};
+Unk800053D4Inner* fn_80080418(void* item);
+struct Unk8037D990B {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26();
+    virtual void vfn27();
+    virtual void vfn28();
+    virtual void vfn29();
+    virtual void vfn30();
+    virtual void vfn31();
+    virtual void vfn32();
+    virtual void vfn33();
+    virtual void vfn34(int);
+};
+struct Unk8004AD08 {
+    struct Unk8007FFE8* unk0;
+    struct Unk8007FFE8* unk4;
+    void fn_8004AD08();
+};
+struct Unk8007FFE8 {
+    void fn_8007FFE8(int);
+};
+extern void* lbl_8037D990;
 
 // Callback table copied over the engine's defaults (0x30 bytes at 0x802D1ED8).
 struct Unk802DBAEC {
@@ -39,6 +142,39 @@ EVec3 lbl_802E5DE0(0.0f, 0.0f, 0.0f);
 // 0x800266C0
 void fn_800266C0(int* id) {
     lbl_802E6700.fn_800673EC(*id);
+}
+
+// 0x800266EC
+// Collects the models of an object (or of everything it contains) into a list.
+// NON_MATCHING: 3 instructions. The original keeps the loop's iterator in r30 across
+// the calls; here it stays in r3. Two variants tried.
+void fn_800266EC(Unk800053D4Inner* object, Unk80026864List* out) {
+    Unk800053D4Inner** it;
+    out->fn_801B4760();
+    if (object) {
+        if (object->vfn124()) {
+            Unk801FD05CResult* group = fn_801FD05C(GetUnk20(object), 3);
+            if (group->vfn9()) {
+                void* model = GetUnk20(object)->vfn19();
+                if (model) {
+                    out->fn_801B4600(model);
+                }
+            } else {
+                for (it = group->vfn2(); it; it = group->vfn3()) {
+                    void* model = GetUnk20(*it)->vfn19();
+                    int present = out->fn_801B484C(model);
+                    if (model != 0 && present == 0) {
+                        out->fn_801B4600(model);
+                    }
+                }
+            }
+        } else {
+            void* model = GetUnk20(object)->vfn19();
+            if (model) {
+                out->fn_801B4600(model);
+            }
+        }
+    }
 }
 
 // 0x80026864
@@ -224,7 +360,7 @@ void Unk80026864::fn_8002775C(int value) {
 
 // Deletes the objects a list owns, then empties it.
 inline void DeleteAll(Unk80026864List& list) {
-    if (list.count) {
+    if (list.tail) {
         Unk80026864Node* node = list.head;
         while (EIsValid(node)) {
             Unk8002FD24* item = (Unk8002FD24*)node->item;
@@ -351,6 +487,59 @@ void Unk80026864::vfn4(const EVec3& position) {
     ((UnkTargetBase*)unkC)->vfn7(this, unk38 == 0 ? 0x15 : 0x16);
 }
 
+// 0x80027BF0
+int Unk80026864::fn_80027BF0() {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    int button = IsBuildCameraMode() ? 5 : 6;
+    if (unk84 != 1 && controller->fn_8015E0F8(button)) {
+        if (lbl_8037BFA8->unk468 != 2) {
+            fn_8002A0A8();
+            int ok = ((Unk8004E8C8*)unkC8)->fn_8004E8C8(&unk148);
+            if (ok == 0) {
+                lbl_8037D96C->fn_8006186C(0x3804219F);
+                unk84 = ok;
+                return 0;
+            }
+        } else {
+            fn_8002D1D0();
+        }
+        lbl_8037D96C->fn_8006186C(0x7D99927F);
+        ((UnkTargetBase*)unkC)->vfn7(this, 0x13);
+        unk84 = 1;
+        return 1;
+    }
+    return 0;
+}
+
+// 0x80027D24
+// NON_MATCHING: 4 instructions. The selection list's address is in r4 in the original
+// and r9 here, and the final store of the state and `li r3,1` are exchanged. Four
+// variants tried.
+int Unk80026864::fn_80027D24() {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    int button = IsBuildCameraMode() ? 5 : 6;
+    if (unk84 != 1 && controller->fn_8015E0F8(button)) {
+        int state;
+        fn_8002A0A8();
+        if (unk148.Tail() != 0 && unk148.Tail() == unk148.Head()) {
+            vfn7((UnkTargetBase*)fn_80080418(unk148.tail->item)->vfn111(), 0x1C);
+            state = 0;
+        } else {
+            int ok = ((Unk8004E8C8*)unkC8)->fn_8004ED28();
+            if (ok == 0) {
+                lbl_8037D96C->fn_8006186C(0x3804219F);
+                unk84 = ok;
+                return 0;
+            }
+            lbl_8037D96C->fn_8006186C(0x7D99927F);
+            state = 1;
+        }
+        unk84 = state;
+        return 1;
+    }
+    return 0;
+}
+
 // 0x80027E84
 void Unk80026864::vfn18(int flags, int set) {
     if (set) {
@@ -375,6 +564,26 @@ void Unk80026864::fn_80027EAC() {
             unkA0.Set(TileToWorld(tile.x, global->unk7C), TileToWorld(tile.y, global->unk80), 0.05f);
             unk94 = unkA0;
         }
+    }
+}
+
+// 0x80027FCC
+void Unk80026864::fn_80027FCC(Unk800053D4Inner* object) {
+    ((Unk8037D990B*)lbl_8037D990)->vfn34(0);
+    Unk8004AD08* view = (Unk8004AD08*)lbl_802E67B0.unk0;
+    if (view->unk4) {
+        view->unk4->fn_8007FFE8(0);
+    }
+    Unk801FD05CResult* found;
+    if (object) {
+        found = fn_801FD05C(GetUnk20(object), 0xB);
+    } else {
+        found = 0;
+    }
+    if (found) {
+        view->fn_8004AD08();
+    } else if (lbl_802E6700.fn_80068D9C(object)) {
+        view->fn_8004AD08();
     }
 }
 

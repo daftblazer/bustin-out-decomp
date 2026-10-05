@@ -30,6 +30,7 @@ public:
     void fn_800690E0(int);
     void fn_80068054(int, int);
     void fn_800673EC(int);
+    int fn_80068D9C(void* object);
     int fn_800690B0(int);
 
     Unk800053D4Owner* GetUnk9C(int player) { return unk9C[player]; }
