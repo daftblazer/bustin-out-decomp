@@ -7,6 +7,7 @@
 
 class ESimsCam;
 struct SimsAppUnk2B50Base;
+struct ESimsCamUnkBC;
 struct Unk80340120Resource;
 struct Unk8016BC18;
 
@@ -38,9 +39,9 @@ public:
     void* unk90;
     char unk94[0xA4 - 0x94];
     int unkA4;
-    ESimsCam* unkA8[4];           // camera per player
+    void* unkA8[4];               // per player, set from ESimsCam+0x324
     char unkB8[0xBC - 0xB8];
-    SimsAppUnk2B50Base* unkBC;
+    ESimsCamUnkBC* unkBC;
     char unkC0[0x170 - 0xC0];
     int unk170;
     char unk174[0x214 - 0x174];
