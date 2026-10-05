@@ -477,6 +477,8 @@ extern Unk8033F3D8 lbl_8033F3D8;
 
 // Lighting for the sim: ambient, then direction and colour of three directional
 // lights, then position and colour of three point lights.
+extern EVec3 lbl_802E5968; // start-up position
+extern EVec3 lbl_802E5974; // start-up scale
 extern EVec3 lbl_802E5980;
 extern EVec3 lbl_802E598C, lbl_802E5998;
 extern EVec3 lbl_802E59A4, lbl_802E59B0;

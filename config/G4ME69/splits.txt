@@ -52,3 +52,6 @@ sims/cas/CASSelectors.cpp:
 sims/cas/CASSim.cpp:
 	.text       start:0x80018310 end:0x8001EE8C
 	.ctors      start:0x80291CB0 end:0x80291CB4
+	.rodata     start:0x80294960 end:0x802957E0
+	.bss        start:0x802E5968 end:0x802E5A8C
+	.sdata      start:0x8037B488 end:0x8037B498

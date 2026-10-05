@@ -2,6 +2,29 @@
 
 #include "sims/EGlobal.h"
 
+// Start-up position and scale of the sim, then its lighting (see CASSim.h), then
+// the remembered choices of the four body types. Built by the static
+// initializer at 0x8001EBC0.
+EVec3 lbl_802E5968(0.341f, 1.165f, 0.0f);
+EVec3 lbl_802E5974(1.0f, 1.0f, 1.0f);
+EVec3 lbl_802E5980(0.2f, 0.2f, 0.1f);
+EVec3 lbl_802E598C(-1.311f, 0.208f, -0.371f);
+EVec3 lbl_802E5998(0.8f, 0.8f, 1.5f);
+EVec3 lbl_802E59A4(0.443f, -0.748f, -0.775f);
+EVec3 lbl_802E59B0(1.2f, 1.2f, 0.8f);
+EVec3 lbl_802E59BC(0.794f, 0.417f, -0.627f);
+EVec3 lbl_802E59C8(0.4f, 0.4f, 0.6f);
+EVec3 lbl_802E59D4(-0.541f, 0.801f, 1.551f);
+EVec3 lbl_802E59E0(0.1f, 0.1f, 0.05f);
+EVec3 lbl_802E59EC(0.541f, 0.477f, 0.563f);
+EVec3 lbl_802E59F8(0.1f, 0.1f, 0.05f);
+EVec3 lbl_802E5A04(0.696f, 1.666f, 0.5f);
+EVec3 lbl_802E5A10(0.6f, 0.6f, 0.8f);
+Unk801CC464 lbl_802E5A1C;
+Unk801CC464 lbl_802E5A38;
+Unk801CC464 lbl_802E5A54;
+Unk801CC464 lbl_802E5A70;
+
 // 0x80018310
 Unk80018374::Unk80018374(int a, int b, Unk8001EE8C* owner) {
     unk0 = 0;
