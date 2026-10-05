@@ -67,7 +67,7 @@ struct ERC {
     virtual void vfn19();
     virtual void vfn20();
     virtual void vfn21();
-    virtual void vfn22();
+    virtual void vfn22(void* object);                 // draw a recorded object
     virtual void vfn23();
     virtual void vfn24();
     virtual void vfn25();

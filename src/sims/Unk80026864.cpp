@@ -114,6 +114,12 @@ struct Unk8004AD08 {
 struct Unk8007FFE8 {
     void fn_8007FFE8(int);
 };
+// The same view object's origin.
+struct Unk8004AD08B {
+    char unk0[0x34];
+    float unk34;
+    float unk38;
+};
 extern void* lbl_8037D990;
 
 // Object manager (0x8037D98C): slot 18 finds an object by id.
@@ -320,6 +326,20 @@ struct Unk8037D994 {
 };
 extern Unk8037D994* lbl_8037D994;
 int fn_80028AA4(Unk800053D4Inner* object);
+
+// The camera object the cursor follows (ESimsCam); only what is used here.
+struct Unk80026864Cam {
+    float fn_8000562C();          // ESimsCam::GetCurZoomRatio, 0..1 (ESimsCam.h cannot be
+                                  // included next to CASSim.h yet)
+    char unk0[0x328];
+    int unk328;                   // camera mode
+};
+extern float lbl_8037B4A4;
+extern float lbl_8037B4A8;
+void fn_800686D4(Unk800053D4Inner* object);
+struct Unk80173D58Alloc {
+    EMat4* fn_80173D58(int size, int align);
+};
 
 // Callback table copied over the engine's defaults (0x30 bytes at 0x802D1ED8).
 struct Unk802DBAEC {
@@ -1160,6 +1180,121 @@ void Unk80026864::fn_8002A0F4(void* definition) {
 void Unk80026864::fn_8002A1BC(ERC* rc) {
     if (unk84 == 1 && IsActive(unkC8)) {
         unkC8->vfn3(rc);
+    }
+}
+
+// 0x8002A234
+// Draws the tile cursor under the pointer (or, while dragging, at the grabbed spot).
+// NON_MATCHING: not yet compared.
+void Unk80026864::fn_8002A234(ERC* rc) {
+    if (unk38 == 1 && !lbl_802E6700.fn_800655C4()) {
+        return;
+    }
+    if (!(unk18 & 2)) {
+        return;
+    }
+    lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    IsBuildCameraMode();
+    if (unk84 == 1 && IsActive(unkC8)) {
+        return;
+    }
+    if (((Unk80026864Cam*)unkBC)->unk328 == 4) {
+        return;
+    }
+    ((Unk80181824*)unkFC)->fn_80181824(rc);
+    float size = ((Unk80026864Cam*)unkBC)->fn_8000562C() * (2.5f - 1.0f) + 1.0f;
+    EMat4* matrix = ((Unk80173D58Alloc*)rc)->fn_80173D58(0x40, 0x20);
+    matrix->fn_801B2AFC();
+    EVec3 scale(1.0f, 1.0f, size);
+    matrix->fn_801B2BA4(&scale);
+    if (unk84 == 2) {
+        EVec2 at = fn_8002BD98();
+        matrix->m[3][0] = at.x;
+        matrix->m[3][2] = 0.1f;
+        matrix->m[3][1] = at.y;
+        rc->vfn28(matrix, 1);
+        rc->vfn22(unkC4);
+    } else if (unk84 != 4 && !(unk84 == 3 || unk84 == 5)) {
+        matrix->m[3][0] = unkA0.x;
+        matrix->m[3][2] = 0.0f;
+        matrix->m[3][1] = unkA0.y;
+        rc->vfn28(matrix, 1);
+        rc->vfn22(unkC4);
+    }
+}
+
+// 0x8002A474
+// Draws every piece of a model with its own texture.
+// NON_MATCHING: not yet compared.
+void fn_8002A474(ERC* rc, Unk8033FF34Resource* model) {
+    for (int i = 0; i < model->unk24; i++) {
+        EModelGroup* group = &model->unk20[i];
+        for (int j = 0; j < group->unk4; j++) {
+            Unk80184C00* piece = &group->unk0[j];
+            piece->unk4->fn_80181824(rc);
+            rc->vfn54(0, 1, 0, 0);
+            piece->fn_80184C00(rc);
+        }
+    }
+}
+
+// 0x8002B9D0
+float Unk80026864::fn_8002B9D0() {
+    return ((Unk80026864Cam*)unkBC)->fn_8000562C() * (lbl_8037B4A8 - lbl_8037B4A4) + lbl_8037B4A4;
+}
+
+// 0x8002BA04
+// Turns the held object a quarter turn.
+// NON_MATCHING: not yet compared.
+void Unk80026864::fn_8002BA04(int forward) {
+    Unk801FD05CResult* part = unkF0;
+    Unk800053D4Inner* object = part->vfn8b();
+    int direction = object->vfn88(1);
+    int next;
+    if (forward) {
+        direction += 2;
+        if (direction >= 0) {
+            next = 0;
+            if (direction <= 6) {
+                next = direction;
+            }
+        } else {
+            next = 6;
+        }
+    } else {
+        direction -= 2;
+        if (direction < 0) {
+            next = 6;
+        } else {
+            next = 0;
+            if (direction <= 6) {
+                next = direction;
+            }
+        }
+    }
+    part->vfn10(next);
+    lbl_8037D96C->fn_8006186C(0x0C21C2A9);
+    ETilePair tile;
+    part->Object()->vfn114(&tile);
+    if (part->Object()->vfn49(&tile, 1, 0, 0)) {
+        part->Object()->vfn50(&tile, 1, 0, 0);
+    }
+    fn_800686D4(object);
+}
+
+// 0x8002BB64
+// The tile under the cursor, rounded to the nearest.
+// NON_MATCHING: not yet compared.
+void Unk80026864::fn_8002BB64(int* tileX, int* tileY) {
+    Unk8004AD08B* view = (Unk8004AD08B*)lbl_802E67B0.unk0;
+    EVec2 offset(unkA0.x - view->unk34, unkA0.y - view->unk38);
+    *tileX = (int)offset.x;
+    *tileY = (int)offset.y;
+    if (offset.x - (float)(int)offset.x >= 0.5f) {
+        (*tileX)++;
+    }
+    if (offset.y - (float)(int)offset.y >= 0.5f) {
+        (*tileY)++;
     }
 }
 

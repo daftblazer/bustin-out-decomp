@@ -206,7 +206,9 @@ struct EVertex {
     char unk40[0x10];
 };
 struct Unk80184C00 {
-    char unk0[0x24];
+    int unk0;
+    struct Unk80181824* unk4;   // texture
+    char unk8[0x24 - 0x8];
     void fn_80184C00(ERC* rc);
 };
 struct Unk80182DE0 {

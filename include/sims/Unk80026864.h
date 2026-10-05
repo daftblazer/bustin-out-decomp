@@ -89,6 +89,11 @@ public:
     int fn_80028F30();
     void fn_8002A0F4(void* definition);
     void fn_8002A1BC(struct ERC* rc);
+    void fn_8002A234(struct ERC* rc);
+    float fn_8002B9D0();
+    void fn_8002BA04(int forward);
+    void fn_8002BB64(int* tileX, int* tileY);
+    EVec2 fn_8002BD98();
     void fn_8002BE48(struct Unk800053D4Inner* object);
     int fn_80028860();
     void* fn_80028E84();
