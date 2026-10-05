@@ -11,6 +11,7 @@
 
 struct Unk80182DE0Inner;
 struct ETextureLike;
+class Unk80018374;
 
 // The sim model shown on the Create-A-Sim screen (the source file at
 // 0x80018310) and the types it shares with the screen.
@@ -66,7 +67,7 @@ struct Unk80156438 {
     void fn_8015AB78(float);
     float fn_8015A82C(int);
     void SetUnk54(float value) { unk54 = value; }
-    void SetCallback(void (*callback)(), void* owner) {
+    void SetCallback(void (*callback)(Unk80018374*, int, int, EMat4*), void* owner) {
         unk6C = owner;
         unk68 = callback;
     }
@@ -81,7 +82,7 @@ struct Unk80156438 {
     char unk1C[0x54 - 0x1C];
     float unk54;
     char unk58[0x68 - 0x58];
-    void (*unk68)();     // callback
+    void (*unk68)(Unk80018374*, int, int, EMat4*); // callback applied to the bone matrices
     void* unk6C;         // its owner
     virtual ~Unk80156438();
 
@@ -100,6 +101,8 @@ struct Unk800226F0 {
     void fn_80021928(int slot);
     void fn_8002196C(int slot);
 };
+
+class Unk80018374;
 
 // Narrow string holder (constructor 0x801B9FEC); the destructor frees the text.
 struct Unk801B9FEC {
@@ -336,11 +339,12 @@ EMat4& fn_80015070(EMat4& dst, const EMat4& src);
 extern "C" int fn_801115C4(); // rand
 void fn_80169D7C();
 void fn_801B2680();
-extern "C" void* fn_80111AE8(void* dst, const void* src, unsigned int count); // memcpy
+extern "C" void* fn_80111AE8(void* dst, const void* src, ...); // memcpy (called without a full prototype)
 void fn_80156964(const EVec3* position, const EVec3* rotation, const EVec3* scale, EMat4* out);
 extern int lbl_8037BFBC;
 void fn_800183D0();
-void fn_8001D2C0(); // animation callback (signature unknown)
+class Unk80018374;
+void fn_8001D2C0(Unk80018374* sim, int, int, EMat4* bones); // per-frame bone callback
 
 // Stores a value through a pointer unless it is null. In the original this is
 // probably a construct-in-place helper whose allocation function may return

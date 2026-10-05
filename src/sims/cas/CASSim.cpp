@@ -758,6 +758,75 @@ ETextureLike* Unk80018374::fn_8001D04C() {
     return copy;
 }
 
+// 0x8001D2C0
+// Bone callback: for a heavy or skinny sim, scales the torso, limb and head
+// bones by the table for its body type.
+// NON_MATCHING: same length (262), 36 differ: before each of the 18 scale calls the
+// original sets up the vector argument (r4) ahead of the bone address (r3); here the
+// order is reversed. Four variants tried, including an inline wrapper.
+void fn_8001D2C0(Unk80018374* sim, int, int, EMat4* bones) {
+    if (sim->unk16C.unk8[0] != 0) {
+        Unk801800FC* data = (Unk801800FC*)lbl_803401C4.fn_80177628(0xA173A1EE, 0, 0);
+        int node = data->fn_801800FC("BoneScaleValues");
+        float* scales;
+        switch (sim->unk16C.unk8[0]) {
+        case 1:
+        if (sim->unk16C.unk4) {
+            if (sim->unk16C.unk0) {
+                scales = (float*)data->fn_8018021C(node, "HeavyAM");
+            } else {
+                scales = (float*)data->fn_8018021C(node, "HeavyAF");
+            }
+        } else {
+            if (sim->unk16C.unk0) {
+                scales = (float*)data->fn_8018021C(node, "HeavyCM");
+            } else {
+                scales = (float*)data->fn_8018021C(node, "HeavyCF");
+            }
+        }
+        break;
+        case 2:
+        if (sim->unk16C.unk4) {
+            if (sim->unk16C.unk0) {
+                scales = (float*)data->fn_8018021C(node, "SkinnyAM");
+            } else {
+                scales = (float*)data->fn_8018021C(node, "SkinnyAF");
+            }
+        } else {
+            if (sim->unk16C.unk0) {
+                scales = (float*)data->fn_8018021C(node, "SkinnyCM");
+            } else {
+                scales = (float*)data->fn_8018021C(node, "SkinnyCF");
+            }
+        }
+        break;
+        default:
+            fn_801767FC(data);
+            return;
+        }
+        bones[2].Scale(EVec3(scales[0], scales[1], scales[2]));
+        bones[3].Scale(EVec3(scales[3], scales[4], scales[5]));
+        bones[12].Scale(EVec3(scales[6], scales[7], scales[8]));
+        bones[13].Scale(EVec3(scales[9], scales[10], scales[11]));
+        bones[14].Scale(EVec3(scales[12], scales[13], scales[14]));
+        bones[15].Scale(EVec3(scales[15], scales[16], scales[17]));
+        bones[16].Scale(EVec3(scales[18], scales[19], scales[20]));
+        bones[4].Scale(EVec3(scales[21], scales[22], scales[23]));
+        bones[8].Scale(EVec3(scales[21], scales[22], scales[23]));
+        bones[5].Scale(EVec3(scales[24], scales[25], scales[26]));
+        bones[9].Scale(EVec3(scales[24], scales[25], scales[26]));
+        bones[6].Scale(EVec3(scales[27], scales[28], scales[29]));
+        bones[10].Scale(EVec3(scales[27], scales[28], scales[29]));
+        bones[39].Scale(EVec3(scales[30], scales[31], scales[32]));
+        bones[47].Scale(EVec3(scales[30], scales[31], scales[32]));
+        bones[40].Scale(EVec3(scales[33], scales[34], scales[35]));
+        bones[48].Scale(EVec3(scales[33], scales[34], scales[35]));
+        bones[41].Scale(EVec3(scales[36], scales[37], scales[38]));
+        bones[49].Scale(EVec3(scales[36], scales[37], scales[38]));
+        fn_801767FC(data);
+    }
+}
+
 // 0x8001D6D8
 // Draws the sim's shadow with a flattened view (the same view set-up as the
 // props' shadows in CASTarget::vfn3).
