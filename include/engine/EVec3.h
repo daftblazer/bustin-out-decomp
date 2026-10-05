@@ -30,6 +30,8 @@ public:
 
     EVec3 operator-() const { return EVec3(-x, -y, -z); }
     float& operator[](int index) { return (&x)[index]; }
+    // (name invented) zeroes z, then y, then x, as the colour code's vectors are.
+    void Zero() { z = 0.0f; y = 0.0f; x = 0.0f; }
     // Cross product.
     EVec3 Cross(const EVec3& other) const {
         return EVec3(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);

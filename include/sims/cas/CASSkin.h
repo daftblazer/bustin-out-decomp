@@ -79,7 +79,7 @@ struct Unk8001EE8C {
     signed char unk407C[16];       // the same, as last applied
     char unk408C;
     int unk4090;
-    int unk4094;
+    unsigned int unk4094;         // body type, from the first head image
     int unk4098;
 };
 typedef Unk8001EE8C Unk800226F0;
@@ -104,7 +104,7 @@ inline void Unk8001EE8C::LoadSkinLayer(int slot, int layer, unsigned int texture
         unk0[slot] = (Unk80021CEC*)lbl_802E5E1C.fn_80177628(textureId, 0, 0);
         fn_80021CEC(unk0[slot], slot);
         EVec3 hsl;
-        hsl[0] = hsl[1] = hsl[2] = 0.0f;
+        hsl.Zero();
         unsigned int count = 0x100;
         if (unk0[slot]->unk3C) {
             count = 0x10;
