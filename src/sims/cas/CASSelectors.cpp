@@ -306,6 +306,59 @@ void Unk800176C0::vfn2() {
     }
 }
 
+// 0x800176C0
+// As Unk80016CF0::vfn3 with the arrows hugging the value text; dimmed when
+// not focused unless flag 0x10 is set.
+// NON_MATCHING: 10 of 290 differ, the same float-register pattern as Unk80016CF0::vfn3.
+void Unk800176C0::vfn3(ERC* rc) {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (unk18 & 8) {
+        unk58->fn_8003DBE8(rc);
+        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->unk64 = lbl_802E69C4;
+        {
+            EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+        }
+        {
+            EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+        }
+        EVec2 extent = unk58->fn_8003D550(unk54, 1, 0);
+        EColorF color;
+        if (controller->fn_8015DF98(4)) {
+            color = lbl_802E69C4;
+        } else {
+            color = lbl_802E6964;
+        }
+        unk64->fn_80181824(rc);
+        rc->vfn49(EVec2(unk2C.x + extent.x + unk4C + 0.0301f, unk2C.z - 0.016f), EVec2(1.0f, 1.0f), color, 0.0f);
+        if (controller->fn_8015DF98(3)) {
+            color = lbl_802E69C4;
+        } else {
+            color = lbl_802E6964;
+        }
+        unk60->fn_80181824(rc);
+        rc->vfn49(EVec2(unk2C.x + unk4C + 0.004f, unk2C.z - 0.016f), EVec2(1.0f, 1.0f), color, 0.0f);
+    } else {
+        unk58->fn_8003DBE8(rc);
+        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        if (unk18 & 0x10) {
+            unk58->unk64 = lbl_802E6964;
+        } else {
+            unk58->unk64 = lbl_802E69E4;
+        }
+        {
+            EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+        }
+        {
+            EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+        }
+    }
+}
+
 // 0x80017B48
 // Either direction flips between the two choices.
 void Unk80017D68::vfn2() {
@@ -346,5 +399,58 @@ void Unk80017D68::vfn2() {
     if (unk18 & 8) {
         vfn7(this, 0x41);
         vfn7(this, 0x40);
+    }
+}
+
+// 0x80017D68
+// As Unk80016CF0::vfn3 with the arrows hugging the value text; dimmed when
+// not focused unless flag 0x10 is set.
+// NON_MATCHING: 10 of 290 differ, the same float-register pattern as Unk80016CF0::vfn3.
+void Unk80017D68::vfn3(ERC* rc) {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (unk18 & 8) {
+        unk58->fn_8003DBE8(rc);
+        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->unk64 = lbl_802E69C4;
+        {
+            EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+        }
+        {
+            EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+        }
+        EVec2 extent = unk58->fn_8003D550(unk54, 1, 0);
+        EColorF color;
+        if (controller->fn_8015DF98(4)) {
+            color = lbl_802E69C4;
+        } else {
+            color = lbl_802E6964;
+        }
+        unk64->fn_80181824(rc);
+        rc->vfn49(EVec2(unk2C.x + extent.x + unk4C + 0.0301f, unk2C.z - 0.016f), EVec2(1.0f, 1.0f), color, 0.0f);
+        if (controller->fn_8015DF98(3)) {
+            color = lbl_802E69C4;
+        } else {
+            color = lbl_802E6964;
+        }
+        unk60->fn_80181824(rc);
+        rc->vfn49(EVec2(unk2C.x + unk4C + 0.005f, unk2C.z - 0.016f), EVec2(1.0f, 1.0f), color, 0.0f);
+    } else {
+        unk58->fn_8003DBE8(rc);
+        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        if (unk18 & 0x10) {
+            unk58->unk64 = lbl_802E6964;
+        } else {
+            unk58->unk64 = lbl_802E69E4;
+        }
+        {
+            EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+        }
+        {
+            EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
+            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+        }
     }
 }
