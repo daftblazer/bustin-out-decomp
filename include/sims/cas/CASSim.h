@@ -105,6 +105,7 @@ struct Unk800226F0 {
 struct Unk801B9FEC {
     Unk801B9FEC();
     Unk801B9FEC(const char* text); // 0x801BA070
+    Unk801B9FEC(const char* a, const char* b); // 0x801B9F30: the two joined
     ~Unk801B9FEC() { fn_801B9FF8(unk0); }
     void fn_801B9FF8(void*);
     void fn_801BA18C(int capacity);
@@ -112,7 +113,15 @@ struct Unk801B9FEC {
 };
 
 struct CASAnimStep;
-struct Unk801800FC;
+
+// Data set resource with named nodes.
+struct Unk801800FC {
+    void fn_8017FF7C();
+    int fn_801800FC(const char* name);
+    int Find(const char* name) { return fn_801800FC(name); }
+    unsigned int** fn_8018021C(int node, const char* name);
+    unsigned int** Get(int node, const char* name) { return fn_8018021C(node, name); }
+};
 
 // Texture object: vtable pointer at 0x24.
 struct ETextureLike {
@@ -230,6 +239,7 @@ public:
     int fn_8001B378(CASAnimStep** steps, unsigned int step, int which);
     void fn_8001AC88();
     void fn_8001AE1C(int, CASTargetUnk533C* selectors);
+    void fn_8001B53C(int slot, unsigned int modelId);
     void fn_8001B850(int slot);
     void fn_8001B8E4(int slot, int choice);
     int fn_8001BF1C(unsigned int slot); // current choice for a slot
@@ -251,6 +261,11 @@ public:
     int fn_8001E794(int adult, int male, int slot, int choice); // true when the choice is still locked
     int fn_8001E9D8(int adult, int male, int slot, int choice); // true when the choice starts out locked
     void SetUnk154(EVec3 position) { unk154 = position; }
+    // Looks up the list called `name` + `suffix`.
+    void* FindList(int list, const char* name, const char* suffix) {
+        Unk801B9FEC key(name, suffix);
+        return unk18C->fn_8018021C(list, key.unk0);
+    }
 
     int unk0;
     int unk4;
@@ -277,10 +292,17 @@ public:
     unsigned int** unk58;
     unsigned int** unk5C;
     unsigned int** unk60;
-    char unk64[0x74 - 0x64];
-    unsigned int*** unk74; // idle animation lists (by gender)
+    unsigned int** unk64; // reactions: upper body, shoes, hair, trousers
+    unsigned int** unk68;
+    unsigned int** unk6C;
+    unsigned int** unk70;
+    unsigned int*** unk74; // idle animation lists: standing, sitting
     unsigned int*** unk78;
-    char unk7C[0x90 - 0x7C];
+    CASAnimStep** unk7C;  // body-language sequences for the five personality traits
+    CASAnimStep** unk80;
+    CASAnimStep** unk84;
+    CASAnimStep** unk88;
+    CASAnimStep** unk8C;
     Unk8033FF34Resource* unk90[11]; // per-slot models (slots 1 to 11)
     Unk8033FF34Resource* unkBC;     // slot 0 model
     Unk8033FF34Resource* unkC0;     // slot 8 model
@@ -346,13 +368,6 @@ inline int ECount(const int* array) {
     return count;
 }
 
-// Data set resource with named nodes.
-struct Unk801800FC {
-    int fn_801800FC(const char* name);
-    int Find(const char* name) { return fn_801800FC(name); }
-    unsigned int** fn_8018021C(int node, const char* name);
-    unsigned int** Get(int node, const char* name) { return fn_8018021C(node, name); }
-};
 struct Unk8037D948 {
     virtual void vfn1();
     virtual void vfn2();

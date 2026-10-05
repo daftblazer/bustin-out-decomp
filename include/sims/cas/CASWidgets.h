@@ -179,6 +179,8 @@ struct Unk8033FF34Resource {
     float unk6C;
     void fn_8017CC58(ERC* rc);
     void fn_8017CBEC(ERC* rc);
+    void fn_8017D384(Unk8033FF34Resource* neighbour, float tolerance); // weld the seam shared with a neighbour
+    void fn_8017DF14();
 };
 struct Unk8033FF34 {
     Unk8033FF34Resource* fn_80177628(unsigned int id, int, int);

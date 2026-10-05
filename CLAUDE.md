@@ -273,3 +273,11 @@ Single-line commit messages, no co-author or tool attribution.
     (the branches merge); `flag ? x == 1 : x == 0` keeps two separate branches.
   - A bit test whose mask is computed before a call (`li r30,1; slw` ... `and.`) needs the mask in a local;
     written inline it becomes a shift of the tested value and `andi. 1`.
+  - A string object rebuilt in the *same* stack slot for each of several look-ups, with the result
+    stored only after the string's destructor, is an inline helper that owns the string as a local
+    (`T* Find(list, name, suffix) { String key(name, suffix); return table->Get(list, key); }`).
+    Temporaries written at each call site get a fresh slot each and store before destroying.
+  - A local object whose address sits in a saved register for a whole function is a temporary bound
+    to a `const T&` parameter (`Use(String("AM"))`), not a named local.
+  - Giving placement `operator new` an empty `throw()` makes the compiler null-check its result; that
+    breaks `EMat4::SetRow3` users, so leave it without one.

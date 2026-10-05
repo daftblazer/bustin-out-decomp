@@ -104,7 +104,7 @@ void fn_800183D0() {
 // and keeps it in r30 for the final null-checked store; the instructions around the
 // random pick are scheduled differently as a result. Four variants tried.
 void Unk80018374::fn_800198DC() {
-    int list = unk18C->fn_801800FC("CasAnimationIDList");
+    int list = unk18C->Find("CasAnimationIDList");
     unk48 = unk18C->fn_8018021C(list, "IdleAM");
     unk4C = unk18C->fn_8018021C(list, "SittingAM");
     unk50 = unk18C->fn_8018021C(list, "SitAM");
@@ -133,7 +133,7 @@ void Unk80018374::fn_800198DC() {
 // and keeps it in r30 for the final null-checked store; the instructions around the
 // random pick are scheduled differently as a result. Four variants tried.
 void Unk80018374::fn_80019AEC() {
-    int list = unk18C->fn_801800FC("CasAnimationIDList");
+    int list = unk18C->Find("CasAnimationIDList");
     unk48 = unk18C->fn_8018021C(list, "IdleAF");
     unk4C = unk18C->fn_8018021C(list, "SittingAF");
     unk50 = unk18C->fn_8018021C(list, "SitAF");
@@ -162,7 +162,7 @@ void Unk80018374::fn_80019AEC() {
 // and keeps it in r30 for the final null-checked store; the instructions around the
 // random pick are scheduled differently as a result. Four variants tried.
 void Unk80018374::fn_80019CFC() {
-    int list = unk18C->fn_801800FC("CasAnimationIDList");
+    int list = unk18C->Find("CasAnimationIDList");
     unk48 = unk18C->fn_8018021C(list, "IdleCM");
     unk4C = unk18C->fn_8018021C(list, "SittingCM");
     unk50 = unk18C->fn_8018021C(list, "SitCM");
@@ -192,7 +192,7 @@ void Unk80018374::fn_80019CFC() {
 // and keeps it in r30 for the final null-checked store; the instructions around the
 // random pick are scheduled differently as a result. Four variants tried.
 void Unk80018374::fn_80019F4C() {
-    int list = unk18C->fn_801800FC("CasAnimationIDList");
+    int list = unk18C->Find("CasAnimationIDList");
     unk48 = unk18C->fn_8018021C(list, "IdleCF");
     unk4C = unk18C->fn_8018021C(list, "SittingCF");
     unk50 = unk18C->fn_8018021C(list, "SitCF");
@@ -468,6 +468,105 @@ int Unk80018374::fn_8001B378(CASAnimStep** steps, unsigned int step, int which) 
     return 1;
 }
 
+// 0x8001B53C
+// Replaces the model in one outfit slot, then welds the seams it shares with
+// the neighbouring pieces.
+void Unk80018374::fn_8001B53C(int slot, unsigned int modelId) {
+    if (slot == 0) {
+        if (unkBC) {
+            fn_8001B850(0);
+        }
+        if (modelId) {
+            unkBC = lbl_8033FF34.fn_80177628(modelId, 0, 0);
+        }
+    } else if (slot == 8) {
+        if (unkC0) {
+            fn_8001B850(8);
+        }
+        if (modelId) {
+            unkC0 = lbl_8033FF34.fn_80177628(modelId, 0, 0);
+        }
+    } else {
+        if (unk90[slot - 1]) {
+            fn_8001B850(slot);
+        }
+        if (modelId) {
+            unk90[slot - 1] = lbl_8033FF34.fn_80177628(modelId, 0, 0);
+        }
+        switch (slot) {
+        case 9:
+            if (unk90[1]) {
+                unk90[8]->fn_8017D384(unk90[1], 0.001f);
+            }
+            if (unk90[9]) {
+                unk90[8]->fn_8017D384(unk90[9], 0.001f);
+            }
+            unk90[1]->fn_8017DF14();
+            unk90[9]->fn_8017DF14();
+            unk90[8]->fn_8017DF14();
+            break;
+        case 10:
+            if (unk90[8]) {
+                unk90[9]->fn_8017D384(unk90[8], 0.001f);
+            }
+            if (unk90[10]) {
+                unk90[9]->fn_8017D384(unk90[10], 0.001f);
+            }
+            unk90[10]->fn_8017DF14();
+            unk90[9]->fn_8017DF14();
+            unk90[8]->fn_8017DF14();
+            break;
+        case 11:
+            if (unk90[9]) {
+                unk90[10]->fn_8017D384(unk90[9], 0.001f);
+            }
+            if (unk90[2]) {
+                unk90[10]->fn_8017D384(unk90[2], 0.001f);
+            }
+            unk90[10]->fn_8017DF14();
+            unk90[9]->fn_8017DF14();
+            unk90[2]->fn_8017DF14();
+            break;
+        case 2:
+            if (unk90[8]) {
+                unk90[1]->fn_8017D384(unk90[8], 0.001f);
+            }
+            unk90[8]->fn_8017DF14();
+            unk90[1]->fn_8017DF14();
+            break;
+        case 3:
+            if (unk90[3]) {
+                unk90[2]->fn_8017D384(unk90[3], 0.01f);
+            }
+            if (unk90[10]) {
+                unk90[2]->fn_8017D384(unk90[10], 0.001f);
+            }
+            unk90[10]->fn_8017DF14();
+            unk90[3]->fn_8017DF14();
+            unk90[2]->fn_8017DF14();
+            break;
+        case 4:
+            if (unk90[2]) {
+                unk90[3]->fn_8017D384(unk90[2], 0.01f);
+            }
+            if (unk90[4]) {
+                unk90[3]->fn_8017D384(unk90[4], 0.001f);
+            }
+            unk90[4]->fn_8017DF14();
+            unk90[3]->fn_8017DF14();
+            unk90[2]->fn_8017DF14();
+            break;
+        case 5:
+            if (unk90[3]) {
+                unk90[4]->fn_8017D384(unk90[3], 0.001f);
+            }
+            unk90[4]->fn_8017DF14();
+            unk90[3]->fn_8017DF14();
+            break;
+        }
+    }
+}
+
 // 0x8001B850
 void Unk80018374::fn_8001B850(int slot) {
     switch (slot) {
@@ -680,6 +779,25 @@ void Unk80018374::fn_8001D6D8(ERC* rc) {
     rc->vfn30(&view);
     unkC4->fn_8017CE68(rc);
     rc->vfn30(&saved);
+}
+
+// 0x8001D844
+// Looks up the animation lists whose names end in the body-type suffix.
+void Unk80018374::fn_8001D844(const Unk801B9FEC& suffix) {
+    int list = unk18C->Find("CasAnimationList");
+    unk7C = (CASAnimStep**)FindList(list, "MessyToNeat", suffix.unk0);
+    unk80 = (CASAnimStep**)FindList(list, "ShyToOutgoing", suffix.unk0);
+    unk84 = (CASAnimStep**)FindList(list, "LazyToActive", suffix.unk0);
+    unk88 = (CASAnimStep**)FindList(list, "SeriousToPlayful", suffix.unk0);
+    unk8C = (CASAnimStep**)FindList(list, "MeanToNice", suffix.unk0);
+    unk74 = (unsigned int***)FindList(list, "GlobalIdle", suffix.unk0);
+    unk78 = (unsigned int***)FindList(list, "SittingIdle", suffix.unk0);
+    list = unk18C->Find("CasAnimationIDList");
+    unk64 = (unsigned int**)FindList(list, "UpperBodyReact", suffix.unk0);
+    unk68 = (unsigned int**)FindList(list, "ShoeReact", suffix.unk0);
+    unk6C = (unsigned int**)FindList(list, "HairReact", suffix.unk0);
+    unk70 = (unsigned int**)FindList(list, "PantsReact", suffix.unk0);
+    unk18C->fn_8017FF7C();
 }
 
 // 0x8001DB0C
