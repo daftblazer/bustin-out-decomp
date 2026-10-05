@@ -1,6 +1,8 @@
 #ifndef SIMS_CAS_CASSKIN_H
 #define SIMS_CAS_CASSKIN_H
 
+#include "engine/EVec3.h"
+
 struct Unk80182DE0Inner;
 struct ETextureLike;
 
@@ -45,7 +47,9 @@ struct Unk8001EE8C {
     void fn_80021DBC(int adult, int male);
     void fn_800226F0(Unk801CC464* out);      // store the layer choices in a description
     void fn_80022724(Unk801CC464* choices);  // and take them from one
-    int fn_80022B3C(int, unsigned int);
+    unsigned int fn_80022778(const EVec3& hsl);              // hue, saturation, lightness to 0x00BBGGRR
+    void fn_80022940(unsigned int rgb, EVec3* hsl);          // and back
+    unsigned int fn_80022B3C(unsigned int dst, unsigned int src); // blend one colour over another
     void fn_80022C6C();
 
     Unk80021CEC* unk0[17];    // source images of the texture layers
