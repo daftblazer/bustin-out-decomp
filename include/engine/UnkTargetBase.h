@@ -13,6 +13,7 @@ struct Unk801BA678 {
     void fn_801BA0F4(const unsigned short* text);
     void fn_801BA958(int capacity, int);
     Unk801BA678(const char* text);                       // 0x801BA6D4
+    Unk801BA678(const unsigned short* text);             // 0x801BA7CC
     int fn_801BA934() const;                             // length
     void fn_801BA860(const unsigned short* text);        // assign
     void fn_801BAF74(unsigned short character);          // strip leading
@@ -58,7 +59,7 @@ public:
     virtual void vfn6(const EVec2& position);              // slot 6
     virtual void vfn7(UnkTargetBase* sender, int message); // slot 7
     virtual void vfn8();
-    virtual void vfn9();
+    virtual char* vfn9(const char* name);                  // slot 9: UI script variable look-up
     virtual void vfn10();
     virtual void vfn11();
     virtual void vfn12();

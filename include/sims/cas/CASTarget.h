@@ -127,6 +127,7 @@ public:
 
 struct Unk800226F0 {
     void fn_800226F0(Unk801CC464* out);
+    int fn_800218D8(int);
     void fn_80021928(int slot);
     void fn_8002196C(int slot);
 };
@@ -475,6 +476,10 @@ extern float lbl_8037B44C, lbl_8037B450, lbl_8037B454, lbl_8037B458;
 extern float lbl_8037B45C, lbl_8037B460, lbl_8037B464, lbl_8037B468;
 extern float lbl_8037B46C, lbl_8037B470, lbl_8037B474, lbl_8037B478;
 
+extern "C" int fn_80111ECC(const char*, const char*);     // strcmp
+extern "C" int fn_8010F710(char* out, const char* format, ...); // sprintf
+extern int lbl_802F76D8; // children enabled
+
 // Scoped object used around the loading-thread flag (ctor 0x801BE528).
 struct Unk801BE528 {
     Unk801BE528();
@@ -545,6 +550,7 @@ public:
     virtual void vfn2();
     virtual void vfn3(ERC* rc);
     virtual void vfn7(UnkTargetBase* sender, int message);
+    virtual char* vfn9(const char* name);
     void fn_800123A4(ERC* rc);
     void fn_8000C458();
     int fn_8000C4A4();

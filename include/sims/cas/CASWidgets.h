@@ -28,7 +28,9 @@ struct Unk8003C95C {
     void fn_8003D93C(ERC* rc, const unsigned short* text, EVec2* position, int, int, EVec2* cursor, float scaleX, float scaleY);
     float fn_8003DC1C(int); // line height
 
-    char unk0[0x64];
+    char unk0[0x58];
+    float unk58; // current size
+    char unk5C[0x64 - 0x5C];
     EColorF unk64;
 };
 

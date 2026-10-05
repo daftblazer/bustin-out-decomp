@@ -2226,6 +2226,271 @@ void CASTarget::fn_80010520(CASSimDesc* desc, int randomize) {
     }
 }
 
+// Measures a caption with the title font size (16), restoring the previous size.
+#define CAS_MEASURE(size, text)                               \
+    {                                                         \
+        float oldScale = unk52E4->unk58;                      \
+        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);                 \
+        size = unk52E4->fn_8003D550(text, 1, 0);              \
+        unk52E4->fn_8003C95C(1, oldScale, 1.0f);              \
+    }
+
+// 0x80010664
+// Answers the UI script's variable queries; the result is a newly allocated
+// string, or null for an unknown name.
+// NON_MATCHING: 989 instructions vs 990, 635 differ. Same comparisons and calls in the
+// same order; the frame is 0x10 larger here (the measured size is a single shared
+// two-float local at 0x8 in the original, with the returned size copied into it), and
+// `this`/`out` sit in swapped registers (r29/r31). One variant tried.
+char* CASTarget::vfn9(const char* name) {
+    EGlobal* global = &lbl_802E6700;
+    char* out = (char*)fn_80169F1C(0x20, 4);
+    out[0] = 0;
+    if (fn_80111ECC("title_bar_width", name) == 0) {
+        EVec2 size(0.0f, 0.0f);
+        float oldScale = unk52E4->unk58;
+        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        if (unk4580 == 9) {
+            int* text;
+            if (unk52E0) {
+                text = global->fn_800667EC("body").ptr;
+            } else if (unk52DC) {
+                text = global->fn_800667EC("head").ptr;
+            } else if (unk52D8) {
+                text = global->fn_800667EC("personal").ptr;
+            } else if (unk5314 && unk52E8 == 0) {
+                text = global->fn_800667EC("customize a sim").ptr;
+            } else {
+                text = lbl_802E6700.fn_800667EC("create a sim").ptr;
+            }
+            size = unk52E4->fn_8003D550((const unsigned short*)(text ? *text : 0), 1, 0);
+        } else if (unk4580 == 10) {
+            int* text;
+            if (unk5314) {
+                text = global->fn_800667EC("customize a family").ptr;
+            } else {
+                text = global->fn_800667EC("create a family").ptr;
+            }
+            size = unk52E4->fn_8003D550((const unsigned short*)(text ? *text : 0), 1, 0);
+        } else if (unk4580 == 11) {
+            int* text;
+            if (unk531C) {
+                text = global->fn_800667EC("button1").ptr;
+            } else {
+                text = global->fn_800667EC("button2").ptr;
+            }
+            size = unk52E4->fn_8003D550((const unsigned short*)(text ? *text : 0), 1, 0);
+        } else if (unk4580 == 12) {
+            int* text;
+            switch (unk45D4) {
+            case 1:
+            case 2:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                if (unk5314) {
+                    text = lbl_802E6700.fn_800667EC("customize a family").ptr;
+                } else {
+                    text = lbl_802E6700.fn_800667EC("create a family").ptr;
+                }
+                break;
+            case 0:
+            case 3:
+                if (unk5314 && unk52E8 == 0) {
+                    text = lbl_802E6700.fn_800667EC("customize a sim").ptr;
+                } else {
+                    text = lbl_802E6700.fn_800667EC("create a sim").ptr;
+                }
+                break;
+            }
+            size = unk52E4->fn_8003D550((const unsigned short*)(text ? *text : 0), 1, 0);
+        }
+        unk52E4->fn_8003C95C(1, oldScale, 1.0f);
+        fn_8010F710(out, "%f", size.x);
+    } else if (fn_80111ECC("dialog_box_width", name) == 0) {
+        fn_8010F710(out, "%f", 0.6f);
+    } else if (fn_80111ECC("dialog_box_height", name) == 0) {
+        fn_8010F710(out, "%f", 0.55f);
+    } else if (fn_80111ECC("dialog_x", name) == 0) {
+        fn_8010F710(out, "%f", 0.2f);
+    } else if (fn_80111ECC("dialog_y", name) == 0) {
+        fn_8010F710(out, "%f", 0.18f);
+    } else if (fn_80111ECC("number_of_buttons", name) == 0) {
+        fn_8010F710(out, "%d", 2);
+    } else if (fn_80111ECC("is_critical_dialog", name) == 0) {
+        fn_8010F710(out, "%d", 0);
+    } else if (fn_80111ECC("dialog_title_bar_width", name) == 0) {
+        float oldScale = unk52E4->unk58;
+        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        Unk801BA678 title((const unsigned short*)(unk45D8 ? *unk45D8 : 0));
+        EVec2 size;
+        size = unk52E4->fn_8003D550(title.unk0, 1, 0);
+        unk52E4->fn_8003C95C(1, oldScale, 1.0f);
+        fn_8010F710(out, "%f", size.x);
+    } else if (fn_80111ECC("UI_button_width", name) == 0) {
+        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        EVec2 yes;
+        yes = unk52E4->fn_8003D550((const unsigned short*)GetTextB("yes"), 1, 0);
+        EVec2 no;
+        no = unk52E4->fn_8003D550((const unsigned short*)GetTextB("no"), 1, 0);
+        float width;
+        if (yes.x > no.x) {
+            width = yes.x + 0.003f;
+        } else {
+            width = no.x + 0.003f;
+        }
+        fn_8010F710(out, "%f", width);
+    } else if (fn_80111ECC("CAS_button_accept_x", name) == 0) {
+        fn_8010F710(out, "%f", unk4ED0);
+    } else if (fn_80111ECC("CAS_button_accept_y", name) == 0) {
+        fn_8010F710(out, "%f", unk4ED4);
+    } else if (fn_80111ECC("CAS_button_accept_width", name) == 0) {
+        EVec2 size;
+        CAS_MEASURE(size, (const unsigned short*)(unk4ED8 ? *unk4ED8 : 0));
+        if (size.x > 0.12f) {
+            fn_8010F710(out, "%f", size.x);
+        } else {
+            fn_8010F710(out, "%f", 0.12f);
+        }
+    } else if (fn_80111ECC("CAS_button_decline_x", name) == 0) {
+        fn_8010F710(out, "%f", unk4EDC);
+    } else if (fn_80111ECC("CAS_button_decline_y", name) == 0) {
+        fn_8010F710(out, "%f", unk4EE0);
+    } else if (fn_80111ECC("CAS_button_decline_width", name) == 0) {
+        EVec2 size;
+        CAS_MEASURE(size, (const unsigned short*)(unk4EE4 ? *unk4EE4 : 0));
+        if (size.x > 0.12f) {
+            fn_8010F710(out, "%f", size.x);
+        } else {
+            fn_8010F710(out, "%f", 0.12f);
+        }
+    } else if (fn_80111ECC("add_disabled", name) == 0) {
+        if (unk45C9 > 3) {
+            fn_8010F710(out, "true");
+        } else {
+            fn_8010F710(out, "false");
+        }
+    } else if (fn_80111ECC("edit_disabled", name) == 0 || fn_80111ECC("delete_disabled", name) == 0) {
+        if (unk45C9 == 0) {
+            fn_8010F710(out, "true");
+        } else {
+            fn_8010F710(out, "false");
+        }
+    } else if (fn_80111ECC("done_disabled", name) == 0) {
+        if (unk45C9 == 0) {
+            fn_8010F710(out, "true");
+        } else {
+            fn_8010F710(out, "false");
+        }
+    } else if (fn_80111ECC("cas_mode", name) == 0) {
+        if (unk5314 && unk52E8 == 0) {
+            fn_8010F710(out, "customize");
+        } else {
+            fn_8010F710(out, "create");
+        }
+    } else if (fn_80111ECC("enable_child", name) == 0) {
+        fn_8010F710(out, "%c", lbl_802F76D8 ? '1' : '0');
+    } else if (fn_80111ECC("ScreenWidth", name) == 0) {
+        fn_8010F710(out, "%d", lbl_8037C198->unk14);
+    } else if (fn_80111ECC("ScreenHeight", name) == 0) {
+        fn_8010F710(out, "%d", lbl_8037C198->unk18);
+    } else if (fn_80111ECC("messy_neat", name) == 0) {
+        fn_8010F710(out, "%d", unk533C[0].fn_80015900());
+    } else if (fn_80111ECC("shy_outgoing", name) == 0) {
+        fn_8010F710(out, "%d", unk533C[1].fn_80015900());
+    } else if (fn_80111ECC("lazy_active", name) == 0) {
+        fn_8010F710(out, "%d", unk533C[2].fn_80015900());
+    } else if (fn_80111ECC("serious_playful", name) == 0) {
+        fn_8010F710(out, "%d", unk533C[3].fn_80015900());
+    } else if (fn_80111ECC("mean_nice", name) == 0) {
+        fn_8010F710(out, "%d", unk533C[4].fn_80015900());
+    } else if (fn_80111ECC("ingame", name) == 0) {
+        strcpy(out, "true");
+    } else if (fn_80111ECC("adult", name) == 0) {
+        if ((unsigned int)unk4584 <= 1) {
+            strcpy(out, "true");
+        } else {
+            strcpy(out, "false");
+        }
+    } else if (fn_80111ECC("male", name) == 0) {
+        if (unk4584 == 0 || unk4584 == 2) {
+            strcpy(out, "true");
+        } else {
+            strcpy(out, "false");
+        }
+    } else if (fn_80111ECC("sign", name) == 0) {
+        short choices[5];
+        choices[0] = unk533C[0].fn_80015900();
+        choices[1] = unk533C[1].fn_80015900();
+        choices[2] = unk533C[2].fn_80015900();
+        choices[3] = unk533C[3].fn_80015900();
+        choices[4] = unk533C[4].fn_80015900();
+        unk57A8.unk48 = fn_80061FE0(choices);
+        switch (unk57A8.unk48) {
+        case 1:
+            strcpy(out, "Aries");
+            break;
+        case 2:
+            strcpy(out, "Taurus");
+            break;
+        case 3:
+            strcpy(out, "Gemini");
+            break;
+        case 4:
+            strcpy(out, "Cancer");
+            break;
+        case 5:
+            strcpy(out, "Leo");
+            break;
+        case 6:
+            strcpy(out, "Virgo");
+            break;
+        case 7:
+            strcpy(out, "Libra");
+            break;
+        case 8:
+            strcpy(out, "Scorpio");
+            break;
+        case 9:
+            strcpy(out, "Sagittarius");
+            break;
+        case 10:
+            strcpy(out, "Capricorn");
+            break;
+        case 11:
+            strcpy(out, "Aquarius");
+            break;
+        case 12:
+            strcpy(out, "Pisces");
+            break;
+        }
+    } else if (fn_80111ECC(name, "personal_name_width") == 0) {
+        EVec2 size;
+        CAS_MEASURE(size, unk57A0.unk0);
+        if (unk5304) {
+            unk45A0 = 0;
+        }
+        fn_8010F710(out, "%f", size.x * (float)lbl_8037C198->unk14);
+    } else if (fn_80111ECC(name, "currentSkinTone") == 0) {
+        fn_8010F710(out, "%d", unk4464->unkC8->fn_800218D8(1) + 1);
+    } else if (fn_80111ECC(name, "currentBodyType") == 0) {
+        Unk80018374* sim = unk4464;
+        sim->unkC8->fn_800226F0(&sim->unk16C);
+        Unk801CC464 desc(sim->unk16C);
+        int type = desc.unk8[0] + 2;
+        if (type > 3) {
+            type = desc.unk8[0] - 1;
+        }
+        fn_8010F710(out, "%d", type);
+    } else {
+        fn_80169EE8(out);
+        return 0;
+    }
+    return out;
+}
+
 // 0x800133DC
 // Draws `text` word-wrapped into the description box, one line at a time.
 // NON_MATCHING: same length (234), 81 differ: register numbering (r27/r28 and the
