@@ -258,6 +258,7 @@ config.libs = [
         "sims",
         [
             Object(NonMatching, "sims/ESimsApp.cpp"),
+            Object(NonMatching, "sims/Unk800052C8.cpp"),
         ],
     ),
 ]
