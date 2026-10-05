@@ -723,9 +723,9 @@ struct Unk802DBAEC {
 };
 extern Unk802DBAEC lbl_802D1ED8;
 extern Unk802DBAEC lbl_802DBAEC;
-void fn_8002E73C();
 void fn_8002EA74();
 void fn_8002E1BC(void* key, int flag);
+void fn_8002E73C(int key, int arg);
 void fn_8002E2A0(int flag, int x0, int y0, int x1, int y1);
 void fn_8002E498(void* arg, int kind, float x0, float x1, float y0, float y1);
 void fn_8002E5DC(void* arg, int kind, float x0, float y0, float x1, float y1);
@@ -735,7 +735,7 @@ extern void (*lbl_8038143C)(int, int, int, int, int);
 extern void (*lbl_80381440)(void*, int, float, float, float, float);
 extern void (*lbl_80381444)(void*, int, float, float, float, float);
 extern void (*lbl_80381448)(void*, int, float, float, float, float);
-extern void (*lbl_8038144C)();
+extern void (*lbl_8038144C)(int, int);
 extern void (*lbl_80381450)();
 extern void (*lbl_80381454)(void*);
 extern int (*lbl_80381458)(int);
@@ -2314,6 +2314,38 @@ void fn_8002DB04(ERC* rc, Unk8002D67CItem* item) {
     fn_80035C70(rc, item->unk28, &a, &b, &flag);
 }
 
+// 0x8002DB60
+// Draws a textured strip from one point of the item to the other, the texture
+// repeated once per unit of length.
+// NON_MATCHING: condensed draft (the original fills four renderer-allocated vertices
+// in the open and treats kinds 3 and 5 specially). One variant tried.
+extern "C" float fn_8010DF80(float); // sqrtf
+void fn_8002DB60(ERC* rc, Unk8002D67CItem* item) {
+    EVec2 delta(item->unk8 - item->unk10, item->unkC - item->unk14);
+    int kind = item->unk24;
+    int length = (int)fn_8010DF80(delta.x * delta.x + delta.y * delta.y);
+    if (length < 1) {
+        length = 1;
+    }
+    Unk80173D58Vertex* vertices = (Unk80173D58Vertex*)((Unk80173D58Alloc*)rc)->fn_80173D58(0x140, 0x20);
+    float height = kind == 5 ? 1.0f : 3.5f;
+    float repeat = (float)length;
+    SetFlatVertex(&vertices[0], item->unk8, item->unkC, 0.0f, 0.0f);
+    vertices[0].unk0[2] = height;
+    vertices[1] = vertices[0];
+    vertices[1].unk0[2] = 0.0f;
+    vertices[1].unk20[1] = 1.0f;
+    vertices[2] = vertices[0];
+    vertices[2].unk0[0] = item->unk10;
+    vertices[2].unk0[1] = item->unk14;
+    vertices[2].unk20[0] = repeat;
+    vertices[3] = vertices[2];
+    vertices[3].unk0[2] = 0.0f;
+    vertices[3].unk20[1] = 1.0f;
+    ((Unk8002D2D4RC*)rc)->vfn29();
+    ((Unk8002D2D4RC*)rc)->vfn3(vertices, 4);
+}
+
 // 0x8002DF60
 void fn_8002DF60(ERC* rc, Unk8002D67CItem* item) {
     EVec2 a(item->unk8, item->unkC);
@@ -2482,6 +2514,125 @@ void fn_8002E68C(void* arg, int kind, float x0, float y0, float x1, float y1) {
     } else {
         lbl_8037D96C->fn_8006186C(0x3804219F);
     }
+}
+
+
+struct Unk80234774 {
+    int fn_80234774(Unk801C6F20* tile, unsigned short** a, unsigned short** b, int* sideA, int* sideB);
+};
+struct Unk8023E354 : Unk8023DFA8 {
+    int fn_8023E354();           // first wall on the tile
+    int fn_8023E3BC(int wall);   // the one after
+};
+int fn_8023E4A4(int side, int);
+void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side);
+struct Unk8037D990G {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023E354 vfn18(Unk801C6F20* tile);
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual int vfn21(Unk801C6F20* tile);
+};
+// The two sides a wall of the given kind has when nothing narrows it down.
+inline void BothSides(int* sides, int& count, int wall) {
+    if (wall == 0x10) {
+        sides[count++] = 2;
+        sides[count] = 4;
+    } else {
+        sides[count++] = 1;
+        sides[count] = 3;
+    }
+}
+
+// 0x8002E73C
+// Callback: for every tile filed under a key, applies an action to the sides of its
+// walls that belong to that key.
+// NON_MATCHING: 201 instructions vs 206. Draft: calls, loops and the side tables are
+// the original's; register use differs throughout. One variant tried.
+void fn_8002E73C(int key, int arg) {
+    Unk80234774* table = (Unk80234774*)lbl_8037D998;
+    Unk8037D990G* level = (Unk8037D990G*)lbl_8037D990;
+    Unk80234390* list = fn_80234390(table, (void*)key);
+    for (char* it = list->unk4; it != list->unk8; it += 3) {
+        Unk801C6F20 tile(*(Unk801C6F20*)it);
+        if (level->vfn21(&tile)) {
+            Unk8023E354 info = level->vfn18(&tile);
+            int count = 0;
+            int sides[2];
+            sides[0] = 0;
+            sides[1] = 0;
+            for (int wall = info.fn_8023E354(); wall; wall = info.fn_8023E3BC(wall)) {
+                if (wall == 0x10 || wall == 0x20) {
+                    Unk801C6F20 copy(tile);
+                    unsigned short* a = 0;
+                    unsigned short* b = 0;
+                    int sideA;
+                    int sideB;
+                    if (table->fn_80234774(&copy, &a, &b, &sideA, &sideB)) {
+                        if (a && *a == key) {
+                            if (sideA == 1) {
+                                sides[count] = sideA;
+                            } else if (sideA == 3) {
+                                sides[count] = sideA;
+                            } else if (sideA == 4) {
+                                sides[count] = 2;
+                            } else if (sideA == 2) {
+                                sides[count] = 4;
+                            } else {
+                                BothSides(sides, count, wall);
+                            }
+                            count++;
+                        }
+                        if (b && b != a && *b == key) {
+                            bool known = true;
+                            if (sideB == 1) {
+                                sides[count] = sideB;
+                            } else if (sideB == 3) {
+                                sides[count] = sideB;
+                            } else if (sideB == 4) {
+                                sides[count] = 2;
+                            } else if (sideB == 2) {
+                                sides[count] = 4;
+                            } else {
+                                known = false;
+                            }
+                            if (known) {
+                                count++;
+                            }
+                        }
+                    } else {
+                        BothSides(sides, count, wall);
+                        count++;
+                    }
+                } else {
+                    count = 1;
+                }
+                for (int i = 0; i < count; i++) {
+                    if (sides[i]) {
+                        sides[i] = fn_8023E4A4(sides[i], 0);
+                    }
+                    fn_800331A8(&tile, arg, wall, sides[i]);
+                }
+            }
+        }
+    }
+    Unk80026864::fn_80028ECC();
 }
 
 // 0x8002ECE8
