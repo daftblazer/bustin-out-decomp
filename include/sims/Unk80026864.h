@@ -95,6 +95,8 @@ public:
     void fn_8002BB64(int* tileX, int* tileY);
     EVec2 fn_8002BD98();
     void fn_8002BC5C(EVec2* out);
+    struct Unk800053D4Inner* fn_8002C7B4(int kind);
+    static void fn_8002C940();
     void fn_8002D1CC();
     int fn_8002D270(int a, int b);
     void fn_8002D2A8(EVec3* out);

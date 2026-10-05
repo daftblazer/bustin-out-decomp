@@ -370,24 +370,78 @@ struct Unk8004FC0C {
     int fn_8004FC0C(int, int);
 };
 
+// Tile position as used by the object search (8 bytes; constructors 0x801C6F20 and
+// 0x801C6F00, destructor 0x801C6FCC). This is CTilePt; the shared header's copy has
+// a different size, so it is declared apart until that is sorted out.
+struct Unk801C6F20 {
+    Unk801C6F20(const ETilePair& subTile, int);
+    Unk801C6F20(const Unk801C6F20& other);
+    ~Unk801C6F20();
+    char unk0[8];
+};
+// Walks the objects standing on a tile.
+struct Unk801FCE7C {
+    Unk801FCE7C(const Unk801C6F20& tile, int);
+    void fn_801FCF04();   // next
+    int unk0;
+    Unk800053D4Inner* unk4;   // current object
+    char unk8[8];
+};
+struct Unk8037D990D {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual int vfn8(Unk801C6F20* tile);   // off the lot
+};
+extern int lbl_8037B4BC;
+extern void* lbl_8037B4C0;
+extern void* lbl_8037B4AC;
+extern void* lbl_8037B4B4;
+extern void* lbl_8037B4B8;
+void fn_80031CF0(ERC* rc, Unk80181824* texture, EVec2* a, EVec2* b, int, float, float);
+void fn_8003849C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, void* out, int kind, int);
+struct Unk80234390 {
+    int unk0;
+    char* unk4;   // first
+    char* unk8;   // one past the last
+};
+extern void* lbl_8037D998;
+Unk80234390* fn_80234390(void* table, void* key);
+void fn_800311B0(char* entry, int flag, Unk80234390* list);
+int fn_8007600C();
+void fn_80038FC0(EVec2* a, EVec2* b, void* arg, int kind, int* out, int, int, int);
+struct Unk80057920 {
+    int fn_80057920(int);
+};
+inline Unk80234390* FindList(void* key) {
+    if (lbl_8037D998) {
+        return fn_80234390(lbl_8037D998, key);
+    }
+    return 0;
+}
+
 // Callback table copied over the engine's defaults (0x30 bytes at 0x802D1ED8).
 struct Unk802DBAEC {
     int unk0[10];
 };
 extern Unk802DBAEC lbl_802D1ED8;
 extern Unk802DBAEC lbl_802DBAEC;
-void fn_8002E1BC();
 void fn_8002E2A0();
 void fn_8002E498();
-void fn_8002E5DC();
-void fn_8002E68C();
 void fn_8002E73C();
 void fn_8002EA74();
-extern void (*lbl_80381438)();
+void fn_8002E1BC(void* key, int flag);
+void fn_8002E5DC(void* arg, int kind, float x0, float y0, float x1, float y1);
+void fn_8002E68C(void* arg, int kind, float x0, float y0, float x1, float y1);
+extern void (*lbl_80381438)(void*, int);
 extern void (*lbl_8038143C)();
 extern void (*lbl_80381440)();
-extern void (*lbl_80381444)();
-extern void (*lbl_80381448)();
+extern void (*lbl_80381444)(void*, int, float, float, float, float);
+extern void (*lbl_80381448)(void*, int, float, float, float, float);
 extern void (*lbl_8038144C)();
 extern void (*lbl_80381450)();
 extern void (*lbl_80381454)(void*);
@@ -1357,6 +1411,85 @@ EVec2 Unk80026864::fn_8002BD98() {
     return tile + view->unk34;
 }
 
+// 0x8002C7B4
+// The object on the tile under the cursor that matches `kind` (0 any, 1 without
+// either wall flag, 2 and 3 with one of them).
+// NON_MATCHING: not yet compared.
+Unk800053D4Inner* Unk80026864::fn_8002C7B4(int kind) {
+    int tileX;
+    int tileY;
+    fn_8002BB64(&tileX, &tileY);
+    ETilePair subTile;
+    subTile.y = tileY << 4;
+    subTile.x = tileX << 4;
+    Unk801C6F20 tile(subTile, 1);
+    if (((Unk8037D990D*)lbl_8037D990)->vfn8(&tile)) {
+        return 0;
+    }
+    Unk800053D4Inner* found = 0;
+    Unk801C6F20 copy(tile);
+    Unk801FCE7C it(copy, 0);
+    while (it.unk4) {
+        Unk800053D4Inner* object = it.unk4;
+        int flags = object->vfn88(0x28);
+        switch (kind) {
+        case 1:
+            if (!(flags & 0xC000)) {
+                found = object;
+            }
+            break;
+        case 0:
+            found = object;
+            break;
+        case 3:
+            if (flags & 0x4000) {
+                found = object;
+            }
+            break;
+        case 2:
+            if (flags & 0x8000) {
+                found = object;
+            }
+            break;
+        }
+        if (found) {
+            break;
+        }
+        it.fn_801FCF04();
+    }
+    return found;
+}
+
+// 0x8002C940
+// Releases the overlay's shared textures.
+// NON_MATCHING: not yet compared.
+void Unk80026864::fn_8002C940() {
+    lbl_8037B4BC = 0;
+    if (lbl_8037B4C0) {
+        if (lbl_8037C198->vfn19(lbl_8037B4C0)) {
+            lbl_8037C198->vfn8();
+        }
+        lbl_8037C198->vfn18(lbl_8037B4C0);
+        lbl_8037B4C0 = 0;
+    }
+    if (lbl_8037B4AC) {
+        fn_801767FC(lbl_8037B4AC);
+        lbl_8037B4AC = 0;
+    }
+    if (lbl_8037B4B0) {
+        fn_801767FC(lbl_8037B4B0);
+        lbl_8037B4B0 = 0;
+    }
+    if (lbl_8037B4B4) {
+        fn_801767FC(lbl_8037B4B4);
+        lbl_8037B4B4 = 0;
+    }
+    if (lbl_8037B4B8) {
+        fn_801767FC(lbl_8037B4B8);
+        lbl_8037B4B8 = 0;
+    }
+}
+
 // 0x8002D1CC
 void Unk80026864::fn_8002D1CC() {
 }
@@ -1413,6 +1546,28 @@ void fn_8002DB04(ERC* rc, Unk8002D67CItem* item) {
     fn_80035C70(rc, item->unk28, &a, &b, &flag);
 }
 
+// 0x8002DF60
+// NON_MATCHING: not yet compared.
+void fn_8002DF60(ERC* rc, Unk8002D67CItem* item) {
+    EVec2 a(item->unk8, item->unkC);
+    EVec2 b(item->unk10, item->unk14);
+    int kind = item->unk24;
+    float width;
+    if (kind == 5) {
+        width = 1.5f;
+    } else {
+        width = 3.5f;
+    }
+    fn_80031CF0(rc, lbl_8037B4B0, &a, &b, 0, width, 0.0f);
+    EVec2* offset = (EVec2*)item->unk18;
+    a.x += offset->x;
+    b.x += offset->x;
+    a.y += offset->y;
+    b.y += offset->y;
+    int out;
+    fn_8003849C(rc, &a, &b, item->unk28, &out, kind, 0);
+}
+
 // 0x8002E058
 void fn_8002E058(ERC* rc, Unk8002D67CItem* item) {
     Unk80056498* drawer = 0;
@@ -1426,9 +1581,80 @@ void fn_8002E058(ERC* rc, Unk8002D67CItem* item) {
     }
 }
 
+// 0x8002E0C4
+// NON_MATCHING: not yet compared.
+void fn_8002E0C4(ERC* rc, Unk8002D67CItem* item) {
+    EVec2 a(item->unk8, item->unkC);
+    EVec2 b(item->unk10, item->unk14);
+    fn_80031CF0(rc, lbl_8037B4B0, &a, &b, 0, 3.5f, 0.0f);
+    EVec2* offset = (EVec2*)item->unk18;
+    a.x += offset->x;
+    a.y += offset->y;
+    b.x += offset->x;
+    b.y += offset->y;
+    int out;
+    fn_8003849C(rc, &a, &b, item->unk28, &out, 3, 0);
+}
+
 // 0x8002E19C
 void fn_8002E19C(ERC* rc, Unk8002D67CItem* item) {
     fn_8002E0C4(rc, item);
+}
+
+// 0x8002E1BC
+// Callback: applies an action to every entry filed under a key.
+// NON_MATCHING: not yet compared.
+void fn_8002E1BC(void* key, int flag) {
+    Unk80234390* list = FindList(key);
+    if (list && key) {
+        char* it = list->unk4;
+        if (it != list->unk8) {
+            do {
+                fn_800311B0(it, flag, list);
+                it += 3;
+            } while (it != list->unk8);
+            if (fn_8007600C()) {
+                if (flag) {
+                    lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+                } else {
+                    lbl_8037D96C->fn_8006186C(0x994E8974);
+                }
+                Unk80026864::fn_80028ECC();
+            } else {
+                lbl_8037D96C->fn_8006186C(0x3804219F);
+            }
+        }
+    }
+}
+
+// 0x8002E5DC
+// NON_MATCHING: not yet compared.
+void fn_8002E5DC(void* arg, int kind, float x0, float y0, float x1, float y1) {
+    EVec2 a(x0, y0);
+    EVec2 b(x1, y1);
+    int out = 0;
+    fn_80038FC0(&a, &b, arg, kind, &out, 1, 0, 0);
+    if (((Unk80057920*)((Unk8004AD08C*)lbl_802E67B0.unk0)->unk8)->fn_80057920(kind == 5)) {
+        lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+        Unk80026864::fn_80028ECC();
+    } else {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+    }
+}
+
+// 0x8002E68C
+// NON_MATCHING: not yet compared.
+void fn_8002E68C(void* arg, int kind, float x0, float y0, float x1, float y1) {
+    EVec2 a(x0, y0);
+    EVec2 b(x1, y1);
+    int out = 0;
+    fn_80038FC0(&a, &b, arg, kind, &out, 1, 1, 0);
+    if (((Unk80057920*)((Unk8004AD08C*)lbl_802E67B0.unk0)->unk8)->fn_80057920(kind == 5)) {
+        lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+        Unk80026864::fn_80028ECC();
+    } else {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+    }
 }
 
 // 0x8002ECE8
