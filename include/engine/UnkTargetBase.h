@@ -66,6 +66,9 @@ public:
     virtual void vfn13();
     virtual void vfn14(UnkTargetBase* child);              // slot 14: add a child
     virtual void vfn15(UnkTargetBase* child);              // slot 15
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();                                  // last slot (vtables are 0x98 bytes)
 
     void fn_801887C8(); // base update
     void fn_80188B10(UnkTargetBase* child); // detach a child

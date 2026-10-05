@@ -31,10 +31,16 @@ sims/ESimsCam.cpp:
 
 sims/cas/CASWidgets.cpp:
 	.text       start:0x80007F88 end:0x80008934
+	.rodata     start:0x80292AE8 end:0x80292F40
 
 sims/cas/CASState.cpp:
 	.text       start:0x80008934 end:0x80008AA0
+	.rodata     start:0x80292F40 end:0x80293280
 
 sims/cas/CASTarget.cpp:
 	.text       start:0x80008AA0 end:0x8001562C
 	.ctors      start:0x80291CAC end:0x80291CB0
+	.rodata     start:0x80293280 end:0x80294220
+	.bss        start:0x802E57DC end:0x802E5968
+	.sdata      start:0x8037B44C end:0x8037B488
+	.sbss       start:0x8037CA3C end:0x8037CA8C
