@@ -30,7 +30,7 @@ struct Unk80021CEC {
 struct Unk8001EE8C {
     Unk8001EE8C();
     ~Unk8001EE8C();
-    void fn_8001EF98(void* resource, int* out);
+    void fn_8001EF98(void* resource, unsigned int* color); // blend a layer's next pixel in
     void fn_8001EFEC();
     void fn_8001F34C();
     void fn_8001FAE0();

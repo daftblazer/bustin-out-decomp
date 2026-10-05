@@ -55,12 +55,99 @@ void fn_8001EF5C(void* resource, int* done) {
 }
 
 // 0x8001EF98
-void Unk8001EE8C::fn_8001EF98(void* resource, int* out) {
+void Unk8001EE8C::fn_8001EF98(void* resource, unsigned int* out) {
     if (resource) {
         unsigned int value = fn_8003E3E8(resource);
         if (value & 0xFF000000) {
             *out = fn_80022B3C(*out, value);
         }
+    }
+}
+
+// 0x8001EFEC
+// Composites the layer images into the 256x256 skin texture, one pixel from
+// every layer at a time. The texture is stored in 4x4 tiles, eight to a row.
+// NON_MATCHING: one instruction. The add that packs the blue bits has its operands the
+// other way round (add r0,r0,r9 in the original, add r0,r9,r0 here); the original
+// also uses ori for the 0x8000, which every form that gets the rest right turns into
+// an add. Ten forms of the packing expression tried.
+void Unk8001EE8C::fn_8001EFEC() {
+    int any = 0;
+    fn_8001EF5C(unk0[0], &any);
+    fn_8001EF5C(unk0[1], &any);
+    fn_8001EF5C(unk0[2], &any);
+    fn_8001EF5C(unk0[5], &any);
+    fn_8001EF5C(unk0[3], &any);
+    fn_8001EF5C(unk0[4], &any);
+    fn_8001EF5C(unk0[6], &any);
+    fn_8001EF5C(unk0[7], &any);
+    fn_8001EF5C(unk0[8], &any);
+    fn_8001EF5C(unk0[9], &any);
+    fn_8001EF5C(unk0[11], &any);
+    fn_8001EF5C(unk0[10], &any);
+    fn_8001EF5C(unk0[12], &any);
+    fn_8001EF5C(unk0[15], &any);
+    fn_8001EF5C(unk0[16], &any);
+    fn_8001EF5C(unk0[13], &any);
+    fn_8001EF5C(unk0[14], &any);
+    if (any) {
+        unsigned char block = 0;
+        unsigned char column = 0;
+        unsigned char row = 0;
+        unsigned char sub = 0;
+        int offset = 0;
+        unk50->vfn5(2);
+        int a;
+        int b;
+        unsigned short* out = (unsigned short*)unk50->vfn6(0, &a, &b);
+        for (unsigned int i = 0; i <= 0xFFFF; i++) {
+            unsigned int color = fn_8003E3E8(unk0[0]) & 0xFFFFFF;
+            fn_8001EF98(unk0[1], &color);
+            fn_8001EF98(unk0[2], &color);
+            fn_8001EF98(unk0[5], &color);
+            fn_8001EF98(unk0[3], &color);
+            fn_8001EF98(unk0[4], &color);
+            fn_8001EF98(unk0[6], &color);
+            fn_8001EF98(unk0[7], &color);
+            fn_8001EF98(unk0[8], &color);
+            fn_8001EF98(unk0[9], &color);
+            fn_8001EF98(unk0[11], &color);
+            fn_8001EF98(unk0[10], &color);
+            fn_8001EF98(unk0[12], &color);
+            fn_8001EF98(unk0[15], &color);
+            fn_8001EF98(unk0[16], &color);
+            fn_8001EF98(unk0[13], &color);
+            fn_8001EF98(unk0[14], &color);
+            sub++;
+            unsigned char rgb[3];
+            rgb[0] = (color >> 3) & 0x1F;
+            rgb[1] = (color >> 11) & 0x1F;
+            rgb[2] = (color >> 19) & 0x1F;
+            out[offset] = rgb[2] + ((rgb[0] << 10) + 0x8000U | (rgb[1] << 5));
+            if (sub <= 3) {
+                offset++;
+            } else {
+                column++;
+                if (column <= 0x3F) {
+                    sub = 0;
+                    offset += 0xD;
+                } else {
+                    row++;
+                    if (row <= 3) {
+                        offset = row * 4 + block * 0x400;
+                        sub = 0;
+                        column = 0;
+                    } else {
+                        block++;
+                        sub = 0;
+                        row = 0;
+                        column = 0;
+                        offset = block << 10;
+                    }
+                }
+            }
+        }
+        unk50->vfn8();
     }
 }
 
@@ -220,6 +307,76 @@ void Unk8001EE8C::fn_8002196C(int layer) {
         previous = choice - 1;
     }
     fn_80020EF4(layer, previous, 1);
+}
+
+// 0x80021A14
+// Reduces the composited texture to 256 colours and writes the palette and the
+// indices into the given texture.
+void Unk8001EE8C::fn_80021A14(ETextureLike* texture) {
+    unsigned char sub = 0;
+    unsigned char column = 0;
+    int first = 1;
+    int offset = 0;
+    unk50->vfn5(1);
+    int a;
+    int b;
+    unsigned short* source = (unsigned short*)unk50->vfn6(0, &a, &b);
+    Unk801B7464 quantizer;
+    unsigned char color[3];
+    unsigned short* p = source;
+    int i;
+    quantizer.fn_801B7538(0x100, 0x7C00, 0, 0, 1);
+    for (i = 0x10000; i != 0; i--) {
+        color[0] = (*p >> 7) & 0xF8;
+        color[1] = (*p >> 2) & 0xF8;
+        color[2] = (*p << 3) & 0xF8;
+        p++;
+        quantizer.fn_801B79B4(color);
+    }
+    quantizer.fn_801B8308();
+    texture->vfn5(2);
+    unsigned short* palette = (unsigned short*)texture->vfn7();
+    int colors = quantizer.fn_801B8630();
+    for (i = 0; i < colors; i++) {
+        quantizer.fn_801B8638(i, color);
+        color[0] >>= 3;
+        color[1] >>= 3;
+        color[2] >>= 3;
+        palette[i] = 0x8000;
+        palette[i] += color[0] << 10;
+        palette[i] += color[1] << 5;
+        palette[i] += color[2];
+    }
+    unsigned char* indices = (unsigned char*)texture->vfn6(0, &a, &b);
+    p = source;
+    for (i = 0x10000; i != 0; i--) {
+        color[0] = (*p >> 7) & 0xF8;
+        color[1] = (*p >> 2) & 0xF8;
+        color[2] = (*p << 3) & 0xF8;
+        indices[offset] = quantizer.fn_801B8664(color);
+        sub++;
+        if (sub > 3) {
+            sub = 0;
+            column++;
+            if (column <= 3) {
+                offset += 5;
+            } else {
+                column = 0;
+                if (first) {
+                    first = 0;
+                    offset -= 0x17;
+                } else {
+                    first = 1;
+                    offset++;
+                }
+            }
+        } else {
+            offset++;
+        }
+        p++;
+    }
+    texture->vfn8();
+    unk50->vfn8();
 }
 
 // 0x80021CEC
