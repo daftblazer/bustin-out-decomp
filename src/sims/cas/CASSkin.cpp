@@ -1,3 +1,12 @@
+#include "engine/e_texture.h"
+#include "sims/e_rrletexture.h"
+#include "engine/e_shader.h"
+#include "engine/e_rshader.h"
+#include "engine/e_submodelshader.h"
+#include "engine/e_submodel.h"
+#include "engine/e_rmodel.h"
+#include "engine/e_ranim.h"
+#include "engine/e_rtexture.h"
 #include "sims/cas/CASSim.h"
 
 // Hue, saturation and lightness offsets of the eight skin tones.

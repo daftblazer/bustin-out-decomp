@@ -6,8 +6,9 @@
 // GCC emits the string literals of inline functions even when the functions
 // themselves are never emitted, so every unit's .rodata starts with the strings
 // from the headers it included, in include order. The original headers have not
-// been reconstructed yet; until they are, this file carries their strings in the
-// right order. The __FILE__ strings give the original header names, and their
+// been fully reconstructed; the ones whose names are known (from their __FILE__
+// strings) are real headers included below in the original order, and this file
+// still carries the class-name strings whose headers are not identified. The __FILE__ strings give the original header names, and their
 // "../../../engine/" prefix shows the game sources sat three directories below
 // the source root (e.g. games/sims/ESrc/).
 
@@ -20,19 +21,11 @@ inline const char* EngineHeaderString4() { return "EFontSize"; }
 inline const char* EngineHeaderString5() { return "EFontData"; }
 inline const char* EngineHeaderString6() { return "ERFont"; }
 
-// engine/e_texture.h
-inline const char* EngineHeaderString7() { return "../../../engine/e_texture.h"; }
-inline const char* EngineHeaderString8() { return "class ETexture operator new"; }
-inline const char* EngineHeaderString9() { return "base test\n"; }
+#include "engine/e_texture.h"
 
-// engine/e_shader.h
-inline const char* EngineHeaderString10() { return "../../../engine/e_shader.h"; }
-inline const char* EngineHeaderString11() { return "EShader Update operator new"; }
+#include "engine/e_shader.h"
 
-// engine/e_rshader.h
-inline const char* EngineHeaderString12() { return "ERShader"; }
-inline const char* EngineHeaderString13() { return "../../../engine/e_rshader.h"; }
-inline const char* EngineHeaderString14() { return "ERShader operator new"; }
+#include "engine/e_rshader.h"
 
 // class names (headers not identified)
 inline const char* EngineHeaderString15() { return "EInstance"; }
@@ -45,27 +38,13 @@ inline const char* EngineHeaderString21() { return "EIPointLight"; }
 inline const char* EngineHeaderString22() { return "ERLevel"; }
 inline const char* EngineHeaderString23() { return "ERCharacter"; }
 
-// engine/e_submodelshader.h
-inline const char* EngineHeaderString24() { return "../../../engine/e_submodelshader.h"; }
-inline const char* EngineHeaderString25() { return "Model Strip Array SetSize"; }
+#include "engine/e_submodelshader.h"
 
-// engine/e_submodel.h
-inline const char* EngineHeaderString26() { return "../../../engine/e_submodel.h"; }
-inline const char* EngineHeaderString27() { return "SubModel Shader Array SetSize"; }
+#include "engine/e_submodel.h"
 
-// engine/e_rmodel.h
-inline const char* EngineHeaderString28() { return "../../../engine/e_rmodel.h"; }
-inline const char* EngineHeaderString29() { return "Sub Model Array SetSize"; }
-inline const char* EngineHeaderString30() { return "ERModel"; }
-inline const char* EngineHeaderString31() { return "ERModel operator new"; }
+#include "engine/e_rmodel.h"
 
-// engine/e_ranim.h
-inline const char* EngineHeaderString32() { return "EAnimNodeDataPos"; }
-inline const char* EngineHeaderString33() { return "../../../engine/e_ranim.h"; }
-inline const char* EngineHeaderString34() { return "ERAnim TArray SetSize"; }
-inline const char* EngineHeaderString35() { return "ERAnimBitArray SetSize"; }
-inline const char* EngineHeaderString36() { return "ERAnim"; }
-inline const char* EngineHeaderString37() { return "ERAnim operator new"; }
+#include "engine/e_ranim.h"
 
 // class names (headers not identified)
 inline const char* EngineHeaderString38() { return "N/A"; }
