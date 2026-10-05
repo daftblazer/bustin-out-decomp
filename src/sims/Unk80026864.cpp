@@ -134,16 +134,39 @@ struct Unk8037D98C {
     int fn_801C8858(void* definition, int arg, int);
 };
 extern Unk8037D98C* lbl_8037D98C;
-struct Unk801FD05CGroup {
-    int unk0;
-    virtual void vfn1();
-    char unk8[4];
-    struct Unk801FD05CGroupNode* unkC;
-};
 struct Unk801FD05CGroupNode {
     int unk0;
     Unk800053D4Inner** unk4;
 };
+struct Unk801FD05CGroupBase {
+    int unk0;
+    virtual void vfn1();
+};
+struct Unk801FD05CGroup : Unk801FD05CGroupBase {
+    char unk8[4];
+    struct Unk801FD05CGroupNode* unkC;
+};
+inline bool IsGroup(Unk800053D4Inner* object) {
+    if (object && object->vfn124()) {
+        return true;
+    }
+    return false;
+}
+inline Unk801FD05CGroup* GetGroup(Unk800053D4Inner* object) {
+    if (object) {
+        return (Unk801FD05CGroup*)fn_801FD05C(GetUnk20(object), 8);
+    }
+    return 0;
+}
+inline Unk800053D4Inner* FirstOf(Unk801FD05CGroupNode* node) {
+    Unk800053D4Inner* first;
+    if (node) {
+        first = *node->unk4;
+    } else {
+        first = 0;
+    }
+    return first;
+}
 struct Unk8004F7EC {
     void fn_8004F7EC();
     void fn_8004F720();
@@ -650,7 +673,6 @@ void Unk80026864::fn_80027FCC(Unk800053D4Inner* object) {
 
 // 0x80028080
 // Messages from the child screen: 0x1C picks up the chosen object, 0x1D leaves.
-// NON_MATCHING: not yet compared.
 void Unk80026864::vfn7(UnkTargetBase* sender, int message) {
     if (message == 0x1D) {
         if (!IsBuildMode()) {
@@ -664,19 +686,14 @@ void Unk80026864::vfn7(UnkTargetBase* sender, int message) {
     } else if (message == 0x1C) {
         if (IsBuildMode()) {
             Unk800053D4Inner* object = lbl_8037D98C->vfn18((int)sender);
-            if (object && object->vfn124()) {
-                if (((Unk801FD05CGroup*)GetPart(object, 8))->unkC != 0) {
-                    Unk801FD05CGroupNode* node = ((Unk801FD05CGroup*)GetPart(object, 8))->unkC;
-                    if (node) {
-                        object = *node->unk4;
-                    } else {
-                        object = 0;
-                    }
+            if (IsGroup(object)) {
+                if (GetGroup(object)->unkC != 0) {
+                    object = FirstOf(GetGroup(object)->unkC);
                 }
             }
             if (object && object->vfn54()) {
-                unk90 = 0;
                 unk1B0 = 0;
+                unk90 = 0;
                 unk8C = 1;
                 unk1A4 = *object->vfn115();
                 unk1AC = object->vfn88(1);
