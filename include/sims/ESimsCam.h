@@ -102,8 +102,15 @@ struct CameraParameters {
     float unk14;  // tilt, degrees
 };
 
+// The cursor/target object a camera follows; vtable pointer at 0x44.
 struct Unk324 {
     void fn_80027EAC();
+
+    char unk0[0x44];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4(const EVec3& position);
 };
 
 // The game camera. Class and method names follow The Sims 2's symbol map where
@@ -127,6 +134,10 @@ public:
     void SetState(int state);
     void fn_80005984();
     void fn_8000698C();
+    int fn_80007430();
+    float fn_80007714(EVec3* current, EVec3 target, float speed, int mode);
+    void fn_800078BC(float* current, float target, float speed, int mode);
+    void fn_800079C0(float* current, float target, float speed, int mode);
     void fn_80006C58();
     void fn_80006D90();
     void fn_80006E6C();
@@ -151,7 +162,7 @@ public:
     float unk394;
     CameraParameters unk398; // current
     CameraParameters unk3B0; // wanted
-    int unk3C8;
+    unsigned int unk3C8; // interpolation mode (0-2)
     float unk3CC;
 };
 
