@@ -295,9 +295,10 @@ void Unk8001EE8C::fn_8001FD00() {
     if (unk0[16]) {
         fn_80021D40(unk0[16], 15);
     }
-    signed char* p = unk406C + 16;
+    signed char one = 1;
+    signed char* p = &unk406C[15];
     for (int i = 16; i > 0; i--) {
-        *--p = 1;
+        *p-- = one;
     }
     unk406C[0] = 0;
     unk406C[6] = 0;
