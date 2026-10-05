@@ -375,6 +375,7 @@ struct Unk8004FC0C {
 // 0x801C6F00, destructor 0x801C6FCC). This is CTilePt; the shared header's copy has
 // a different size, so it is declared apart until that is sorted out.
 struct Unk801C6F20 {
+    Unk801C6F20() {}
     Unk801C6F20(const ETilePair& subTile, int);
     Unk801C6F20(const Unk801C6F20& other);
     ~Unk801C6F20();
@@ -425,22 +426,69 @@ inline Unk80234390* FindList(void* key) {
     return 0;
 }
 
+// Sub-tile coordinates (sixteenths of a tile) of a tile's corner, and of its middle.
+inline void SetSubTile(ETilePair& out, int tileX, int tileY) {
+    out.x = tileX << 4;
+    out.y = tileY << 4;
+}
+inline void CentreSubTile(ETilePair& tile) {
+    tile.y = (tile.y & ~0xF) | 8;
+    tile.x = (tile.x & ~0xF) | 8;
+}
+// What stands on a tile, as the level reports it (0x38 bytes), and its packed form.
+struct Unk8023DFA8 {
+    ~Unk8023DFA8();
+    int fn_8023DFA8();
+    int fn_8023DEA4(int mask);
+    void fn_8023E43C(int flag, int which);
+    char unk0[0x38];
+};
+struct Unk8023DDC4 {
+    Unk8023DDC4(const Unk8023DFA8& info);
+    char unk0[0x38];
+};
+struct Unk801C6F44 : Unk801C6F20 {
+    Unk801C6F44(int tileX, int tileY, int);
+};
+int fn_8002FE20(Unk801C6F20* tile, int flag);
+struct Unk8037D990E {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual int vfn10(ETilePair* tile);
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15(Unk801C6F20* tile, int value);
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023DFA8 vfn18(Unk801C6F20* tile);
+    virtual void vfn19(Unk801C6F20* tile, Unk8023DDC4* packed);
+};
+
 // Callback table copied over the engine's defaults (0x30 bytes at 0x802D1ED8).
 struct Unk802DBAEC {
     int unk0[10];
 };
 extern Unk802DBAEC lbl_802D1ED8;
 extern Unk802DBAEC lbl_802DBAEC;
-void fn_8002E2A0();
-void fn_8002E498();
 void fn_8002E73C();
 void fn_8002EA74();
 void fn_8002E1BC(void* key, int flag);
+void fn_8002E2A0(int flag, int x0, int y0, int x1, int y1);
+void fn_8002E498(void* arg, int kind, float x0, float x1, float y0, float y1);
 void fn_8002E5DC(void* arg, int kind, float x0, float y0, float x1, float y1);
 void fn_8002E68C(void* arg, int kind, float x0, float y0, float x1, float y1);
 extern void (*lbl_80381438)(void*, int);
-extern void (*lbl_8038143C)();
-extern void (*lbl_80381440)();
+extern void (*lbl_8038143C)(int, int, int, int, int);
+extern void (*lbl_80381440)(void*, int, float, float, float, float);
 extern void (*lbl_80381444)(void*, int, float, float, float, float);
 extern void (*lbl_80381448)(void*, int, float, float, float, float);
 extern void (*lbl_8038144C)();
@@ -1412,6 +1460,39 @@ EVec2 Unk80026864::fn_8002BD98() {
     return tile + view->unk34;
 }
 
+// 0x8002C158
+// Moves the held object to the middle of the tile under the cursor if it fits.
+// NON_MATCHING: 131 instructions vs 134. The original stores the sub-tile pair and
+// reloads each half from the stack before centring it; here the shift and the mask
+// are combined in registers. One variant tried.
+void Unk80026864::fn_8002C158() {
+    Unk801FD05CResult* part = unkF0;
+    ETilePair old;
+    part->Object()->vfn114(&old);
+    if (part->Object()->vfn64()) {
+        part->Object()->vfn48();
+    }
+    part->Object()->vfn50(&old, 1, 0, 0);
+    if (part->Object()->vfn64()) {
+        part->Object()->vfn48();
+    }
+    int tileX;
+    int tileY;
+    ETilePair tile;
+    fn_8002BB64(&tileX, &tileY);
+    SetSubTile(tile, tileX, tileY);
+    CentreSubTile(tile);
+    if (!((Unk8037D990E*)lbl_8037D990)->vfn10(&tile)) {
+        if (part->Object()->vfn49(&tile, 1, 0, 0)) {
+            part->Object()->vfn50(&tile, 1, 0, 0);
+        }
+    }
+    Unk800053D4Inner* object = part->vfn8b();
+    if (object) {
+        fn_8002C370(object);
+    }
+}
+
 // 0x8002C7B4
 // The object on the tile under the cursor that matches `kind` (0 any, 1 without
 // either wall flag, 2 and 3 with one of them).
@@ -1423,8 +1504,7 @@ Unk800053D4Inner* Unk80026864::fn_8002C7B4(int kind) {
     int tileY;
     fn_8002BB64(&tileX, &tileY);
     ETilePair subTile;
-    subTile.y = tileY << 4;
-    subTile.x = tileX << 4;
+    SetSubTile(subTile, tileX, tileY);
     Unk801C6F20 tile(subTile, 1);
     if (((Unk8037D990D*)lbl_8037D990)->vfn8(&tile)) {
         return 0;
@@ -1621,6 +1701,71 @@ void fn_8002E1BC(void* key, int flag) {
                 lbl_8037D96C->fn_8006186C(0x3804219F);
             }
         }
+    }
+}
+
+// 0x8002E2A0
+// Callback: sets or clears a floor flag on every tile of a rectangle.
+void fn_8002E2A0(int flag, int x0, int y0, int x1, int y1) {
+    for (int x = x0; x <= x1; x++) {
+        for (int y = y0; y <= y1; y++) {
+            Unk801C6F44 tile(x, y, 1);
+            if (fn_8002FE20(&tile, flag)) {
+                Unk8037D990E* level = (Unk8037D990E*)lbl_8037D990;
+                Unk8023DFA8 info = level->vfn18(&tile);
+                if (!info.fn_8023DFA8()) {
+                    level->vfn15(&tile, flag);
+                } else {
+                    int second;
+                    int first;
+                    if (info.fn_8023DEA4(0x20)) {
+                        second = 1;
+                        first = 3;
+                    } else {
+                        info.fn_8023DEA4(0x10);
+                        second = 2;
+                        first = 4;
+                    }
+                    info.fn_8023E43C(flag, first);
+                    info.fn_8023E43C(flag, second);
+                    Unk8023DDC4 packed(info);
+                    level->vfn19(&tile, &packed);
+                    level->vfn15(&tile, 0xFF);
+                }
+            }
+        }
+    }
+    if (fn_8007600C()) {
+        if (flag) {
+            lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+        } else {
+            lbl_8037D96C->fn_8006186C(0x994E8974);
+        }
+        Unk80026864::fn_80028ECC();
+    } else {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+    }
+}
+
+// 0x8002E498
+// Callback: an outline, drawn as four edges.
+// NON_MATCHING: same length, 32 instructions differ: the eight coordinate stores of
+// the four corners and the argument set-up are interleaved differently. One variant.
+void fn_8002E498(void* arg, int kind, float x0, float x1, float y0, float y1) {
+    EVec2 a(x0, y0);
+    EVec2 b(x1, y0);
+    EVec2 c(x1, y1);
+    EVec2 d(x0, y1);
+    int out = 0;
+    fn_80038FC0(&a, &b, arg, kind, &out, 1, 0, 0);
+    fn_80038FC0(&b, &c, arg, kind, &out, 1, 0, 0);
+    fn_80038FC0(&d, &c, arg, kind, &out, 1, 0, 0);
+    fn_80038FC0(&d, &a, arg, kind, &out, 1, 0, 0);
+    if (((Unk80057920*)((Unk8004AD08C*)lbl_802E67B0.unk0)->unk8)->fn_80057920(kind == 5)) {
+        lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+        Unk80026864::fn_80028ECC();
+    } else {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
     }
 }
 
