@@ -788,6 +788,183 @@ void Unk80018374::fn_8001B850(int slot) {
     }
 }
 
+// 0x8001B8E4
+// Sets one slot's choice (wrapping at the number of choices) and loads the
+// model and textures that go with it.
+// NON_MATCHING: 393 instructions vs 398. Same switches and calls. The original re-reads
+// the table pointer and the stored choice before each texture call (as here) but picks
+// the model through the table address already in a register, and tests `slot == 5`
+// once ahead of both switches (kept in cr7). One variant tried.
+void Unk80018374::fn_8001B8E4(int slot, unsigned int choice) {
+    unk24 = slot;
+    if (slot == 7) {
+        unk16C.unk8[0] = choice % 3;
+        return;
+    }
+    int count;
+    signed char current;
+    switch ((unsigned int)slot) {
+    case 3:
+        count = ECount(unk194[0]);
+        current = unk16C.unk8[4];
+        break;
+    case 4:
+        count = ECount(unk194[1]);
+        current = unk16C.unk8[5];
+        break;
+    case 5:
+        count = ECount(unk194[2]);
+        current = unk16C.unk8[6];
+        break;
+    case 2:
+        count = ECount(unk194[6]);
+        current = unk16C.unk8[3];
+        break;
+    case 9:
+        count = ECount(unk194[3]);
+        current = unk16C.unk8[15];
+        break;
+    case 10:
+        count = ECount(unk194[4]);
+        current = unk16C.unk8[16];
+        break;
+    case 11:
+        count = ECount(unk194[5]);
+        current = unk16C.unk8[17];
+        break;
+    case 0:
+        count = ECount(unk194[7]);
+        current = unk16C.unk8[1];
+        break;
+    case 6:
+        count = ECount(unk194[8]);
+        current = unk16C.unk8[7];
+        break;
+    default:
+        return;
+    }
+    choice %= (unsigned int)count;
+    if (current == (int)choice) {
+        return;
+    }
+    switch ((unsigned int)slot) {
+    case 3:
+        unk16C.unk8[4] = choice;
+        {
+            CASChoice16* table = (CASChoice16*)unk194[0];
+            unsigned int model = table[(signed char)choice].unk4;
+            if (model == 0) {
+                model = table[(signed char)choice].unk0;
+            }
+            fn_8001B53C(3, model);
+        }
+        unkC8->fn_8001FEA8(2, ((CASChoice16*)unk194[0])[unk16C.unk8[4]].unk8);
+        unkC8->fn_8001FEA8(3, ((CASChoice16*)unk194[0])[unk16C.unk8[4]].unkC);
+        break;
+    case 4:
+        unk16C.unk8[5] = choice;
+        {
+            CASChoice16* table = (CASChoice16*)unk194[1];
+            unsigned int model = table[(signed char)choice].unk4;
+            if (model == 0) {
+                model = table[(signed char)choice].unk0;
+            }
+            fn_8001B53C(4, model);
+        }
+        unkC8->fn_8001FEA8(4, ((CASChoice16*)unk194[1])[unk16C.unk8[5]].unk8);
+        unkC8->fn_8001FEA8(5, ((CASChoice16*)unk194[1])[unk16C.unk8[5]].unkC);
+        break;
+    case 5:
+        unk16C.unk8[6] = choice;
+        {
+            CASChoice12* table = (CASChoice12*)unk194[2];
+            unsigned int model = table[(signed char)choice].unk4;
+            if (model == 0) {
+                model = table[(signed char)choice].unk0;
+            }
+            fn_8001B53C(5, model);
+        }
+        unkC8->fn_8001FEA8(6, ((CASChoice12*)unk194[2])[unk16C.unk8[6]].unk8);
+        break;
+    case 2:
+        unk16C.unk8[3] = choice;
+        {
+            CASChoice16* table = (CASChoice16*)unk194[6];
+            unsigned int model = table[(signed char)choice].unk4;
+            if (model == 0) {
+                model = table[(signed char)choice].unk0;
+            }
+            fn_8001B53C(2, model);
+        }
+        unkC8->fn_8001FEA8(13, ((CASChoice16*)unk194[6])[unk16C.unk8[3]].unk8);
+        unkC8->fn_8001FEA8(14, ((CASChoice16*)unk194[6])[unk16C.unk8[3]].unkC);
+        break;
+    case 9:
+        unk16C.unk8[15] = choice;
+        {
+            CASChoice16* table = (CASChoice16*)unk194[3];
+            unsigned int model = table[(signed char)choice].unk4;
+            if (model == 0) {
+                model = table[(signed char)choice].unk0;
+            }
+            fn_8001B53C(9, model);
+        }
+        unkC8->fn_8001FEA8(8, ((CASChoice16*)unk194[3])[unk16C.unk8[15]].unkC);
+        if (((CASChoice16*)unk194[3])[unk16C.unk8[15]].unk8) {
+            fn_8001B53C(8, ((CASChoice16*)unk194[3])[unk16C.unk8[15]].unk8);
+        }
+        break;
+    case 10:
+        unk16C.unk8[16] = choice;
+        {
+            CASChoice12* table = (CASChoice12*)unk194[4];
+            unsigned int model = table[(signed char)choice].unk4;
+            if (model == 0) {
+                model = table[(signed char)choice].unk0;
+            }
+            fn_8001B53C(10, model);
+        }
+        unkC8->fn_8001FEA8(9, ((CASChoice12*)unk194[4])[unk16C.unk8[16]].unk8);
+        break;
+    case 11:
+        unk16C.unk8[17] = choice;
+        {
+            CASChoice12* table = (CASChoice12*)unk194[5];
+            unsigned int model = table[(signed char)choice].unk4;
+            if (model == 0) {
+                model = table[(signed char)choice].unk0;
+            }
+            fn_8001B53C(11, model);
+        }
+        unkC8->fn_8001FEA8(10, ((CASChoice12*)unk194[5])[unk16C.unk8[17]].unk8);
+        break;
+    case 0:
+        unk16C.unk8[1] = choice;
+        fn_8001B53C(0, ((unsigned int*)unk194[7])[(signed char)choice]);
+        break;
+    case 6:
+        unk16C.unk8[7] = choice;
+        {
+            CASChoice16* table = (CASChoice16*)unk194[8];
+            unsigned int model = table[(signed char)choice].unk4;
+            if (model == 0) {
+                model = table[(signed char)choice].unk0;
+            }
+            if (model != 0) {
+                fn_8001B53C(6, model);
+            } else {
+                fn_8001B53C(6, 0);
+            }
+        }
+        unkC8->fn_8001FEA8(12, ((CASChoice16*)unk194[8])[unk16C.unk8[7]].unk8);
+        break;
+    }
+    unkC8->fn_8001EFEC();
+    if (unkC) {
+        fn_8001C384();
+    }
+}
+
 // 0x8001BF1C
 int Unk80018374::fn_8001BF1C(unsigned int slot) {
     switch (slot) {

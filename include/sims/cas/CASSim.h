@@ -106,6 +106,7 @@ struct Unk800226F0 {
     void fn_800226F0(Unk801CC464* out);
     void fn_80021A14(ETextureLike* texture);
     void fn_8001FEA8(int, unsigned int textureId);
+    void fn_8001EFEC();
     void fn_80021D94();
     int fn_800218D8(int);
     void fn_80021928(int slot);
@@ -255,7 +256,7 @@ public:
     void fn_8001AE1C(int, CASTargetUnk533C* selectors);
     void fn_8001B53C(int slot, unsigned int modelId);
     void fn_8001B850(int slot);
-    void fn_8001B8E4(int slot, int choice);
+    void fn_8001B8E4(int slot, unsigned int choice); // set a slot's choice and load its model and textures
     int fn_8001BF1C(unsigned int slot); // current choice for a slot
     void fn_8001C028(int slot); // next choice
     void fn_8001C0A4(int slot); // previous choice
@@ -463,6 +464,19 @@ struct CASLockTable {
     CASLockEntry* unk8;
     CASLockEntry& At(int index) { return unk8[index]; }
 };
+// Entries of the choice tables: model, alternative model, then one or two textures.
+struct CASChoice16 {
+    unsigned int unk0;
+    unsigned int unk4;
+    unsigned int unk8;
+    unsigned int unkC;
+};
+struct CASChoice12 {
+    unsigned int unk0;
+    unsigned int unk4;
+    unsigned int unk8;
+};
+
 // One step of the body-shape animation sequence (0x18 bytes).
 struct CASAnimStep {
     unsigned int unk0;  // animation to the next step
