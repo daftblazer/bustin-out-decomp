@@ -19,7 +19,7 @@ public:
 };
 
 // Renderer singleton (also used by ESimsApp::Update).
-struct ESimsCamRenderer {
+struct ESimsCamRendererBase {
     virtual void vfn1();
     virtual void vfn2();
     virtual void vfn3();
@@ -59,6 +59,11 @@ struct ESimsCamRenderer {
     virtual float vfn37();
     virtual int vfn38();
     virtual int vfn39();
+};
+struct ESimsCamRenderer : public ESimsCamRendererBase {
+    char unk4[0x14 - 0x4];
+    int unk14; // display width
+    int unk18; // display height
 };
 extern ESimsCamRenderer* lbl_8037C198;
 
@@ -106,6 +111,8 @@ public:
     void fn_800058CC();
     void SetState(int state);
     void fn_80005984();
+    void fn_8000698C();
+    void fn_80006C58();
     void fn_80006D90();
     void fn_80006E6C();
     void SetWinPos(E3DWindow& window);

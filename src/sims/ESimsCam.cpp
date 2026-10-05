@@ -347,3 +347,24 @@ int ESimsCam::fn_800060A8() {
     }
     return 0;
 }
+
+// 0x8000650C
+void ESimsCam::fn_8000650C() {
+    unk390 = (unk3A4 - lbl_8037B408) / (lbl_8037B404 - lbl_8037B408) * (lbl_8037B414 - lbl_8037B418) + lbl_8037B418;
+    unk14.fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
+    float fov = GetFov();
+    fov *= (float)lbl_8037C198->unk18;
+    fov /= (float)lbl_8037C198->unk14;
+    float aspect = lbl_8037C198->vfn37();
+    float nearPlane = GetNearPlane();
+    float farPlane = GetFarPlane();
+    unk14.fn_80154490(fov, aspect, nearPlane, farPlane);
+    if (unk328 != 3) {
+        fn_8000698C();
+        if (unk3C8 == 0) {
+            fn_80006C58();
+        }
+    } else {
+        SetWinPos(unk14);
+    }
+}
