@@ -1,0 +1,29 @@
+#ifndef ENGINE_RESOURCEMANAGERS_H
+#define ENGINE_RESOURCEMANAGERS_H
+
+// Global resource managers. They share the lookup method at 0x80177628, so they
+// are probably instances of one class (or of classes with a common base); until
+// that is established each has its own placeholder type.
+
+// These three globals share the method at 0x80177628 (resource managers?).
+struct Unk803401C4 {
+    void* fn_80177628(unsigned int id, int, int); // look up / load a resource by id
+    char unk0[0xA4];
+    int unkA4; // default language
+};
+
+struct Unk80340AB8 {
+    void* fn_80177628(unsigned int id, int, int); // look up / load a resource by id
+    char unk0[0x6C];
+};
+
+struct Unk8033F5C4 {
+    void* fn_80177628(unsigned int id, int, int); // look up / load a resource by id
+    char unk0[0xA4];
+};
+
+extern Unk803401C4 lbl_803401C4;
+extern Unk80340AB8 lbl_80340AB8;
+extern Unk8033F5C4 lbl_8033F5C4;
+
+#endif

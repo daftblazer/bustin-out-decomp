@@ -1,0 +1,21 @@
+# Known members of CASTarget (0x5D30 bytes). See tools/gen_fields.py.
+FIRST 0x48
+END 0x5D30
+0x4C   4     void*              unk4C
+0x50   4     void*              unk50
+0x8C   0xA0  char               unk8C[0xA0]      # view window, passed to 0x801546D8
+0x4590 4     int                unk4590
+0x45C9 1     unsigned char      unk45C9
+0x52C4 4     void*              unk52C4          # UI viewer the dialogs are driven through
+0x52C8 4     int                unk52C8
+0x52D4 4     int                unk52D4
+0x52E4 4     Unk8003C95C*       unk52E4          # text renderer
+0x5310 4     int                unk5310
+0x5320 4     int                unk5320          # dialog showing
+0x5324 4     int                unk5324          # menu showing
+0x533C 0xE0  CASTargetUnk533C   unk533C
+0x541C 0xE0  CASTargetUnk533C   unk541C
+0x54FC 0xE0  CASTargetUnk533C   unk54FC
+0x55DC 0xE0  CASTargetUnk533C   unk55DC
+0x56BC 0xE0  CASTargetUnk533C   unk56BC
+0x57F0 1     unsigned char      unk57F0

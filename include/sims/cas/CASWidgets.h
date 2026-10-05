@@ -23,6 +23,7 @@ struct Unk8003C95C {
     EVec3 fn_8003D550(const unsigned short* text, int, int); // text extent
     void fn_8003DBE8(ERC* rc);
     void fn_8003D740(ERC* rc, const unsigned short* text, int, EVec2* position, int, int, int);
+    void fn_8003D93C(ERC* rc, const unsigned short* text, int, EVec2* position, int, int, float scaleX, float scaleY);
 
     char unk0[0x64];
     EColorF unk64;

@@ -3,6 +3,7 @@
 
 #include "engine/E3DWindow.h"
 #include "engine/EApp.h"
+#include "engine/ResourceManagers.h"
 #include "engine/EController.h"
 #include "sims/Unk8037D944.h"
 #include "engine/ERectF.h"
@@ -199,22 +200,6 @@ struct Unk8037C114 {
 extern Unk8037C114* lbl_8037C114;
 extern int lbl_8037B3E0; // start lot from the "-lot" command line option
 
-// These three globals share the method at 0x80177628 (resource managers?).
-struct Unk803401C4 {
-    void fn_80177628(unsigned int, int, int);
-    char unk0[0xA4];
-    int unkA4; // default language
-};
-
-struct Unk80340AB8 {
-    void fn_80177628(unsigned int, int, int);
-    char unk0[0x6C];
-};
-
-struct Unk8033F5C4 {
-    void fn_80177628(unsigned int, int, int);
-    char unk0[0xA4];
-};
 
 
 
@@ -357,9 +342,6 @@ extern float lbl_8037D938;
 void fn_800616B0();
 void fn_8018FE20(int, int);
 
-extern Unk803401C4 lbl_803401C4;
-extern Unk80340AB8 lbl_80340AB8;
-extern Unk8033F5C4 lbl_8033F5C4;
 // The loop bound in ESimsApp::Init is not folded into the comparison, so it
 // comes from an inline function rather than a literal.
 inline int GetNumControllers() { return 4; }

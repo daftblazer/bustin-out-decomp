@@ -262,6 +262,7 @@ config.libs = [
             Object(NonMatching, "sims/ESimsCam.cpp"),
             Object(NonMatching, "sims/cas/CASWidgets.cpp"),
             Object(NonMatching, "sims/cas/CASState.cpp"),
+            Object(NonMatching, "sims/cas/CASTarget.cpp"),
         ],
     ),
 ]
