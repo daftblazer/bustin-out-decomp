@@ -84,11 +84,15 @@ void Unk800230AC::fn_800236E4(ERC* rc) {
         unkDC8->fn_8003DBE8(rc);
         Unk800669ACResult result = lbl_802E6700.fn_800667EC("title");
         const unsigned short* text = (const unsigned short*)(result.ptr ? *result.ptr : 0);
-        EVec2 at(0.52f, 0.046f);
-        unkDC8->fn_8003D740(rc, text, 1, at, 2, 0, 0);
-        EVec2 position(0.5f - (unk5C - 0.04f) * 0.5f, 0.032f);
-        unk84->fn_80181824(rc);
-        rc->vfn49(position, EVec2(1.0f, 1.0f), EColorF(1.0f), 0.0f);
+        {
+            EVec2 at(0.52f, 0.046f);
+            unkDC8->fn_8003D740(rc, text, 1, at, 2, 0, 0);
+        }
+        {
+            EVec2 position(0.5f - (unk5C - 0.04f) * 0.5f, 0.032f);
+            unk84->fn_80181824(rc);
+            rc->vfn49(position, EVec2(1.0f, 1.0f), EColorF(1.0f), 0.0f);
+        }
     } else {
         fn_80041180(rc, unk60, 0.0358f, unk58, 1.0f);
         fn_80041180(rc, 0.5f - unk68 * 0.5f, 0.135f, unk68, 1.0f);
@@ -97,11 +101,15 @@ void Unk800230AC::fn_800236E4(ERC* rc) {
         unkDC8->fn_8003DBE8(rc);
         Unk800669ACResult result = lbl_802E6700.fn_800667EC("create a family");
         const unsigned short* text = (const unsigned short*)(result.ptr ? *result.ptr : 0);
-        EVec2 at(0.52f, 0.07f);
-        unkDC8->fn_8003D740(rc, text, 1, at, 2, 2, 0);
-        EVec2 position(0.5f - (unk58 - 0.04f) * 0.5f, 0.032f);
-        unk84->fn_80181824(rc);
-        rc->vfn49(position, EVec2(1.0f, 1.0f), EColorF(1.0f), 0.0f);
+        {
+            EVec2 at(0.52f, 0.07f);
+            unkDC8->fn_8003D740(rc, text, 1, at, 2, 2, 0);
+        }
+        {
+            EVec2 position(0.5f - (unk58 - 0.04f) * 0.5f, 0.032f);
+            unk84->fn_80181824(rc);
+            rc->vfn49(position, EVec2(1.0f, 1.0f), EColorF(1.0f), 0.0f);
+        }
     }
 }
 
@@ -109,9 +117,9 @@ void Unk800230AC::fn_800236E4(ERC* rc) {
 void Unk800230AC::vfn2() {
     if (unkDCC && (unk18 & 4)) {
         unk48.Advance(lbl_8037BFC8);
-        if (unk48.Running()) {
+        if (unk48.Cur() < unk48.Max()) {
             float t = 1.0f - unk48.Fraction();
-            float eased = (-t * t * t + t * t + t) * 0.2f + 0.0f;
+            float eased = (-t * t * t + t * t + t) * (0.2f - 0.0f) + 0.0f;
             if (unk72) {
                 unk54 = eased;
             } else {

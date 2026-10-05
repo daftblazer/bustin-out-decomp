@@ -35,7 +35,8 @@ struct Unk800230ACTimer {
         cur = r;
     }
     bool AtEnd() const { return cur == max; }
-    bool Running() const { return cur < max; }
+    float Cur() const { return cur; }
+    float Max() const { return max; }
     float Fraction() const { return (max - cur) / (max - min); }
 
     float min;
