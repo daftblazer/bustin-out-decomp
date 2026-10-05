@@ -157,12 +157,20 @@ inline Unk801FD05CResult* GetPart(Unk800053D4Inner* object, int kind) {
     }
     return 0;
 }
+inline bool HasFlag4(UnkTargetBase* screen) {
+    if (!(screen->unk18 & 4)) {
+        return false;
+    }
+    return true;
+}
 inline bool IsActive(UnkTargetBase* screen) {
     if (screen) {
-        return (screen->unk18 & 4) != 0;
+        return HasFlag4(screen);
     }
     return false;
 }
+// A flag of the camera object.
+inline bool IsCameraBusy() { return *(int*)((char*)lbl_802E6700.unkBC + 0x2958) != 0; }
 
 // Callback table copied over the engine's defaults (0x30 bytes at 0x802D1ED8).
 struct Unk802DBAEC {
@@ -699,10 +707,12 @@ void Unk80026864::vfn7(UnkTargetBase* sender, int message) {
 
 // 0x8002840C
 // Mode change (the virtual base's slot 2).
-// NON_MATCHING: not yet compared.
 void Unk80026864::vfn2(int mode) {
     Unk802A2AC0::mode = mode;
     switch (mode) {
+    case 9:
+        fn_801888F4(2, 1);
+        break;
     case 0:
         Common();
         ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
@@ -716,14 +726,16 @@ void Unk80026864::vfn2(int mode) {
         fn_801888F4(2, 0);
         unk84 = 6;
         break;
-    case 3:
-        if (unk38 == 0) {
+    case 3: {
+        int player = unk38;
+        if (player == 0) {
             Common();
             ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
             fn_801888F4(2, 0);
-            unk84 = unk38;
+            unk84 = player;
         }
         break;
+    }
     case 4:
         if (unk38 != 1) {
             break;
@@ -737,9 +749,6 @@ void Unk80026864::vfn2(int mode) {
         fn_801888F4(2, 0);
         unk84 = 0;
         break;
-    case 9:
-        fn_801888F4(2, 1);
-        break;
     case 5:
         break;
     default:
@@ -749,9 +758,8 @@ void Unk80026864::vfn2(int mode) {
 }
 
 // 0x800285D4
-// NON_MATCHING: not yet compared.
 void Unk80026864::fn_800285D4() {
-    if (!(*(int*)((char*)lbl_802E6700.unkBC + 0x2958) != 0)) {
+    if (!IsCameraBusy()) {
         UnkTargetBase* child = unkC8;
         if (unk84 == 1 && IsActive(child)) {
             child->vfn2();
