@@ -85,6 +85,11 @@ public:
     void fn_80027FCC(struct Unk800053D4Inner* object);
     void fn_800285D4();
     void fn_800286CC();
+    void fn_80028BB0(int notify);
+    int fn_80028F30();
+    void fn_8002A0F4(void* definition);
+    void fn_8002A1BC(struct ERC* rc);
+    void fn_8002BE48(struct Unk800053D4Inner* object);
     int fn_80028860();
     void* fn_80028E84();
     static void fn_80028ECC();

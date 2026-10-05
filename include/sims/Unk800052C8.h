@@ -165,7 +165,7 @@ struct Unk800053D4Inner {
     virtual void vfn95();
     virtual void vfn96();
     virtual void vfn97();
-    virtual void vfn98();
+    virtual int vfn98(int);
     virtual void vfn99();
     virtual void vfn100();
     virtual void vfn101();
@@ -192,6 +192,19 @@ struct Unk800053D4Inner {
     virtual void vfn122();
     virtual void vfn123();
     virtual int vfn124();
+    virtual void vfn125();
+    virtual void vfn126();
+    virtual void vfn127();
+    virtual void vfn128();
+    virtual void vfn129();
+    virtual void vfn130();
+    virtual int vfn131();
+    virtual void vfn132();
+    virtual void vfn133();
+    virtual void vfn134();
+    virtual void vfn135();
+    virtual void vfn136();
+    virtual int vfn137();
 };
 
 // Skeleton-like object: slot 35 fetches the matrix of a node.

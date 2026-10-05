@@ -16,6 +16,11 @@ struct Unk800669ACResult {
     int* ptr;
 };
 
+struct EGlobalUnk114 {
+    char unk0[0x104];
+    int unk104;
+};
+
 class EGlobal {
 public:
     void Begin();                 // 0x8006887C
@@ -30,6 +35,7 @@ public:
     void fn_800690E0(int);
     void fn_80068054(int, int);
     void fn_800673EC(int);
+    int fn_80068ED8();
     void fn_80068838();
     int fn_80068D9C(void* object);
     int fn_800690B0(int);
@@ -59,9 +65,12 @@ public:
     struct Unk80181824* unkE4;    // plain white texture
     char unkE8[0xEC - 0xE8];
     struct Unk8003C95C* unkEC;    // default font
-    char unkF0[0x118 - 0xF0];
+    char unkF0[0x114 - 0xF0];
+    struct EGlobalUnk114* unk114;
     struct EGlobalUnk118* unk118;
-    char unk11C[0x140 - 0x11C];
+    char unk11C[0x138 - 0x11C];
+    int unk138;                   // player whose turn it is in mode 9
+    int unk13C;
     // Settings registered by ECheats::Init under the names in the comments.
     int unk140;             // soundon
     int unk144;             // freeitems

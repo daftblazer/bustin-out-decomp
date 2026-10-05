@@ -23,7 +23,7 @@ struct Unk801FD05CResult {
     virtual void vfn5();
     virtual void vfn6();
     virtual void vfn7();
-    virtual void* vfn8b();
+    virtual Unk800053D4Inner* vfn8b();   // the object itself
     virtual int vfn9();
     virtual void vfn10(int);
 };
@@ -135,6 +135,66 @@ struct Unk8037D98C {
     virtual void vfn17();
     virtual Unk800053D4Inner* vfn18(int id);
     int fn_801C8858(void* definition, int arg, int);
+    int fn_801C92C4(void* definition, int arg, int);
+    int Create(void* definition, int arg, int flag) { return fn_801C92C4(definition, arg, flag); }
+};
+// The same object's slot 11 (destroy an object by definition); declared apart
+// because slot 18 above is the only other one known.
+struct Unk8037D98CB {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11(void* definition);
+};
+struct Unk8037D944B {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26(int kind, int amount, int);
+};
+extern void* lbl_8037D944;
+struct Unk800914D0 {
+    void fn_800914D0();
+};
+struct Unk8007F630 {
+    void fn_8007F630(int player, Unk80026864List* out);
+};
+struct Unk80064F8C {
+    int fn_80064F8C(unsigned char player);
+};
+extern Unk80064F8C* lbl_802E30B8[3]; // part of a larger object; size guessed
+struct Unk80217FDCInfoB {
+    char unk0[0x24];
+    short unk24; // price
 };
 extern Unk8037D98C* lbl_8037D98C;
 struct Unk801FD05CGroupNode {
@@ -770,7 +830,7 @@ void Unk80026864::vfn7(UnkTargetBase* sender, int message) {
                     lbl_8037D96C->fn_8006186C(0xD9552AE4);
                     ((Unk8004F7EC*)unkC8)->fn_8004F7EC();
                     unk84 = 0;
-                    fn_80027FCC((Unk800053D4Inner*)((Unk801FD05CResult*)unkF0)->vfn8b());
+                    fn_80027FCC(unkF0->vfn8b());
                     return;
                 }
             }
@@ -938,6 +998,55 @@ int fn_80028AA4(Unk800053D4Inner* object) {
     return 1;
 }
 
+// 0x80028BB0
+// Lets go of the object being placed: a moved object goes back (or to the
+// nearest free tile, or is destroyed), a bought one is refunded.
+// NON_MATCHING: not yet compared.
+void Unk80026864::fn_80028BB0(int notify) {
+    unk84 = 0;
+    if (unkF0 == 0) {
+        unk1B0 = 0;
+        if (notify) {
+            ((UnkTargetBase*)unkC)->vfn7(this, 0x27);
+        }
+        return;
+    }
+    if (unk8C) {
+        Unk800053D4Inner* object = unkF0->vfn8b();
+        if (!fn_80028860()) {
+            unkF0->vfn7();
+            if (!fn_80028AA4(object)) {
+                ((Unk8037D98CB*)lbl_8037D98C)->vfn11(object->vfn111());
+                object = 0;
+            }
+        }
+        if (object) {
+            fn_8002BE48(object);
+            lbl_8037D96C->fn_8006186C(0xD9552AE4);
+            fn_80027FCC(object);
+        }
+    } else {
+        Unk800053D4Inner* object = unkF0->vfn8b();
+        if (object) {
+            int kind = 7;
+            if (!object->vfn137()) {
+                kind = 6;
+            }
+            if (lbl_802E6700.unk144 == 0 && !lbl_802E6700.fn_80068ED8()) {
+                ((Unk8037D944B*)lbl_8037D944)->vfn26(kind, -((Unk80217FDCInfoB*)fn_80217FDC(object->vfn119())->unk18)->unk24, 0);
+            }
+        }
+        unkF0->vfn6();
+        ((Unk800914D0*)((char*)lbl_802E6700.unkBC + 0x2970))->fn_800914D0();
+    }
+    ((Unk8037D98CB*)lbl_8037D98C)->vfn11(unkF0->Object()->vfn111());
+    unkF0 = 0;
+    lbl_8037D994->vfn19();
+    if (notify) {
+        ((UnkTargetBase*)unkC)->vfn7(this, 0x27);
+    }
+}
+
 // 0x80028E84
 void* Unk80026864::fn_80028E84() {
     return unkF0 ? unkF0->vfn8b() : 0;
@@ -948,6 +1057,109 @@ void Unk80026864::fn_80028ECC() {
     ((Unk8037D990B*)lbl_8037D990)->vfn34(0);
     lbl_802E6700.fn_80068838();
     lbl_8037D994->vfn19();
+}
+
+// 0x80028F30
+// Whether the held object may be put down where it is.
+// NON_MATCHING: not yet compared.
+int Unk80026864::fn_80028F30() {
+    Unk800053D4Inner* object;
+    if (unkF0 == 0 || (object = unkF0->vfn8b()) == 0) {
+        return 0;
+    }
+    if (unk90) {
+        return 1;
+    }
+    bool ok = (object->vfn88(0x2B) & 8) ? true : false;
+    if (ok) {
+        if (!object->vfn124()) {
+            if (object->vfn98(0)) {
+                ok = false;
+            }
+        } else {
+            Unk801FD05CResult* group = fn_801FD05C(GetUnk20(object), 3);
+            if (!group->vfn9()) {
+                for (Unk800053D4Inner** it = group->vfn2(); it; it = group->vfn3()) {
+                    if ((*it)->vfn98(0)) {
+                        ok = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return ok;
+}
+
+// 0x800290B0
+// State 0's handler: what putting the held object back would cost (negated).
+int Unk80026864::fn_800290B0() {
+    Unk800053D4Inner* object;
+    if (unkF0 == 0 || (object = unkF0->vfn8b()) == 0) {
+        return 0;
+    }
+    int value;
+    if (unk90) {
+        value = ((Unk80217FDCInfoB*)fn_80217FDC(object->vfn119())->unk18)->unk24;
+    } else {
+        if (object->vfn137() == 4) {
+            return 0;
+        }
+        value = object->vfn131();
+    }
+    return -value;
+}
+
+// 0x80029B2C
+void Unk80026864::vfn2() {
+    if (unk38 == 1 && !lbl_802E6700.fn_800655C4()) {
+        return;
+    }
+    if (lbl_802E30B8[0]->fn_80064F8C(unk38) && (unk18 & 2) &&
+        lbl_802E6700.unk114->unk104 == 0) {
+        switch (mode) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            fn_800285D4();
+            break;
+        case 9:
+            if (unk38 == lbl_802E6700.unk138) {
+                fn_800286CC();
+            }
+            break;
+        }
+    }
+}
+
+// 0x8002A0A8
+void Unk80026864::fn_8002A0A8() {
+    unk148.fn_801B4760();
+    ((Unk8007F630*)((Unk8004AD08*)lbl_802E67B0.unk0)->unk4)->fn_8007F630(unk38, &unk148);
+}
+
+// 0x8002A0F4
+// Starts placing a newly bought object.
+void Unk80026864::fn_8002A0F4(void* definition) {
+    unk90 = 1;
+    unk1B0 = 0;
+    unk8C = 0;
+    int arg = lbl_8037D988->vfn14(0x437);
+    int id = lbl_8037D98C->Create(fn_80217FDC(definition), arg, 1);
+    unkF0 = GetPart(lbl_8037D98C->vfn18(id), 4);
+    unk84 = 0;
+}
+
+// 0x8002A1BC
+void Unk80026864::fn_8002A1BC(ERC* rc) {
+    if (unk84 == 1 && IsActive(unkC8)) {
+        unkC8->vfn3(rc);
+    }
 }
 
 // 0x8002ECE8
