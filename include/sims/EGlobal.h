@@ -24,6 +24,7 @@ public:
     unsigned int fn_800655D8();
     void fn_800656D8();
     Unk800669ACResult fn_800669AC(const char* format, ...);
+    Unk800669ACResult fn_800667EC(const char* format, ...);
     void fn_80068DE8(Unk80340120Resource*, Unk8016BC18*);
     void fn_800690E0(int);
 

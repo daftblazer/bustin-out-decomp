@@ -7,21 +7,27 @@
     Unk801543AC unk5C; // 0x5c holds the saved view matrix
     char padCC[0x2fc];
     Unk8001EE8C unk3C8; // 0x3c8 class of the unit at 0x8001EE8C
-    char pad3CC[0x40bc];
-    Unk801CC464 unk4488; // 0x4488
-    char pad448C[0xe8];
+    char pad3CC[0x4098];
+    Unk80018374* unk4464; // 0x4464
+    char pad4468[0x10];
+    CASSimDesc* unk4478; // 0x4478 array of descriptions
+    CASSimDesc unk447C; // 0x447c description being edited
     void* unk4574; // 0x4574
     void* unk4578; // 0x4578
     void* unk457C; // 0x457c
-    char pad4580[0x8];
+    int unk4580; // 0x4580
+    int unk4584; // 0x4584
     int unk4588; // 0x4588
-    char pad458C[0x4];
+    int unk458C; // 0x458c
     int unk4590; // 0x4590
-    char pad4594[0x14];
+    char pad4594[0xc];
+    int unk45A0; // 0x45a0
+    char pad45A4[0x4];
     int unk45A8; // 0x45a8
     char pad45AC[0x1d];
     unsigned char unk45C9; // 0x45c9
-    char pad45CA[0x52];
+    signed char unk45CA; // 0x45ca index into unk4478
+    char pad45CB[0x51];
     Unk80039E78 unk461C; // 0x461c
     char pad4620[0x8d0];
     Unk80156438 unk4EF0; // 0x4ef0
