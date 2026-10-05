@@ -59,3 +59,5 @@ sims/cas/CASSim.cpp:
 sims/cas/CASSkin.cpp:
 	.text       start:0x8001EE8C end:0x800230AC
 	.ctors      start:0x80291CB4 end:0x80291CB8
+	.rodata     start:0x802957E0 end:0x80295D20
+	.bss        start:0x802E5A8C end:0x802E5AEC
