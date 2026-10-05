@@ -16,7 +16,7 @@
     char pad3CC[0x4098];
     Unk80018374* unk4464; // 0x4464
     Unk80018374* unk4468[4]; // 0x4468
-    CASSimDesc* unk4478; // 0x4478 array of descriptions
+    CASFamily* unk4478; // 0x4478 family being created or edited
     CASSimDesc unk447C; // 0x447c description being edited
     void* unk4574; // 0x4574
     Unk801800FC* unk4578; // 0x4578 data set holding the animation id lists
@@ -34,7 +34,7 @@
     float unk45B0; // 0x45b0 camera move progress, 0 to 1
     char pad45B4[0x8];
     float unk45BC; // 0x45bc
-    char pad45C0[0x4];
+    float unk45C0; // 0x45c0
     float unk45C4; // 0x45c4
     unsigned char unk45C8; // 0x45c8 current view
     unsigned char unk45C9; // 0x45c9

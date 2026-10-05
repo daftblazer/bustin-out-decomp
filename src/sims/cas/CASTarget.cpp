@@ -231,28 +231,27 @@ void CASTarget::fn_8000D010() {
 }
 
 // 0x8000D020
-// NON_MATCHING: 11 of 130 differ: the order of the nine initial stores, and in the
-// delete loop the original steps the array pointer before the counter and addresses the
-// description field as (base + 0xA8) + offset. Eleven variants tried.
-// Starts a session: either editing the family in `descs` or creating one.
-void CASTarget::fn_8000D020(CASSimDesc* descs, int edit) {
-    unk4588 = 0;
+// NON_MATCHING: 2 of 130 differ. In the delete loop the original decrements the
+// counter after stepping the array pointer; here the decrement is scheduled two
+// instructions earlier (the same loop pattern as fn_8000FA68).
+void CASTarget::fn_8000D020(CASFamily* family, int edit) {
     unk5314 = edit;
     unk458C = 1;
-    unk45C9 = 0;
-    unk4478 = descs;
+    unk4478 = family;
     unk52E8 = 0;
     unk4590 = 0;
     unk45A0 = 0;
     unk45CA = 0;
+    unk4588 = 0;
+    unk45C9 = 0;
     for (int i = 0; i < 4; i++) {
         delete unk4468[i];
         unk4468[i] = 0;
-        unk4478[i].unkA8 = 0;
+        unk4478->sims[i].unkA8 = 0;
     }
     delete unk4464;
     if (unk5314) {
-        unk4464 = new Unk80018374(&unk4478[unk45CA], &unk3C8, 0);
+        unk4464 = new Unk80018374(&unk4478->sims[unk45CA], &unk3C8, 0);
         unk4464->unk14 = unk458C;
         if (unk4464->unk16C.unk4) {
             if (unk4464->unk16C.unk0) {
@@ -288,7 +287,7 @@ void CASTarget::fn_8000D020(CASSimDesc* descs, int edit) {
 // when creating.
 void CASTarget::fn_8000D228() {
     if (unk5314) {
-        CASSimDesc* desc = &unk4478[unk45CA];
+        CASSimDesc* desc = &unk4478->sims[unk45CA];
         unk533C[0].fn_80015908(desc->unk0[5]);
         unk533C[1].fn_80015908(desc->unk0[4]);
         unk533C[2].fn_80015908(desc->unk0[1]);
@@ -308,6 +307,88 @@ void CASTarget::fn_8000D228() {
     }
     vfn7(this, 0x40);
     vfn7(this, 0x41);
+}
+
+// 0x8000D440
+// Shows the family line-up: rebuilds the sims of `family` (all four, or only
+// `which`) and stands them at their places.
+void CASTarget::fn_8000D440(CASFamily* family, int edit, int which) {
+    EVec3 position(0.0f);
+    unk458C = 0;
+    unk4590 = 0;
+    unk45C9 = 0;
+    for (int i = 0; i < 4; i++) {
+        if (family->present[i]) {
+            unk45C9++;
+        }
+    }
+    unk4478 = family;
+    unk52E8 = 1;
+    unk5314 = edit;
+    int first = 0;
+    int end = 4;
+    if (which != -1) {
+        first = which;
+        end = first + 1;
+    }
+    for (int i = first; i < end; i++) {
+        if (unk4468[i]) {
+            delete unk4468[i];
+            unk4468[i] = 0;
+        }
+        if (unk4478->present[i]) {
+            unk3C8.fn_8001FAE0();
+            unk3C8.fn_8001F34C();
+            unk4468[i] = new Unk80018374(&unk4478->sims[i], &unk3C8, 0);
+            unk4468[i]->unk14 = unk458C;
+            unk3C8.fn_8001EFEC();
+            unk4468[i]->fn_8001C384();
+            switch (i) {
+            case 0:
+                position.x = 0.74f;
+                position.y = -7.5f;
+                break;
+            case 1:
+                position.x = -0.34f;
+                position.y = -7.5f;
+                break;
+            case 2:
+                position.x = 0.18f;
+                position.y = -7.5f;
+                break;
+            case 3:
+                position.x = 1.3f;
+                position.y = -7.5f;
+                break;
+            case 4:
+                position.x = 3.6f;
+                position.y = -7.75f;
+                break;
+            case 5:
+                position.x = 0.5f;
+                position.y = -6.5f;
+                break;
+            case 6:
+                position.x = -1.4f;
+                position.y = -7.5f;
+                break;
+            default:
+                position.x = 2.5f;
+                position.y = -7.0f;
+                break;
+            }
+            unk4468[i]->SetUnk154(position);
+            unk4468[i]->fn_8001E6E8(1, 1);
+        } else {
+            unk4468[i] = 0;
+            unk4478->sims[i].unkA8 = 0;
+        }
+    }
+    unk384 = lbl_802E589C;
+    unk3A8 = lbl_802E58A8;
+    unk45C8 = 0x2D;
+    unk45B0 = 0.0f;
+    unk45BC = unk45C0;
 }
 
 // 0x8000D7D8
@@ -539,7 +620,7 @@ void CASTarget::fn_8000FECC(unsigned char view) {
 // selector state.
 void CASTarget::fn_800102B0() {
     unk4464->fn_8001C240();
-    unk447C = unk4478[unk45CA];
+    unk447C = unk4478->sims[unk45CA];
     Unk80018374* sim = unk4464;
     sim->unkC8->fn_800226F0(&sim->unk16C);
     unk447C.unkC = sim->unk16C;

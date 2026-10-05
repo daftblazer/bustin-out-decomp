@@ -16,7 +16,7 @@ END 0x5D30
 0x3C8  4      Unk8001EE8C        unk3C8           # class of the unit at 0x8001EE8C
 0x4464 4      Unk80018374*       unk4464
 0x4468 0x10   Unk80018374*       unk4468[4]
-0x4478 4      CASSimDesc*        unk4478          # array of descriptions
+0x4478 4      CASFamily*         unk4478          # family being created or edited
 0x447C 0xF8   CASSimDesc         unk447C          # description being edited
 0x4574 4      void*              unk4574
 0x4578 4      Unk801800FC*       unk4578          # data set holding the animation id lists
@@ -30,6 +30,7 @@ END 0x5D30
 0x45A8 4      int                unk45A8
 0x45B0 4      float              unk45B0          # camera move progress, 0 to 1
 0x45BC 4      float              unk45BC
+0x45C0 4      float              unk45C0
 0x45C4 4      float              unk45C4
 0x45C8 1      unsigned char      unk45C8          # current view
 0x45C9 1      unsigned char      unk45C9

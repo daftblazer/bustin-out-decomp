@@ -43,6 +43,9 @@ public:
 struct Unk8001EE8C {
     Unk8001EE8C();
     ~Unk8001EE8C();
+    void fn_8001EFEC();
+    void fn_8001F34C();
+    void fn_8001FAE0();
     char unk0[4];
 };
 struct Unk801CC464 {
@@ -62,6 +65,11 @@ struct CASSimDesc {
     char unk28[0xA8 - 0x28];
     int unkA8;
     char unkAC[0xF8 - 0xAC];
+};
+// A family of up to four sims.
+struct CASFamily {
+    CASSimDesc sims[4];
+    int present[4];
 };
 struct Unk80039E78 {
     Unk80039E78();
@@ -113,6 +121,9 @@ struct Unk80018374 {
     ~Unk80018374() { fn_8001A67C(); }
     void fn_8001A67C();
     void fn_8001C240();
+    void fn_8001C384();
+    void fn_8001E6E8(int, int);
+    void SetUnk154(EVec3 position) { unk154 = position; }
 
     char unk0[8];
     int unk8;
@@ -122,7 +133,8 @@ struct Unk80018374 {
     Unk800226F0* unkC8;
     char unkCC[0xE0 - 0xCC];
     Unk80156438 unkE0;
-    char unk154[0x16C - 0x154];
+    EVec3 unk154; // position in the line-up
+    char unk160[0x16C - 0x160];
     Unk801CC464 unk16C;
     char unk188[0x19C - 0x188];
 };
@@ -345,7 +357,8 @@ public:
     void fn_8000C588();
     void fn_8000CBD8();
     void fn_8000D010();
-    void fn_8000D020(CASSimDesc* descs, int edit);
+    void fn_8000D020(CASFamily* family, int edit);
+    void fn_8000D440(CASFamily* family, int edit, int which);
     void fn_8000D228();
     void fn_8000D7D8();
     void fn_800102B0();

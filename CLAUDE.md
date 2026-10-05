@@ -244,3 +244,6 @@ Single-line commit messages, no co-author or tool attribution.
     (`stfs f0,0x54(r25)`); direct access folds the offset into `this` (`stfs f0,0x4f44(r31)`).
   - An inline function with a constant float argument keeps its multiplication unfolded
     (`EDegToRad(175.0f)` is two loads and an `fmuls`).
+  - Runs of zero stores of mixed width: when a byte store uses its own zero register (`li r11,0`) but the
+    original shares one, a word-sized zero store comes first in the source. In fn_8000D440 the source
+    order `unk458C, unk4590, unk45C9` is emitted as `45c9, 458c, 4590`; try moving byte stores last.
