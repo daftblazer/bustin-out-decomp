@@ -75,6 +75,10 @@ struct Unk8002436C {
 };
 
 struct Unk80024410Entry {
+    void Reset() {
+        list.fn_800243D0();
+        unk44 = 0;
+    }
     Unk8002436C list;
     void (*unk44)(int);
     int unk48;
@@ -141,12 +145,10 @@ public:
         return it;
     }
     void Insert(ECheatLookup* lookup) {
-        int index = ECheatLookup::hash(lookup->name) & 0x3F;
+        int index = fn_801AE714(lookup->name) & 0x3F;
         lookup->next = table.buckets[index];
         table.buckets[index] = lookup;
     }
-    void Add(const char* name, int type, void* var);
-    void AddHidden(const char* name, int type, void* var);
 
     ECheatTable table;
     int unk100;                 // set once the settings file has been read

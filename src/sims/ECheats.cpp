@@ -91,35 +91,37 @@ ECheats::~ECheats() {
     EmptyLookupList();
 }
 
-inline void ECheats::Add(const char* name, int type, void* var) {
-    ECheatLookup* lookup = new ECheatLookup;
-    strcpy(lookup->name, name);
-    lookup->type = type;
-    lookup->var = var;
-    Insert(lookup);
-}
-
-inline void ECheats::AddHidden(const char* name, int type, void* var) {
-    ECheatLookup* lookup = new ECheatLookup;
-    strcpy(lookup->name, name);
-    lookup->type = type;
-    lookup->var = var;
-    lookup->unk50 = 0;
-    Insert(lookup);
-}
-
-#define GLOBAL_FIELD(offset) ((char*)&global + (offset))
+// Registering a setting. These have to be macros: the name is copied with an
+// inline (builtin) strcpy, which the compiler only expands for a literal.
+#define ADD_CHEAT(name_, type_, var_) \
+    { \
+        lookup = new ECheatLookup; \
+        strcpy(lookup->name, name_); \
+        lookup->type = type_; \
+        lookup->var = var_; \
+        Insert(lookup); \
+    }
+#define ADD_HIDDEN_CHEAT(name_, type_, var_) \
+    { \
+        lookup = new ECheatLookup; \
+        lookup->unk50 = 0; \
+        strcpy(lookup->name, name_); \
+        lookup->type = type_; \
+        lookup->var = var_; \
+        Insert(lookup); \
+    }
 
 // 0x80024500
 // Registers every setting with the EGlobal field it controls, then reads the
 // settings file.
 // NON_MATCHING: not yet compared in detail (see the note in the report).
 void ECheats::Init(EGlobal& global) {
+    int i;
+    ECheatLookup* lookup;
     unk108.fn_800243D0();
     unk14C = 0;
-    for (int i = 0; i <= 0x3F; i++) {
-        unk150[i].list.fn_800243D0();
-        unk150[i].unk44 = 0;
+    for (i = 0; i < 0x40; i++) {
+        unk150[i].Reset();
     }
     Unk8002436C buttons;
     buttons.fn_800243B0(1);
@@ -128,46 +130,59 @@ void ECheats::Init(EGlobal& global) {
     buttons.fn_800243B0(8);
     fn_80025A68(buttons, fn_80024404, 1);
     EmptyLookupList();
-    Add("soundon", 1, GLOBAL_FIELD(0x140));
-    Add("freeitems", 1, GLOBAL_FIELD(0x144));
-    Add("memory_display", 1, GLOBAL_FIELD(0x148));
-    Add("unlock_all_items", 1, GLOBAL_FIELD(0x14C));
-    Add("unlock_all_houses", 1, GLOBAL_FIELD(0x150));
-    Add("unlock_party_motel", 1, GLOBAL_FIELD(0x154));
-    Add("unlock_freeplay_mode", 1, GLOBAL_FIELD(0x158));
-    Add("debug_interactions", 1, GLOBAL_FIELD(0x15C));
-    Add("animation_name_display", 1, GLOBAL_FIELD(0x160));
-    Add("display_fps", 1, GLOBAL_FIELD(0x164));
-    Add("localization_test", 2, GLOBAL_FIELD(0x1B0));
-    Add("resource_test", 1, GLOBAL_FIELD(0x194));
-    Add("cheatmenu", 1, GLOBAL_FIELD(0x178));
-    Add("tutorial_stage", 2, GLOBAL_FIELD(0x1A8));
-    Add("tutorial_house", 2, GLOBAL_FIELD(0x1A9));
-    Add("enable_npc_reset", 1, GLOBAL_FIELD(0x18C));
-    Add("eor_artsend_debug", 1, GLOBAL_FIELD(0x168));
-    Add("Cam_Tilt", 1, GLOBAL_FIELD(0x16C));
-    Add("Cam_First_Per", 1, GLOBAL_FIELD(0x170));
-    Add("grab_any_object", 1, GLOBAL_FIELD(0x174));
-    Add("cas_start_as_male", 1, GLOBAL_FIELD(0x17C));
-    AddHidden("ambientIntensity", 2, GLOBAL_FIELD(0x1AA));
-    AddHidden("directionIntensity", 2, GLOBAL_FIELD(0x1AB));
-    AddHidden("cameraIntensity", 2, GLOBAL_FIELD(0x1AC));
-    AddHidden("directionX", 2, GLOBAL_FIELD(0x1AD));
-    AddHidden("directionY", 2, GLOBAL_FIELD(0x1AE));
-    AddHidden("directionZ", 2, GLOBAL_FIELD(0x1AF));
-    AddHidden("lobby_server", 2, GLOBAL_FIELD(0x1A0));
-    AddHidden("dnas_enabled", 1, GLOBAL_FIELD(0x198));
-    AddHidden("lobby_thumbnails", 1, GLOBAL_FIELD(0x19C));
-    AddHidden("lobby_select_delay", 4, GLOBAL_FIELD(0x1A2));
-    AddHidden("dnas_error", 4, GLOBAL_FIELD(0x1A4));
-    AddHidden("lobby_error", 4, GLOBAL_FIELD(0x1A6));
-    AddHidden("boot2", 6, GLOBAL_FIELD(0x1B1));
-    Add("draw_safe_rect", 1, GLOBAL_FIELD(0x180));
-    Add("draw_flash_output", 1, GLOBAL_FIELD(0x184));
-    Add("draw_motive_values", 1, GLOBAL_FIELD(0x188));
-    Add("print_sound_calls", 1, GLOBAL_FIELD(0x190));
+    ADD_CHEAT("soundon", 1, &global.unk140);
+    ADD_CHEAT("freeitems", 1, &global.unk144);
+    ADD_CHEAT("memory_display", 1, &global.unk148);
+    ADD_CHEAT("unlock_all_items", 1, &global.unk14C);
+    ADD_CHEAT("unlock_all_houses", 1, &global.unk150);
+    ADD_CHEAT("unlock_party_motel", 1, &global.unk154);
+    ADD_CHEAT("unlock_freeplay_mode", 1, &global.unk158);
+    ADD_CHEAT("debug_interactions", 1, &global.unk15C);
+    ADD_CHEAT("animation_name_display", 1, &global.unk160);
+    ADD_CHEAT("display_fps", 1, &global.unk164);
+    ADD_CHEAT("localization_test", 2, &global.unk1B0);
+    ADD_CHEAT("resource_test", 1, &global.unk194);
+    ADD_CHEAT("cheatmenu", 1, &global.unk178);
+    ADD_CHEAT("tutorial_stage", 2, &global.unk1A8);
+    ADD_CHEAT("tutorial_house", 2, &global.unk1A9);
+    ADD_CHEAT("enable_npc_reset", 1, &global.unk18C);
+    ADD_CHEAT("eor_artsend_debug", 1, &global.unk168);
+    ADD_CHEAT("Cam_Tilt", 1, &global.unk16C);
+    ADD_CHEAT("Cam_First_Per", 1, &global.unk170);
+    ADD_CHEAT("grab_any_object", 1, &global.unk174);
+    ADD_CHEAT("cas_start_as_male", 1, &global.unk17C);
+    // The first hidden setting clears its flag after the name is copied, the
+    // others before; the original evidently wrote these out one by one.
+    lookup = new ECheatLookup;
+    strcpy(lookup->name, "ambientIntensity");
+    lookup->unk50 = 0;
+    lookup->type = 2;
+    lookup->var = &global.unk1AA;
+    Insert(lookup);
+    ADD_HIDDEN_CHEAT("directionIntensity", 2, &global.unk1AB);
+    ADD_HIDDEN_CHEAT("cameraIntensity", 2, &global.unk1AC);
+    ADD_HIDDEN_CHEAT("directionX", 2, &global.unk1AD);
+    ADD_HIDDEN_CHEAT("directionY", 2, &global.unk1AE);
+    ADD_HIDDEN_CHEAT("directionZ", 2, &global.unk1AF);
+    ADD_HIDDEN_CHEAT("lobby_server", 2, &global.unk1A0);
+    ADD_HIDDEN_CHEAT("dnas_enabled", 1, &global.unk198);
+    ADD_HIDDEN_CHEAT("lobby_thumbnails", 1, &global.unk19C);
+    ADD_HIDDEN_CHEAT("lobby_select_delay", 4, &global.unk1A2);
+    ADD_HIDDEN_CHEAT("dnas_error", 4, &global.unk1A4);
+    ADD_HIDDEN_CHEAT("lobby_error", 4, &global.unk1A6);
+    ADD_HIDDEN_CHEAT("boot2", 6, global.unk1B1);
+    ADD_CHEAT("draw_safe_rect", 1, &global.unk180);
+    ADD_CHEAT("draw_flash_output", 1, &global.unk184);
+    ADD_CHEAT("draw_motive_values", 1, &global.unk188);
+    ADD_CHEAT("print_sound_calls", 1, &global.unk190);
+    lbl_802E6700.unk194 = 0;
+    int sound = lbl_802E6700.unk140;
     ReadCheatsFile();
     WriteCheatsFile();
+    if (sound == 0) {
+        lbl_802E6700.unk140 = sound;
+    }
+    unk104 = 0;
 }
 
 // 0x80025518
@@ -317,16 +332,16 @@ void ECheats::Update() {
     fn_80025B14();
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(0));
     if (unk104 == 0) {
-        if (*(int*)((char*)&lbl_802E6700 + 0x178) && controller->fn_8015E0F8(0xB)) {
+        if (lbl_802E6700.unk178 && controller->fn_8015E0F8(0xB)) {
             unk104 = 1;
-            lbl_8037B498 = *((unsigned char*)&lbl_802E6700 + 0x1B0);
+            lbl_8037B498 = lbl_802E6700.unk1B0;
             EnableCheats();
             ReadCheatsFile();
         }
     } else if (controller->fn_8015E0F8(5) || controller->fn_8015E0F8(7)) {
         if (lbl_8037D988) {
             unk104 = 0;
-            unsigned char language = *((unsigned char*)&lbl_802E6700 + 0x1B0);
+            unsigned char language = lbl_802E6700.unk1B0;
             if (lbl_8037B498 != language) {
                 lbl_803401C4.unkA4 = language;
                 lbl_803401C4.fn_801777B0(0x2A2AF469);

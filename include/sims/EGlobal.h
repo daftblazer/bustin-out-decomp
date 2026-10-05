@@ -55,13 +55,47 @@ public:
     struct Unk8003C95C* unkEC;    // default font
     char unkF0[0x118 - 0xF0];
     struct EGlobalUnk118* unk118;
-    char unk11C[0x14C - 0x11C];
-    int unk14C;                   // everything unlocked
-    char unk150[0x170 - 0x150];
-    int unk170;
-    char unk174[0x17C - 0x174];
-    int unk17C;
-    char unk180[0x214 - 0x180];
+    char unk11C[0x140 - 0x11C];
+    // Settings registered by ECheats::Init under the names in the comments.
+    int unk140;             // soundon
+    int unk144;             // freeitems
+    int unk148;             // memory_display
+    int unk14C;             // unlock_all_items
+    int unk150;             // unlock_all_houses
+    int unk154;             // unlock_party_motel
+    int unk158;             // unlock_freeplay_mode
+    int unk15C;             // debug_interactions
+    int unk160;             // animation_name_display
+    int unk164;             // display_fps
+    int unk168;             // eor_artsend_debug
+    int unk16C;             // Cam_Tilt
+    int unk170;             // Cam_First_Per
+    int unk174;             // grab_any_object
+    int unk178;             // cheatmenu
+    int unk17C;             // cas_start_as_male
+    int unk180;             // draw_safe_rect
+    int unk184;             // draw_flash_output
+    int unk188;             // draw_motive_values
+    int unk18C;             // enable_npc_reset
+    int unk190;             // print_sound_calls
+    int unk194;             // resource_test
+    int unk198;             // dnas_enabled
+    int unk19C;             // lobby_thumbnails
+    unsigned char unk1A0;         // lobby_server
+    char unk1A1;
+    short unk1A2;                 // lobby_select_delay
+    short unk1A4;                 // dnas_error
+    short unk1A6;                 // lobby_error
+    unsigned char unk1A8;         // tutorial_stage
+    unsigned char unk1A9;         // tutorial_house
+    unsigned char unk1AA;         // ambientIntensity
+    unsigned char unk1AB;         // directionIntensity
+    unsigned char unk1AC;         // cameraIntensity
+    unsigned char unk1AD;         // directionX
+    unsigned char unk1AE;         // directionY
+    unsigned char unk1AF;         // directionZ
+    unsigned char unk1B0;         // localization_test (language)
+    char unk1B1[0x214 - 0x1B1];   // boot2
     int unk214;
 };
 
