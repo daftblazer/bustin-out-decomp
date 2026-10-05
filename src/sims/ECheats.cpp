@@ -17,7 +17,7 @@ extern unsigned char lbl_8037B498; // language the debug menu was opened with
 struct Unk802E30B8 {
     void fn_800644D8();
 };
-extern Unk802E30B8* lbl_802E30B8;
+extern Unk802E30B8* lbl_802E30B8[3]; // part of a larger object (addressed without r13); size guessed
 void* fn_80169F1C(unsigned int size, int align);
 void fn_80169EE8(void* ptr);
 
@@ -351,7 +351,7 @@ void ECheats::Update() {
                 lbl_803401C4.fn_801777B0(0x19A16F2D);
                 lbl_803401C4.fn_801777B0(0xA173A1EE);
                 lbl_802E6700.fn_80068054(0, 0x28);
-                lbl_802E30B8->fn_800644D8();
+                lbl_802E30B8[0]->fn_800644D8();
             }
             DisableCheats();
             WriteCheatsFile();
@@ -514,8 +514,10 @@ void ECheatDMI::ButtonPress(int button) {
 
 // 0x80026454
 void ECheatDMI::ButtonPress(int button, float amount) {
-    int step = (int)(amount * 10.0f);
-    if (step > 0) {
+    int scaled = (int)(amount * 10.0f);
+    int step;
+    if (scaled > 0) {
+        step = scaled;
         if (step > 10) {
             step = 10;
         }
@@ -523,6 +525,8 @@ void ECheatDMI::ButtonPress(int button, float amount) {
         step = 1;
     }
     switch (lookup->type) {
+    case 1:
+        break;
     case 2: {
         unsigned char* value = (unsigned char*)lookup->var;
         int v = *value;
@@ -531,10 +535,12 @@ void ECheatDMI::ButtonPress(int button, float amount) {
         } else {
             v += step;
         }
-        if (v < 0) {
+        if (v >= 0) {
+            if (v > 0xFF) {
+                v = 0xFF;
+            }
+        } else {
             v = 0;
-        } else if (v > 0xFF) {
-            v = 0xFF;
         }
         *value = v;
         break;
@@ -547,10 +553,12 @@ void ECheatDMI::ButtonPress(int button, float amount) {
         } else {
             v += step;
         }
-        if (v < -0x80) {
+        if (v >= -0x80) {
+            if (v > 0x7F) {
+                v = 0x7F;
+            }
+        } else {
             v = -0x80;
-        } else if (v > 0x7F) {
-            v = 0x7F;
         }
         *value = v;
         break;
@@ -563,10 +571,12 @@ void ECheatDMI::ButtonPress(int button, float amount) {
         } else {
             v += step;
         }
-        if (v < -0x8000) {
+        if (v >= -0x8000) {
+            if (v > 0x7FFF) {
+                v = 0x7FFF;
+            }
+        } else {
             v = -0x8000;
-        } else if (v > 0x7FFF) {
-            v = 0x7FFF;
         }
         *value = v;
         break;
