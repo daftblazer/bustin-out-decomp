@@ -2,6 +2,8 @@
 #define SIMS_ESIMSAPP_H
 
 #include "engine/EApp.h"
+#include "engine/EController.h"
+#include "sims/Unk8037D944.h"
 #include "engine/ERectF.h"
 #include "sims/EGlobal.h"
 #include "engine/EStream.h"
@@ -136,26 +138,6 @@ struct Unk8037D94C {
     int fn_801EB1D8();
 };
 
-struct Unk8037D944 {
-    virtual void vfn1();
-    virtual void vfn2();
-    virtual void vfn3();
-    virtual void vfn4();
-    virtual void vfn5();
-    virtual void vfn6();
-    virtual void vfn7();
-    virtual void vfn8();
-    virtual int vfn9();
-    virtual void vfn10();
-    virtual void vfn11();
-    virtual void vfn12();
-    virtual int vfn13();
-    virtual void vfn14();
-    virtual void vfn15();
-    virtual void vfn16();
-    virtual void vfn17();
-    virtual int vfn18();
-};
 
 struct Unk801888F4 {
     void fn_801888F4(int, int);
@@ -187,13 +169,11 @@ struct Unk802E6820 {
 
 extern Unk8037D948* lbl_8037D948;
 extern Unk8037D94C* lbl_8037D94C;
-extern Unk8037D944* lbl_8037D944;
 extern Unk802F7658 lbl_802F7658;
 extern Unk802E6820 lbl_802E6820;
 
 void fn_801CD9A8(void*);
 
-struct EController;
 
 // Cheat-code button sequence tracker.
 class PlayerCheats {
@@ -244,21 +224,8 @@ struct Unk8033F5C4 {
     char unk0[0xA4];
 };
 
-struct Unk8015CAA0 {
-    void fn_8015CAA0(void*);
-};
 
-struct EController {
-    int fn_8015E304();
-    void fn_8015DFEC(int);
-};
 
-struct Unk8037C11C {
-    Unk8015CAA0* fn_8015E574(int);
-    void fn_8015E550(int);
-    int fn_8015E614(int);
-    EController* fn_8015E5FC(int);
-};
 
 struct ERC;
 
@@ -316,7 +283,6 @@ extern Unk8037C198* lbl_8037C198;
 extern int lbl_8037D3D0;
 extern unsigned short lbl_8037B3EC;
 extern void* lbl_8037D940;
-extern float lbl_8037BFC8;
 extern char lbl_8033F8B0[0x100]; // size unknown
 void fn_8011D784();
 void fn_801063A4(void*);
@@ -407,7 +373,6 @@ extern Unk8033F5C4 lbl_8033F5C4;
 inline int GetNumControllers() { return 4; }
 extern Unk802E5E1C* lbl_8037C0B4;
 extern int lbl_8037C0B8;
-extern Unk8037C11C* lbl_8037C11C;
 // Storage for the application object, and the small global whose constructor
 // builds it there. The compiler places a constructed object ahead of plain
 // uninitialized integers in .sbss, so the flag ESimsApp::Init sets has to be a

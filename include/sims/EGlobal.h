@@ -8,6 +8,7 @@
 class ESimsCam;
 struct SimsAppUnk2B50Base;
 struct ESimsCamUnkBC;
+struct Unk800053D4Owner;
 struct Unk80340120Resource;
 struct Unk8016BC18;
 
@@ -26,6 +27,7 @@ public:
     void fn_80068DE8(Unk80340120Resource*, Unk8016BC18*);
     void fn_800690E0(int);
 
+    Unk800053D4Owner* GetUnk9C(int player) { return unk9C[player]; }
     void* GetUnk90() { return unk90; }
     int GetUnkA4() { return unkA4; }
     int GetUnk214() { return unk214; }
@@ -37,7 +39,8 @@ public:
     } cheats;
     char unk72[0x90 - 0x72];
     void* unk90;
-    char unk94[0xA4 - 0x94];
+    char unk94[0x9C - 0x94];
+    Unk800053D4Owner* unk9C[2];   // per player
     int unkA4;
     void* unkA8[4];               // per player, set from ESimsCam+0x324
     char unkB8[0xBC - 0xB8];

@@ -130,3 +130,132 @@ void ESimsCam::fn_80005984() {
         lbl_802E6700.unkBC->vfn7(0, 0x17);
     }
 }
+
+// 0x80005A34
+// NON_MATCHING: 2 of 300 instructions, swapped. At 0x80005CC4 the original loads the
+// player index (unk8) before forming the address of lbl_802E6700 for the per-player
+// lookup; this loads them the other way round.
+void ESimsCam::Update() {
+    lbl_8037B408 = lbl_8037B428;
+    lbl_8037B404 = lbl_8037B424;
+    if (unk0 != 1) {
+        if (unk0 != 3) {
+            if (unk0 != 4) {
+                goto other;
+            }
+        }
+    } else {
+        unk330 = 0;
+        if (unk328 == 3) {
+            unk10 = fn_8000633C();
+        } else {
+            int a = fn_80005EE4();
+            int b = fn_80005FC8();
+            int c = fn_800060A8();
+            unk10 = a != 0 || b != 0 || c != 0;
+        }
+    }
+    fn_8000650C();
+    return;
+
+other:
+    unk10 = 0;
+    if (unk334 == 0) {
+        EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk8));
+        float x = controller->fn_8015DEE4(0, 0);
+        float y = controller->fn_8015DEE4(0, 1);
+        float moveX;
+        if (x < 0.0f) {
+            moveX = x * -x;
+        } else {
+            moveX = x * x;
+        }
+        if (y < 0.0f) {
+            y = y * -y;
+        } else {
+            y = y * y;
+        }
+        EVec3 move(moveX * unk390 * lbl_8037BFC8, y * unk390 * lbl_8037BFC8, 0.0f);
+        int blocked;
+        int pressed = lbl_8037D944->vfn6(0x28);
+        if (lbl_802F76DC.unk0 != 0) {
+            pressed = 0;
+        }
+        if (pressed != 0 && unk328 != 4) {
+            unk32C = unk328;
+            unk328 = 4;
+            fn_80006E6C();
+            if (unk328 == 4) {
+                lbl_8037D96C->fn_8006186C(0x61C374D4);
+            } else {
+                lbl_8037D96C->fn_8006186C(0x3804219F);
+            }
+        } else {
+            if (pressed == 0 && (move.x != 0.0f || move.y != 0.0f) && unk328 == 4) {
+                goto restore;
+            }
+            if (pressed == 0) {
+                blocked = 0;
+                if (unk0 == 8 || unk0 == 10 || unk0 == 11 || unk0 == 9) {
+                    blocked = 1;
+                }
+                if (!blocked && controller->fn_8015E0F8(8)) {
+                    if (unk328 != 3 && unk328 != 4 && lbl_802E6700.GetUnk9C(unk8) != 0 &&
+                        !lbl_802E6700.GetUnk9C(unk8)->unk0->vfn88(0x22) &&
+                        lbl_802E6700.GetUnk9C(unk8)->unk0->vfn64()) {
+                        unk330 = 1;
+                        fn_80006E6C();
+                        unk32C = unk328;
+                        unk328 = 4;
+                        lbl_8037D96C->fn_8006186C(0x61C374D4);
+                        goto after;
+                    }
+                restore:
+                    unk328 = unk32C;
+                    lbl_8037D96C->fn_8006186C(0x61C374D4);
+                    goto after;
+                }
+            }
+            if (lbl_802E686C.unk0 != 0) {
+                if (controller->fn_8015E0F8(9) && unk328 != 3) {
+                    unk330 = 1;
+                    if (unk328 == 1) {
+                        unk328 = 2;
+                    } else {
+                        unk328 = 1;
+                    }
+                }
+            }
+        }
+    after:
+        if (lbl_802E686C.unk0 == 0 && unk328 == 1) {
+            unk328 = 2;
+        }
+    }
+    if (unk330 == 0) {
+        int moved = 0;
+        if (unk328 != 3) {
+            if (unk328 != 4) {
+                int a = fn_80005EE4();
+                int b = fn_80005FC8();
+                int c = fn_800060A8();
+                if (a != 0 || b != 0 || c != 0) {
+                    moved = 1;
+                }
+            } else {
+                int a = fn_80005EE4();
+                int b = fn_80005FC8();
+                int c = fn_800060A8();
+                if (a != 0 || b != 0 || c != 0) {
+                    moved = 1;
+                }
+                fn_80006E6C();
+            }
+        } else {
+            moved = fn_8000633C();
+        }
+        unk10 = moved;
+    }
+    unk330 = 0;
+    fn_8000650C();
+}

@@ -3,7 +3,10 @@
 
 #include "engine/ERectF.h"
 #include "engine/EVec3.h"
+#include "engine/EController.h"
 #include "sims/EGlobal.h"
+#include "sims/Unk800052C8.h"
+#include "sims/Unk8037D944.h"
 
 // View window: projection and viewport of a camera. Class name from The Sims 2's
 // symbol map (ESimsCam::SetWinPos(E3DWindow&)).
@@ -59,6 +62,19 @@ struct ESimsCamRenderer {
 };
 extern ESimsCamRenderer* lbl_8037C198;
 
+struct Unk8037D96C {
+    void fn_8006186C(unsigned int id);
+};
+extern Unk8037D96C* lbl_8037D96C;
+
+// Both live inside larger globals, so they are addressed with lis/addi.
+struct ESimsCamBigInt {
+    int unk0;
+    char unk4[0x14];
+};
+extern ESimsCamBigInt lbl_802F76DC;
+extern ESimsCamBigInt lbl_802E686C;
+
 // Object at EGlobal+0xBC, vtable pointer at 0x44.
 struct ESimsCamUnkBC {
     char unk0[0x44];
@@ -79,6 +95,12 @@ public:
     float GetNearPlane();
     float GetFarPlane();
     float GetFov();
+    void Update();
+    int fn_80005EE4();
+    int fn_80005FC8();
+    int fn_800060A8();
+    int fn_8000633C();
+    void fn_8000650C();
     void fn_800056C8();
     void Reset();
     void fn_800058CC();
@@ -92,7 +114,7 @@ public:
     int unk4;
     int unk8;           // player index
     int unkC;
-    char unk10[0x14 - 0x10];
+    int unk10;
     E3DWindow unk14;
     void* unk324;
     int unk328;         // camera mode
