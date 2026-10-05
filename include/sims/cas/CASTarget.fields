@@ -3,7 +3,7 @@ FIRST 0x48
 END 0x5D30
 0x48   4      int                unk48
 0x4C   4      void*              unk4C
-0x50   4      void*              unk50
+0x50   4      Unk80181824*       unk50            # padlock sprite
 0x54   4      void*              unk54
 0x58   4      void*              unk58
 0x5C   0x310  Unk801543AC        unk5C            # 3D view

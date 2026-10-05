@@ -85,7 +85,7 @@ struct ERC {
     virtual void vfn44(void* light);
     virtual void vfn45();
     virtual void vfn46();
-    virtual void vfn47();
+    virtual void vfn47(const EVec2& corner0, const EVec2& corner1, const EVec2& uv0, const EVec2& uv1, const EColorF& color, float); // textured quad
     virtual void vfn48();
     virtual void vfn49(EVec2* position, EVec2* size, EColorF* color, float);
 };

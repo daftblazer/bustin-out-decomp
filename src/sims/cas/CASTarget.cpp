@@ -273,7 +273,7 @@ void CASTarget::fn_8000C5DC() {
 void CASTarget::fn_8000CBD8() {
     Unk80340AB8* manager = &lbl_80340AB8;
     unk4C = manager->fn_80177628(0xAB5FDCCC, 0, 0);
-    unk50 = manager->fn_80177628(0x0F303F75, 0, 0);
+    unk50 = (Unk80181824*)manager->fn_80177628(0x0F303F75, 0, 0);
 }
 
 // 0x8000CC40
@@ -888,6 +888,69 @@ void CASTarget::fn_800133DC(ERC* rc, const unsigned short* text, int centered) {
     }
 }
 
+// 0x80013784
+// Draws a padlock over each feature whose current choice is still locked.
+// NON_MATCHING: 596 instructions vs 611. The original keeps more stack temporaries per
+// quad (frame 0xA8 against 0x70 here: every corner sum gets a temporary and a copy) and
+// holds 1.0f in f31 across the calls. Two variants tried.
+void CASTarget::fn_80013784(ERC* rc) {
+    static EVec2 bodyOrigin(0.285f, 0.348f);
+    static EVec2 bodyStep(0.0f, 0.14f);
+    static EVec2 headOrigin(0.245f, 0.082f);
+    static EVec2 headStep(0.0f, 0.09f);
+    static EVec2 headGap(0.0f, 0.027f);
+    EVec2 size(0.05f, 0.0714f);
+    Unk80018374* sim = unk4464;
+    sim->unkC8->fn_800226F0(&sim->unk16C);
+    Unk801CC464 desc(sim->unk16C);
+    if (unk52E0) {
+        if (unk4464->fn_8001E9D8(desc.unk4, desc.unk0, 3, desc.unk8[4])) {
+            unk50->fn_80181824(rc);
+            rc->vfn47(bodyOrigin, bodyOrigin + size, EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
+        }
+        if (unk4464->fn_8001E9D8(desc.unk4, desc.unk0, 4, desc.unk8[5])) {
+            unk50->fn_80181824(rc);
+            EVec2 corner = bodyOrigin + bodyStep;
+            rc->vfn47(corner, corner + size, EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
+        }
+        if (unk4464->fn_8001E9D8(desc.unk4, desc.unk0, 5, desc.unk8[6])) {
+            unk50->fn_80181824(rc);
+            EVec2 corner = bodyOrigin + (bodyStep + bodyStep);
+            rc->vfn47(corner, corner + size, EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
+        }
+    } else if (unk52DC) {
+        if (unk4464->fn_8001E9D8(desc.unk4, desc.unk0, 9, desc.unk8[15])) {
+            unk50->fn_80181824(rc);
+            rc->vfn47(headOrigin, headOrigin + size, EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
+        }
+        if (unk4464->fn_8001E9D8(desc.unk4, desc.unk0, 10, desc.unk8[16])) {
+            unk50->fn_80181824(rc);
+            EVec2 corner = headOrigin + headStep;
+            rc->vfn47(corner, corner + size, EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
+        }
+        if (unk4464->fn_8001E9D8(desc.unk4, desc.unk0, 11, desc.unk8[17])) {
+            unk50->fn_80181824(rc);
+            EVec2 corner = headOrigin + (headStep + headStep);
+            rc->vfn47(corner, corner + size, EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
+        }
+        if (unk4464->fn_8001E9D8(desc.unk4, desc.unk0, 2, desc.unk8[3])) {
+            unk50->fn_80181824(rc);
+            EVec2 corner = headOrigin + headStep * 3.0f;
+            rc->vfn47(corner, corner + size, EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
+        }
+        if (unk4464->fn_8001E9D8(desc.unk4, desc.unk0, 6, desc.unk8[7])) {
+            unk50->fn_80181824(rc);
+            EVec2 corner = headOrigin + headGap + headStep * 4.0f;
+            rc->vfn47(corner, corner + size, EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
+        }
+        if (unk4464->fn_8001E9D8(desc.unk4, desc.unk0, 0, desc.unk8[1])) {
+            unk50->fn_80181824(rc);
+            EVec2 corner = headOrigin + headGap + headStep * 6.0f;
+            rc->vfn47(corner, corner + size, EVec2(0.0f, 1.0f), EVec2(1.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
+        }
+    }
+}
+
 // 0x80014110
 const unsigned short* CASTarget::fn_80014110() {
     short choices[5];
@@ -1030,7 +1093,7 @@ void CASTarget::fn_80014914(int id, unsigned char value) {
             fn_80014AA8(&record, data, 'User', 0);
             if (record.unk0 == id) {
                 if (lbl_8037D988->vfn14(record.unk0)) {
-                    record.unkC.unk10 = value;
+                    record.unkC.unk8[8] = value;
                     fn_80014B00(&record, lbl_8037D94C, 'User', i, lbl_8037C3F4);
                     fn_801DA828(lbl_8037D948->vfn64(), lbl_8037D94C);
                     break;

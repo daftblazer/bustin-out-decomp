@@ -50,13 +50,10 @@ struct Unk8001EE8C {
 };
 struct Unk801CC464 {
     Unk801CC464();
+    Unk801CC464(const Unk801CC464& other);
     int unk0;
     int unk4;
-    int unk8;
-    int unkC;
-    unsigned char unk10;
-    int unk14;
-    int unk18;
+    signed char unk8[0x14]; // one choice per feature slot
 };
 // Description of one sim (0xF8 bytes); copied whole.
 struct CASSimDesc {
@@ -124,6 +121,7 @@ struct Unk80018374 {
     void fn_8001A67C();
     void fn_8001C240();
     void fn_8001C384();
+    int fn_8001E9D8(int, int, int slot, signed char choice); // true when the slot's choice is locked
     void fn_8001E6E8(int, int);
     void SetUnk154(EVec3 position) { unk154 = position; }
 
@@ -393,6 +391,7 @@ public:
     void fn_8000FA68();
     void fn_8000FCE4();
     void fn_8000FECC(unsigned char view);
+    void fn_80013784(ERC* rc);
     const unsigned short* fn_80014110();
     void fn_800141C0();
     void fn_800133DC(ERC* rc, const unsigned short* text, int centered);
