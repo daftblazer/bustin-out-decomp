@@ -281,3 +281,31 @@ Single-line commit messages, no co-author or tool attribution.
     to a `const T&` parameter (`Use(String("AM"))`), not a named local.
   - Giving placement `operator new` an empty `throw()` makes the compiler null-check its result; that
     breaks `EMat4::SetRow3` users, so leave it without one.
+  - A run of constant stores to consecutive members written in natural order is emitted with the *last*
+    statement first and the rest in order (`a=0; b=0; c=0;` gives `c, a, b`). Try the natural order before
+    permuting (the `CASSkin` constructor and reset function match this way).
+  - `lis rN,1; addic. rN,-1; bne` followed by an explicit `li rN,0` for the next loop is a count-*up* loop
+    (`for (i = 0; i < 0x10000; i++)`) that the compiler reversed. Written as a countdown, the compiler knows
+    the counter ends at zero and drops the `li`.
+  - A fill loop whose value sits in its own register before the pointer set-up has the value in a local
+    (`signed char one = 1; ... *p-- = one;`).
+  - Two `switch` cases with identical bodies written out separately keep separate tests
+    (`cmpwi 5; beq; blt; cmpwi 6; beq`); `case 5: case 6:` becomes a range test.
+  - `fmr` copies of float values feeding an `fdiv` mean the source kept `double` copies of float locals
+    (`double sum = lo + hi; double ddelta = delta;`).
+  - `rlwinm rD,rS,3,0x18,0x1c` on a byte is `(v & 0x1F) << 3`; `(v << 3) & 0xF8` stored to a byte loses the mask.
+  - Float constants are pooled in order of first appearance in the *source*, so `x * 0.2f + 0.0f` with the
+    pool order `0.0, 0.2` had the constants in named locals declared in that order (`float lo = 0.0f; float hi = 0.2f;`).
+  - A colour whose four equal components are stored alpha first is `EColorF(float)` (`r = g = b = a = value`),
+    not the four-argument constructor.
+  - An inline predicate returning `bool` that is used in an `if` leaves `mfcr`/`rlwinm`; compare through
+    inline accessors that return the floats instead.
+  - A class with a non-inline virtual declared (its key function lives in another unit) does not get its inline
+    destructor or vtable emitted here; a derived destructor then stores the base vtable itself and passes its own
+    flag on to the next non-inline base destructor.
+  - The unit splits by constructor-table entry can hide two files (see above); the unit at 0x800230AC is
+    `Unk800230AC.cpp` + `Unk80023D3C.cpp`, with the second run of header strings at 0x802961E0.
+  - Including `sims/ESimsApp.h` after `sims/cas/CASSim.h` makes the compiler write an empty object with no
+    message. Check the size of `build/try/*.o` when `tools/tu.sh` prints nothing.
+  - Names from the header strings of the skin-texture unit: the layer images are `ERRleTexture`
+    (`games/sims/ESrc/e_rrletexture.h`), the "material" is `EShader`; placeholders are not renamed yet.
