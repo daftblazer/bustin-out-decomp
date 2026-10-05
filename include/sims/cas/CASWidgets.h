@@ -12,6 +12,8 @@ struct ERC;
 
 // RGBA colour as four floats; copied as words.
 struct EColorF {
+    EColorF() {}
+    EColorF(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
     float r, g, b, a;
 };
 extern EColorF lbl_802E69C4; // highlighted

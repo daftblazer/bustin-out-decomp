@@ -74,6 +74,7 @@ struct CASFamily {
 struct Unk80039E78 {
     Unk80039E78();
     ~Unk80039E78();
+    void fn_80039F1C();
     char unk0[4];
 };
 // Animated model instance (0x74 bytes).
@@ -91,7 +92,8 @@ struct Unk801B9FEC {
     Unk801B9FEC();
     ~Unk801B9FEC() { fn_801B9FF8(unk0); }
     void fn_801B9FF8(void*);
-    void* unk0;
+    void fn_801BA18C(int capacity);
+    char* unk0;
 };
 // 0x90 bytes, constructor 0x80016448.
 class Unk80016448 : public UnkTargetBase {
@@ -290,6 +292,19 @@ struct CASScreenInfo {
 extern CASScreenInfo* lbl_8037C198;
 int fn_800430EC(unsigned short character); // true for characters a line may break at
 
+// Supplies the default names.
+struct Unk8037D2D8 {
+    const unsigned short* fn_801C5B24();
+};
+extern Unk8037D2D8 lbl_8037D2D8;
+// Two colours used by the screen's lighting.
+struct Unk80341458 {
+    EColorF unk0;
+    EColorF unk10;
+};
+extern Unk80341458 lbl_80341458;
+extern "C" char* strcpy(char*, const char*);
+
 // Scoped object used around the loading-thread flag (ctor 0x801BE528).
 struct Unk801BE528 {
     Unk801BE528();
@@ -332,7 +347,7 @@ struct UnkViewer {
 void fn_801066A0(void* viewer, const char* name, int);
 extern "C" void fn_80106164(void* viewer, const char* command, ...);
 unsigned char fn_80061FE0(short* choices);
-void fn_80062134(unsigned char);
+const unsigned short* fn_80062134(unsigned char preset); // preset name
 
 // A mirror plane given by three corner points: builds the reflection matrix
 // and applies it to a view while the reflected scene is drawn. The class name
@@ -378,7 +393,7 @@ public:
     void fn_8000FA68();
     void fn_8000FCE4();
     void fn_8000FECC(unsigned char view);
-    void fn_80014110();
+    const unsigned short* fn_80014110();
     void fn_800141C0();
     void fn_800133DC(ERC* rc, const unsigned short* text, int centered);
     void fn_80014188(ERC* rc, const unsigned short* text, EVec2* position, int a, int b);

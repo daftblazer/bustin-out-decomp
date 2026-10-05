@@ -13,6 +13,8 @@ END 0x5D30
 0x390  0xC    EVec3              unk390           # camera target (interpolated)
 0x39C  0xC    EVec3              unk39C
 0x3A8  0xC    EVec3              unk3A8
+0x3B4 4      int                unk3B4
+0x3B8  0x10   int                unk3B8[4]
 0x3C8  4      Unk8001EE8C        unk3C8           # class of the unit at 0x8001EE8C
 0x4464 4      Unk80018374*       unk4464
 0x4468 0x10   Unk80018374*       unk4468[4]
@@ -26,9 +28,15 @@ END 0x5D30
 0x4588 4      int                unk4588
 0x458C 4      int                unk458C
 0x4590 4      int                unk4590
+0x4598 4      int                unk4598
+0x459C 4      int                unk459C
 0x45A0 4      int                unk45A0
+0x45A4 4      int                unk45A4
 0x45A8 4      int                unk45A8
+0x45AC 4      int                unk45AC
 0x45B0 4      float              unk45B0          # camera move progress, 0 to 1
+0x45B4 4      float              unk45B4
+0x45B8 4      float              unk45B8
 0x45BC 4      float              unk45BC
 0x45C0 4      float              unk45C0
 0x45C4 4      float              unk45C4
@@ -37,7 +45,27 @@ END 0x5D30
 0x45CA 1      signed char        unk45CA          # index into unk4478
 0x45CC 4      int                unk45CC          # view to switch to next
 0x45D0 4      int                unk45D0
+0x45E0 8      EVec2              unk45E0
+0x45E8 8      EVec2              unk45E8
+0x45F0 8      EVec2              unk45F0
+0x45F8 8      EVec2              unk45F8
+0x4600 8      EVec2              unk4600
+0x4608 8      EVec2              unk4608
+0x4610 8      EVec2              unk4610
+0x4618 4      int                unk4618
 0x461C 4      Unk80039E78        unk461C
+0x4EAC 4      int                unk4EAC
+0x4EB0 4      int                unk4EB0
+0x4EB4 4      int                unk4EB4
+0x4EB8 4      int                unk4EB8
+0x4EBC 4      int                unk4EBC
+0x4EC8 4      int                unk4EC8
+0x4ED0 4      float              unk4ED0
+0x4ED4 4      float              unk4ED4
+0x4ED8 4      int*               unk4ED8
+0x4EDC 4      float              unk4EDC
+0x4EE0 4      float              unk4EE0
+0x4EE4 4      int*               unk4EE4
 0x4EE8 4      Unk8033FF34Resource* unk4EE8        # models for the animated props
 0x4EEC 4      Unk8033FF34Resource* unk4EEC
 0x4EF0 0x74   Unk80156438        unk4EF0
@@ -55,22 +83,39 @@ END 0x5D30
 0x523C 0x74   Unk80156438        unk523C
 0x52B0 4      unsigned int**     unk52B0          # "Parrot" animation ids
 0x52B4 4      unsigned int**     unk52B4          # "Thief" animation ids
+0x52B8 1      unsigned char      unk52B8
+0x52B9 1      unsigned char      unk52B9
 0x52C0 4      int                unk52C0
 0x52C4 4      void*              unk52C4          # UI viewer the dialogs are driven through
 0x52C8 4      int                unk52C8          # set once loading has finished
+0x52CC 4      int                unk52CC
+0x52D0 4      int                unk52D0
 0x52D4 4      int                unk52D4
+0x52D8 4      int                unk52D8
+0x52DC 4      int                unk52DC
+0x52E0 4      int                unk52E0
 0x52E4 4      Unk8003C95C*       unk52E4          # text renderer
 0x52E8 4      int                unk52E8
 0x52EC 4      Unk801B9FEC        unk52EC
+0x52F0 4      int                unk52F0
+0x52F4 4      int                unk52F4
 0x52F8 4      int                unk52F8
 0x52FC 4      UnkTargetBase*     unk52FC
+0x5300 4      int                unk5300
+0x5304 4      int                unk5304
+0x5308 4      int                unk5308
 0x530C 4      int                unk530C
 0x5310 4      int                unk5310
 0x5314 4      int                unk5314          # editing an existing family
+0x5318 4      int                unk5318
+0x531C 4      int                unk531C
 0x5320 4      int                unk5320          # "CAS" dialog showing
 0x5324 4      int                unk5324          # "CAF" dialog showing
 0x5328 4      int                unk5328
 0x532C 4      int                unk532C          # accept/decline buttons exist
+0x5330 4      int                unk5330
+0x5334 4      int                unk5334
+0x5338 4      int                unk5338
 0x533C 0x460  CASTargetUnk533C   unk533C[5]
 0x579C 4      Unk801BA678        unk579C
 0x57A0 4      Unk801BA678        unk57A0

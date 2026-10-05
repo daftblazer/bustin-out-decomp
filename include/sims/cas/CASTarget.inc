@@ -11,7 +11,8 @@
     EVec3 unk390; // 0x390 camera target (interpolated)
     EVec3 unk39C; // 0x39c
     EVec3 unk3A8; // 0x3a8
-    char pad3B4[0x14];
+    int unk3B4; // 0x3b4
+    int unk3B8[4]; // 0x3b8
     Unk8001EE8C unk3C8; // 0x3c8 class of the unit at 0x8001EE8C
     char pad3CC[0x4098];
     Unk80018374* unk4464; // 0x4464
@@ -26,13 +27,16 @@
     int unk4588; // 0x4588
     int unk458C; // 0x458c
     int unk4590; // 0x4590
-    char pad4594[0xc];
+    char pad4594[0x4];
+    int unk4598; // 0x4598
+    int unk459C; // 0x459c
     int unk45A0; // 0x45a0
-    char pad45A4[0x4];
+    int unk45A4; // 0x45a4
     int unk45A8; // 0x45a8
-    char pad45AC[0x4];
+    int unk45AC; // 0x45ac
     float unk45B0; // 0x45b0 camera move progress, 0 to 1
-    char pad45B4[0x8];
+    float unk45B4; // 0x45b4
+    float unk45B8; // 0x45b8
     float unk45BC; // 0x45bc
     float unk45C0; // 0x45c0
     float unk45C4; // 0x45c4
@@ -42,9 +46,31 @@
     char pad45CB[0x1];
     int unk45CC; // 0x45cc view to switch to next
     int unk45D0; // 0x45d0
-    char pad45D4[0x48];
+    char pad45D4[0xc];
+    EVec2 unk45E0; // 0x45e0
+    EVec2 unk45E8; // 0x45e8
+    EVec2 unk45F0; // 0x45f0
+    EVec2 unk45F8; // 0x45f8
+    EVec2 unk4600; // 0x4600
+    EVec2 unk4608; // 0x4608
+    EVec2 unk4610; // 0x4610
+    int unk4618; // 0x4618
     Unk80039E78 unk461C; // 0x461c
-    char pad4620[0x8c8];
+    char pad4620[0x88c];
+    int unk4EAC; // 0x4eac
+    int unk4EB0; // 0x4eb0
+    int unk4EB4; // 0x4eb4
+    int unk4EB8; // 0x4eb8
+    int unk4EBC; // 0x4ebc
+    char pad4EC0[0x8];
+    int unk4EC8; // 0x4ec8
+    char pad4ECC[0x4];
+    float unk4ED0; // 0x4ed0
+    float unk4ED4; // 0x4ed4
+    int* unk4ED8; // 0x4ed8
+    float unk4EDC; // 0x4edc
+    float unk4EE0; // 0x4ee0
+    int* unk4EE4; // 0x4ee4
     Unk8033FF34Resource* unk4EE8; // 0x4ee8 models for the animated props
     Unk8033FF34Resource* unk4EEC; // 0x4eec
     Unk80156438 unk4EF0; // 0x4ef0
@@ -63,29 +89,40 @@
     Unk80156438 unk523C; // 0x523c
     unsigned int** unk52B0; // 0x52b0 "Parrot" animation ids
     unsigned int** unk52B4; // 0x52b4 "Thief" animation ids
-    char pad52B8[0x8];
+    unsigned char unk52B8; // 0x52b8
+    unsigned char unk52B9; // 0x52b9
+    char pad52BA[0x6];
     int unk52C0; // 0x52c0
     void* unk52C4; // 0x52c4 UI viewer the dialogs are driven through
     int unk52C8; // 0x52c8 set once loading has finished
-    char pad52CC[0x8];
+    int unk52CC; // 0x52cc
+    int unk52D0; // 0x52d0
     int unk52D4; // 0x52d4
-    char pad52D8[0xc];
+    int unk52D8; // 0x52d8
+    int unk52DC; // 0x52dc
+    int unk52E0; // 0x52e0
     Unk8003C95C* unk52E4; // 0x52e4 text renderer
     int unk52E8; // 0x52e8
     Unk801B9FEC unk52EC; // 0x52ec
-    char pad52F0[0x8];
+    int unk52F0; // 0x52f0
+    int unk52F4; // 0x52f4
     int unk52F8; // 0x52f8
     UnkTargetBase* unk52FC; // 0x52fc
-    char pad5300[0xc];
+    int unk5300; // 0x5300
+    int unk5304; // 0x5304
+    int unk5308; // 0x5308
     int unk530C; // 0x530c
     int unk5310; // 0x5310
     int unk5314; // 0x5314 editing an existing family
-    char pad5318[0x8];
+    int unk5318; // 0x5318
+    int unk531C; // 0x531c
     int unk5320; // 0x5320 "CAS" dialog showing
     int unk5324; // 0x5324 "CAF" dialog showing
     int unk5328; // 0x5328
     int unk532C; // 0x532c accept/decline buttons exist
-    char pad5330[0xc];
+    int unk5330; // 0x5330
+    int unk5334; // 0x5334
+    int unk5338; // 0x5338
     CASTargetUnk533C unk533C[5]; // 0x533c
     Unk801BA678 unk579C; // 0x579c
     Unk801BA678 unk57A0; // 0x57a0

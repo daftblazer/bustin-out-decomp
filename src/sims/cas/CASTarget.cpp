@@ -48,6 +48,12 @@ inline int GetText(const char* name) {
     return result.ptr ? *result.ptr : 0;
 }
 
+// As GetText, through the other look-up (0x8006670C).
+inline int GetTextB(const char* name) {
+    Unk800669ACResult result = lbl_802E6700.fn_8006670C(name);
+    return result.ptr ? *result.ptr : 0;
+}
+
 // 0x80008AA0
 CASTarget::CASTarget() {
     unk52C0 = 0;
@@ -159,6 +165,108 @@ void CASTarget::fn_8000C588() {
     EGlobal* global = &lbl_802E6700;
     ((UnkViewer*)global->unk90)->fn_8010826C(this);
     fn_801066A0(global->unk90, "create", 0);
+}
+
+// 0x8000C5DC
+// First loading step: resets the screen's state, fetches the font and button
+// captions, and sets the default names, colours and camera.
+// NON_MATCHING: 384 instructions vs 383. Same statements in the same order; the saved
+// registers are numbered differently (r25-r29) and one address load is placed one slot
+// earlier, which shifts the rest. Two variants tried.
+void CASTarget::fn_8000C5DC() {
+    unk52E4 = (Unk8003C95C*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    unk45B8 = 3.0f;
+    unk5308 = 1;
+    unk52D0 = 1;
+    unk52D4 = 1;
+    unk52E8 = 0;
+    unk458C = 0;
+    unk4590 = 0;
+    unk4598 = 0;
+    unk459C = 0;
+    unk45A0 = 0;
+    unk45A4 = 0;
+    unk3B4 = 0;
+    unk45CC = 0;
+    unk52D8 = 0;
+    unk52DC = 0;
+    unk52E0 = 0;
+    unk52F0 = 0;
+    unk52F4 = 0;
+    unk52F8 = 0;
+    unk5300 = 0;
+    unk5304 = 0;
+    unk530C = 0;
+    unk5310 = 0;
+    unk5318 = 0;
+    unk45AC = 0;
+    unk531C = 0;
+    unk5320 = 0;
+    unk5324 = 0;
+    unk5330 = 0;
+    unk5334 = 0;
+    unk5338 = 0;
+    unk45E0 = EVec2(0.0f, 0.0f);
+    unk45E8 = EVec2(0.0f, 0.0f);
+    unk45F0 = EVec2(0.0f, 0.0f);
+    unk45F8 = EVec2(0.0f, 0.0f);
+    unk4600 = EVec2(0.0f, 0.0f);
+    unk4608 = EVec2(0.0f, 0.0f);
+    unk4610 = EVec2(0.0f, 0.0f);
+    unk4618 = 0;
+    unk461C.fn_80039F1C();
+    unk4EAC = GetTextB("no");
+    unk4EB0 = GetTextB("yes");
+    unk4EB4 = GetTextB("yes");
+    unk4EB8 = GetTextB("no");
+    unk4EBC = GetText("cancel");
+    unk4EC8 = GetText("cancel");
+    unk4ED0 = 0.86f;
+    unk4ED4 = 0.8f;
+    unk4ED8 = lbl_802E6700.fn_800667EC("accept").ptr;
+    unk4EDC = 0.86f;
+    unk4EE0 = 0.9f;
+    unk4EE4 = lbl_802E6700.fn_800667EC("cancel").ptr;
+    unk52B9 = 0;
+    unk579C.fn_801BA958(0x20, 0);
+    fn_8024254C(unk579C.unk0, lbl_8037D2D8.fn_801C5B24());
+    unk57A0.fn_801BA958(0x20, 0);
+    fn_8024254C(unk57A0.unk0, lbl_8037D2D8.fn_801C5B24());
+    unk57A4.fn_801BA958(0x20, 0);
+    fn_8024254C(unk57A4.unk0, fn_80014110());
+    unk5C98.fn_801BA958(0x20, 0);
+    fn_8024254C(unk5C98.unk0, lbl_8037D2D8.fn_801C5B24());
+    unk5C9C.fn_801BA958(0x20, 0);
+    fn_8024254C(unk5C9C.unk0, lbl_8037D2D8.fn_801C5B24());
+    unk52EC.fn_801BA18C(0x32);
+    strcpy(unk52EC.unk0, "");
+    unk45C9 = 0;
+    for (int i = 0; i < 4; i++) {
+        unk3B8[i] = 0;
+        unk4468[i] = 0;
+    }
+    lbl_80341458.unk0 = EColorF(0.0f, 0.0f, 0.0f, 1.0f);
+    lbl_80341458.unk10 = EColorF(1.0f, 1.0f, 1.0f, 1.0f);
+    unk533C[0].fn_80015908(5);
+    unk533C[1].fn_80015908(5);
+    unk533C[2].fn_80015908(5);
+    unk533C[3].fn_80015908(5);
+    unk533C[4].fn_80015908(5);
+    fn_80014110();
+    unk52CC = 0;
+    unk36C = lbl_802E57DC;
+    unk390 = lbl_802E57E8;
+    unk378 = lbl_802E57DC;
+    unk39C = lbl_802E57E8;
+    unk384 = lbl_802E57DC;
+    unk3A8 = lbl_802E57E8;
+    unk52B8 = 0;
+    unk45C8 = 0x28;
+    unk45BC = 45.0f;
+    unk45B4 = 0.0f;
+    unk45B0 = 0.0f;
+    unk45C4 = 45.0f;
+    unk45C0 = 45.0f;
 }
 
 // 0x8000CBD8
@@ -781,7 +889,7 @@ void CASTarget::fn_800133DC(ERC* rc, const unsigned short* text, int centered) {
 }
 
 // 0x80014110
-void CASTarget::fn_80014110() {
+const unsigned short* CASTarget::fn_80014110() {
     short choices[5];
     choices[0] = unk533C[0].fn_80015900();
     choices[1] = unk533C[1].fn_80015900();
@@ -789,7 +897,7 @@ void CASTarget::fn_80014110() {
     choices[3] = unk533C[3].fn_80015900();
     choices[4] = unk533C[4].fn_80015900();
     unk57A8.unk48 = fn_80061FE0(choices);
-    fn_80062134(unk57A8.unk48);
+    return fn_80062134(unk57A8.unk48);
 }
 
 // 0x80014188

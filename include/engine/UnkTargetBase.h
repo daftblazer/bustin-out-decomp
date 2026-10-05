@@ -11,6 +11,7 @@ struct Unk801BA678 {
     ~Unk801BA678() { fn_801BA694(unk0); }
     void fn_801BA694(unsigned short* text);
     void fn_801BA0F4(const unsigned short* text);
+    void fn_801BA958(int capacity, int);
     Unk801BA678& operator=(const Unk801BA678& other) {
         fn_801BA0F4(other.unk0);
         return *this;
