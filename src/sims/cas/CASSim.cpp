@@ -2,6 +2,9 @@
 
 #include "sims/EGlobal.h"
 
+int fn_8001DB0C(const unsigned int* a, const unsigned int* b);
+extern "C" void fn_80110C38(void* base, unsigned int count, unsigned int size, int (*compare)(const void*, const void*)); // qsort
+
 // Start-up position and scale of the sim, then its lighting (see CASSim.h), then
 // the remembered choices of the four body types. Built by the static
 // initializer at 0x8001EBC0.
@@ -1253,6 +1256,313 @@ int fn_8001DB0C(const unsigned int* a, const unsigned int* b) {
         return 0;
     }
     return 1;
+}
+
+// 0x8001DB38
+// Returns the nearest choice at or after `choice` (direction 0) or at or before
+// it (direction 1) that this body type may use. Each table lists the choices
+// of one slot that are *not* available to one body type; {-1} means all are.
+// NON_MATCHING: 744 instructions vs 748. The tables, their copy loops and the selection
+// switch line up; the differences are in the list-building and search loops at the end
+// (the original walks them with pre-incremented pointers) and in register numbering.
+// One variant tried.
+int Unk80018374::fn_8001DB38(int slot, int choice, int direction) {
+    int hairAM[16] = {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 25, 37, 39
+    };
+    int slot2AM[34] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 24, 25, 40, 42, 44, 45, 47, 48, 66,
+        69, 70, 81, 83, 85, 87
+    };
+    int slot3AM[52] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 27, 29, 32, 34, 35,
+        37, 38, 50, 51, 52, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 65, 66, 67, 68, 69, 74, 79, 87, 88
+    };
+    int slot4AM[48] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 28, 34, 37, 38, 47, 48,
+        49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 70, 71, 73, 78, 79, 80
+    };
+    int slot5AM[22] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 9, 23, 24, 26, 27, 28, 29, 30, 31, 33, 35, 36, 37, 39
+    };
+    int slot6AM[9] = {
+        1, 2, 3, 5, 6, 7, 10, 16, 19
+    };
+    int hairAF[14] = {
+        1, 2, 3, 4, 6, 7, 8, 13, 14, 27, 28, 29, 30, 31
+    };
+    int slot2AF[40] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 28, 34,
+        36, 54, 58, 79, 73, 64, 82, 69, 80, 65, 70, 76
+    };
+    int slot3AF[57] = {
+        0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 26, 28, 31, 35,
+        36, 38, 39, 40, 46, 47, 49, 50, 51, 53, 55, 56, 58, 59, 61, 62, 63, 64, 65, 71, 76, 77, 78, 80, 83, 84,
+        88, 89, 90
+    };
+    int slot4AF[46] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 27, 33, 37,
+        38, 41, 42, 47, 51, 52, 53, 59, 60, 61, 62, 64, 65, 66, 69, 76, 80, 86
+    };
+    int slot5AF[22] = {
+        0, 1, 3, 4, 5, 6, 7, 8, 9, 18, 25, 26, 28, 29, 30, 33, 38, 42, 46, 40, 47, 48
+    };
+    int slot6AF[8] = {
+        0, 1, 3, 4, 5, 7, 17, 20
+    };
+    int slot11AF[4] = {
+        2, 5, 7, 8
+    };
+    int slot11CM[3] = {
+        2, 7, 8
+    };
+    int hairCM[1] = {-1};
+    int hairCF[1] = {-1};
+    int slot9AM[1] = {-1};
+    int slot9AF[1] = {10};
+    int slot9CM[1] = {-1};
+    int slot9CF[1] = {-1};
+    int slot10AM[1] = {-1};
+    int slot10AF[1] = {-1};
+    int slot10CM[1] = {-1};
+    int slot10CF[1] = {-1};
+    int slot11AM[2] = {
+        1, 13
+    };
+    int slot11CF[1] = {-1};
+    int slot2CM[1] = {-1};
+    int slot2CF[1] = {-1};
+    int slot3CM[1] = {1};
+    int slot3CF[1] = {0};
+    int slot4CM[1] = {1};
+    int slot4CF[1] = {-1};
+    int slot5CM[1] = {1};
+    int slot5CF[1] = {-1};
+    int slot6CM[1] = {-1};
+    int slot6CF[1] = {-1};
+    if (slot == 7) {
+        return choice;
+    }
+    int* excluded = 0;
+    int total = 0;
+    int count = 0;
+    switch ((unsigned int)slot) {
+    case 0:
+        total = ECount(unk194[7]);
+        if (unk16C.unk0) {
+            if (unk16C.unk4) {
+                excluded = hairAM;
+                count = 16;
+            } else {
+                excluded = hairCM;
+                count = 1;
+            }
+        } else {
+            if (unk16C.unk4) {
+                excluded = hairAF;
+                count = 14;
+            } else {
+                excluded = hairCF;
+                count = 1;
+            }
+        }
+        break;
+    case 9:
+        total = ECount(unk194[3]);
+        if (unk16C.unk0) {
+            if (unk16C.unk4) {
+                excluded = slot9AM;
+                count = 1;
+            } else {
+                excluded = slot9CM;
+                count = 1;
+            }
+        } else {
+            if (unk16C.unk4) {
+                excluded = slot9AF;
+                count = 1;
+            } else {
+                excluded = slot9CF;
+                count = 1;
+            }
+        }
+        break;
+    case 10:
+        total = ECount(unk194[4]);
+        if (unk16C.unk0) {
+            if (unk16C.unk4) {
+                excluded = slot10AM;
+                count = 1;
+            } else {
+                excluded = slot10CM;
+                count = 1;
+            }
+        } else {
+            if (unk16C.unk4) {
+                excluded = slot10AF;
+                count = 1;
+            } else {
+                excluded = slot10CF;
+                count = 1;
+            }
+        }
+        break;
+    case 11:
+        total = ECount(unk194[5]);
+        if (unk16C.unk0) {
+            if (unk16C.unk4) {
+                excluded = slot11AM;
+                count = 2;
+            } else {
+                excluded = slot11CM;
+                count = 3;
+            }
+        } else {
+            if (unk16C.unk4) {
+                excluded = slot11AF;
+                count = 4;
+            } else {
+                excluded = slot11CF;
+                count = 1;
+            }
+        }
+        break;
+    case 2:
+        total = ECount(unk194[6]);
+        if (unk16C.unk0) {
+            if (unk16C.unk4) {
+                excluded = slot2AM;
+                count = 34;
+            } else {
+                excluded = slot2CM;
+                count = 1;
+            }
+        } else {
+            if (unk16C.unk4) {
+                excluded = slot2AF;
+                count = 40;
+            } else {
+                excluded = slot2CF;
+                count = 1;
+            }
+        }
+        break;
+    case 3:
+        total = ECount(unk194[0]);
+        if (unk16C.unk0) {
+            if (unk16C.unk4) {
+                excluded = slot3AM;
+                count = 52;
+            } else {
+                excluded = slot3CM;
+                count = 1;
+            }
+        } else {
+            if (unk16C.unk4) {
+                excluded = slot3AF;
+                count = 57;
+            } else {
+                excluded = slot3CF;
+                count = 1;
+            }
+        }
+        break;
+    case 4:
+        total = ECount(unk194[1]);
+        if (unk16C.unk0) {
+            if (unk16C.unk4) {
+                excluded = slot4AM;
+                count = 48;
+            } else {
+                excluded = slot4CM;
+                count = 1;
+            }
+        } else {
+            if (unk16C.unk4) {
+                excluded = slot4AF;
+                count = 46;
+            } else {
+                excluded = slot4CF;
+                count = 1;
+            }
+        }
+        break;
+    case 5:
+        total = ECount(unk194[2]);
+        if (unk16C.unk0) {
+            if (unk16C.unk4) {
+                excluded = slot5AM;
+                count = 22;
+            } else {
+                excluded = slot5CM;
+                count = 1;
+            }
+        } else {
+            if (unk16C.unk4) {
+                excluded = slot5AF;
+                count = 22;
+            } else {
+                excluded = slot5CF;
+                count = 1;
+            }
+        }
+        break;
+    case 6:
+        total = ECount(unk194[8]);
+        if (unk16C.unk0) {
+            if (unk16C.unk4) {
+                excluded = slot6AM;
+                count = 9;
+            } else {
+                excluded = slot6CM;
+                count = 1;
+            }
+        } else {
+            if (unk16C.unk4) {
+                excluded = slot6AF;
+                count = 8;
+            } else {
+                excluded = slot6CF;
+                count = 1;
+            }
+        }
+        break;
+    }
+    if (count == 1 && excluded[0] == -1) {
+        return choice;
+    }
+    fn_80110C38(excluded, count, 4, (int (*)(const void*, const void*))fn_8001DB0C);
+    unsigned int validCount = total - count;
+    int* valid = (int*)fn_80169F1C(validCount * 4, 4);
+    unsigned int index = 0;
+    int value = 0;
+    for (unsigned int i = 0; i < validCount; i++) {
+        while (index < (unsigned int)count && value == excluded[index]) {
+            index++;
+            value++;
+        }
+        valid[i] = value;
+        value++;
+    }
+    if (direction == 0) {
+        for (index = 0; index < validCount && (unsigned int)valid[index] < (unsigned int)choice; index++) {
+        }
+        if (index == validCount) {
+            index = 0;
+        }
+    } else if (direction == 1) {
+        int last = validCount - 1;
+        int k;
+        for (k = last; k >= 0 && (unsigned int)valid[k] > (unsigned int)choice; k--) {
+        }
+        if (k == -1) {
+            k = last;
+        }
+        index = k;
+    }
+    int result = valid[index];
+    fn_80169EE8(valid);
+    return result;
 }
 
 // 0x8001E6E8
