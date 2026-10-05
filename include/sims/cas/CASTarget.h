@@ -250,6 +250,9 @@ struct Unk8037D948 {
     virtual void vfn13();
     virtual void vfn14();
     virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
     virtual void vfn19();
     virtual void vfn20();
     virtual void vfn21();
@@ -328,6 +331,9 @@ struct CASScreenInfoBase {
     virtual void vfn13();
     virtual void vfn14();
     virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
     virtual void vfn19();
     virtual void vfn20();
     virtual void vfn21(int texture); // release
