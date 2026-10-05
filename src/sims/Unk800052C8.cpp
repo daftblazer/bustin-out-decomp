@@ -13,7 +13,7 @@ Unk800052C8::Unk800052C8(unsigned int resourceId, Unk800053D4Owner* owner, Unk80
 
 // 0x80005374
 Unk800052C8::~Unk800052C8() {
-    fn_80068DE8(&lbl_802E6700, unkC, unk8);
+    lbl_802E6700.fn_80068DE8(unkC, unk8);
     unkC = 0;
     unk8 = 0;
     unk0 = 0;

@@ -3,6 +3,7 @@
 
 #include "engine/EMat4.h"
 #include "engine/EVec3.h"
+#include "sims/EGlobal.h"
 
 // Small helper object built at 0x800B07DC and 0x800B084C (two per caller). It
 // looks up a resource, creates a 0x17C-byte engine object for it and registers
@@ -230,11 +231,8 @@ struct Unk800052C8Source {
     float unk8, unkC, unk10; // position, as three plain floats
 };
 
-struct Unk802E6700;
-extern Unk802E6700 lbl_802E6700;
 extern Unk80340120 lbl_80340120;
 extern Unk802E67B0 lbl_802E67B0;
-void fn_80068DE8(Unk802E6700*, Unk80340120Resource*, Unk8016BC18*);
 
 class Unk800052C8 {
 public:

@@ -1,0 +1,52 @@
+#ifndef SIMS_EGLOBAL_H
+#define SIMS_EGLOBAL_H
+
+// The game's global state singleton at 0x802E6700. The class name comes from
+// The Sims 2's symbol map (EGlobal::AllocSpriteRenderer lines up with one of
+// its methods here); member and most method names are provisional.
+
+class ESimsCam;
+struct SimsAppUnk2B50Base;
+struct Unk80340120Resource;
+struct Unk8016BC18;
+
+struct Unk800669ACResult {
+    int* ptr;
+};
+
+class EGlobal {
+public:
+    void Begin();                 // 0x8006887C
+    void End();                   // 0x800661E0
+    int fn_800655C4();
+    unsigned int fn_800655D8();
+    void fn_800656D8();
+    Unk800669ACResult fn_800669AC(const char* format, ...);
+    void fn_80068DE8(Unk80340120Resource*, Unk8016BC18*);
+    void fn_800690E0(int);
+
+    void* GetUnk90() { return unk90; }
+    int GetUnkA4() { return unkA4; }
+    int GetUnk214() { return unk214; }
+
+    struct {
+        unsigned short unk0;        // 0x00 buttons allowed in cheat codes
+        unsigned short codes[8][6]; // 0x02 button sequences, zero-terminated
+        unsigned short masks[8];    // 0x62 buttons used by each sequence
+    } cheats;
+    char unk72[0x90 - 0x72];
+    void* unk90;
+    char unk94[0xA4 - 0x94];
+    int unkA4;
+    ESimsCam* unkA8[4];           // camera per player
+    char unkB8[0xBC - 0xB8];
+    SimsAppUnk2B50Base* unkBC;
+    char unkC0[0x170 - 0xC0];
+    int unk170;
+    char unk174[0x214 - 0x174];
+    int unk214;
+};
+
+extern EGlobal lbl_802E6700;
+
+#endif

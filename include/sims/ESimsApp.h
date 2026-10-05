@@ -2,6 +2,8 @@
 #define SIMS_ESIMSAPP_H
 
 #include "engine/EApp.h"
+#include "engine/ERectF.h"
+#include "sims/EGlobal.h"
 #include "engine/EStream.h"
 #include "engine/StateMachine.h"
 
@@ -35,10 +37,7 @@ struct SimsAppUnk4E0 {
     char unk0[0x2B38 - 0x4E0];
 };
 
-struct SimsAppUnk2B3CRect {
-    float unk0, unk4, unk8, unkC;
-    SimsAppUnk2B3CRect(float a, float b, float c, float d) : unk0(a), unk4(b), unk8(c), unkC(d) {}
-};
+typedef ERectF SimsAppUnk2B3CRect;
 
 // Size 0xA0 (ctor at 0x8018ABB0).
 struct SimsAppUnk2B3C {
@@ -98,25 +97,6 @@ struct SimsAppUnk2B50 : public SimsAppUnk2B50Base {
     char unk48[0x338 - 0x48];
 };
 
-struct Unk802E6700 {
-    union {
-        char unk0[0x218]; // size unknown
-        struct {
-            unsigned short unk0;            // 0x00 buttons allowed in cheat codes
-            unsigned short codes[8][6];     // 0x02 button sequences, zero-terminated
-            unsigned short masks[8];        // 0x62 buttons used by each sequence
-        } cheats;
-    };
-    void fn_800690E0(int);
-    void Begin();
-    void End();
-    void* GetUnk90() { return *(void**)(unk0 + 0x90); }
-    int GetUnkA4() { return *(int*)(unk0 + 0xA4); }
-    int GetUnk214() { return *(int*)(unk0 + 0x214); }
-    unsigned int fn_800655D8();
-    struct Unk800669ACResult fn_800669AC(const char* format, ...);
-    void fn_800656D8();
-};
 
 struct Unk80340094 {
     char unk0[0x100]; // size unknown
@@ -129,7 +109,6 @@ struct Unk802E5E1C {
     void fn_80176C78(const char*, int);
 };
 
-extern Unk802E6700 lbl_802E6700;
 extern Unk80340094 lbl_80340094;
 extern Unk802E5E1C lbl_802E5E1C;
 extern void* lbl_8037C3D8;
@@ -413,9 +392,6 @@ struct Unk802E6818Target {
 struct Unk802E6818 {
     Unk802E6818Target* unk0;
     char unk4[0x100]; // size unknown
-};
-struct Unk800669ACResult {
-    int* ptr;
 };
 
 extern Unk802E6818 lbl_802E6818;
