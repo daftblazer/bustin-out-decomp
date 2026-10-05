@@ -235,6 +235,7 @@ public:
     ~Unk80018374() { fn_8001A67C(); }
     void fn_8001857C(int, int, Unk8001EE8C* owner);
     void fn_80018F5C(CASSimDesc* desc, Unk8001EE8C* owner);
+    void fn_8001A19C(); // fill in the light set
     void fn_8001A67C();
     void fn_8001A908(ERC* rc, float turn, int); // draw
     void fn_8001AB8C(unsigned int animationId);
@@ -346,14 +347,11 @@ void fn_800183D0();
 class Unk80018374;
 void fn_8001D2C0(Unk80018374* sim, int, int, EMat4* bones); // per-frame bone callback
 
-// Stores a value through a pointer unless it is null. In the original this is
-// probably a construct-in-place helper whose allocation function may return
-// null; a plain placement new here drops the check.
-template <class T> inline void EConstruct(T* where, const T& value) {
-    if (where != 0) {
-        *where = value;
-    }
-}
+// Placement form whose result the compiler null-checks (it has an empty
+// exception specification). The original checks the address of the member it
+// constructs; the project's ordinary placement new must not, see CLAUDE.md.
+struct ECheckedPlace {};
+inline void* operator new(size_t, void* place, ECheckedPlace) throw() { return place; }
 
 // Null test as an inline function (the original materialises the result).
 inline bool EIsValid(const void* pointer) { return pointer != 0; }
@@ -476,6 +474,16 @@ struct Unk8033F3D8 {
     char unk0[0x100]; // size unknown
 };
 extern Unk8033F3D8 lbl_8033F3D8;
+
+// Lighting for the sim: ambient, then direction and colour of three directional
+// lights, then position and colour of three point lights.
+extern EVec3 lbl_802E5980;
+extern EVec3 lbl_802E598C, lbl_802E5998;
+extern EVec3 lbl_802E59A4, lbl_802E59B0;
+extern EVec3 lbl_802E59BC, lbl_802E59C8;
+extern EVec3 lbl_802E59D4, lbl_802E59E0;
+extern EVec3 lbl_802E59EC, lbl_802E59F8;
+extern EVec3 lbl_802E5A04, lbl_802E5A10;
 
 // Last choices made for each of the four body types, kept between sessions.
 extern Unk801CC464 lbl_802E5A1C;

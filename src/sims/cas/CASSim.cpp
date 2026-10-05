@@ -123,7 +123,7 @@ void Unk80018374::fn_800198DC() {
     unkC8->fn_8001FEA8(1, 0x29F28D35);
     unk188 = (Unk801800FC*)lbl_803401C4.fn_80177628(0x2A2AF469, 0, 0);
     int table = unk188->fn_801800FC("Sim::Table");
-    EConstruct(&unk194, (int**)unk188->fn_8018021C(table, "AdultMale"));
+    new (&unk194, ECheckedPlace()) int**((int**)unk188->fn_8018021C(table, "AdultMale"));
     unkC4 = (Unk8017CE68*)lbl_8033FF34.fn_80177628(0x6EF2F2DA, 0, 0);
 }
 
@@ -152,7 +152,7 @@ void Unk80018374::fn_80019AEC() {
     unkC8->fn_8001FEA8(1, 0x5E63299A);
     unk188 = (Unk801800FC*)lbl_803401C4.fn_80177628(0x2A2AF469, 0, 0);
     int table = unk188->fn_801800FC("Sim::Table");
-    EConstruct(&unk194, (int**)unk188->fn_8018021C(table, "AdultFemale"));
+    new (&unk194, ECheckedPlace()) int**((int**)unk188->fn_8018021C(table, "AdultFemale"));
     unkC4 = (Unk8017CE68*)lbl_8033FF34.fn_80177628(0x6EF2F2DA, 0, 0);
 }
 
@@ -182,7 +182,7 @@ void Unk80018374::fn_80019CFC() {
     unkC8->fn_8001FEA8(1, 0x2BCA7663);
     unk188 = (Unk801800FC*)lbl_803401C4.fn_80177628(0x2A2AF469, 0, 0);
     int table = unk188->fn_801800FC("Sim::Table");
-    EConstruct(&unk194, (int**)unk188->fn_8018021C(table, "ChildMale"));
+    new (&unk194, ECheckedPlace()) int**((int**)unk188->fn_8018021C(table, "ChildMale"));
     unkC4 = (Unk8017CE68*)lbl_8033FF34.fn_80177628(0x566F5472, 0, 0);
 }
 
@@ -212,8 +212,58 @@ void Unk80018374::fn_80019F4C() {
     unkC8->fn_8001FEA8(1, 0x98EDFAE4);
     unk188 = (Unk801800FC*)lbl_803401C4.fn_80177628(0x2A2AF469, 0, 0);
     int table = unk188->fn_801800FC("Sim::Table");
-    EConstruct(&unk194, (int**)unk188->fn_8018021C(table, "ChildFemale"));
+    new (&unk194, ECheckedPlace()) int**((int**)unk188->fn_8018021C(table, "ChildFemale"));
     unkC4 = (Unk8017CE68*)lbl_8033FF34.fn_80177628(0x566F5472, 0, 0);
+}
+
+// 0x8001A19C
+// Fills in the sim's light set. A sim made from a saved description (unk0 set)
+// gets dimmer lights and no point lights.
+void Unk80018374::fn_8001A19C() {
+    unkDC->numDirectional = 3;
+    if (unk0 == 0) {
+        unkDC->numPoint = 3;
+    } else {
+        unkDC->numPoint = 0;
+    }
+    float directional = 1.0f;
+    float ambient = 1.0f;
+    if (unk0) {
+        directional = 0.8f;
+        ambient = 1.5f;
+    }
+    unkDC->ambient = lbl_802E5980 * ambient;
+    unkDC->directional[0].color = lbl_802E5998 * directional;
+    unkDC->directional[1].color = lbl_802E59B0 * directional;
+    unkDC->directional[2].color = lbl_802E59C8 * directional;
+    unkDC->directional[0].direction = lbl_802E598C;
+    unkDC->directional[1].direction = lbl_802E59A4;
+    unkDC->directional[2].direction = lbl_802E59BC;
+    unkDC->directional[0].direction.Normalize();
+    unkDC->directional[1].direction.Normalize();
+    // The original normalizes the second direction twice and never the third.
+    unkDC->directional[1].direction.Normalize();
+    if (unk0 == 0) {
+        // Also written twice in the original.
+        unkDC->point[0].position = lbl_802E59D4;
+        unkDC->point[0].color = lbl_802E59E0;
+        unkDC->point[0].range = 3.0f;
+        unkDC->point[1].position = lbl_802E59EC;
+        unkDC->point[1].color = lbl_802E59F8;
+        unkDC->point[1].range = 1.0f;
+        unkDC->point[2].position = lbl_802E5A04;
+        unkDC->point[2].color = lbl_802E5A10;
+        unkDC->point[2].range = 0.5f;
+        unkDC->point[0].position = lbl_802E59D4;
+        unkDC->point[0].color = lbl_802E59E0;
+        unkDC->point[0].range = 3.0f;
+        unkDC->point[1].position = lbl_802E59EC;
+        unkDC->point[1].color = lbl_802E59F8;
+        unkDC->point[1].range = 1.0f;
+        unkDC->point[2].position = lbl_802E5A04;
+        unkDC->point[2].color = lbl_802E5A10;
+        unkDC->point[2].range = 0.5f;
+    }
 }
 
 // 0x8001A67C
