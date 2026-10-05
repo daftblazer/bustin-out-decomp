@@ -102,6 +102,7 @@ struct Unk8001EE8C {
     void fn_800226F0(Unk801CC464* out);
     void fn_80021A14(ETextureLike* texture);
     void fn_8001FD00();
+    void fn_80020EF4(int layer, int choice, int);
     void fn_80022724(Unk801CC464* choices);
     void fn_80021DBC(int adult, int male);
     void fn_8001FEA8(int, unsigned int textureId);
