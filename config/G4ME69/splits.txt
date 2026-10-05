@@ -74,3 +74,6 @@ sims/cas/Unk80023D3C.cpp:
 
 sims/ECheats.cpp:
 	.text       start:0x8002436C end:0x800266C0
+	.ctors      start:0x80291CBC end:0x80291CC0
+	.rodata     start:0x80296430 end:0x802968E0
+	.bss        start:0x802E5B1C end:0x802E5B28

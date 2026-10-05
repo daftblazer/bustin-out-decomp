@@ -55,6 +55,10 @@ public:
     virtual void ButtonPress(int button, float amount) {}
     virtual ~Unk8002657C() {}
 };
+// NON_MATCHING (static initialiser 0x8002657C): 27 instructions vs 22. The original
+// only constructs this object; here the compiler also emits the destruction branch
+// and a _GLOBAL_.D function, because the class has a destructor. How the original
+// has the virtual destructor (0x800265E4) without registering it is not understood.
 Unk8002657C lbl_802E5B1C;
 
 // 0x8002436C
@@ -114,7 +118,9 @@ ECheats::~ECheats() {
 // 0x80024500
 // Registers every setting with the EGlobal field it controls, then reads the
 // settings file.
-// NON_MATCHING: not yet compared in detail (see the note in the report).
+// NON_MATCHING: 2 instructions. Two of the hidden settings (directionY, directionZ)
+// clear their flag from the function's second zero register (r23) in the original and
+// from the first (r28) here. Six variants tried.
 void ECheats::Init(EGlobal& global) {
     int i;
     ECheatLookup* lookup;
@@ -208,7 +214,9 @@ void ECheats::EmptyLookupList() {
 
 // 0x800255B4
 // Reads "name = value" lines from /runtime/system.cnf into the settings.
-// NON_MATCHING: draft; the line splitting and the look-up are approximate.
+// NON_MATCHING: 288 instructions vs 300. Draft: the calls and the type switch are the
+// original's; the line and token copying loops and the inlined table look-up differ.
+// One variant tried.
 void ECheats::ReadCheatsFile() {
     Unk8023C2A0 path;
     unk100 = 1;
@@ -360,6 +368,10 @@ void ECheats::Update() {
 }
 
 // 0x80025CB0
+// NON_MATCHING: 119 instructions vs 138, frame 0x60 vs 0x70. The original keeps one
+// more iterator on the stack (begin() and end() build a local and copy it to the
+// returned temporary, which is then copied again) and reloads the table pointer on
+// every step of the search for the first used bucket. Three variants tried.
 void ECheats::EnableCheats() {
     for (ECheatIterator it = begin(); !(it == end()); it.Next()) {
         ECheatLookup* lookup = it.node;
@@ -373,6 +385,7 @@ void ECheats::EnableCheats() {
 }
 
 // 0x80025ED8
+// NON_MATCHING: 112 instructions vs 131; the same iterator differences as EnableCheats.
 void ECheats::DisableCheats() {
     for (ECheatIterator it = begin(); !(it == end()); it.Next()) {
         ECheatLookup* lookup = it.node;
