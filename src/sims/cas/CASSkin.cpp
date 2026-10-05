@@ -934,6 +934,347 @@ void Unk8001EE8C::fn_80021D94() {
     }
 }
 
+// 0x80021DBC
+// Re-applies the stored choice of every layer (after the choices were loaded
+// from a description), then rebuilds the texture. The hair layer 12 is only
+// done for an adult male.
+// NON_MATCHING: draft built from fn_80020EF4, whose recolouring loops it repeats;
+// the same differences apply (560 instructions vs 589). One variant tried.
+void Unk8001EE8C::fn_80021DBC(int adult, int male) {
+    for (int layer = 0; layer <= 16; layer++) {
+        Unk80021CEC* image = 0;
+        switch (layer) {
+        case 1:
+            if (unk0[0]) {
+                image = unk0[0];
+            }
+            break;
+        case 2:
+            if (unk0[1]) {
+                image = unk0[1];
+            }
+            break;
+        case 3:
+            if (unk0[2]) {
+                image = unk0[2];
+            }
+            break;
+        case 4:
+            if (unk0[3]) {
+                image = unk0[3];
+            }
+            break;
+        case 5:
+            if (unk0[4]) {
+                image = unk0[4];
+            }
+            break;
+        case 6:
+            if (unk0[5]) {
+                image = unk0[5];
+            }
+            break;
+        case 7:
+            if (unk0[6]) {
+                image = unk0[6];
+            }
+            break;
+        case 8:
+            if (unk0[7]) {
+                image = unk0[7];
+            }
+            break;
+        case 9:
+            if (unk0[8]) {
+                image = unk0[8];
+            }
+            break;
+        case 10:
+            if (unk0[9]) {
+                image = unk0[9];
+            }
+            break;
+        case 11:
+            if (unk0[10]) {
+                image = unk0[10];
+            }
+            break;
+        case 12:
+            if (adult && male) {
+                if (unk0[12]) {
+                    image = unk0[12];
+                }
+            }
+            break;
+        case 13:
+            if (unk0[13]) {
+                image = unk0[13];
+            }
+            break;
+        case 14:
+            if (unk0[14]) {
+                image = unk0[14];
+            }
+            break;
+        case 15:
+            if (unk0[15]) {
+                image = unk0[15];
+            }
+            break;
+        case 16:
+            if (unk0[16]) {
+                image = unk0[16];
+            }
+            break;
+        }
+        if (image != 0) {
+            EVec3 hsl;
+            hsl.Zero();
+            unsigned int count = 0x100;
+            if (image->unk3C) {
+                count = 0x10;
+            }
+            unsigned int* palette = image->unk24;
+            unsigned int i;
+            switch (layer) {
+            case 1:
+            case 7:
+                switch (unk406C[0]) {
+            case 1:
+                switch (unk4094) {
+                case 0:
+                    fn_8001FEA8(1, 0xF14E2FD6);
+                    break;
+                case 1:
+                    fn_8001FEA8(1, 0xC8E14DAF);
+                    break;
+                case 2:
+                    fn_8001FEA8(1, 0x2266A150);
+                    break;
+                case 3:
+                    fn_8001FEA8(1, 0xAF380F6D);
+                    break;
+                }
+                break;
+            case 2:
+                switch (unk4094) {
+                case 0:
+                    fn_8001FEA8(1, 0x1647FB06);
+                    break;
+                case 1:
+                    fn_8001FEA8(1, 0x2FE8997F);
+                    break;
+                case 2:
+                    fn_8001FEA8(1, 0xC56F7580);
+                    break;
+                case 3:
+                    fn_8001FEA8(1, 0x4831DBBD);
+                    break;
+                }
+                break;
+            case 3:
+                switch (unk4094) {
+                case 0:
+                    fn_8001FEA8(1, 0x3A3E11FD);
+                    break;
+                case 1:
+                    fn_8001FEA8(1, 0x83733B2C);
+                    break;
+                case 2:
+                    fn_8001FEA8(1, 0x95551443);
+                    break;
+                case 3:
+                    fn_8001FEA8(1, 0x895FE3FE);
+                    break;
+                }
+                break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+            default:
+                switch (unk4094) {
+                case 0:
+                    fn_8001FEA8(1, 0x29F28D35);
+                    break;
+                case 1:
+                    fn_8001FEA8(1, 0x5E63299A);
+                    break;
+                case 2:
+                    fn_8001FEA8(1, 0x2BCA7663);
+                    break;
+                case 3:
+                    fn_8001FEA8(1, 0x98EDFAE4);
+                    break;
+                }
+                break;
+                }
+                break;
+            case 12:
+            case 13: {
+                float dh;
+                float ds;
+                float dl;
+                switch (unk406C[12]) {
+                case 0:
+                    dh = -0.019445f;
+                    ds = 0.11f;
+                    dl = 0.1f;
+                    break;
+                case 2:
+                    dh = -0.00833f;
+                    ds = -0.065f;
+                    dl = -0.14f;
+                    break;
+                case 3:
+                    dh = -0.03889f;
+                    ds = 0.19f;
+                    dl = -0.175f;
+                    break;
+                case 4:
+                    dh = -0.12f;
+                    ds = -0.13f;
+                    dl = -0.255f;
+                    break;
+                case 5:
+                    dh = -0.025f;
+                    ds = 0.005f;
+                    dl = -0.265f;
+                    break;
+                case 6:
+                    dh = -0.07778f;
+                    ds = -0.13f;
+                    dl = -0.35f;
+                    break;
+                case 7:
+                    dh = -0.46665f;
+                    ds = -0.13f;
+                    dl = -0.35f;
+                    break;
+                case 8:
+                    dh = -0.5f;
+                    ds = -1.0f;
+                    dl = 0.25f;
+                    break;
+                case 9:
+                    dh = 0.0f;
+                    ds = -0.1f;
+                    dl = 0.13f;
+                    break;
+                case 10:
+                    dh = 0.005555f;
+                    ds = 0.025f;
+                    dl = 0.15f;
+                    break;
+                default:
+                    dh = ds = dl = 0.0f;
+                    break;
+                }
+                for (i = 0; i < count; i++) {
+                    unsigned int color = unk6C[layer - 1][i];
+                    unsigned int alpha = color & 0xFF000000;
+                    if (alpha) {
+                        if (unk406C[12] == 1) {
+                            palette[i] = color;
+                            continue;
+                        }
+                        fn_80022940(color, &hsl);
+                        float h = hsl[0] + dh;
+                        if (h > 1.0f) {
+                            hsl[0] = h - 1.0f;
+                        } else if (h < 0.0f) {
+                            hsl[0] = h + 1.0f;
+                        } else {
+                            hsl[0] = h;
+                        }
+                        float sat = hsl[1] + ds;
+                        if (sat > 1.0f) {
+                            hsl[1] = 1.0f;
+                        } else if (sat < 0.0f) {
+                            hsl[1] = 0.0f;
+                        } else {
+                            hsl[1] = sat;
+                        }
+                        float l = hsl[2] + dl;
+                        if (l > 1.0f) {
+                            hsl[2] = 1.0f;
+                        } else if (l < 0.0f) {
+                            hsl[2] = 0.0f;
+                        } else {
+                            hsl[2] = l;
+                        }
+                        palette[i] = alpha + fn_80022778(EVec3(hsl[0], hsl[1], hsl[2]));
+                    } else {
+                        palette[i] = alpha;
+                    }
+                }
+                break;
+            }
+            case 14:
+                break;
+            default:
+                for (i = 0; i < count; i++) {
+                    unsigned int color = unk6C[layer - 1][i];
+                    unsigned int alpha = color & 0xFF000000;
+                    if (alpha) {
+                        if (unk406C[layer - 1] == 1) {
+                            palette[i] = color;
+                            continue;
+                        }
+                        fn_80022940(color, &hsl);
+                        if (unk406C[layer - 1] >= 0x1E && unk406C[layer - 1] <= 0x20) {
+                            hsl[1] = 0.0f;
+                            switch ((signed char)(unk406C[layer - 1] % 3)) {
+                            case 0:
+                                hsl[2] -= 0.2f;
+                                if (hsl[2] < 0.0f) {
+                                    hsl[2] = 0.0f;
+                                }
+                                break;
+                            case 2:
+                                hsl[2] += 0.2f;
+                                if (hsl[2] > 1.0f) {
+                                    hsl[2] = 1.0f;
+                                }
+                                break;
+                            }
+                        } else {
+                            float h = hsl[0] + (float)(signed char)(unk406C[layer - 1] / 3) * 0.1f;
+                            if (h > 1.0f) {
+                                h -= 1.0f;
+                            }
+                            hsl[0] = h;
+                            switch ((signed char)(unk406C[layer - 1] % 3)) {
+                            case 0:
+                                hsl[2] -= 0.15f;
+                                if (hsl[2] < 0.0f) {
+                                    hsl[2] = 0.0f;
+                                }
+                                break;
+                            case 2:
+                                hsl[2] += 0.15f;
+                                if (hsl[2] > 1.0f) {
+                                    hsl[2] = 1.0f;
+                                }
+                                break;
+                            }
+                        }
+                        palette[i] = alpha + fn_80022778(EVec3(hsl[0], hsl[1], hsl[2]));
+                    } else {
+                        palette[i] = alpha;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    fn_8001EFEC();
+}
+
 // 0x800226F0
 void Unk8001EE8C::fn_800226F0(Unk801CC464* out) {
     out->unk8[10] = unk406C[1];
