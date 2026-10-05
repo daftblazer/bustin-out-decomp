@@ -200,6 +200,7 @@ cflags_base = [
     # Template repository: instances are emitted once, as global symbols, in the
     # unit chosen at link time (see tools/prodg_cc.py).
     "-frepo",
+    "-fno-implement-inlines",
     # Plain `char` is signed (the code was ported from PS2), unlike the PowerPC default.
     "-fsigned-char",
     # STLport 4.5.3 (libs/stlport), configured as SN shipped it: no iostreams

@@ -6,7 +6,7 @@ END 0x5D30
 0x50   4      void*              unk50
 0x54   4      void*              unk54
 0x58   4      void*              unk58
-0x5C   0x70   Unk801543AC        unk5C            # holds the saved view matrix
+0x5C   0xE0   Unk801543AC        unk5C            # 3D view
 0x3C8  4      Unk8001EE8C        unk3C8           # class of the unit at 0x8001EE8C
 0x4464 4      Unk80018374*       unk4464
 0x4478 4      CASSimDesc*        unk4478          # array of descriptions

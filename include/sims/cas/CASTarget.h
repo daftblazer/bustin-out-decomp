@@ -1,6 +1,7 @@
 #ifndef SIMS_CAS_CASTARGET_H
 #define SIMS_CAS_CASTARGET_H
 
+#include "engine/E3DWindow.h"
 #include "engine/EMat4.h"
 #include "engine/UnkTargetBase.h"
 #include "engine/ResourceManagers.h"
@@ -38,13 +39,17 @@ public:
     int unkD8;
     int unkDC;
 };
-struct Unk801543AC {
+// 3D view built on E3DWindow (0x36C bytes at most, vtable 0x802A7BC8); it has
+// no destructor of its own.
+class Unk801543AC : public E3DWindow {
+public:
     Unk801543AC();
-    char unk0[0x30];
-    EMat4 unk30;
+    void fn_801546D8(const EMat4* matrix); // set the view matrix
+    EMat4 unkA0;                           // view matrix
 };
 struct Unk8001EE8C {
     Unk8001EE8C();
+    ~Unk8001EE8C();
     char unk0[4];
 };
 struct Unk801CC464 {
@@ -65,16 +70,19 @@ struct CASSimDesc {
 };
 struct Unk80039E78 {
     Unk80039E78();
+    ~Unk80039E78();
     char unk0[4];
 };
 struct Unk80156438 {
     Unk80156438();
-    ~Unk80156438();
-    char unk0[0x74];
+    char unk0[0x70];
+    virtual ~Unk80156438();
 };
 struct Unk801B9FEC {
     Unk801B9FEC();
-    char unk0[4];
+    ~Unk801B9FEC() { fn_801B9FF8(unk0); }
+    void fn_801B9FF8(void*);
+    void* unk0;
 };
 // 0x90 bytes, constructor 0x80016448.
 class Unk80016448 : public UnkTargetBase {
@@ -284,12 +292,6 @@ struct Unk80231598 {
 void fn_801FC174(void*);
 void fn_800183D0();
 
-struct E3DWindowLike {
-    void fn_801546D8(const EMat4* matrix);
-    char unk0[0xA0];
-    EMat4 unkA0;
-};
-
 struct UnkViewer {
     void fn_8010826C(void* owner);
 };
@@ -305,8 +307,8 @@ class CASTarget : public UnkTargetBase {
 public:
     CASTarget();
     virtual ~CASTarget();
-    void fn_8000AF70(E3DWindowLike* window);
-    void fn_8000B03C(E3DWindowLike* window);
+    void fn_8000AF70(Unk801543AC* window);
+    void fn_8000B03C(Unk801543AC* window);
     void fn_8000C458();
     int fn_8000C4A4();
     void fn_8000C5DC();
@@ -321,7 +323,9 @@ public:
     void fn_80010520(CASSimDesc* desc, int);
     void fn_800143E4();
     int fn_8000F9D8();
+    void fn_8000FA68();
     void fn_80014110();
+    void fn_800141C0();
     void fn_80014188(ERC* rc, const unsigned short* text, int a, EVec2* position, int b);
     void fn_80014378();
     void fn_80014564();
@@ -331,6 +335,8 @@ public:
     void fn_80014770();
     void fn_80014840();
     void fn_80014A88();
+
+    void operator delete(void* ptr) { fn_80169EE8(ptr); }
 
     // Zero-filled on allocation.
     void* operator new(unsigned int size) {

@@ -163,7 +163,7 @@ Global `operator new` / `operator delete` are `__builtin_new` (0x801B8A3C) and
 
 ## Compiler notes (GCC 2.95.2, SN build)
 
-- Flags: `-O2 -G8 -fno-weak -frepo -fsigned-char`. Plain `char` is signed (reads of a
+- Flags: `-O2 -G8 -fno-weak -frepo -fno-implement-inlines -fsigned-char`. Without `-fno-implement-inlines` the file that defines a class's first non-inline virtual also emits out-of-line copies of all its inline members (stray `__dl__`, `__nw__`, inline constructors), which the original never has. Plain `char` is signed (reads of a
   `char` used in comparisons show `extsb`). `-fno-weak` is what puts vtables in `.rodata`
   and inline virtual functions in `.text`; `-frepo` handles templates (see above). `-O1` and `-O3` are ruled out (`-O3` moves inline functions
   to the front of the object; the original has them at the end).
@@ -217,3 +217,22 @@ Global `operator new` / `operator delete` are `__builtin_new` (0x801B8A3C) and
 ## Commits
 
 Single-line commit messages, no co-author or tool attribution.
+
+- More source idioms (from the Create-A-Sim unit):
+  - An extra `mr r4, r3` copying `this` before a call means `this` is an argument of that call, even when the
+    callee ignores it (`viewer->fn(this)`).
+  - `x = A` in one branch and `x = B` in another, written as separate member stores, come out as
+    `li r0,A; b; li r0,B` plus one shared store (cross-jumping). Computing into a local first gives
+    `subfic/adde` instead.
+  - `if (p) { delete p; p = 0; }` and `if (p) { delete p; } p = 0;` differ only in whether the null branch
+    skips the store; check the branch target.
+  - A matrix copied as pairs `lwz r9/r10 ... stw r9/r10` is an inline copy through `unsigned long long`
+    (`EMat4::Copy64`), not the default assignment.
+  - Compiler-generated `operator=` copies scalar arrays with a `bdnz` loop, class-type arrays with a
+    count-down `cmpwi/addi -1/bne` loop, and skips the vtable pointer; the skipped word locates the vptr.
+    Such an operator is emitted out of line once it exceeds the implicit inline size limit.
+  - A class derived from one with virtuals that adds no destructor of its own is destroyed by calling the
+    base destructor directly with flag 0 and no vtable store.
+  - A look-up helper used inside `new T(Get("a"), ..., Get("b"))` runs after `__builtin_new` and before the
+    constructor; write it as an inline function, not as locals ahead of the `new`.
+  - `tools/gen_fields.py Class.fields` generates padded member lists for large, partly known classes.

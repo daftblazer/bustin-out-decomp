@@ -21,11 +21,11 @@ Status
 ------
 
 - The DOL is split into 293 objects and relinks to a byte-identical `main.dol`.
-- 112 of 10,848 functions are decompiled (`python configure.py progress`).
+- 113 of 10,848 functions are decompiled (`python configure.py progress`).
 - The disc has no symbol map. Names are carried over from The Sims 2
   (GameCube), which shares the engine and shipped with one: see
   `config/G4ME69/sims2_hints.txt` and `tools/align_sims2.py`.
-- Compiler flags are `-O2 -G8 -fno-weak -frepo -fsigned-char`. The exact ProDG version is not pinned down:
+- Compiler flags are `-O2 -G8 -fno-weak -frepo -fno-implement-inlines -fsigned-char`. The exact ProDG version is not pinned down:
   3.5 through 3.9.3 agree on everything matched so far, and 3.7 is the default.
 - See `CLAUDE.md` for the layout of the binary and the working conventions.
 

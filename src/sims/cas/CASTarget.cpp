@@ -20,16 +20,16 @@ CASTarget::CASTarget() {
 // 0x8000AF70
 // The view-matrix pair below may belong to a different class with a matrix at
 // offset 0: the product is taken with `this` as the left operand.
-void CASTarget::fn_8000AF70(E3DWindowLike* window) {
-    unk5C.unk30.Copy64(window->unkA0);
+void CASTarget::fn_8000AF70(Unk801543AC* window) {
+    ((EMat4*)(unk5C.mWindowData + 0x30))->Copy64(window->unkA0);
     EMat4 product;
     product.fn_801B2888((EMat4*)this, &window->unkA0);
     window->fn_801546D8(&product);
 }
 
 // 0x8000B03C
-void CASTarget::fn_8000B03C(E3DWindowLike* window) {
-    window->fn_801546D8(&unk5C.unk30);
+void CASTarget::fn_8000B03C(Unk801543AC* window) {
+    window->fn_801546D8((EMat4*)(unk5C.mWindowData + 0x30));
 }
 
 // 0x8000C3C8
@@ -251,6 +251,33 @@ void CASTarget::fn_80014188(ERC* rc, const unsigned short* text, int a, EVec2* p
     unk52E4->fn_8003D93C(rc, text, a, position, b, 0, 2.0f, 1.0f);
 }
 
+// 0x800141C0
+void CASTarget::fn_800141C0() {
+    vfn7(this, 0x42);
+    vfn7(this, 0x41);
+    unk45A0 = 0;
+    unk4588 = 0;
+    unk4590 = 1;
+    vfn7(this, 0x28);
+    if (unk52FC) {
+        delete unk52FC;
+        unk52FC = 0;
+    }
+    fn_800146A0();
+    if (unk52F8) {
+        unk52F8 = 0;
+    } else if (unk5320 == 0) {
+        fn_80106164(unk52C4, "showCAS", 0, 0, 0);
+        fn_800145C8();
+        unk5320 = 1;
+    }
+    fn_80106164(unk52C4, "setButtonContext", 0, 0, 1, "CAS");
+    fn_80106164(unk52C4, "showButton", 0, 0, 1, "accept");
+    fn_80106164(unk52C4, "showButton", 0, 0, 1, "decline");
+    fn_80106164(unk52C4, "resetButtonContext", 0, 0, 0);
+    unk4580 = 9;
+}
+
 // 0x80014378
 void CASTarget::fn_80014378() {
     if (unk5320) {
@@ -413,6 +440,11 @@ Unk80016448& Unk80016448::operator=(const Unk80016448& other) {
     unk88 = other.unk88;
     unk8C = other.unk8C;
     return *this;
+}
+
+// 0x800153B8
+CASTarget::~CASTarget() {
+    fn_8000FA68();
 }
 
 // 0x800155D4

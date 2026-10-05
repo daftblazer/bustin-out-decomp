@@ -8,6 +8,8 @@ extern "C" void fn_8024254C(unsigned short* dst, const unsigned short* src); // 
 // Wide string holder (constructor 0x801BA678); assignment copies the text.
 struct Unk801BA678 {
     Unk801BA678();
+    ~Unk801BA678() { fn_801BA694(unk0); }
+    void fn_801BA694(unsigned short* text);
     void fn_801BA0F4(const unsigned short* text);
     Unk801BA678& operator=(const Unk801BA678& other) {
         fn_801BA0F4(other.unk0);
