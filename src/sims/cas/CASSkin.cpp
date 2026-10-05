@@ -380,6 +380,11 @@ void Unk8001EE8C::fn_80022940(unsigned int rgb, EVec3* hsl) {
 // 0x80022B3C
 // Blends src over dst. The top bit of src's alpha selects between a blend
 // weight and an alpha value to keep.
+// NON_MATCHING: 75 instructions vs 76. The original copies dst into r3 right after
+// taking src's alpha and keeps the weight in r31 with src left in r5; here dst stays
+// in r4, so the channel arithmetic uses different registers and comes out in a
+// different order (blue first instead of red). Eight variants tried (result written
+// back into dst, a separate result variable, byte and word channel locals).
 unsigned int Unk8001EE8C::fn_80022B3C(unsigned int dst, unsigned int src) {
     unsigned int alpha = src >> 24;
     int weight = 0xFF;
