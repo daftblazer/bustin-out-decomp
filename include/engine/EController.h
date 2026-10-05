@@ -13,6 +13,7 @@ struct EController {
     void fn_8015DFEC(int);
     float fn_8015DEE4(int, int);    // stick axis value
     int fn_8015E0F8(int);           // button just pressed
+    int fn_8015DF98(int);           // button held
 };
 
 // Controller manager singleton at 0x8037C11C.

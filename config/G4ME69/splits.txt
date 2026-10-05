@@ -29,5 +29,8 @@ sims/ESimsCam.cpp:
 	.bss        start:0x802E57B8 end:0x802E57DC
 	.sdata      start:0x8037B3FC end:0x8037B44C
 
+sims/cas/CASWidgets.cpp:
+	.text       start:0x80007F88 end:0x80008934
+
 sims/cas/CASState.cpp:
 	.text       start:0x80008934 end:0x80008AA0

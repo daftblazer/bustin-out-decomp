@@ -11,6 +11,8 @@ public:
 class EVec3 {
 public:
     EVec3() {}
+    // All three components the same (stores z, then y, then x).
+    explicit EVec3(float value) { x = y = z = value; }
     EVec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
     // Copy construction goes float by float in the original (lfs/stfs), while
     // assignment copies words, i.e. the copy constructor is user-defined and
