@@ -25,13 +25,6 @@ struct Unk80039E78 {
     void fn_80039F1C();
     char unk0[4];
 };
-struct Unk801B9FEC {
-    Unk801B9FEC();
-    ~Unk801B9FEC() { fn_801B9FF8(unk0); }
-    void fn_801B9FF8(void*);
-    void fn_801BA18C(int capacity);
-    char* unk0;
-};
 
 // Text-entry dialog (0x178 bytes).
 class Unk800C6704 : public UnkTargetBase {

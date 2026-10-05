@@ -4,6 +4,8 @@
 #include "engine/ELightSet.h"
 #include "engine/EMat4.h"
 #include "engine/EVec3.h"
+#include "engine/ResourceManagers.h"
+#include <new.h>
 #include "sims/cas/CASSelectors.h"
 #include "sims/cas/CASWidgets.h"
 
@@ -61,8 +63,13 @@ struct Unk80156438 {
     void fn_801569F8(int, int, const EVec3& scale);
     void fn_8015B044(ERC* rc, Unk8033FF34Resource* model, const EMat4* transform); // draw
     void fn_80159994(int, unsigned int animationId);
+    void fn_8015AB78(float);
     float fn_8015A82C(int);
     void SetUnk54(float value) { unk54 = value; }
+    void SetCallback(void (*callback)(), void* owner) {
+        unk6C = owner;
+        unk68 = callback;
+    }
     void fn_80157BD0(const EMat4* transform, int);
     char unk0[4];
     int unk4;
@@ -73,7 +80,9 @@ struct Unk80156438 {
     }* unk18;
     char unk1C[0x54 - 0x1C];
     float unk54;
-    char unk58[0x70 - 0x58];
+    char unk58[0x68 - 0x58];
+    void (*unk68)();     // callback
+    void* unk6C;         // its owner
     virtual ~Unk80156438();
 
 };
@@ -85,10 +94,21 @@ struct Unk800226F0 {
     Unk80182DE0Inner* unk4C;
     void fn_800226F0(Unk801CC464* out);
     void fn_80021A14(ETextureLike* texture);
+    void fn_8001FEA8(int, unsigned int textureId);
     void fn_80021D94();
     int fn_800218D8(int);
     void fn_80021928(int slot);
     void fn_8002196C(int slot);
+};
+
+// Narrow string holder (constructor 0x801B9FEC); the destructor frees the text.
+struct Unk801B9FEC {
+    Unk801B9FEC();
+    Unk801B9FEC(const char* text); // 0x801BA070
+    ~Unk801B9FEC() { fn_801B9FF8(unk0); }
+    void fn_801B9FF8(void*);
+    void fn_801BA18C(int capacity);
+    char* unk0;
 };
 
 struct CASAnimStep;
@@ -221,6 +241,11 @@ public:
     void fn_8001C3B8();
     ETextureLike* fn_8001D04C();
     void fn_8001D6D8(ERC* rc); // draw the shadow
+    void fn_8001D844(const Unk801B9FEC& suffix);
+    void fn_800198DC(); // set up as adult male
+    void fn_80019AEC(); // adult female
+    void fn_80019CFC(); // child male
+    void fn_80019F4C(); // child female
     int fn_8001DB38(int slot, int choice, int);
     void fn_8001E6E8(int, int);
     int fn_8001E794(int adult, int male, int slot, int choice); // true when the choice is still locked
@@ -245,10 +270,14 @@ public:
     int unk3C;
     int unk40; // which side the sim is seen from
     int unk44;
-    char unk48[0x50 - 0x48];
-    unsigned int** unk50; // animation id lists
+    unsigned int** unk48; // animation id lists: idle, sitting, sit down, stand up,
+    unsigned int** unk4C; // and three for reacting to the mirror
+    unsigned int** unk50;
     unsigned int** unk54;
-    char unk58[0x74 - 0x58];
+    unsigned int** unk58;
+    unsigned int** unk5C;
+    unsigned int** unk60;
+    char unk64[0x74 - 0x64];
     unsigned int*** unk74; // idle animation lists (by gender)
     unsigned int*** unk78;
     char unk7C[0x90 - 0x7C];
@@ -266,8 +295,8 @@ public:
     EVec3 unk154; // position in the line-up
     EVec3 unk160; // scale
     Unk801CC464 unk16C;
-    void* unk188;
-    void* unk18C;
+    Unk801800FC* unk188;  // "Sim::Table" data set
+    Unk801800FC* unk18C;  // animation id lists
     Unk801800FC* unk190;  // data set
     int** unk194;         // nine lists of choices, one per slot kind
     unsigned int unk198;  // animation waiting for its resource to load
@@ -289,6 +318,16 @@ extern "C" void* fn_80111AE8(void* dst, const void* src, unsigned int count); //
 void fn_80156964(const EVec3* position, const EVec3* rotation, const EVec3* scale, EMat4* out);
 extern int lbl_8037BFBC;
 void fn_800183D0();
+void fn_8001D2C0(); // animation callback (signature unknown)
+
+// Stores a value through a pointer unless it is null. In the original this is
+// probably a construct-in-place helper whose allocation function may return
+// null; a plain placement new here drops the check.
+template <class T> inline void EConstruct(T* where, const T& value) {
+    if (where != 0) {
+        *where = value;
+    }
+}
 
 // Null test as an inline function (the original materialises the result).
 inline bool EIsValid(const void* pointer) { return pointer != 0; }

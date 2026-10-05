@@ -98,6 +98,124 @@ void fn_800183D0() {
     lbl_802E5A54.unk8[14] = 0;
 }
 
+// 0x800198DC
+// Sets the sim up as an adult male: animation lists, model, skin and the table of choices.
+// NON_MATCHING: 131 instructions vs 132. The original forms the address of unk194 early
+// and keeps it in r30 for the final null-checked store; the instructions around the
+// random pick are scheduled differently as a result. Four variants tried.
+void Unk80018374::fn_800198DC() {
+    int list = unk18C->fn_801800FC("CasAnimationIDList");
+    unk48 = unk18C->fn_8018021C(list, "IdleAM");
+    unk4C = unk18C->fn_8018021C(list, "SittingAM");
+    unk50 = unk18C->fn_8018021C(list, "SitAM");
+    unk54 = unk18C->fn_8018021C(list, "StandUpAM");
+    unk60 = unk5C = unk58 = unk18C->fn_8018021C(list, "MirrorReactAM");
+    unkE0.fn_80156700(0xFFA60350);
+    fn_8001D844(Unk801B9FEC("AM"));
+    unk10 = 0;
+    int roll = fn_801115C4();
+    int pick = (roll >> 4) % ECount((int*)(*unk74)[1]);
+    unkE0.SetUnk54(1.0f / 4096.0f);
+    unk2C = 0;
+    unkE0.fn_80159994(0, EAt((*unk74)[1], pick));
+    unkE0.fn_8015AB78(1.18f);
+    unkE0.SetCallback(fn_8001D2C0, this);
+    unkC8->fn_8001FEA8(1, 0x29F28D35);
+    unk188 = (Unk801800FC*)lbl_803401C4.fn_80177628(0x2A2AF469, 0, 0);
+    int table = unk188->fn_801800FC("Sim::Table");
+    EConstruct(&unk194, (int**)unk188->fn_8018021C(table, "AdultMale"));
+    unkC4 = (Unk8017CE68*)lbl_8033FF34.fn_80177628(0x6EF2F2DA, 0, 0);
+}
+
+// 0x80019AEC
+// Sets the sim up as an adult female: animation lists, model, skin and the table of choices.
+// NON_MATCHING: 131 instructions vs 132. The original forms the address of unk194 early
+// and keeps it in r30 for the final null-checked store; the instructions around the
+// random pick are scheduled differently as a result. Four variants tried.
+void Unk80018374::fn_80019AEC() {
+    int list = unk18C->fn_801800FC("CasAnimationIDList");
+    unk48 = unk18C->fn_8018021C(list, "IdleAF");
+    unk4C = unk18C->fn_8018021C(list, "SittingAF");
+    unk50 = unk18C->fn_8018021C(list, "SitAF");
+    unk54 = unk18C->fn_8018021C(list, "StandUpAF");
+    unk60 = unk5C = unk58 = unk18C->fn_8018021C(list, "MirrorReactAF");
+    unkE0.fn_80156700(0x1FB80AF4);
+    fn_8001D844(Unk801B9FEC("AF"));
+    unk10 = 0;
+    int roll = fn_801115C4();
+    int pick = (roll >> 4) % ECount((int*)(*unk74)[1]);
+    unkE0.SetUnk54(1.0f / 4096.0f);
+    unk2C = 0;
+    unkE0.fn_80159994(0, EAt((*unk74)[1], pick));
+    unkE0.fn_8015AB78(1.13f);
+    unkE0.SetCallback(fn_8001D2C0, this);
+    unkC8->fn_8001FEA8(1, 0x5E63299A);
+    unk188 = (Unk801800FC*)lbl_803401C4.fn_80177628(0x2A2AF469, 0, 0);
+    int table = unk188->fn_801800FC("Sim::Table");
+    EConstruct(&unk194, (int**)unk188->fn_8018021C(table, "AdultFemale"));
+    unkC4 = (Unk8017CE68*)lbl_8033FF34.fn_80177628(0x6EF2F2DA, 0, 0);
+}
+
+// 0x80019CFC
+// Sets the sim up as a boy: animation lists, model, skin and the table of choices.
+// NON_MATCHING: 147 instructions vs 148. The original forms the address of unk194 early
+// and keeps it in r30 for the final null-checked store; the instructions around the
+// random pick are scheduled differently as a result. Four variants tried.
+void Unk80018374::fn_80019CFC() {
+    int list = unk18C->fn_801800FC("CasAnimationIDList");
+    unk48 = unk18C->fn_8018021C(list, "IdleCM");
+    unk4C = unk18C->fn_8018021C(list, "SittingCM");
+    unk50 = unk18C->fn_8018021C(list, "SitCM");
+    unk54 = unk18C->fn_8018021C(list, "StandUpCM");
+    unk60 = unk5C = unk58 = unk18C->fn_8018021C(list, "MirrorReactCM");
+    unkE0.fn_80156700(0x1FB80AF4);
+    fn_8001D844(Unk801B9FEC("CM"));
+    unk10 = 0;
+    int roll = fn_801115C4();
+    int pick = (roll >> 4) % ECount((int*)(*unk74)[1]);
+    unk2C = fn_801115C4() % 5 + 3;
+    unkE0.fn_80156700(0xD5E79699);
+    unkE0.SetUnk54(1.0f / 4096.0f);
+    unkE0.fn_80159994(0, EAt((*unk74)[1], pick));
+    unkE0.fn_8015AB78(1.18f);
+    unkE0.SetCallback(fn_8001D2C0, this);
+    unkC8->fn_8001FEA8(1, 0x2BCA7663);
+    unk188 = (Unk801800FC*)lbl_803401C4.fn_80177628(0x2A2AF469, 0, 0);
+    int table = unk188->fn_801800FC("Sim::Table");
+    EConstruct(&unk194, (int**)unk188->fn_8018021C(table, "ChildMale"));
+    unkC4 = (Unk8017CE68*)lbl_8033FF34.fn_80177628(0x566F5472, 0, 0);
+}
+
+// 0x80019F4C
+// Sets the sim up as a girl: animation lists, model, skin and the table of choices.
+// NON_MATCHING: 147 instructions vs 148. The original forms the address of unk194 early
+// and keeps it in r30 for the final null-checked store; the instructions around the
+// random pick are scheduled differently as a result. Four variants tried.
+void Unk80018374::fn_80019F4C() {
+    int list = unk18C->fn_801800FC("CasAnimationIDList");
+    unk48 = unk18C->fn_8018021C(list, "IdleCF");
+    unk4C = unk18C->fn_8018021C(list, "SittingCF");
+    unk50 = unk18C->fn_8018021C(list, "SitCF");
+    unk54 = unk18C->fn_8018021C(list, "StandUpCF");
+    unk60 = unk5C = unk58 = unk18C->fn_8018021C(list, "MirrorReactCF");
+    unkE0.fn_80156700(0x1FB80AF4);
+    fn_8001D844(Unk801B9FEC("CF"));
+    unk10 = 0;
+    int roll = fn_801115C4();
+    int pick = (roll >> 4) % ECount((int*)(*unk74)[1]);
+    unk2C = fn_801115C4() % 5 + 3;
+    unkE0.fn_80156700(0xD5E79699);
+    unkE0.SetUnk54(1.0f / 4096.0f);
+    unkE0.fn_80159994(0, EAt((*unk74)[1], pick));
+    unkE0.fn_8015AB78(1.13f);
+    unkE0.SetCallback(fn_8001D2C0, this);
+    unkC8->fn_8001FEA8(1, 0x98EDFAE4);
+    unk188 = (Unk801800FC*)lbl_803401C4.fn_80177628(0x2A2AF469, 0, 0);
+    int table = unk188->fn_801800FC("Sim::Table");
+    EConstruct(&unk194, (int**)unk188->fn_8018021C(table, "ChildFemale"));
+    unkC4 = (Unk8017CE68*)lbl_8033FF34.fn_80177628(0x566F5472, 0, 0);
+}
+
 // 0x8001A67C
 // Releases the sim's models, textures, materials and pending animations.
 void Unk80018374::fn_8001A67C() {
