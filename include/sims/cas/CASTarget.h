@@ -7,6 +7,7 @@
 #include "engine/ResourceManagers.h"
 #include "sims/EGlobal.h"
 #include "sims/cas/CASWidgets.h"
+#include "sims/cas/CASSelectors.h"
 
 void* fn_80169F1C(unsigned int size, int align); // aligned allocate
 extern "C" void* fn_80111C78(void*, int, unsigned int); // memset
@@ -14,32 +15,6 @@ extern "C" void* fn_80111C78(void*, int, unsigned int); // memset
 // Member classes, known only by their constructors. Sizes are lower bounds
 // except where an array fixes them.
 
-// 0xE0 bytes, constructor 0x8001562C (the next unit); its method at 0x80015900
-// returns the current choice. Members come from its generated assignment.
-class CASTargetUnk533C : public UnkTargetBase {
-public:
-    CASTargetUnk533C();
-    virtual ~CASTargetUnk533C();
-    short fn_80015900();
-    void fn_80015908(unsigned char choice);
-
-    unsigned char unk48;
-    unsigned char unk49;
-    unsigned char unk4A;
-    float unk4C;
-    float unk50;
-    EColorF unk54;
-    EColorF unk64;
-    struct Entry {
-        void* ptr;
-    } unk74[2];
-    int unk7C;
-    int unk80;
-    float unk84[20];
-    int unkD4;
-    int unkD8;
-    int unkDC;
-};
 struct Unk8001EE8C {
     Unk8001EE8C();
     ~Unk8001EE8C();
@@ -106,23 +81,6 @@ struct Unk801B9FEC {
     void fn_801B9FF8(void*);
     void fn_801BA18C(int capacity);
     char* unk0;
-};
-// 0x90 bytes, constructor 0x80016448.
-class Unk80016448 : public UnkTargetBase {
-public:
-    Unk80016448();
-    virtual ~Unk80016448();
-
-    unsigned char unk48;
-    int unk4C[13];
-    int unk80;
-    int unk84;
-    int unk88;
-    int unk8C;
-
-    // Declared so that it stays out of line, as in the original (see the
-    // definition in CASTarget.cpp).
-    Unk80016448& operator=(const Unk80016448& other);
 };
 
 struct Unk800226F0 {
@@ -403,10 +361,6 @@ struct Unk800E5DF8 {
 Unk800E5DF8* fn_800E5DF8();
 int fn_80106774(void* viewer, int, int, int, int); // next UI event: code, sign bit set on press
 void fn_801063A0(void* viewer);
-struct Unk8037D96C {
-    void fn_8006186C(unsigned int soundId);
-};
-extern Unk8037D96C* lbl_8037D96C;
 struct EGlobalUnk118 {
     char unk0[0xCC];
     int unkCC;

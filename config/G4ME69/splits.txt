@@ -44,3 +44,7 @@ sims/cas/CASTarget.cpp:
 	.bss        start:0x802E57DC end:0x802E5968
 	.sdata      start:0x8037B44C end:0x8037B488
 	.sbss       start:0x8037CA3C end:0x8037CA8C
+
+sims/cas/CASSelectors.cpp:
+	.text       start:0x8001562C end:0x80018310
+	.rodata     start:0x80294220 end:0x80294960
