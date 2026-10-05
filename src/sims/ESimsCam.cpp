@@ -557,3 +557,39 @@ void ESimsCam::fn_80006E6C() {
         unk328 = unk32C;
     }
 }
+
+// 0x80007528
+void ESimsCam::CursorMoved(int player, EVec3& delta) {
+    switch (unk3C8) {
+    case 0:
+        if (fn_80007430() && !lbl_802E6700.fn_800655C4()) {
+            unk398.unk0.x += delta.x;
+            unk398.unk0.y += delta.y;
+            unk10 = 1;
+        }
+        break;
+    case 1:
+        if (!lbl_802E6700.fn_800655C4()) {
+            unk3CC = 20.0f;
+            unk398.unk0 = fn_80007DD8();
+            unk10 = 1;
+        }
+        break;
+    case 2:
+        if (lbl_802E6700.fn_800655C4()) {
+            unk3CC = 100.0f;
+        } else if (fn_80007470(0.2f, 0.3f, 0.8f, 0.7f)) {
+            {
+                EVec3 moved = fn_80007DD8() - unk324->unk94;
+                float speed = moved.Length() / lbl_8037BFC8;
+                if (unkC == 0 || speed > unk3CC) {
+                    unk3CC = speed;
+                }
+            }
+            unk398.unk0 = fn_80007DD8();
+            unkC = 1;
+            unk10 = 1;
+        }
+        break;
+    }
+}

@@ -106,7 +106,7 @@ struct CameraParameters {
 };
 
 // The cursor/target object a camera follows; vtable pointer at 0x44.
-struct Unk324 {
+struct Unk324Base {
     void fn_80027EAC();
     EVec3* fn_8002D2C8();
 
@@ -115,6 +115,10 @@ struct Unk324 {
     virtual void vfn2();
     virtual void vfn3();
     virtual void vfn4(const EVec3& position);
+};
+struct Unk324 : public Unk324Base {
+    char unk48[0x94 - 0x48];
+    EVec3 unk94; // previous position
 };
 
 // The game camera. Class and method names follow The Sims 2's symbol map where
@@ -150,6 +154,7 @@ public:
     void operator delete(void* ptr) { fn_80169EE8(ptr); }
 
     void GetPos(EVec3& eye, EVec3& target, EVec3& unk);
+    void CursorMoved(int player, EVec3& delta);
     int fn_80007470(float left, float top, float right, float bottom);
     float GetCurZoomRatio();
     float GetNearPlane();
