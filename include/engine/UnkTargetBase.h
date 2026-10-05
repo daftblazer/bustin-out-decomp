@@ -67,6 +67,7 @@ public:
     virtual void vfn15(UnkTargetBase* child);              // slot 15: add a child
 
     void fn_801887C8(); // base update
+    void fn_80188850(struct ERC* rc); // base draw
 
     Unk801B4760 unk0;
     int unkC;

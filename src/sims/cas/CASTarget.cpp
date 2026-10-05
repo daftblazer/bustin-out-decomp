@@ -702,7 +702,7 @@ void CASTarget::vfn2() {
 // Builds the reflection matrix for the plane through the three corners: rotate
 // the plane normal onto an axis, flip that axis, rotate back.
 void CASMirror::fn_8000AC6C() {
-    EVec3 normal = (unk4C - unk40).Cross(unk58 - unk4C);
+    EVec3 normal = (unk40[1] - unk40[0]).Cross(unk40[2] - unk40[1]);
     normal.Normalize();
     EVec3 axis(0.0f, 0.0f, 1.0f);
     int index = 2;
@@ -716,13 +716,13 @@ void CASMirror::fn_8000AC6C() {
     rotAxis.Normalize();
     EMat4 toAxis;
     toAxis.fn_801B3024(rotAxis, angle);
-    toAxis.fn_801B2988(-unk40);
+    toAxis.fn_801B2988(-unk40[0]);
     EVec3 scale(1.0f);
     scale[index] = -1.0f;
     toAxis.fn_801B3494(scale);
     EMat4 back;
     back.fn_801B3024(rotAxis, -angle);
-    back.fn_801B345C(unk40);
+    back.fn_801B345C(unk40[0]);
     EMat4 product;
     product.fn_801B2888(&toAxis, &back);
     unk0.Copy64(product);
@@ -739,6 +739,237 @@ void CASMirror::fn_8000AF70(Unk801543AC* view) {
 // 0x8000B03C
 void CASMirror::fn_8000B03C(Unk801543AC* view) {
     view->fn_801546D8(&unk8C);
+}
+
+// Sets the render state used for both mirror-related quads.
+#define CAS_MIRROR_STATE(rc)        \
+    rc->vfn35(0, 0);                \
+    rc->vfn38(0);                   \
+    rc->vfn41(0x48, 0);             \
+    rc->vfn61(2, 2, 2, 1, 0, 0);    \
+    rc->vfn54(1, 1, 0, 0);          \
+    rc->vfn55(0, 5, 0, 0.5f);       \
+    rc->vfn60(0, 0)
+
+// Draws the shadow pieces of a prop model with the shadow material.
+#define CAS_DRAW_SHADOWS(rc, model, material)                      \
+    for (int g = 0; g < model->unk24; g++) {                       \
+        EModelGroup* group = &model->unk20[g];                     \
+        for (int n = 0; n < group->unk4; n++) {                    \
+            Unk80184C00* piece = &group->unk0[n];                  \
+            material->unk20->vfn3(rc);                             \
+            rc->vfn36(0x4000);                                     \
+            rc->vfn37(8);                                          \
+            rc->vfn56(0, 2, 0);                                    \
+            piece->fn_80184C00(rc);                                \
+            rc->vfn37(0x4000);                                     \
+            rc->vfn36(8);                                          \
+        }                                                          \
+    }
+
+// 0x8000B068
+// Draws the screen: the room reflected in the mirror, the mirror itself, the
+// room, the sims and props, then the 2D overlay.
+// NON_MATCHING: 1,327 instructions vs 1,240. Same calls in the same order. The original
+// runs out of registers and keeps the addresses of its temporaries in stack slots
+// (0x4B8-0x4F8), builds each quad's five temporaries in fixed slots it reuses, and
+// assigns the point lights in one interleaved run; this build lays the frame out
+// differently (and re-loads addresses instead). One variant tried.
+void CASTarget::vfn3(ERC* rc) {
+    ELightSet lights;
+    lights.ambient = lbl_802E58CC;
+    lights.directional[0].color = lbl_802E58E4;
+    lights.directional[1].color = lbl_802E58FC;
+    lights.directional[2].color = lbl_802E5914;
+    lights.directional[0].direction = lbl_802E58D8;
+    lights.directional[1].direction = lbl_802E58F0;
+    lights.directional[2].direction = lbl_802E5908;
+    lights.numPoint = 3;
+    lights.numDirectional = 3;
+    // The three point lights are assigned twice in the original.
+    for (int pass = 0; pass < 2; pass++) {
+        lights.point[0].position = lbl_802E5920;
+        lights.point[0].color = lbl_802E592C;
+        lights.point[0].range = 4.0f;
+        lights.point[1].position = lbl_802E5938;
+        lights.point[1].color = lbl_802E5944;
+        lights.point[1].range = 1.0f;
+        lights.point[2].position = lbl_802E5950;
+        lights.point[2].color = lbl_802E595C;
+        lights.point[2].range = 2.0f;
+    }
+    lights.directional[0].direction.Normalize();
+    lights.directional[1].direction.Normalize();
+
+    float fov = unk45BC * (float)lbl_8037C198->unk18 / (float)lbl_8037C198->unk14;
+    unk5C.fn_80154490(fov, lbl_8037C198->vfn37(), 0.25f, 50.0f);
+    EVec3 up(0.0f, 0.0f, 1.0f);
+    unk5C.fn_80154798(unk36C, unk390, up);
+    unk5C.fn_80156018(rc);
+
+    // Reflection pass.
+    CASMirror mirror;
+    rc->vfn92();
+    mirror.unk40[0] = EVec3(0.543f, 1.75f, 0.111f);
+    mirror.unk40[1] = EVec3(0.865f, 1.592f, 0.111f);
+    mirror.unk40[2] = EVec3(0.865f, 1.592f, 1.998f);
+    mirror.unk40[3] = EVec3(0.543f, 1.75f, 1.998f);
+    mirror.unk88 = 4;
+    mirror.fn_8000AC6C();
+    mirror.fn_8000AF70(&unk5C);
+    CAS_MIRROR_STATE(rc);
+    rc->vfn47(EVec2(0.0f, 0.0f), EVec2(1.0f, 1.0f), EVec2(0.0f, 0.0f), EVec2(0.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f),
+              0.0f);
+
+    // The mirror surface as a four-vertex strip (corners 0, 1, 3, 2).
+    EVertex vertices[4];
+    for (int i = 0; i < 4; i++) {
+        int corner;
+        if (i == 2) {
+            corner = 3;
+        } else if (i == 3) {
+            corner = 2;
+        } else {
+            corner = i;
+        }
+        vertices[i].position.x = mirror.unk40[corner].x;
+        vertices[i].position.y = mirror.unk40[corner].y;
+        vertices[i].position.z = mirror.unk40[corner].z;
+        vertices[i].w = 1.0f;
+        vertices[i].unk10[0] = 0;
+        vertices[i].unk10[1] = 0;
+        vertices[i].unk10[2] = 0;
+        vertices[i].unk10[3] = 0;
+        vertices[i].unk30[0] = 0;
+        vertices[i].unk30[1] = 0;
+        vertices[i].unk30[2] = 0;
+        vertices[i].unk3C = 0xFF;
+    }
+    vertices[0].u = 0.0f;
+    vertices[0].v = 0.0f;
+    vertices[1].u = 1.0f;
+    vertices[1].v = 0.0f;
+    vertices[2].u = 0.0f;
+    vertices[2].v = 1.0f;
+    vertices[3].u = 1.0f;
+    vertices[3].v = 1.0f;
+    EMat4 projection;
+    float mirrorFov = unk45C4 * (float)lbl_8037C198->unk18 / (float)lbl_8037C198->unk14;
+    projection.fn_801B3834(mirrorFov, lbl_8037C198->vfn37(), 0.0001f, 1000.0f);
+    rc->vfn31(&projection);
+    rc->vfn29();
+    rc->vfn3(vertices, 4);
+    unk5C.fn_80156018(rc);
+    fn_8017AA14(unk54, rc);
+    if (unk4590) {
+        unk4464->fn_8001A908(rc, unk45B8, 1);
+    }
+    mirror.fn_8000B03C(&unk5C);
+    unk5C.fn_80156018(rc);
+
+    // The mirror's own surface.
+    CAS_MIRROR_STATE(rc);
+    rc->vfn56(0, 0, 1);
+    rc->vfn47(EVec2(0.0f, 0.0f), EVec2(1.0f, 1.0f), EVec2(0.0f, 0.0f), EVec2(0.0f, 0.0f), EColorF(1.0f, 1.0f, 1.0f, 1.0f),
+              1.0f);
+    unk4C->fn_80181824(rc);
+    rc->vfn29();
+    rc->vfn3(vertices, 4);
+
+    // Main pass.
+    up = EVec3(0.0f, 0.0f, 1.0f);
+    unk5C.fn_80154798(unk36C, unk390, up);
+    unk5C.fn_80156018(rc);
+    fn_8017AA14(unk58, rc);
+    fn_8017AA14(unk54, rc);
+    if (unk4590) {
+        unk4464->fn_8001A908(rc, unk45B8, 1);
+    }
+    for (Unk80018374** sim = unk4468, **last = sim + 3; sim <= last; sim++) {
+        if (*sim) {
+            (*sim)->fn_8001A908(rc, 0.0f, 1);
+        }
+    }
+
+    EMat4 place;
+    place.fn_801B2AFC();
+    place.fn_801B3024(EVec3(0.0f, 0.0f, 1.0f), lbl_8037B458);
+    place.fn_801B345C(EVec3(lbl_8037B44C, lbl_8037B450, lbl_8037B454));
+    rc->vfn44(&lights);
+    unk50DC[1].fn_8015B044(rc, unk50D4, &place);
+
+    // View used for the shadows: flattened and lifted slightly off the floor.
+    EMat4 shadowView;
+    shadowView.fn_801B2AFC();
+    shadowView.m[2][0] = 0.2f;
+    shadowView.m[2][1] = 0.2f;
+    shadowView.m[2][2] = 0.0f;
+    shadowView.fn_801B345C(EVec3(0.0f, 0.0f, 0.01f));
+    EMat4 savedView;
+    savedView.Copy64(lbl_8037C0E0->unkA0);
+    EMat4 product;
+    product.fn_801B2888(&shadowView, &savedView);
+    fn_80015070(shadowView, product);
+    EMat4 shadowViewCopy;
+    fn_80015070(shadowViewCopy, shadowView);
+    ((Unk80182DE0*)lbl_80340AB8.fn_80177628(0xA785BD26, 0, 0))->fn_80182DE0(0.25f);
+
+    if (unk4590) {
+        place.fn_801B2AFC();
+        if (unk52B9) {
+            unk4EF0.fn_8015B044(rc, unk4EE8, &place);
+        }
+        unk4FDC.fn_8015B044(rc, unk4FD8, &place);
+        place.fn_801B2AFC();
+        place.fn_801B3024(EVec3(0.0f, 0.0f, 1.0f), lbl_8037B468);
+        place.fn_801B345C(EVec3(lbl_8037B45C, lbl_8037B460, lbl_8037B464));
+        unk50DC[0].fn_8015B044(rc, unk50D0, &place);
+        rc->vfn30(&shadowView);
+        Unk80182DE0* material = (Unk80182DE0*)lbl_80340AB8.fn_80177628(0xA785BD26, 0, 0);
+        CAS_DRAW_SHADOWS(rc, unk50D0, material);
+        rc->vfn56(0, 0, 0);
+        rc->vfn30(&savedView);
+        place.fn_801B3024(EVec3(0.0f, 0.0f, 1.0f), lbl_8037B478);
+        place.fn_801B345C(EVec3(lbl_8037B46C, lbl_8037B470, lbl_8037B474));
+        unk523C.fn_8015B044(rc, unk5238, &place);
+        rc->vfn30(&shadowView);
+        CAS_DRAW_SHADOWS(rc, unk5238, material);
+        rc->vfn56(0, 0, 0);
+        rc->vfn30(&savedView);
+    }
+
+    // 2D overlay.
+    if (unk52E8) {
+        fn_80188850(rc);
+        if (unk4580 == 6) {
+            Unk8003C95C* font = lbl_802E6700.unkEC;
+            font->fn_8003DBE8(rc);
+            font->fn_8003C95C(1, 16.0f, 1.0f);
+            lbl_802E6700.unkEC->unk64 = lbl_802E6964;
+            EVec2 position(0.5f, 0.142f);
+            EVec2 at(position);
+            lbl_802E6700.unkEC->fn_8003D740(rc, (const unsigned short*)GetText("last"), 1, &at, 2, 0, 0);
+        } else if (unk4580 == 7) {
+            Unk8003C95C* font = lbl_802E6700.unkEC;
+            font->fn_8003DBE8(rc);
+            font->fn_8003C95C(1, 16.0f, 1.0f);
+            lbl_802E6700.unkEC->unk64 = lbl_802E6964;
+            EVec2 position(0.5f, 0.142f);
+            EVec2 at(position);
+            lbl_802E6700.unkEC->fn_8003D740(rc, (const unsigned short*)GetText("first"), 1, &at, 2, 0, 0);
+        }
+        fn_80106484(unk52C4, rc);
+        if (fn_801082B4(unk52C4)) {
+            fn_800123A4(rc);
+        }
+        fn_80013784(rc);
+    } else {
+        fn_80106484(unk52C4, rc);
+        if (fn_801082B4(unk52C4)) {
+            fn_800123A4(rc);
+        }
+        fn_80013784(rc);
+    }
 }
 
 // 0x8000C3C8
@@ -905,7 +1136,7 @@ void CASTarget::fn_8000C5DC() {
 // 0x8000CBD8
 void CASTarget::fn_8000CBD8() {
     Unk80340AB8* manager = &lbl_80340AB8;
-    unk4C = manager->fn_80177628(0xAB5FDCCC, 0, 0);
+    unk4C = (Unk80181824*)manager->fn_80177628(0xAB5FDCCC, 0, 0);
     unk50 = (Unk80181824*)manager->fn_80177628(0x0F303F75, 0, 0);
 }
 

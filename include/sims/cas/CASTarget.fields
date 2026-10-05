@@ -2,7 +2,7 @@
 FIRST 0x48
 END 0x5D30
 0x48   4      int                unk48
-0x4C   4      void*              unk4C
+0x4C   4      Unk80181824*       unk4C            # mirror texture
 0x50   4      Unk80181824*       unk50            # padlock sprite
 0x54   4      void*              unk54
 0x58   4      void*              unk58

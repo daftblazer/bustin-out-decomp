@@ -41,7 +41,7 @@ struct ERC {
     char unk0[0x44];
     virtual void vfn1();
     virtual void vfn2();
-    virtual void vfn3();
+    virtual void vfn3(const void* vertices, int count); // draw a strip
     virtual void vfn4();
     virtual void vfn5();
     virtual void vfn6();
@@ -68,18 +68,18 @@ struct ERC {
     virtual void vfn27();
     virtual void vfn28(EMat4* matrix, int);
     virtual void vfn29();
-    virtual void vfn30();
-    virtual void vfn31();
+    virtual void vfn30(const EMat4* matrix); // set the view matrix
+    virtual void vfn31(const EMat4* matrix); // set the projection
     virtual void vfn32();
     virtual void vfn33();
     virtual void vfn34();
-    virtual void vfn35();
-    virtual void vfn36();
-    virtual void vfn37();
-    virtual void vfn38();
+    virtual void vfn35(int, int);
+    virtual void vfn36(int flags);
+    virtual void vfn37(int flags);
+    virtual void vfn38(int);
     virtual void vfn39();
     virtual void vfn40();
-    virtual void vfn41();
+    virtual void vfn41(int, int);
     virtual void vfn42();
     virtual void vfn43();
     virtual void vfn44(void* light);
@@ -88,6 +88,49 @@ struct ERC {
     virtual void vfn47(const EVec2& corner0, const EVec2& corner1, const EVec2& uv0, const EVec2& uv1, const EColorF& color, float); // textured quad
     virtual void vfn48();
     virtual void vfn49(EVec2* position, EVec2* size, EColorF* color, float);
+    virtual void vfn50();
+    virtual void vfn51();
+    virtual void vfn52();
+    virtual void vfn53();
+    virtual void vfn54(int, int, int, int);
+    virtual void vfn55(int, int, int, float);
+    virtual void vfn56(int, int, int);
+    virtual void vfn57();
+    virtual void vfn58();
+    virtual void vfn59();
+    virtual void vfn60(int, int);
+    virtual void vfn61(int, int, int, int, int, int);
+    virtual void vfn62();
+    virtual void vfn63();
+    virtual void vfn64();
+    virtual void vfn65();
+    virtual void vfn66();
+    virtual void vfn67();
+    virtual void vfn68();
+    virtual void vfn69();
+    virtual void vfn70();
+    virtual void vfn71();
+    virtual void vfn72();
+    virtual void vfn73();
+    virtual void vfn74();
+    virtual void vfn75();
+    virtual void vfn76();
+    virtual void vfn77();
+    virtual void vfn78();
+    virtual void vfn79();
+    virtual void vfn80();
+    virtual void vfn81();
+    virtual void vfn82();
+    virtual void vfn83();
+    virtual void vfn84();
+    virtual void vfn85();
+    virtual void vfn86();
+    virtual void vfn87();
+    virtual void vfn88();
+    virtual void vfn89();
+    virtual void vfn90();
+    virtual void vfn91();
+    virtual void vfn92();
 };
 
 // Callback invoked when a widget arrow is pressed (may be null).
@@ -116,8 +159,17 @@ public:
     Unk80181824* unk84;   // right arrow sprite
 };
 
+// A run of drawable pieces inside a model (16 bytes).
+struct EModelGroup {
+    struct Unk80184C00* unk0; // pieces, 0x24 bytes each
+    int unk4;                 // how many
+    char unk8[8];
+};
 struct Unk8033FF34Resource {
-    char unk0[0x6C];
+    char unk0[0x20];
+    EModelGroup* unk20;
+    int unk24; // number of groups
+    char unk28[0x6C - 0x28];
     float unk6C;
     void fn_8017CC58(ERC* rc);
 };

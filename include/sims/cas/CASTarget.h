@@ -89,6 +89,7 @@ struct Unk80156438 {
     int fn_8015AA0C(int);  // animation finished
     void fn_8015A520(int); // restart
     void fn_801569F8(int, int, const EVec3& scale);
+    void fn_8015B044(ERC* rc, Unk8033FF34Resource* model, const EMat4* transform); // draw
     void fn_80159994(int, unsigned int animationId);
     void SetUnk54(float value) { unk54 = value; }
     char unk0[0x54];
@@ -132,6 +133,7 @@ struct Unk80018374 {
     void fn_8001A67C();
     void fn_8001C240();
     void fn_8001C384();
+    void fn_8001A908(ERC* rc, float turn, int); // draw
     void fn_8001C3B8();
     int fn_8001D04C();
     void fn_8001AC88();
@@ -327,6 +329,21 @@ struct CASScreenInfoBase {
     virtual void vfn20();
     virtual void vfn21(int texture); // release
     virtual int vfn22();
+    virtual void vfn23();
+    virtual void vfn24();
+    virtual void vfn25();
+    virtual void vfn26();
+    virtual void vfn27();
+    virtual void vfn28();
+    virtual void vfn29();
+    virtual void vfn30();
+    virtual void vfn31();
+    virtual void vfn32();
+    virtual void vfn33();
+    virtual void vfn34();
+    virtual void vfn35();
+    virtual void vfn36();
+    virtual float vfn37(); // pixel aspect
 };
 struct CASScreenInfo : CASScreenInfoBase {
     char unk4[0x10];
@@ -376,6 +393,66 @@ struct EGlobalUnk118 {
 };
 void fn_8017A778(void* resource);
 inline float ERadToDeg(float radians) { return radians * 57.29578f; }
+
+// Lighting set-up handed to the render context (0xE0 bytes).
+struct ELightSet {
+    struct Directional {
+        EVec3 color;
+        EVec3 direction;
+    };
+    struct Point {
+        EVec3 position;
+        float range;
+        EVec3 color;
+        float unk1C;
+    };
+    EVec3 ambient;
+    int unkC;
+    Directional directional[3];
+    Point point[4];
+    int numDirectional;
+    int numPoint;
+};
+// Vertex as the render context takes it (0x50 bytes).
+struct EVertex {
+    EVec3 position;
+    float w;
+    int unk10[4];
+    float u, v;
+    int unk28[2];
+    int unk30[3];
+    int unk3C; // alpha
+    char unk40[0x10];
+};
+struct Unk80184C00 {
+    char unk0[0x24];
+    void fn_80184C00(ERC* rc);
+};
+// The shader/material resource used for the props' shadows.
+struct Unk80182DE0Inner {
+    char unk0[0xB8];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3(ERC* rc);
+};
+struct Unk80182DE0 {
+    char unk0[0x20];
+    Unk80182DE0Inner* unk20;
+    void fn_80182DE0(float);
+};
+struct Unk8037C0E0 {
+    char unk0[0xA0];
+    EMat4 unkA0;
+};
+extern Unk8037C0E0* lbl_8037C0E0; // the active view
+void fn_8017AA14(void* scene, ERC* rc);
+void fn_80106484(void* viewer, ERC* rc);
+int fn_801082B4(void* viewer);
+EMat4& fn_80015070(EMat4& dst, const EMat4& src);
+// Placement of three props: x, y, z and a turn angle each (small data, 0x8037B44C).
+extern float lbl_8037B44C, lbl_8037B450, lbl_8037B454, lbl_8037B458;
+extern float lbl_8037B45C, lbl_8037B460, lbl_8037B464, lbl_8037B468;
+extern float lbl_8037B46C, lbl_8037B470, lbl_8037B474, lbl_8037B478;
 
 // Scoped object used around the loading-thread flag (ctor 0x801BE528).
 struct Unk801BE528 {
@@ -432,10 +509,8 @@ public:
     void fn_8000B03C(Unk801543AC* view);
 
     EMat4 unk0;   // reflection
-    EVec3 unk40;  // three corners of the mirror
-    EVec3 unk4C;
-    EVec3 unk58;
-    char unk64[0x8C - 0x64];
+    EVec3 unk40[6]; // corners of the mirror (the first three define the plane)
+    int unk88;      // number of corners
     EMat4 unk8C;  // the view's own matrix, saved while reflecting
 };
 
@@ -447,6 +522,8 @@ public:
     CASTarget();
     virtual ~CASTarget();
     virtual void vfn2();
+    virtual void vfn3(ERC* rc);
+    void fn_800123A4(ERC* rc);
     void fn_8000C458();
     int fn_8000C4A4();
     void fn_8000C5DC();
