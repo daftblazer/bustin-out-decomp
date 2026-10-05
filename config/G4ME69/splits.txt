@@ -61,3 +61,9 @@ sims/cas/CASSkin.cpp:
 	.ctors      start:0x80291CB4 end:0x80291CB8
 	.rodata     start:0x802957E0 end:0x80295D20
 	.bss        start:0x802E5A8C end:0x802E5AEC
+
+sims/cas/Unk800230AC.cpp:
+	.text       start:0x800230AC end:0x80023D3C
+
+sims/cas/Unk80023D3C.cpp:
+	.text       start:0x80023D3C end:0x8002436C
