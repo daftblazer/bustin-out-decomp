@@ -1,21 +1,47 @@
 # Known members of CASTarget (0x5D30 bytes). See tools/gen_fields.py.
 FIRST 0x48
 END 0x5D30
-0x4C   4     void*              unk4C
-0x50   4     void*              unk50
-0x8C   0xA0  char               unk8C[0xA0]      # view window, passed to 0x801546D8
-0x4590 4     int                unk4590
-0x45C9 1     unsigned char      unk45C9
-0x52C4 4     void*              unk52C4          # UI viewer the dialogs are driven through
-0x52C8 4     int                unk52C8
-0x52D4 4     int                unk52D4
-0x52E4 4     Unk8003C95C*       unk52E4          # text renderer
-0x5310 4     int                unk5310
-0x5320 4     int                unk5320          # dialog showing
-0x5324 4     int                unk5324          # menu showing
-0x533C 0xE0  CASTargetUnk533C   unk533C
-0x541C 0xE0  CASTargetUnk533C   unk541C
-0x54FC 0xE0  CASTargetUnk533C   unk54FC
-0x55DC 0xE0  CASTargetUnk533C   unk55DC
-0x56BC 0xE0  CASTargetUnk533C   unk56BC
-0x57F0 1     unsigned char      unk57F0
+0x48   4      int                unk48
+0x4C   4      void*              unk4C
+0x50   4      void*              unk50
+0x54   4      void*              unk54
+0x58   4      void*              unk58
+0x5C   0x70   Unk801543AC        unk5C            # holds the saved view matrix
+0x3C8  4      Unk8001EE8C        unk3C8           # class of the unit at 0x8001EE8C
+0x4488 4      Unk801CC464        unk4488
+0x4574 4      void*              unk4574
+0x4578 4      void*              unk4578
+0x457C 4      void*              unk457C
+0x4588 4      int                unk4588
+0x4590 4      int                unk4590
+0x45A8 4      int                unk45A8
+0x45C9 1      unsigned char      unk45C9
+0x461C 4      Unk80039E78        unk461C
+0x4EF0 0x74   Unk80156438        unk4EF0
+0x4F64 0x74   Unk80156438        unk4F64
+0x4FDC 0x74   Unk80156438        unk4FDC
+0x5058 0x74   Unk80156438        unk5058
+0x50DC 0x15C  Unk80156438        unk50DC[3]
+0x523C 0x74   Unk80156438        unk523C
+0x52C0 4      int                unk52C0
+0x52C4 4      void*              unk52C4          # UI viewer the dialogs are driven through
+0x52C8 4      int                unk52C8          # set once loading has finished
+0x52D4 4      int                unk52D4
+0x52E4 4      Unk8003C95C*       unk52E4          # text renderer
+0x52EC 4      Unk801B9FEC        unk52EC
+0x52FC 4      UnkTargetBase*     unk52FC
+0x530C 4      int                unk530C
+0x5310 4      int                unk5310
+0x5320 4      int                unk5320          # "CAS" dialog showing
+0x5324 4      int                unk5324          # "CAF" dialog showing
+0x5328 4      int                unk5328
+0x532C 4      int                unk532C          # accept/decline buttons exist
+0x533C 0x460  CASTargetUnk533C   unk533C[5]
+0x579C 4      Unk801BA678        unk579C
+0x57A0 4      Unk801BA678        unk57A0
+0x57A4 4      Unk801BA678        unk57A4
+0x57A8 0x90   Unk80016448        unk57A8
+0x5838 0x460  CASTargetUnk533C   unk5838[5]
+0x5C98 4      Unk801BA678        unk5C98
+0x5C9C 4      Unk801BA678        unk5C9C
+0x5CA0 0x90   Unk80016448        unk5CA0

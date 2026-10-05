@@ -47,7 +47,9 @@ public:
     ESimsCamUnkBC* unkBC;
     char unkC0[0x170 - 0xC0];
     int unk170;
-    char unk174[0x214 - 0x174];
+    char unk174[0x17C - 0x174];
+    int unk17C;
+    char unk180[0x214 - 0x180];
     int unk214;
 };
 

@@ -21,7 +21,7 @@ Status
 ------
 
 - The DOL is split into 293 objects and relinks to a byte-identical `main.dol`.
-- 88 of 10,848 functions are decompiled (`python configure.py progress`).
+- 103 of 10,848 functions are decompiled (`python configure.py progress`).
 - The disc has no symbol map. Names are carried over from The Sims 2
   (GameCube), which shares the engine and shipped with one: see
   `config/G4ME69/sims2_hints.txt` and `tools/align_sims2.py`.

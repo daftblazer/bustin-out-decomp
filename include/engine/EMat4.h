@@ -22,7 +22,21 @@ public:
     // the compiler does not fold the zeros into the following transform.
     void SetRow3(float x, float y, float z, float w) { new (m[3]) EVec4(x, y, z, w); }
 
+    // Copy as eight 64-bit words; the window code copies matrices this way.
+    void Copy64(const EMat4& other) {
+        unsigned long long* dst = (unsigned long long*)this;
+        const unsigned long long* src = (const unsigned long long*)&other;
+        dst[0] = src[0];
+        dst[1] = src[1];
+        dst[2] = src[2];
+        dst[3] = src[3];
+        dst[4] = src[4];
+        dst[5] = src[5];
+        dst[6] = src[6];
+        dst[7] = src[7];
+    }
     void fn_801B2AFC();                              // set identity
+    void fn_801B2888(const EMat4* a, const EMat4* b); // this = a concatenated with b
     void fn_801B3024(const EVec3& axis, float angle); // rotate about an axis
     void fn_801B3388(float angle);                   // rotate about Z
 
