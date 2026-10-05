@@ -13,8 +13,8 @@ END 0x5D30
 0x390  0xC    EVec3              unk390           # camera target (interpolated)
 0x39C  0xC    EVec3              unk39C
 0x3A8  0xC    EVec3              unk3A8
-0x3B4 4      int                unk3B4
-0x3B8  0x10   int                unk3B8[4]
+0x3B4  4      CASFamilyList*     unk3B4           # family member list widget
+0x3B8  0x10   UnkTargetBase*     unk3B8[4]        # its entries
 0x3C8  4      Unk8001EE8C        unk3C8           # class of the unit at 0x8001EE8C
 0x4464 4      Unk80018374*       unk4464
 0x4468 0x10   Unk80018374*       unk4468[4]
@@ -53,6 +53,8 @@ END 0x5D30
 0x4608 8      EVec2              unk4608
 0x4610 8      EVec2              unk4610
 0x4618 4      int                unk4618
+0x45D4 1      unsigned char      unk45D4          # which question the prompt asked
+0x45D5 1      unsigned char      unk45D5          # family member it is about
 0x461C 4      Unk80039E78        unk461C
 0x4EAC 4      int                unk4EAC
 0x4EB0 4      int                unk4EB0
@@ -100,7 +102,7 @@ END 0x5D30
 0x52F0 4      int                unk52F0
 0x52F4 4      int                unk52F4
 0x52F8 4      int                unk52F8
-0x52FC 4      UnkTargetBase*     unk52FC
+0x52FC 4      Unk800C6704*       unk52FC          # text-entry dialog
 0x5300 4      int                unk5300
 0x5304 4      int                unk5304
 0x5308 4      int                unk5308

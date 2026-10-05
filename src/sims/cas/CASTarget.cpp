@@ -62,6 +62,639 @@ CASTarget::CASTarget() {
     unk52C4 = lbl_802E6700.unk90;
 }
 
+// Deletes the text-entry dialog and restores the buttons it had hidden.
+#define CAS_CLOSE_DIALOG()     \
+    if (unk52FC) {             \
+        delete unk52FC;        \
+        unk52FC = 0;           \
+        fn_800146A0();         \
+    }
+#define CAS_HIDE_PROMPT() fn_80106164(lbl_802E6700.unk90, "hideDialog", 0, 0, 0)
+
+// 0x80008C08
+// Per-frame update: UI sounds, the name dialogs, the yes/no prompts, input on
+// the family page, the camera, and the animated props.
+// NON_MATCHING: 2,091 instructions vs 2,073. Control flow follows the original branch
+// for branch; known differences: this build keeps a separate register for the end of
+// the four-sim array (the original derives it at each loop), gives the string and vector
+// temporaries different stack slots (0x4C/0x50 against 0x48/0x50/0x58), and so numbers
+// the saved registers differently throughout. Three variants tried.
+void CASTarget::vfn2() {
+    if (!((UnkViewer*)lbl_802E6700.unk90)->fn_801082CC()) {
+        return;
+    }
+    if (fn_800E5DF8()->unk4) {
+        fn_800E5DF8()->fn_800E5EA8("CharacterEdit Mode\n");
+        vfn7(this, 3);
+    }
+    if (unk530C) {
+        fn_80014A88();
+        unk530C = 0;
+    }
+    if (unk5308) {
+        int event = fn_80106774(unk52C4, 0, 0, 0, 1);
+        if (unk52FC == 0) {
+            switch ((unsigned int)event & 0x7FFFFFFF) {
+            case 3:
+            case 4:
+                if (event < 0 && unk5334) {
+                    lbl_8037D96C->fn_8006186C(0x867A1F00);
+                }
+                break;
+            case 1:
+            case 2:
+                if (event < 0 && unk5330 && unk5304 == 0) {
+                    lbl_8037D96C->fn_8006186C(0x867A1F00);
+                }
+                break;
+            case 7:
+                if (event < 0) {
+                    lbl_8037D96C->fn_8006186C(0xCF99DB1E);
+                }
+                break;
+            case 9:
+                if (event < 0) {
+                    lbl_8037D96C->fn_8006186C(0x048AE94F);
+                }
+                break;
+            }
+        }
+    }
+
+    if (unk52FC) {
+        int result = unk52FC->fn_800CAEF0();
+        if (result == 1) {
+            // Accepted: tidy the text, then store it as family or first name.
+            Unk801BA678* text = unk52FC->fn_800C6FAC();
+            if (text) {
+                Unk801BA678 space(" ");
+                text->fn_801BAF74(*space.unk0);
+                for (int i = 0; i < text->fn_801BA934(); i++) {
+                    if (text->fn_801BAEE8(*space.unk0) == 0) {
+                        Unk801BA678 shorter = text->fn_801BAC38(text->fn_801BA934() - 1);
+                        text->fn_801BA860(shorter.unk0);
+                    }
+                }
+                if (text->fn_801BA934() <= 0) {
+                    Unk801BA678 fallback("Error");
+                    text->fn_801BA860(fallback.unk0);
+                }
+                if (unk52D4) {
+                    fn_8023C9FC(unk4478->unk400, text->unk0);
+                    fn_8024254C(unk579C.unk0, text->unk0);
+                    if (unk52E8 == 0) {
+                        unk52D4 = 0;
+                        if (unk57A0.fn_801BA934() > 0) {
+                            unk52FC->fn_800C6F08((int)unk57A0.unk0, 9);
+                        } else {
+                            unk52FC->fn_800C6F08(GetText("default_text_firstname"), 9);
+                        }
+                        unk52FC->fn_800C6FB4(GetText("first"));
+                        unk52FC->fn_800C6E5C(10);
+                    } else {
+                        unk52D4 = 0;
+                        CAS_CLOSE_DIALOG();
+                        unk45A0 = 1;
+                        vfn7(this, 0x42);
+                        vfn7(this, 0x41);
+                        fn_800143E4();
+                    }
+                } else {
+                    int i;
+                    for (i = 0; i < text->fn_801BA934(); i++) {
+                        unk4478->sims[unk45CA].unk28[i] = text->unk0[i];
+                        unk57A0.unk0[i] = text->unk0[i];
+                    }
+                    unk4478->sims[unk45CA].unk28[i] = 0;
+                    unk57A0.unk0[i] = 0;
+                    CAS_CLOSE_DIALOG();
+                    if (unk52E8 == 0) {
+                        fn_8024254C(unk4478->sims[0].unk68, fn_8023C9EC(unk4478->unk400));
+                        if (unk52F8) {
+                            CAS_CLOSE_DIALOG();
+                            unk52F8 = 0;
+                        } else {
+                            fn_800141C0();
+                        }
+                    } else {
+                        unk4580 = 9;
+                        if (unk52F8 == 0) {
+                            delete unk4464;
+                            unk4464 = new Unk80018374(unk45A8, 1, &unk3C8);
+                            unk4464->unk14 = unk458C;
+                            if (unk45A8) {
+                                unk4584 = 0;
+                            } else {
+                                unk4584 = 1;
+                            }
+                        }
+                        if (unk52F8) {
+                            CAS_CLOSE_DIALOG();
+                            unk52F8 = 0;
+                        } else {
+                            fn_800141C0();
+                        }
+                    }
+                }
+            }
+        } else if (result == 2) {
+            // Cancelled: step back from first name to family name, or leave.
+            if (unk52D4) {
+                Unk801BA678* text = unk52FC->fn_800C6FAC();
+                if (text) {
+                    fn_8024254C(unk579C.unk0, text->unk0);
+                }
+                if (unk52E8 == 0) {
+                    fn_8024254C(unk4478->sims[0].unk68, fn_8023C9EC(unk4478->unk400));
+                    unk52CC = 0;
+                    unk52D8 = 0;
+                    unk52DC = 0;
+                    unk52E0 = 0;
+                    if (unk52FC) {
+                        delete unk52FC;
+                        unk52FC = 0;
+                    }
+                } else {
+                    if (unk52FC) {
+                        delete unk52FC;
+                        unk52FC = 0;
+                    }
+                }
+                vfn7(this, 0x46);
+                unk5318 = 1;
+            } else {
+                Unk801BA678* text = unk52FC->fn_800C6FAC();
+                if (text && unk52F8 == 0) {
+                    fn_8024254C(unk57A0.unk0, text->unk0);
+                }
+                if (unk52E8 == 0) {
+                    if (unk52F8) {
+                        CAS_CLOSE_DIALOG();
+                        unk52F8 = 0;
+                    } else {
+                        unk52FC->fn_800C6F08((int)unk579C.unk0, 9);
+                        unk52D4 = 1;
+                        unk52FC->fn_800C6FB4(GetText("last"));
+                        unk52FC->fn_800C6E5C(10);
+                    }
+                } else {
+                    CAS_CLOSE_DIALOG();
+                    if (unk52F8) {
+                        unk4580 = 9;
+                        unk52F8 = 0;
+                    } else {
+                        fn_800143E4();
+                    }
+                }
+            }
+        }
+    }
+
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(0));
+    fn_8017A778(unk58);
+    fn_8017A778(unk54);
+
+    if (unk4580 == 4) {
+    } else if (unk4580 == 5) {
+        if (unk52E8) {
+            unk45CC = 0x2D;
+        }
+    } else if (unk4580 == 6) {
+        unk45CC = 0x28;
+    } else if (unk4580 == 12 && unk45D0) {
+        // A yes/no prompt is up; unk45D4 says which question it asked.
+        if (unk461C.fn_8003A500() != -1) {
+            int showButtons = 1;
+            switch (unk45D4) {
+            case 0: // leave Create-A-Sim?
+                if (controller->fn_8015E204(5)) {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    fn_80014378();
+                    unk4588 = -1;
+                    *unk579C.unk0 = 0;
+                    *unk57A0.unk0 = 0;
+                } else {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    if (unk5318) {
+                        if (unk52FC == 0) {
+                            fn_80014770();
+                            if (unk579C.fn_801BA934() > 0) {
+                                unk52FC = new Unk800C6704((int)unk579C.unk0, 9, 0, GetText("last"), GetText("create a family"),
+                                                          20, 0, 0.5f, 0.25f, 0.25f, 10, 0, 16, 0, 0, 0, 1, 0, 0, 1, 0, 0,
+                                                          0, 1, 1, 0);
+                            } else {
+                                unk52FC = new Unk800C6704(GetText("default_text_lastname"), 9, 0, GetText("last"),
+                                                          GetText("create a family"), 20, 0, 0.5f, 0.25f, 0.25f, 10, 0, 16,
+                                                          0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0);
+                            }
+                            showButtons = 0;
+                        }
+                        unk5318 = 0;
+                        unk4580 = 5;
+                        unk45D0 = 0;
+                    } else if (unk458C) {
+                        unk4580 = 9;
+                    } else {
+                        unk4580 = 10;
+                    }
+                }
+                break;
+            case 1: // discard this sim?
+                if (controller->fn_8015E204(5)) {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    ((UnkViewer*)lbl_802E6700.unk90)->fn_8010826C(this);
+                    CAS_CLOSE_DIALOG();
+                    fn_80014378();
+                    unk52D4 = 0;
+                    if (unk4468[unk45CA]) {
+                        unk4468[unk45CA]->fn_8001E6E8(1, 1);
+                    }
+                    fn_800143E4();
+                } else {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    ((UnkViewer*)lbl_802E6700.unk90)->fn_8010826C(this);
+                    unk4580 = 9;
+                }
+                break;
+            case 2: // discard the family?
+                if (controller->fn_8015E204(5)) {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    ((UnkViewer*)lbl_802E6700.unk90)->fn_8010826C(this);
+                    if (unk5318) {
+                        unk5318 = 0;
+                    } else {
+                        fn_80014564();
+                    }
+                    unk4588 = -1;
+                    *unk579C.unk0 = 0;
+                    *unk57A0.unk0 = 0;
+                } else {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    ((UnkViewer*)lbl_802E6700.unk90)->fn_8010826C(this);
+                    if (unk5318) {
+                        if (unk52FC == 0) {
+                            fn_80014770();
+                            int name = (int)unk579C.unk0;
+                            int isDefault = 0;
+                            if (unk579C.fn_801BA934() == 0) {
+                                name = GetText("default_text_lastname");
+                                isDefault = 1;
+                            }
+                            unk52FC = new Unk800C6704(name, 9, 0, GetText("last family"), GetText("create a family"), 20, 0,
+                                                      0.5f, 0.25f, 0.25f, 10, 0, 16, 0, 0, 0, 1, 0, 0, 1, 0, isDefault, 0, 1,
+                                                      1, 0);
+                            showButtons = 0;
+                        }
+                        unk5318 = 0;
+                        unk4580 = 5;
+                    } else if (unk458C) {
+                        unk4580 = 9;
+                    } else {
+                        unk4580 = 10;
+                    }
+                }
+                break;
+            case 3: // finish the single sim?
+                if (controller->fn_8015E204(5)) {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    Unk80018374* sim = unk4464;
+                    CASSimDesc* desc = &unk4478->sims[0];
+                    sim->unkC8->fn_800226F0(&sim->unk16C);
+                    desc->unkC = sim->unk16C;
+                    fn_80010520(desc, 1);
+                    desc->unkC.fn_801CC688();
+                    unk4464->fn_8001C3B8();
+                    desc->unkA8 = unk4464->fn_8001D04C();
+                    unk4478->present[0] = 1;
+                    unk4478->unk3F0[0] = 0;
+                    if (unk458C && unk5314 == 0) {
+                        fn_8023C9FC((char*)lbl_802E6700.unk118 + 0x84, desc->unk28);
+                        fn_8023CA3C((char*)lbl_802E6700.unk118 + 0x3C, unk4478->unk400);
+                        fn_80014914(0x4DEB3722, unk4478->sims[0].unkC.unk8[8]);
+                        lbl_802E6700.unk118->unkCC = 0;
+                    }
+                    fn_80014378();
+                    unk4588 = 1;
+                } else {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    unk4580 = 9;
+                    fn_800141C0();
+                }
+                break;
+            case 4: // add this sim to the family?
+                if (controller->fn_8015E204(5)) {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    CASSimDesc* desc = &unk4478->sims[unk45CA];
+                    Unk80018374* sim = unk4464;
+                    sim->unkC8->fn_800226F0(&sim->unk16C);
+                    desc->unkC = sim->unk16C;
+                    fn_80010520(desc, 1);
+                    desc->unkC.fn_801CC688();
+                    delete unk4468[unk45CA];
+                    unk4468[unk45CA] = new Unk80018374(desc, &unk3C8, 0);
+                    unk4468[unk45CA]->fn_8001E6E8(1, 1);
+                    unk4468[unk45CA]->unk14 = unk458C;
+                    unk3C8.fn_8001EFEC();
+                    unk4468[unk45CA]->fn_8001C384();
+                    unk3C8.fn_8001EFEC();
+                    EVec2 place;
+                    switch (unk45CA) {
+                    case 0:
+                        place.x = 0.74f;
+                        place.y = -7.5f;
+                        break;
+                    case 1:
+                        place.x = -0.34f;
+                        place.y = -7.5f;
+                        break;
+                    case 2:
+                        place.x = 0.18f;
+                        place.y = -7.5f;
+                        break;
+                    case 3:
+                        place.x = 1.3f;
+                        place.y = -7.5f;
+                        break;
+                    case 4:
+                        place.x = 3.6f;
+                        place.y = -7.75f;
+                        break;
+                    case 5:
+                        place.x = 0.5f;
+                        place.y = -6.5f;
+                        break;
+                    case 6:
+                        place.x = -1.4f;
+                        place.y = -7.5f;
+                        break;
+                    default:
+                        place.x = 2.5f;
+                        place.y = -7.0f;
+                        break;
+                    }
+                    unk4468[unk45CA]->unk154 = EVec3(place.x, place.y, 0.0f);
+                    unk4468[unk45CA]->fn_8001E6E8(1, 1);
+                    vfn7(this, 0x2E);
+                    unk45BC = unk45C0;
+                    if (unk4478->present[unk45CA] == 0) {
+                        unk45C9++;
+                        unk4478->present[unk45CA] = 1;
+                        unk4478->unk3F0[unk45CA] = 0;
+                    }
+                    fn_80014378();
+                    fn_800143E4();
+                } else {
+                    unk4580 = 9;
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    fn_800141C0();
+                }
+                break;
+            case 5: // remove a family member?
+                if (controller->fn_8015E204(5)) {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    delete unk4468[unk45D5];
+                    unk4468[unk45D5] = 0;
+                    unk4478->unk3F0[unk45D5] = 0;
+                    unk4478->present[unk45D5] = 0;
+                    if (unk4478->sims[0].unkA8) {
+                        if (lbl_8037C198->vfn22()) {
+                            lbl_8037C198->vfn8();
+                        }
+                        lbl_8037C198->vfn21(unk4478->sims[0].unkA8);
+                        unk4478->sims[0].unkA8 = 0;
+                    }
+                    unk45C9--;
+                    unk4580 = 10;
+                    fn_80106164(unk52C4, "showMenu", 0, 0, 0);
+                } else {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    if (unk4468[unk45D5]) {
+                        unk4468[unk45D5]->fn_8001E6E8(1, 0);
+                    }
+                    unk4580 = 10;
+                    unk45AC = 1;
+                    fn_80106164(unk52C4, "showMenu", 0, 0, 0);
+                }
+                break;
+            case 7: // finish the family?
+                if (controller->fn_8015E204(5)) {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    for (unsigned int i = 0; i <= 3; i++) {
+                        if (unk4478->present[i] && unk4468[i]) {
+                            unk4468[i]->fn_8001C3B8();
+                            unk4478->sims[i].unkA8 = unk4468[i]->fn_8001D04C();
+                        }
+                    }
+                    fn_80014564();
+                    unk4588 = 1;
+                } else {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    fn_800143E4();
+                }
+                break;
+            case 8: // leave the family page?
+                if (controller->fn_8015E204(5)) {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    fn_80014564();
+                    unk4588 = -1;
+                    fn_800143E4();
+                } else {
+                    unk45D0 = 0;
+                    CAS_HIDE_PROMPT();
+                    fn_800143E4();
+                }
+                break;
+            }
+            if (showButtons) {
+                fn_800146A0();
+            }
+        }
+    } else {
+        int state = unk4580;
+        if (state == 9) {
+        } else if (state == 7) {
+            unk4580 = state;
+        } else if (state == 10 || state == 11) {
+            // Family page.
+            if (unk52E8) {
+                fn_801887C8();
+                if (unk45B0 >= 1.0f && unk45CC == 0) {
+                    if (controller->fn_8015E0F8(7)) {
+                        if (unk458C) {
+                            unk4588 = -1;
+                        } else if (unk4590 && unk4580 == 9) {
+                            fn_800143E4();
+                            for (Unk80018374** sim = unk4468, **last = sim + 3; sim <= last; sim++) {
+                                if (*sim) {
+                                    (*sim)->fn_8001E6E8(1, 1);
+                                }
+                            }
+                            unk45BC = unk45C0;
+                        } else if (unk3B4) {
+                            unk4468[unk3B4->unk48->unk58]->fn_8001E6E8(1, 0);
+                            unk4580 = 10;
+                            unk45AC = 1;
+                            fn_80106164(unk52C4, "showMenu", 0, 0, 0);
+                            unk45BC = unk45C0;
+                            for (int i = 0; i < unk45C9; i++) {
+                                unk3B4->vfn15(unk3B8[i]);
+                            }
+                            vfn15(unk3B4);
+                            unk459C = 1;
+                        } else if (unk52FC) {
+                            delete unk52FC;
+                            unk52FC = 0;
+                            fn_800143E4();
+                            fn_800146A0();
+                        }
+                    } else if (controller->fn_8015E0F8(3) || controller->fn_8015E0F8(4)) {
+                        if (unk45B0 >= 1.0f && unk45CC == 0 && unk3B4) {
+                            unsigned char selected = unk3B4->unk48->unk58;
+                            for (Unk80018374** sim = unk4468, **last = sim + 3; sim <= last; sim++) {
+                                if (*sim) {
+                                    (*sim)->fn_8001E6E8(1, 0);
+                                }
+                            }
+                            unk4468[selected]->fn_8001E6E8(0, 0);
+                        }
+                    }
+                }
+            }
+        } else if (state != 0) {
+            if (controller->fn_8015E0F8(7)) {
+                if (unk52FC == 0) {
+                    fn_80010408();
+                }
+            } else {
+                fn_801887C8();
+            }
+        }
+    }
+
+    fn_8000FCE4();
+    if (unk4464) {
+        // Which quarter the sim is seen from, from its turn angle.
+        float angle = unk45B8;
+        if (angle > 5.0f && angle < 5.9f) {
+            unk4464->unk40 = 1;
+        } else if (angle > 3.1f && angle < 4.1f) {
+            unk4464->unk40 = 2;
+        } else if (angle > 1.0f && angle < 2.3f) {
+            unk4464->unk40 = 3;
+        } else {
+            unk4464->unk40 = 0;
+        }
+    }
+    if (unk4590) {
+        float stick = controller->fn_8015DEE4(1, 0);
+        if (stick != 0.0f) {
+            float degrees = (stick + stick) * 45.0f * lbl_8037BFC8 + ERadToDeg(unk45B8);
+            if (degrees > 360.0) {
+                degrees = degrees - 360.0;
+            } else if (degrees < 0.0) {
+                degrees = degrees + 360.0;
+            }
+            unk45B8 = EDegToRad(degrees);
+        }
+        if (unk52E8) {
+            unk4464->fn_8001AE1C(unk52CC, unk533C);
+        } else {
+            unk4464->fn_8001AE1C(unk52CC, unk533C);
+        }
+    }
+    for (Unk80018374** sim = unk4468, **last = sim + 3; sim <= last; sim++) {
+        if (*sim) {
+            (*sim)->fn_8001AC88();
+        }
+    }
+
+    // The parrot, the thief and the window: unk52B9 steps through their routine.
+    if (unk523C.fn_8015AA0C(1)) {
+        if (unk52B9 == 10) {
+            unk52B9++;
+        }
+        if (unk52B9 == 0) {
+            int roll = fn_801115C4() % 8;
+            if (roll == 0) {
+                unk52B9 = 1;
+            } else if (roll == 1) {
+                unk52B9 = 10;
+            }
+        }
+        if (unk52B9 == 3 || unk52B9 == 11) {
+            unk52B9 = 0;
+        }
+        if (unk52B9 == 1) {
+            unk4EF0.fn_80159994(1, (*unk52B4)[4]);
+            unk52B9++;
+            unk523C.fn_8015A520(1);
+        } else if (unk52B9 == 2) {
+            if (fn_801115C4() % 2 == 0) {
+                unk4EF0.fn_80159994(1, (*unk52B4)[5]);
+                unk52B9++;
+                unk523C.fn_80159994(1, (*unk52B0)[1]);
+                unk4FDC.fn_80159994(1, (*unk5050)[1]);
+            } else {
+                unk4EF0.fn_80159994(1, (*unk52B4)[7]);
+                unk52B9++;
+                unk523C.fn_80159994(1, (*unk52B0)[0]);
+                unk4FDC.fn_80159994(1, (*unk5050)[0]);
+            }
+            unk523C.fn_8015A520(1);
+        } else if (unk52B9 == 10) {
+            unk4EF0.fn_80159994(1, (*unk52B4)[6]);
+            unk523C.fn_80159994(1, (*unk52B0)[0]);
+            unk4FDC.fn_80159994(1, (*unk5050)[2]);
+            unk523C.fn_8015A520(1);
+        } else {
+            unk523C.fn_80159994(1, (*unk52B0)[0]);
+            unk4FDC.fn_80159994(1, (*unk5050)[0]);
+            unk523C.fn_8015A520(1);
+        }
+    } else {
+        unk523C.fn_801569F8(0, 0, EVec3(1.0f));
+        if (unk52B9) {
+            unk4EF0.fn_801569F8(0, 0, EVec3(1.0f));
+        }
+    }
+    unk4FDC.fn_801569F8(0, 0, EVec3(1.0f));
+    unk50DC[0].fn_801569F8(0, 0, EVec3(1.0f));
+    unk50DC[1].fn_801569F8(0, 0, EVec3(1.0f));
+    if (unk52B9 <= 1 && unk4FDC.fn_8015AA0C(1)) {
+        unk4FDC.fn_8015A520(1);
+    }
+
+    if (unk459C) {
+        for (int i = 0; i < 4; i++) {
+            if (unk3B8[i]) {
+                delete unk3B8[i];
+                unk3B8[i] = 0;
+            }
+        }
+        if (unk3B4) {
+            delete unk3B4;
+        }
+        unk459C = 0;
+        unk3B4 = 0;
+    }
+    fn_801063A0(unk52C4);
+}
+
 // 0x8000AC6C
 // NON_MATCHING: 4 of 193 differ. For the first two calls on `toAxis` the original sets
 // up r4 before r3; this build does r3 first (the same pattern as the text copies in

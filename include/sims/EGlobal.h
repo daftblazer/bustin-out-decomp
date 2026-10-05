@@ -47,7 +47,9 @@ public:
     struct Unk324* unkA8[4];      // per player, set from ESimsCam+0x324
     char unkB8[0xBC - 0xB8];
     ESimsCamUnkBC* unkBC;
-    char unkC0[0x170 - 0xC0];
+    char unkC0[0x118 - 0xC0];
+    struct EGlobalUnk118* unk118;
+    char unk11C[0x170 - 0x11C];
     int unk170;
     char unk174[0x17C - 0x174];
     int unk17C;

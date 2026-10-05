@@ -11,8 +11,8 @@
     EVec3 unk390; // 0x390 camera target (interpolated)
     EVec3 unk39C; // 0x39c
     EVec3 unk3A8; // 0x3a8
-    int unk3B4; // 0x3b4
-    int unk3B8[4]; // 0x3b8
+    CASFamilyList* unk3B4; // 0x3b4 family member list widget
+    UnkTargetBase* unk3B8[4]; // 0x3b8 its entries
     Unk8001EE8C unk3C8; // 0x3c8 class of the unit at 0x8001EE8C
     char pad3CC[0x4098];
     Unk80018374* unk4464; // 0x4464
@@ -46,7 +46,9 @@
     char pad45CB[0x1];
     int unk45CC; // 0x45cc view to switch to next
     int unk45D0; // 0x45d0
-    char pad45D4[0xc];
+    unsigned char unk45D4; // 0x45d4 which question the prompt asked
+    unsigned char unk45D5; // 0x45d5 family member it is about
+    char pad45D6[0xa];
     EVec2 unk45E0; // 0x45e0
     EVec2 unk45E8; // 0x45e8
     EVec2 unk45F0; // 0x45f0
@@ -107,7 +109,7 @@
     int unk52F0; // 0x52f0
     int unk52F4; // 0x52f4
     int unk52F8; // 0x52f8
-    UnkTargetBase* unk52FC; // 0x52fc
+    Unk800C6704* unk52FC; // 0x52fc text-entry dialog
     int unk5300; // 0x5300
     int unk5304; // 0x5304
     int unk5308; // 0x5308

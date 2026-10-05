@@ -12,6 +12,12 @@ struct Unk801BA678 {
     void fn_801BA694(unsigned short* text);
     void fn_801BA0F4(const unsigned short* text);
     void fn_801BA958(int capacity, int);
+    Unk801BA678(const char* text);                       // 0x801BA6D4
+    int fn_801BA934() const;                             // length
+    void fn_801BA860(const unsigned short* text);        // assign
+    void fn_801BAF74(unsigned short character);          // strip leading
+    int fn_801BAEE8(unsigned short character);
+    Unk801BA678 fn_801BAC38(int length) const;           // first `length` characters
     Unk801BA678& operator=(const Unk801BA678& other) {
         fn_801BA0F4(other.unk0);
         return *this;
@@ -51,6 +57,14 @@ public:
     virtual void vfn5();
     virtual void vfn6();
     virtual void vfn7(UnkTargetBase* sender, int message); // slot 7
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15(UnkTargetBase* child);              // slot 15: add a child
 
     void fn_801887C8(); // base update
 

@@ -51,6 +51,7 @@ struct Unk8001EE8C {
 struct Unk801CC464 {
     Unk801CC464();
     Unk801CC464(const Unk801CC464& other);
+    void fn_801CC688();
     int unk0;
     int unk4;
     signed char unk8[0x14]; // one choice per feature slot
@@ -59,7 +60,8 @@ struct Unk801CC464 {
 struct CASSimDesc {
     unsigned char unk0[0xC];
     Unk801CC464 unkC;
-    char unk28[0xA8 - 0x28];
+    unsigned short unk28[0x20]; // first name
+    unsigned short unk68[0x20]; // family name
     int unkA8;
     char unkAC[0xF8 - 0xAC];
 };
@@ -67,10 +69,16 @@ struct CASSimDesc {
 struct CASFamily {
     CASSimDesc sims[4];
     int present[4];
+    int unk3F0[4];
+    void* unk400; // name object
 };
+extern "C" const unsigned short* fn_8023C9EC(void* name);
+extern "C" void fn_8023C9FC(void* name, const unsigned short* text);
+extern "C" void fn_8023CA3C(void* name, void* other);
 struct Unk80039E78 {
     Unk80039E78();
     ~Unk80039E78();
+    int fn_8003A500();
     void fn_80039F1C();
     char unk0[4];
 };
@@ -78,6 +86,9 @@ struct Unk80039E78 {
 struct Unk80156438 {
     Unk80156438();
     void fn_80156700(unsigned int modelId);
+    int fn_8015AA0C(int);  // animation finished
+    void fn_8015A520(int); // restart
+    void fn_801569F8(int, int, const EVec3& scale);
     void fn_80159994(int, unsigned int animationId);
     void SetUnk54(float value) { unk54 = value; }
     char unk0[0x54];
@@ -121,6 +132,10 @@ struct Unk80018374 {
     void fn_8001A67C();
     void fn_8001C240();
     void fn_8001C384();
+    void fn_8001C3B8();
+    int fn_8001D04C();
+    void fn_8001AC88();
+    void fn_8001AE1C(int, CASTargetUnk533C* selectors);
     int fn_8001E9D8(int, int, int slot, signed char choice); // true when the slot's choice is locked
     void fn_8001E6E8(int, int);
     void SetUnk154(EVec3 position) { unk154 = position; }
@@ -129,7 +144,9 @@ struct Unk80018374 {
     int unk8;
     char unkC[0x14 - 0xC];
     int unk14;
-    char unk18[0xC8 - 0x18];
+    char unk18[0x40 - 0x18];
+    int unk40; // which side the sim is seen from
+    char unk44[0xC8 - 0x44];
     Unk800226F0* unkC8;
     char unkCC[0xE0 - 0xCC];
     Unk80156438 unkE0;
@@ -143,6 +160,11 @@ class Unk800C6704 : public UnkTargetBase {
 public:
     Unk800C6704(int, int, int, int, int, int, int, float, float, float, int, int, int, int, int, int, int, int,
                 int, int, int, int, int, int, int, int);
+    int fn_800CAEF0();                  // 0 while open, 1 accepted, 2 cancelled
+    Unk801BA678* fn_800C6FAC();         // the entered text
+    void fn_800C6F08(int text, int);
+    void fn_800C6FB4(int title);
+    void fn_800C6E5C(int);
     char unk48[0x178 - 0x48];
 };
 
@@ -281,9 +303,33 @@ struct Unk801800FC {
     unsigned int** Get(int node, const char* name) { return fn_8018021C(node, name); }
 };
 
-// Screen size in pixels.
-struct CASScreenInfo {
-    char unk0[0x14];
+// The renderer: screen size in pixels, and the texture cache.
+struct CASScreenInfoBase {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20();
+    virtual void vfn21(int texture); // release
+    virtual int vfn22();
+};
+struct CASScreenInfo : CASScreenInfoBase {
+    char unk4[0x10];
     int unk14; // width
     int unk18; // height
 };
@@ -302,6 +348,34 @@ struct Unk80341458 {
 };
 extern Unk80341458 lbl_80341458;
 extern "C" char* strcpy(char*, const char*);
+
+// The family-member list shown on the family page.
+class CASFamilyList : public UnkTargetBase {
+public:
+    struct Item {
+        char unk0[0x58];
+        unsigned char unk58; // family member index
+    };
+    Item* unk48; // highlighted item
+};
+struct Unk800E5DF8 {
+    int unk0;
+    int unk4;
+    void fn_800E5EA8(const char* text);
+};
+Unk800E5DF8* fn_800E5DF8();
+int fn_80106774(void* viewer, int, int, int, int); // next UI event: code, sign bit set on press
+void fn_801063A0(void* viewer);
+struct Unk8037D96C {
+    void fn_8006186C(unsigned int soundId);
+};
+extern Unk8037D96C* lbl_8037D96C;
+struct EGlobalUnk118 {
+    char unk0[0xCC];
+    int unkCC;
+};
+void fn_8017A778(void* resource);
+inline float ERadToDeg(float radians) { return radians * 57.29578f; }
 
 // Scoped object used around the loading-thread flag (ctor 0x801BE528).
 struct Unk801BE528 {
@@ -339,6 +413,7 @@ void fn_801FC174(void*);
 void fn_800183D0();
 
 struct UnkViewer {
+    int fn_801082CC();
     void fn_8010826C(void* owner);
     void fn_80108290(void* owner);
 };
@@ -371,6 +446,7 @@ class CASTarget : public UnkTargetBase {
 public:
     CASTarget();
     virtual ~CASTarget();
+    virtual void vfn2();
     void fn_8000C458();
     int fn_8000C4A4();
     void fn_8000C5DC();
