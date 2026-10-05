@@ -94,6 +94,12 @@ public:
     void fn_8002BA04(int forward);
     void fn_8002BB64(int* tileX, int* tileY);
     EVec2 fn_8002BD98();
+    void fn_8002BC5C(EVec2* out);
+    void fn_8002D1CC();
+    int fn_8002D270(int a, int b);
+    void fn_8002D2A8(EVec3* out);
+    EVec3* fn_8002D2C8();
+    void fn_8002D2D0();
     void fn_8002BE48(struct Unk800053D4Inner* object);
     int fn_80028860();
     void* fn_80028E84();

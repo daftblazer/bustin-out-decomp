@@ -117,8 +117,7 @@ struct Unk8007FFE8 {
 // The same view object's origin.
 struct Unk8004AD08B {
     char unk0[0x34];
-    float unk34;
-    float unk38;
+    EVec2 unk34;   // world position of tile (0, 0)
 };
 extern void* lbl_8037D990;
 
@@ -339,6 +338,36 @@ extern float lbl_8037B4A8;
 void fn_800686D4(Unk800053D4Inner* object);
 struct Unk80173D58Alloc {
     EMat4* fn_80173D58(int size, int align);
+};
+
+// One queued piece of cursor/overlay drawing, as handed to the callbacks below.
+struct Unk8002D67CItem {
+    char unk0[6];
+    unsigned short unk6;
+    float unk8;
+    float unkC;
+    float unk10;
+    float unk14;
+    char unk18[0x24 - 0x18];
+    unsigned char unk24;
+    Unk80181824* unk28;   // texture
+};
+void fn_8002D67C(ERC* rc, Unk8002D67CItem* item);
+void fn_8002E0C4(ERC* rc, Unk8002D67CItem* item);
+void fn_80035C70(ERC* rc, Unk80181824* texture, EVec2* a, EVec2* b, int* flag);
+extern Unk80181824* lbl_8037B4B0;
+struct Unk80056498 {
+    void fn_80056498(ERC* rc, unsigned short id, float* at);
+};
+struct Unk8004AD08C {
+    char unk0[8];
+    Unk80056498* unk8;
+};
+struct Unk800B38CC {
+    void fn_800B38CC(int player, void* definition, EVec3* position);
+};
+struct Unk8004FC0C {
+    int fn_8004FC0C(int, int);
 };
 
 // Callback table copied over the engine's defaults (0x30 bytes at 0x802D1ED8).
@@ -1288,7 +1317,7 @@ void Unk80026864::fn_8002BA04(int forward) {
 // The tile under the cursor, rounded to the nearest.
 void Unk80026864::fn_8002BB64(int* tileX, int* tileY) {
     Unk8004AD08B* view = (Unk8004AD08B*)lbl_802E67B0.unk0;
-    EVec2 offset(unkA0.x - view->unk34, unkA0.y - view->unk38);
+    EVec2 offset(unkA0.x - view->unk34.x, unkA0.y - view->unk34.y);
     *tileX = (int)offset.x;
     *tileY = (int)offset.y;
     if (offset.x - (float)(int)offset.x >= 0.5f) {
@@ -1297,6 +1326,109 @@ void Unk80026864::fn_8002BB64(int* tileX, int* tileY) {
     if (offset.y - (float)(int)offset.y >= 0.5f) {
         (*tileY)++;
     }
+}
+
+// 0x8002BC5C
+// World position of the centre of the tile under the cursor.
+void Unk80026864::fn_8002BC5C(EVec2* out) {
+    Unk8004AD08B* view = (Unk8004AD08B*)lbl_802E67B0.unk0;
+    const EVec2& origin = view->unk34;
+    EVec2 offset(unkA0.x - origin.x, unkA0.y - origin.y);
+    int tileX = (int)offset.x;
+    int tileY = (int)offset.y;
+    if (offset.x - (float)tileX >= 0.5f) {
+        tileX++;
+    }
+    if (offset.y - (float)tileY >= 0.5f) {
+        tileY++;
+    }
+    EVec2 centre((float)tileX - 0.5f, (float)tileY + 0.5f);
+    *out = centre + origin;
+}
+
+// 0x8002BD98
+// World position of the corner of the tile under the cursor.
+EVec2 Unk80026864::fn_8002BD98() {
+    int tileX;
+    int tileY;
+    fn_8002BB64(&tileX, &tileY);
+    EVec2 tile((float)tileX, (float)tileY);
+    Unk8004AD08B* view = (Unk8004AD08B*)lbl_802E67B0.unk0;
+    return tile + view->unk34;
+}
+
+// 0x8002D1CC
+void Unk80026864::fn_8002D1CC() {
+}
+
+// 0x8002D1D0
+void Unk80026864::fn_8002D1D0() {
+    EVec3 position(*fn_8002D2C8());
+    Unk800053D4Owner* owner = lbl_802E6700.unk9C[unk38];
+    if (owner) {
+        void* definition = owner->unk0->vfn111();
+        ((Unk800B38CC*)lbl_802E6700.fn_80068FE0())->fn_800B38CC(unk38, definition, &position);
+    }
+}
+
+// 0x8002D270
+int Unk80026864::fn_8002D270(int a, int b) {
+    if (unk84 == 1) {
+        return ((Unk8004FC0C*)unkC8)->fn_8004FC0C(a, b);
+    }
+    return b;
+}
+
+// 0x8002D2A8
+void Unk80026864::fn_8002D2A8(EVec3* out) {
+    *out = unkA0;
+}
+
+// 0x8002D2C8
+EVec3* Unk80026864::fn_8002D2C8() {
+    return &unkA0;
+}
+
+// 0x8002D2D0
+void Unk80026864::fn_8002D2D0() {
+}
+
+// 0x8002DA7C
+void fn_8002DA7C(ERC* rc, Unk8002D67CItem* item) {
+    item->unk28->fn_80181824(rc);
+    fn_8002D67C(rc, item);
+}
+
+// 0x8002DAC0
+void fn_8002DAC0(ERC* rc, Unk8002D67CItem* item) {
+    lbl_8037B4B0->fn_80181824(rc);
+    fn_8002D67C(rc, item);
+}
+
+// 0x8002DB04
+void fn_8002DB04(ERC* rc, Unk8002D67CItem* item) {
+    EVec2 a(item->unk8, item->unkC);
+    EVec2 b(item->unk10, item->unk14);
+    int flag = item->unk24;
+    fn_80035C70(rc, item->unk28, &a, &b, &flag);
+}
+
+// 0x8002E058
+void fn_8002E058(ERC* rc, Unk8002D67CItem* item) {
+    Unk80056498* drawer = 0;
+    Unk8004AD08C* view = (Unk8004AD08C*)lbl_802E67B0.unk0;
+    if (view) {
+        drawer = view->unk8;
+    }
+    if (drawer) {
+        item->unk28->fn_80181824(rc);
+        drawer->fn_80056498(rc, item->unk6, &item->unk10);
+    }
+}
+
+// 0x8002E19C
+void fn_8002E19C(ERC* rc, Unk8002D67CItem* item) {
+    fn_8002E0C4(rc, item);
 }
 
 // 0x8002ECE8

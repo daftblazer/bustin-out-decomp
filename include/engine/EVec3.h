@@ -14,6 +14,7 @@ public:
 
 // Three-component vector. Class name from The Sims 2's symbol map.
 inline EVec2 operator+(const EVec2& a, const EVec2& b) { return EVec2(a.x + b.x, a.y + b.y); }
+inline EVec2 operator-(const EVec2& a, const EVec2& b) { return EVec2(a.x - b.x, a.y - b.y); }
 inline EVec2 operator*(const EVec2& v, float scale) { return EVec2(v.x * scale, v.y * scale); }
 
 class EVec3 {
