@@ -5,6 +5,10 @@
 
 extern "C" void fn_8024254C(unsigned short* dst, const unsigned short* src); // wide string copy
 
+// Inline wrapper: its parameters make the call load the source before the
+// destination.
+inline void ECopyText(unsigned short* dst, const unsigned short* src) { fn_8024254C(dst, src); }
+
 // Wide string holder (constructor 0x801BA678); assignment copies the text.
 struct Unk801BA678 {
     Unk801BA678();
@@ -16,7 +20,7 @@ struct Unk801BA678 {
         return *this;
     }
     unsigned short* Get() const { return unk0; }
-    void Assign(const Unk801BA678& other) { fn_8024254C(Get(), other.Get()); }
+    void Assign(const Unk801BA678& other) { ECopyText(unk0, other.unk0); }
 
     unsigned short* unk0; // text buffer
 };

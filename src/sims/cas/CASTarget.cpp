@@ -56,19 +56,50 @@ CASTarget::CASTarget() {
     unk52C4 = lbl_802E6700.unk90;
 }
 
-// 0x8000AF70
-// The view-matrix pair below may belong to a different class with a matrix at
-// offset 0: the product is taken with `this` as the left operand.
-void CASTarget::fn_8000AF70(Unk801543AC* window) {
-    ((EMat4*)(unk5C.mWindowData + 0x30))->Copy64(window->unkA0);
+// 0x8000AC6C
+// NON_MATCHING: 4 of 193 differ. For the first two calls on `toAxis` the original sets
+// up r4 before r3; this build does r3 first (the same pattern as the text copies in
+// fn_800102B0).
+// Builds the reflection matrix for the plane through the three corners: rotate
+// the plane normal onto an axis, flip that axis, rotate back.
+void CASMirror::fn_8000AC6C() {
+    EVec3 normal = (unk4C - unk40).Cross(unk58 - unk4C);
+    normal.Normalize();
+    EVec3 axis(0.0f, 0.0f, 1.0f);
+    int index = 2;
+    float angle = fn_8010DB14(normal.Dot(axis));
+    if (angle > EDegToRad(175.0f)) {
+        axis.Set(0.0f, 1.0f, 0.0f);
+        index = 1;
+        angle = fn_8010DB14(normal.Dot(axis));
+    }
+    EVec3 rotAxis = normal.Cross(axis);
+    rotAxis.Normalize();
+    EMat4 toAxis;
+    toAxis.fn_801B3024(rotAxis, angle);
+    toAxis.fn_801B2988(-unk40);
+    EVec3 scale(1.0f);
+    scale[index] = -1.0f;
+    toAxis.fn_801B3494(scale);
+    EMat4 back;
+    back.fn_801B3024(rotAxis, -angle);
+    back.fn_801B345C(unk40);
     EMat4 product;
-    product.fn_801B2888((EMat4*)this, &window->unkA0);
-    window->fn_801546D8(&product);
+    product.fn_801B2888(&toAxis, &back);
+    unk0.Copy64(product);
+}
+
+// 0x8000AF70
+void CASMirror::fn_8000AF70(Unk801543AC* view) {
+    unk8C.Copy64(view->unkA0);
+    EMat4 product;
+    product.fn_801B2888(&unk0, &view->unkA0);
+    view->fn_801546D8(&product);
 }
 
 // 0x8000B03C
-void CASTarget::fn_8000B03C(Unk801543AC* window) {
-    window->fn_801546D8((EMat4*)(unk5C.mWindowData + 0x30));
+void CASMirror::fn_8000B03C(Unk801543AC* view) {
+    view->fn_801546D8(&unk8C);
 }
 
 // 0x8000C3C8

@@ -299,6 +299,23 @@ extern "C" void fn_80106164(void* viewer, const char* command, ...);
 unsigned char fn_80061FE0(short* choices);
 void fn_80062134(unsigned char);
 
+// A mirror plane given by three corner points: builds the reflection matrix
+// and applies it to a view while the reflected scene is drawn. The class name
+// is provisional.
+class CASMirror {
+public:
+    void fn_8000AC6C();
+    void fn_8000AF70(Unk801543AC* view);
+    void fn_8000B03C(Unk801543AC* view);
+
+    EMat4 unk0;   // reflection
+    EVec3 unk40;  // three corners of the mirror
+    EVec3 unk4C;
+    EVec3 unk58;
+    char unk64[0x8C - 0x64];
+    EMat4 unk8C;  // the view's own matrix, saved while reflecting
+};
+
 // The Create-A-Sim / Create-A-Family screen (0x5D30 bytes, ctor 0x80008AA0).
 // Named after The Sims 2's CASTarget; whether this game used that exact name
 // is not known. Members are generated from CASTarget.fields.
@@ -306,8 +323,6 @@ class CASTarget : public UnkTargetBase {
 public:
     CASTarget();
     virtual ~CASTarget();
-    void fn_8000AF70(Unk801543AC* window);
-    void fn_8000B03C(Unk801543AC* window);
     void fn_8000C458();
     int fn_8000C4A4();
     void fn_8000C5DC();

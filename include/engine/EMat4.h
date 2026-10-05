@@ -39,6 +39,9 @@ public:
     void fn_801B2888(const EMat4* a, const EMat4* b); // this = a concatenated with b
     void fn_801B3024(const EVec3& axis, float angle); // rotate about an axis
     void fn_801B3388(float angle);                   // rotate about Z
+    void fn_801B2988(const EVec3& offset);           // translate
+    void fn_801B3494(const EVec3& scale);            // scale
+    void fn_801B345C(const EVec3& offset);           // translate (other side)
 
     float m[4][4];
 };
