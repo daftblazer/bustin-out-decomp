@@ -2,6 +2,7 @@
 #define SIMS_CAS_CASTARGET_H
 
 #include "engine/Unk801543AC.h"
+#include "engine/ELightSet.h"
 #include "engine/EMat4.h"
 #include "engine/UnkTargetBase.h"
 #include "engine/ResourceManagers.h"
@@ -368,25 +369,6 @@ struct EGlobalUnk118 {
 void fn_8017A778(void* resource);
 inline float ERadToDeg(float radians) { return radians * 57.29578f; }
 
-// Lighting set-up handed to the render context (0xE0 bytes).
-struct ELightSet {
-    struct Directional {
-        EVec3 color;
-        EVec3 direction;
-    };
-    struct Point {
-        EVec3 position;
-        float range;
-        EVec3 color;
-        float unk1C;
-    };
-    EVec3 ambient;
-    int unkC;
-    Directional directional[3];
-    Point point[4];
-    int numDirectional;
-    int numPoint;
-};
 // Vertex as the render context takes it (0x50 bytes).
 struct EVertex {
     EVec3 position;

@@ -14,6 +14,8 @@ struct ERC;
 struct EColorF {
     EColorF() {}
     EColorF(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
+    // User-defined (float by float), as for the vector classes; assignment is the compiler's.
+    EColorF(const EColorF& other) : r(other.r), g(other.g), b(other.b), a(other.a) {}
     float r, g, b, a;
 };
 extern EColorF lbl_802E69C4; // highlighted

@@ -260,3 +260,8 @@ Single-line commit messages, no co-author or tool attribution.
   - Several destructors that all store the *same* vtable at the end of a file are the inline destructor of a
     base class emitted once per derived class (each derived class's implicit destructor).
   - A loop counter reused by two consecutive loops (same register) is one variable declared before both.
+  - `EColorF` (four floats) also has a user-defined float-wise copy constructor; assignment is word-wise.
+  - When an argument expression has a branch (`p ? *p : 0`) and another argument is a by-value object,
+    the original evaluates the branchy one first: put it in a local before the call.
+  - `EMat4::SetPos(EVec3(x, y, z))` writes a temporary and then copies it float by float into row 3
+    (placement-new copy construction), like `SetRow3`.

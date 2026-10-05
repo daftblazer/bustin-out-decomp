@@ -54,10 +54,10 @@ public:
 
     unsigned char unk48;
     int unk4C[13];
-    void* unk80;
+    Unk8003C95C* unk80; // font
     void* unk84;
-    void* unk88;
-    void* unk8C;
+    Unk80181824* unk88; // left arrow
+    Unk80181824* unk8C; // right arrow
 
     // Declared so that it stays out of line, as in the original (see the
     // definition in CASTarget.cpp).

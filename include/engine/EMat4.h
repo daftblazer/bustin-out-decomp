@@ -21,6 +21,8 @@ public:
     // original writes it through a constructed four-float object, which is why
     // the compiler does not fold the zeros into the following transform.
     void SetRow3(float x, float y, float z, float w) { new (m[3]) EVec4(x, y, z, w); }
+    // Sets the translation (the first three floats of row 3), copy-constructing in place.
+    void SetPos(const EVec3& position) { new (m[3]) EVec3(position); }
 
     // Copy as eight 64-bit words; the window code copies matrices this way.
     void Copy64(const EMat4& other) {
@@ -39,6 +41,8 @@ public:
     void fn_801B2888(const EMat4* a, const EMat4* b); // this = a concatenated with b
     void fn_801B3024(const EVec3& axis, float angle); // rotate about an axis
     void fn_801B3388(float angle);                   // rotate about Z
+    void fn_801B2CC8(float angle);
+    void fn_801B28B8(float scale);
     void fn_801B2988(const EVec3& offset);           // translate
     void fn_801B3834(float fov, float aspect, float nearPlane, float farPlane); // perspective
     void fn_801B3494(const EVec3& scale);            // scale

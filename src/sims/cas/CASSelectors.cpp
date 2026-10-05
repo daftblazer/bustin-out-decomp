@@ -122,11 +122,11 @@ void Unk80016448::fn_800164D4() {
     unk4C[10] = GetText("capricorn");
     unk4C[11] = GetText("aquarius");
     unk4C[12] = GetText("pisces");
-    unk80 = lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    unk80 = (Unk8003C95C*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
     Unk80340AB8* manager = &lbl_80340AB8;
     unk84 = manager->fn_80177628(0xA25EBA9A, 0, 0);
-    unk88 = manager->fn_80177628(0xE3E852F9, 0, 0);
-    unk8C = manager->fn_80177628(0x19E76F9A, 0, 0);
+    unk88 = (Unk80181824*)manager->fn_80177628(0xE3E852F9, 0, 0);
+    unk8C = (Unk80181824*)manager->fn_80177628(0x19E76F9A, 0, 0);
 }
 
 // 0x8001680C
@@ -139,6 +139,44 @@ void Unk80016448::fn_8001680C() {
     unk88 = 0;
     fn_801767FC(unk8C);
     unk8C = 0;
+}
+
+// 0x80016868
+// The star sign's name centred on the widget, with an arrow either side
+// when focused.
+void Unk80016448::vfn3(ERC* rc) {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    EColorF color(lbl_802E6964);
+    float centre = unk20.x * 0.5f + unk2C.x;
+    if (unk18 & 8) {
+        unk80->fn_8003DBE8(rc);
+        unk80->fn_8003C95C(1, 14.0f, 1.0f);
+        unk80->unk64 = lbl_802E69C4;
+        {
+            EVec2 at(centre, unk2C.z);
+            unk80->fn_8003D740(rc, (const unsigned short*)unk4C[unk48], 1, at, 2, 0, 0);
+        }
+        EVec2 extent = unk80->fn_8003D550((const unsigned short*)unk4C[unk48], 1, 0);
+        float half = extent.x * 0.5f + 0.01f;
+        if (controller->fn_8015DF98(4)) {
+            color = lbl_802E69C4;
+        }
+        unk8C->fn_80181824(rc);
+        rc->vfn49(EVec2(centre + half, unk2C.z - 0.017f), EVec2(1.0f, 1.0f), color, 0.0f);
+        if (controller->fn_8015DF98(3)) {
+            color = lbl_802E69C4;
+        } else {
+            color = lbl_802E6964;
+        }
+        unk88->fn_80181824(rc);
+        rc->vfn49(EVec2(centre - half - 0.018f, unk2C.z - 0.017f), EVec2(1.0f, 1.0f), color, 0.0f);
+    } else {
+        unk80->fn_8003DBE8(rc);
+        unk80->fn_8003C95C(1, 14.0f, 1.0f);
+        unk80->unk64 = lbl_802E6964;
+        EVec2 at(centre, unk2C.z);
+        unk80->fn_8003D740(rc, (const unsigned short*)unk4C[unk48], 1, at, 2, 0, 0);
+    }
 }
 
 // 0x80016BD4

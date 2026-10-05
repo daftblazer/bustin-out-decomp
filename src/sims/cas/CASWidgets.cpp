@@ -1,53 +1,42 @@
 #include "sims/cas/CASWidgets.h"
 
+#include "engine/ELightSet.h"
+
 void fn_80169EE8(void* ptr);
 
 // 0x80007F88
-// NON_MATCHING: same length (212), 52 differ. Same calls in the same order; the
-// differences are in which saved registers hold the temporaries' addresses and in the
-// order the two-float temporaries are filled.
+// The caption centred on the widget and, when focused, an arrow sprite either
+// side, each tinted while its direction is held.
 void CASSelector::Draw(ERC* rc) {
-    if (!(unk18 & 2)) {
-        return;
-    }
-    unk78->fn_8003C95C(1, 14.0f, 1.0f);
-    EVec2 extent = unk78->fn_8003D550(unk68 ? *unk68 : 0, 1, 0);
-    EVec2 position;
-    position.x = unk20.x * 0.5f + unk2C.x;
-    position.y = extent.y * 0.5f + unk2C.z;
-    EVec2 corner;
-    if (unk18 & 8) {
-        unk78->unk64 = lbl_802E69C4;
-        float halfWidth = extent.x * 0.5f + 0.01f;
-        EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
-        if (controller->fn_8015DF98(4)) {
-            unk58 = lbl_802E69C4;
+    if (unk18 & 2) {
+        unk78->fn_8003C95C(1, 14.0f, 1.0f);
+        EVec2 extent = unk78->fn_8003D550(unk68 ? *unk68 : 0, 1, 0);
+        EVec2 position(unk20.x * 0.5f + unk2C.x, extent.y * 0.5f + unk2C.z);
+        if (unk18 & 8) {
+            unk78->unk64 = lbl_802E69C4;
+            float halfWidth = extent.x * 0.5f + 0.01f;
+            EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+            if (controller->fn_8015DF98(4)) {
+                unk58 = lbl_802E69C4;
+            } else {
+                unk58 = lbl_802E6964;
+            }
+            if (controller->fn_8015DF98(3)) {
+                unk48 = lbl_802E69C4;
+            } else {
+                unk48 = lbl_802E6964;
+            }
+            unk80->fn_80181824(rc);
+            rc->vfn49(EVec2(position.x - halfWidth - 0.018f, unk2C.z - 0.02f), EVec2(1.0f, 1.0f), unk48, 0.0f);
+            unk84->fn_80181824(rc);
+            rc->vfn49(EVec2(position.x + halfWidth, unk2C.z - 0.02f), EVec2(1.0f, 1.0f), unk58, 0.0f);
         } else {
-            unk58 = lbl_802E6964;
+            unk78->unk64 = lbl_802E6964;
         }
-        if (controller->fn_8015DF98(3)) {
-            unk48 = lbl_802E69C4;
-        } else {
-            unk48 = lbl_802E6964;
-        }
-        unk80->fn_80181824(rc);
-        EVec2 size;
-        corner.x = position.x - halfWidth - 0.018f;
-        corner.y = unk2C.z - 0.02f;
-        size.x = 1.0f;
-        size.y = 1.0f;
-        rc->vfn49(corner, size, unk48, 0.0f);
-        unk84->fn_80181824(rc);
-        corner.x = position.x + halfWidth;
-        corner.y = unk2C.z - 0.02f;
-        size.x = 1.0f;
-        size.y = 1.0f;
-        rc->vfn49(corner, size, unk58, 0.0f);
-    } else {
-        unk78->unk64 = lbl_802E6964;
+        unk78->fn_8003DBE8(rc);
+        const unsigned short* text = unk68 ? *unk68 : 0;
+        unk78->fn_8003D740(rc, text, 1, position, 2, 2, 0);
     }
-    unk78->fn_8003DBE8(rc);
-    unk78->fn_8003D740(rc, unk68 ? *unk68 : 0, 1, position, 2, 2, 0);
 }
 
 // 0x800082D8
@@ -106,16 +95,29 @@ CASSpinner::~CASSpinner() {
 }
 
 // 0x800085A0
-// NON_MATCHING: outline only, 31 instructions vs 122. The original builds a rotation matrix
-// from unk48, sets up a light (three- and four-element arrays with empty constructors,
-// a position, a colour and a normalized direction), then draws the model resource.
+// Draws the spinning model, lit by its own light set.
+// NON_MATCHING: 120 instructions vs 122. Same calls and stores; the original keeps the
+// matrix address in saved registers (r30, copied to r26) from after the identity call,
+// where this build re-forms it for each call. Three variants tried.
 void CASSpinner::Draw(ERC* rc) {
-    if ((unk18 & 2) && (unk18 & 8)) {
-        EMat4 mat;
-        mat.fn_801B2AFC();
-        mat.fn_801B3388(unk48);
-        rc->vfn28(&mat, 1);
-        unk5C->fn_8017CC58(rc);
+    if (unk18 & 2) {
+        if (unk18 & 8) {
+            EMat4 mat;
+            mat.fn_801B2AFC();
+            mat.fn_801B2CC8(unk48);
+            mat.SetPos(EVec3(unk4C.x, unk4C.y, 2.1f));
+            mat.fn_801B28B8(unk5C->unk6C);
+            ELightSet lights;
+            lights.ambient = EVec3(0.6f, 1.0f, 0.6f);
+            lights.numDirectional = 1;
+            lights.numPoint = 0;
+            lights.directional[0].color = EVec3(0.6f, 0.6f, 0.6f);
+            lights.directional[0].direction = EVec3(10.0f, 10.0f, -11.0f);
+            lights.directional[0].direction.Normalize();
+            rc->vfn44(&lights);
+            rc->vfn28(&mat, 1);
+            unk5C->fn_8017CC58(rc);
+        }
     }
 }
 
