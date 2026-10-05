@@ -106,52 +106,6 @@ void fn_801DA828(void*, Unk8037D94C* file);
 void fn_800620CC(short* choices, int preset);
 
 
-// The renderer: screen size in pixels, and the texture cache.
-struct CASScreenInfoBase {
-    virtual void vfn1();
-    virtual void vfn2();
-    virtual void vfn3();
-    virtual void vfn4();
-    virtual void vfn5();
-    virtual void vfn6();
-    virtual void vfn7();
-    virtual void vfn8();
-    virtual void vfn9();
-    virtual void vfn10();
-    virtual void vfn11();
-    virtual void vfn12();
-    virtual void vfn13();
-    virtual void vfn14();
-    virtual void vfn15();
-    virtual void vfn16();
-    virtual void vfn17();
-    virtual void vfn18();
-    virtual void vfn19();
-    virtual void vfn20();
-    virtual void vfn21(int texture); // release
-    virtual int vfn22();
-    virtual void vfn23();
-    virtual void vfn24();
-    virtual void vfn25();
-    virtual void vfn26();
-    virtual void vfn27();
-    virtual void vfn28();
-    virtual void vfn29();
-    virtual void vfn30();
-    virtual void vfn31();
-    virtual void vfn32();
-    virtual void vfn33();
-    virtual void vfn34();
-    virtual void vfn35();
-    virtual void vfn36();
-    virtual float vfn37(); // pixel aspect
-};
-struct CASScreenInfo : CASScreenInfoBase {
-    char unk4[0x10];
-    int unk14; // width
-    int unk18; // height
-};
-extern CASScreenInfo* lbl_8037C198;
 int fn_800430EC(unsigned short character); // true for characters a line may break at
 
 // Supplies the default names.
@@ -216,13 +170,6 @@ struct EVertex {
 struct Unk80184C00 {
     char unk0[0x24];
     void fn_80184C00(ERC* rc);
-};
-// The shader/material resource used for the props' shadows.
-struct Unk80182DE0Inner {
-    char unk0[0xB8];
-    virtual void vfn1();
-    virtual void vfn2();
-    virtual void vfn3(ERC* rc);
 };
 struct Unk80182DE0 {
     char unk0[0x20];

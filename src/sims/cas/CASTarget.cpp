@@ -456,7 +456,7 @@ void CASTarget::vfn2() {
                     unk4478->unk3F0[unk45D5] = 0;
                     unk4478->present[unk45D5] = 0;
                     if (unk4478->sims[0].unkA8) {
-                        if (lbl_8037C198->vfn22()) {
+                        if (lbl_8037C198->vfn22(unk4478->sims[0].unkA8)) {
                             lbl_8037C198->vfn8();
                         }
                         lbl_8037C198->vfn21(unk4478->sims[0].unkA8);

@@ -98,6 +98,132 @@ void fn_800183D0() {
     lbl_802E5A54.unk8[14] = 0;
 }
 
+// 0x8001A67C
+// Releases the sim's models, textures, materials and pending animations.
+void Unk80018374::fn_8001A67C() {
+    fn_80169D7C();
+    fn_801B2680();
+    for (int slot = 0; slot <= 11; slot++) {
+        fn_8001B850((signed char)slot);
+    }
+    fn_80169D7C();
+    fn_801B2680();
+    if (unkDC) {
+        fn_80169EE8(unkDC);
+    }
+    fn_80169D7C();
+    fn_801B2680();
+    fn_801767FC(unk188);
+    if (unk18C) {
+        fn_801767FC(unk18C);
+    }
+    if (unk190) {
+        fn_801767FC(unk190);
+    }
+    ETextureLike* texture = unkD0->unk14;
+    if (unkD0) {
+        if (lbl_8037C198->vfn32(unkD0)) {
+            lbl_8037C198->vfn8();
+        }
+        lbl_8037C198->vfn31(unkD0);
+        unkD0 = 0;
+    }
+    if (texture) {
+        if (lbl_8037C198->vfn22(texture)) {
+            lbl_8037C198->vfn8();
+        }
+        lbl_8037C198->vfn21(texture);
+    }
+    if (unkCC) {
+        if (lbl_8037C198->vfn22(unkCC)) {
+            lbl_8037C198->vfn8();
+        }
+        lbl_8037C198->vfn21(unkCC);
+        unkCC = 0;
+    }
+    if (unkD4) {
+        fn_801767FC(unkD4);
+        unkD4 = 0;
+    }
+    if (unkD8) {
+        fn_801767FC(unkD8);
+        unkD8 = 0;
+    }
+    if (unkC4) {
+        fn_801767FC(unkC4);
+        unkC4 = 0;
+    }
+    fn_80169D7C();
+    fn_801B2680();
+    if (unk198) {
+        lbl_8033F3D8.fn_8017717C(unk198, 1);
+        lbl_8033F3D8.fn_801778B4(unk198);
+    }
+    if (unk28) {
+        lbl_8033F3D8.fn_8017717C(unk28, 1);
+        lbl_8033F3D8.fn_801778B4(unk28);
+    }
+}
+
+// 0x8001A908
+// Draws the sim: transform, lights, then each outfit piece with its material.
+// NON_MATCHING: 159 instructions vs 161. The original loads the model's skeleton holder
+// straight into the argument register, materialises the null test as 0/1 and re-tests
+// it, where this build branches on the pointer directly. Five variants tried.
+void Unk80018374::fn_8001A908(ERC* rc, float turn, int shadow) {
+    EVec3 rotation(0.0f, 0.0f, turn);
+    EMat4 transform;
+    fn_80156964(&unk154, &rotation, &unk160, &transform);
+    unkE0.fn_80157BD0(&transform, lbl_8037BFBC);
+    Unk80156438::Unk80156438Inner* inner = unkE0.unk18;
+    int skeleton;
+    if (EIsValid(inner)) {
+        skeleton = inner->unk24;
+    } else {
+        skeleton = 0;
+    }
+    rc->vfn26(unkE0.unk4, skeleton);
+    if (shadow) {
+        fn_8001D6D8(rc);
+    }
+    rc->vfn44(unkDC);
+    for (int i = 0; i <= 10; i++) {
+        if (unkC) {
+            unkD0->vfn2(rc);
+        } else {
+            switch (i + 1) {
+            case 2:
+            case 3:
+            case 4:
+                unkC8->unk4C->vfn2(rc);
+                break;
+            default:
+                unkC8->unk48->vfn2(rc);
+                break;
+            }
+        }
+        if (unk90[i]) {
+            unk90[i]->fn_8017CBEC(rc);
+        }
+    }
+    if (unkBC) {
+        if (unkC) {
+            unkD0->vfn2(rc);
+        } else {
+            unkC8->unk44->vfn2(rc);
+        }
+        unkBC->fn_8017CC58(rc);
+    }
+    if (unkC0) {
+        if (unkC) {
+            unkD0->vfn2(rc);
+        } else {
+            unkC8->unk44->vfn2(rc);
+        }
+        unkC0->fn_8017CC58(rc);
+    }
+}
+
 // 0x8001AB8C
 // Plays an animation, first requesting it if the manager is not ready.
 // NON_MATCHING: 2 of 29 differ: the original saves the argument (`mr r31, r4`) before
@@ -378,6 +504,41 @@ void Unk80018374::fn_8001C2F4() {
 void Unk80018374::fn_8001C384() {
     unkC = 1;
     unkC8->fn_80021A14(unkD0->unk14);
+}
+
+// 0x8001D04C
+// Makes a 32x32 paletted copy of the sim's skin texture (kept with the saved
+// family) and returns it.
+// NON_MATCHING: 154 instructions vs 157. Same calls; the descriptor's default and
+// override stores are scheduled differently and the original re-reads the palette size
+// fields from the stack. One variant tried.
+ETextureLike* Unk80018374::fn_8001D04C() {
+    ETextureDesc desc;
+    desc.unk8 = 0x800;
+    desc.unk10 = 0x20;
+    desc.unk1A = 8;
+    desc.unk14 = 0x100;
+    desc.unk18 = 0x84;
+    desc.unk12 = 0x20;
+    desc.unk19 = 5;
+    desc.unk1B = 0x10;
+    ETextureLike* copy = lbl_8037C198->vfn20(&desc);
+    int a;
+    int b;
+    copy->vfn5(2);
+    void* dstPixels = copy->vfn7();
+    void* dstPalette = copy->vfn6(0, &a, &b);
+    unkCC->vfn5(1);
+    void* srcPixels = unkCC->vfn7();
+    void* srcPalette = unkCC->vfn6(0, &a, &b);
+    fn_80111AE8(dstPixels, srcPixels, (desc.unk14 * desc.unk1B + 7) >> 3);
+    struct Palette {
+        unsigned int entries[0x100];
+    };
+    *(Palette*)dstPalette = *(Palette*)srcPalette;
+    unkCC->vfn8();
+    copy->vfn8();
+    return copy;
 }
 
 // 0x8001D6D8

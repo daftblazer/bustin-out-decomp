@@ -70,7 +70,7 @@ struct ERC {
     virtual void vfn23();
     virtual void vfn24();
     virtual void vfn25();
-    virtual void vfn26();
+    virtual void vfn26(int, int);
     virtual void vfn27();
     virtual void vfn28(EMat4* matrix, int);
     virtual void vfn29();
@@ -178,6 +178,7 @@ struct Unk8033FF34Resource {
     char unk28[0x6C - 0x28];
     float unk6C;
     void fn_8017CC58(ERC* rc);
+    void fn_8017CBEC(ERC* rc);
 };
 struct Unk8033FF34 {
     Unk8033FF34Resource* fn_80177628(unsigned int id, int, int);
