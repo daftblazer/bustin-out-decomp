@@ -1,0 +1,45 @@
+# Known members of Unk80026864 (the virtual base follows at 0x1C8). See tools/gen_fields.py.
+FIRST 0x4C
+END 0x1C8
+0x4C   0x38   Unk80026864Handler unk4C[7]         # one handler per state
+0x84   4      unsigned int       unk84            # state
+0x88   4      int                unk88
+0x8C   4      int                unk8C
+0x90   4      int                unk90
+0x94   0xC    EVec3              unk94            # cursor position, previous
+0xA0   0xC    EVec3              unkA0            # cursor position
+0xBC   4      int                unkBC
+0xC0   4      void*              unkC0            # renderer object
+0xC4   4      void*              unkC4            # renderer object
+0xC8   4      UnkTargetBase*     unkC8            # child screen
+0xCC   1      char               unkCC
+0xF0   4      int                unkF0
+0xF4   4      float              unkF4
+0xF8   1      char               unkF8
+0xFC  4      void*              unkFC
+0x100  4      void*              unk100
+0x104  4      void*              unk104
+0x108  4      void*              unk108
+0x10C  4      void*              unk10C
+0x110  4      void*              unk110
+0x114  4      void*              unk114
+0x118  4      void*              unk118
+0x11C  4      void*              unk11C
+0x120  4      void*              unk120
+0x124  4      void*              unk124
+0x128  4      void*              unk128
+0x12C  4      void*              unk12C
+0x130  4      void*              unk130
+0x134  4      void*              unk134
+0x138  4      void*              unk138
+0x13C  4      void*              unk13C
+0x140  4      int                unk140
+0x144  4      int                unk144
+0x148  0xC    Unk80026864List    unk148           # selection
+0x154  0x28   Unk8002EF48        unk154
+0x194  0xC    Unk80026864List    unk194           # owned objects
+0x1B0  4      int                unk1B0
+0x1B4  4      int                unk1B4
+0x1B8  4      int                unk1B8
+0x1BC  4      float              unk1BC
+0x1C0  4      int                unk1C0
