@@ -153,6 +153,106 @@ int CASTarget::fn_8000F9D8() {
     return unk4588;
 }
 
+// 0x8000FA68
+// NON_MATCHING: 2 of 159 differ. In the four-element delete loop the original steps the
+// array offset before the counter; here they come out the other way round. Six loop forms tried.
+// Releases everything the screen loaded and hides its dialogs.
+void CASTarget::fn_8000FA68() {
+    lbl_8037C230 = 1;
+    if (unk52E4) {
+        fn_801767FC(unk52E4);
+        unk52E4 = 0;
+    }
+    if (unk52C0) {
+        unk52C0 = 0;
+    }
+    if (unk4C) {
+        fn_801767FC(unk4C);
+        unk4C = 0;
+    }
+    if (unk50) {
+        fn_801767FC(unk50);
+        unk50 = 0;
+    }
+    if (unk54) {
+        fn_801767FC(unk54);
+        unk54 = 0;
+    }
+    if (unk58) {
+        fn_801767FC(unk58);
+        unk58 = 0;
+    }
+    delete unk4464;
+    unk4464 = 0;
+    for (int i = 0; i < 4; i++) {
+        delete unk4468[i];
+        unk4468[i] = 0;
+    }
+    if (unk4EE8) {
+        fn_801767FC(unk4EE8);
+        unk4EE8 = 0;
+    }
+    if (unk4EEC) {
+        fn_801767FC(unk4EEC);
+        unk4EEC = 0;
+    }
+    if (unk4FD8) {
+        fn_801767FC(unk4FD8);
+        unk4FD8 = 0;
+    }
+    if (unk5238) {
+        fn_801767FC(unk5238);
+        unk5238 = 0;
+    }
+    unk4588 = 0;
+    fn_801767FC(unk4574);
+    fn_801767FC(unk4578);
+    fn_801767FC(unk457C);
+    if (unk52FC) {
+        delete unk52FC;
+        unk52FC = 0;
+    }
+    fn_80014770();
+    if (unk5320) {
+        fn_80106164(unk52C4, "hideCAS", 0, 0, 0);
+        unk5320 = 0;
+    }
+    if (unk5324) {
+        fn_80106164(unk52C4, "hideCAF", 0, 0, 0);
+        unk5324 = 0;
+    }
+    if (unk45D0) {
+        fn_80106164(lbl_802E6700.unk90, "hideDialog", 0, 0, 0);
+        unk45D0 = 0;
+    }
+    ((UnkViewer*)lbl_802E6700.unk90)->fn_80108290(this);
+}
+
+// 0x8000FCE4
+// Advances the camera move between two views (ease curve on unk45B0), then
+// starts the next queued view.
+void CASTarget::fn_8000FCE4() {
+    if (unk45B0 < 1.0) {
+        unk45B0 += lbl_8037BFC8;
+        if (unk45B0 > 1.0) {
+            unk45B0 = 1.0f;
+        }
+        float t;
+        if (unk45C8 == 0x2E) {
+            float x = unk45B0;
+            t = -x * x * x + 2.0f * x * x + x * 0.0f;
+        } else {
+            float x = unk45B0;
+            t = -x * x * x + x * x + x;
+        }
+        unk36C = unk378 + t * (unk384 - unk378);
+        unk390 = unk39C + t * (unk3A8 - unk39C);
+    } else if (unk45CC) {
+        unk45C8 = unk45CC;
+        fn_8000FECC(unk45C8);
+    }
+}
+
 // 0x800102B0
 // NON_MATCHING: 4 of 86 differ. Each of the two text copies loads its source pointer
 // (r4) before its destination (r3) in the original; five forms tried.

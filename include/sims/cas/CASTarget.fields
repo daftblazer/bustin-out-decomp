@@ -7,8 +7,15 @@ END 0x5D30
 0x54   4      void*              unk54
 0x58   4      void*              unk58
 0x5C   0x310  Unk801543AC        unk5C            # 3D view
+0x36C  0xC    EVec3              unk36C           # camera eye (interpolated)
+0x378  0xC    EVec3              unk378           # eye, start of the move
+0x384  0xC    EVec3              unk384           # eye, end of the move
+0x390  0xC    EVec3              unk390           # camera target (interpolated)
+0x39C  0xC    EVec3              unk39C
+0x3A8  0xC    EVec3              unk3A8
 0x3C8  4      Unk8001EE8C        unk3C8           # class of the unit at 0x8001EE8C
 0x4464 4      Unk80018374*       unk4464
+0x4468 0x10   Unk80018374*       unk4468[4]
 0x4478 4      CASSimDesc*        unk4478          # array of descriptions
 0x447C 0xF8   CASSimDesc         unk447C          # description being edited
 0x4574 4      void*              unk4574
@@ -21,14 +28,22 @@ END 0x5D30
 0x4590 4      int                unk4590
 0x45A0 4      int                unk45A0
 0x45A8 4      int                unk45A8
+0x45B0 4      float              unk45B0          # camera move progress, 0 to 1
+0x45C8 1      unsigned char      unk45C8          # current view
 0x45C9 1      unsigned char      unk45C9
 0x45CA 1      signed char        unk45CA          # index into unk4478
+0x45CC 4      int                unk45CC          # view to switch to next
+0x45D0 4      int                unk45D0
 0x461C 4      Unk80039E78        unk461C
+0x4EE8 4      void*              unk4EE8
+0x4EEC 4      void*              unk4EEC
 0x4EF0 0x74   Unk80156438        unk4EF0
 0x4F64 0x74   Unk80156438        unk4F64
+0x4FD8 4      void*              unk4FD8
 0x4FDC 0x74   Unk80156438        unk4FDC
 0x5058 0x74   Unk80156438        unk5058
 0x50DC 0x15C  Unk80156438        unk50DC[3]
+0x5238 4      void*              unk5238
 0x523C 0x74   Unk80156438        unk523C
 0x52C0 4      int                unk52C0
 0x52C4 4      void*              unk52C4          # UI viewer the dialogs are driven through

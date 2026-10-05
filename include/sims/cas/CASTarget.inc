@@ -5,11 +5,17 @@
     void* unk54; // 0x54
     void* unk58; // 0x58
     Unk801543AC unk5C; // 0x5c 3D view
-    char pad36C[0x5c];
+    EVec3 unk36C; // 0x36c camera eye (interpolated)
+    EVec3 unk378; // 0x378 eye, start of the move
+    EVec3 unk384; // 0x384 eye, end of the move
+    EVec3 unk390; // 0x390 camera target (interpolated)
+    EVec3 unk39C; // 0x39c
+    EVec3 unk3A8; // 0x3a8
+    char pad3B4[0x14];
     Unk8001EE8C unk3C8; // 0x3c8 class of the unit at 0x8001EE8C
     char pad3CC[0x4098];
     Unk80018374* unk4464; // 0x4464
-    char pad4468[0x10];
+    Unk80018374* unk4468[4]; // 0x4468
     CASSimDesc* unk4478; // 0x4478 array of descriptions
     CASSimDesc unk447C; // 0x447c description being edited
     void* unk4574; // 0x4574
@@ -24,21 +30,29 @@
     int unk45A0; // 0x45a0
     char pad45A4[0x4];
     int unk45A8; // 0x45a8
-    char pad45AC[0x1d];
+    char pad45AC[0x4];
+    float unk45B0; // 0x45b0 camera move progress, 0 to 1
+    char pad45B4[0x14];
+    unsigned char unk45C8; // 0x45c8 current view
     unsigned char unk45C9; // 0x45c9
     signed char unk45CA; // 0x45ca index into unk4478
-    char pad45CB[0x51];
+    char pad45CB[0x1];
+    int unk45CC; // 0x45cc view to switch to next
+    int unk45D0; // 0x45d0
+    char pad45D4[0x48];
     Unk80039E78 unk461C; // 0x461c
-    char pad4620[0x8d0];
+    char pad4620[0x8c8];
+    void* unk4EE8; // 0x4ee8
+    void* unk4EEC; // 0x4eec
     Unk80156438 unk4EF0; // 0x4ef0
     Unk80156438 unk4F64; // 0x4f64
-    char pad4FD8[0x4];
+    void* unk4FD8; // 0x4fd8
     Unk80156438 unk4FDC; // 0x4fdc
     char pad5050[0x8];
     Unk80156438 unk5058; // 0x5058
     char pad50CC[0x10];
     Unk80156438 unk50DC[3]; // 0x50dc
-    char pad5238[0x4];
+    void* unk5238; // 0x5238
     Unk80156438 unk523C; // 0x523c
     char pad52B0[0x10];
     int unk52C0; // 0x52c0

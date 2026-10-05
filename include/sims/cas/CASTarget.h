@@ -286,6 +286,7 @@ void fn_800183D0();
 
 struct UnkViewer {
     void fn_8010826C(void* owner);
+    void fn_80108290(void* owner);
 };
 void fn_801066A0(void* viewer, const char* name, int);
 extern "C" void fn_80106164(void* viewer, const char* command, ...);
@@ -316,6 +317,8 @@ public:
     void fn_800143E4();
     int fn_8000F9D8();
     void fn_8000FA68();
+    void fn_8000FCE4();
+    void fn_8000FECC(unsigned char view);
     void fn_80014110();
     void fn_800141C0();
     void fn_80014188(ERC* rc, const unsigned short* text, int a, EVec2* position, int b);
