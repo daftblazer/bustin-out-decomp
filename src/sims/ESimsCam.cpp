@@ -125,7 +125,7 @@ void ESimsCam::fn_80005984() {
         fn_80006E6C();
         lbl_802E6700.unkBC->vfn7(0, 0x18);
     } else {
-        unk3A0 = unk380;
+        unk398.z = unk380;
         unk328 = 3;
         lbl_802E6700.unkBC->vfn7(0, 0x17);
     }
@@ -303,6 +303,44 @@ int ESimsCam::fn_80005FC8() {
                     clamped = unk3AC;
                 }
                 unk3AC = clamped;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+// 0x800060A8
+// NON_MATCHING: 164 instructions vs 165; everything up to the cursor-distance block
+// matches. There the original forms each vector's address in a scratch register and
+// copies it to a saved one (addi r3; mr r28, r3), where this computes it straight into
+// the saved register, and the saved registers are numbered differently.
+int ESimsCam::fn_800060A8() {
+    if (unk328 == 2 || (unk328 == 4 && unk32C == 2)) {
+        if (unk324 != 0) {
+            float input = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk8))->fn_8015DEE4(1, 1);
+            if (input != 0.0f) {
+                float maxZoom;
+                if (lbl_802E6700.fn_800655C4()) {
+                    maxZoom = lbl_8037B404 * 0.65f;
+                } else {
+                    maxZoom = lbl_8037B404;
+                }
+                unk3A4 = unk3A4 - input;
+                unk3A4 = unk3A4 < lbl_8037B408 ? lbl_8037B408 : (unk3A4 > maxZoom ? maxZoom : unk3A4);
+                unk3AC = (unk3A4 - lbl_8037B408) / (maxZoom - lbl_8037B408) * (lbl_8037B410 - lbl_8037B40C) + lbl_8037B40C;
+                if (unk3C8 != 0 && input > 0.0f) {
+                    EVec3 offset = unk398 - fn_80007DD8();
+                    float distance = offset.Length();
+                    float limit = 0.0f;
+                    if (GetCurZoomRatio() > 0.1f) {
+                        limit = (GetCurZoomRatio() - 0.1f) * 10.0f * (GetCurZoomRatio() - 0.1f);
+                    }
+                    if (distance > limit) {
+                        unk3CC = 100.0f;
+                        unk398 = fn_80007DD8() + limit * offset * (1.0f / distance);
+                    }
+                }
                 return 1;
             }
         }

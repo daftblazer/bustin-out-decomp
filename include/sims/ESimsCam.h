@@ -109,6 +109,7 @@ public:
     void fn_80006D90();
     void fn_80006E6C();
     void SetWinPos(E3DWindow& window);
+    EVec3 fn_80007DD8();
 
     int unk0;           // panel state, see SetState
     int unk4;
@@ -126,8 +127,8 @@ public:
     char unk384[0x390 - 0x384];
     float unk390;
     float unk394;
-    char unk398[0x3A0 - 0x398];
-    float unk3A0;
+    EVec3 unk398;       // 0x398..0x3A4: includes what Update code reads as unk3A0
+
     float unk3A4;       // current zoom distance
     float unk3A8;       // rotation, degrees, wraps at 360
     float unk3AC;       // tilt, clamped
