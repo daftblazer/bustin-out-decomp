@@ -8,4 +8,4 @@ mkdir -p build/try
 V="${PRODG:-3.7}"
 UNIT="${SRC#src/}"
 .venv/bin/python tools/prodg_cc.py --unit "$UNIT" -- env SN_NGC_PATH="build/compilers/ProDG/$V" build/tools/wibo "build/compilers/ProDG/$V/ngccc.exe" -O2 -G8 -fno-weak -frepo -fsigned-char -D_STLP_NO_OWN_IOSTREAMS -D_NOTHREADS -D_STLP_NO_NEW_NEW_HEADER -Ilibs/stlport -Ilibs/include -Iinclude -Ibuild/G4ME69/include -c "$SRC" -o "$OUT" || exit 1
-.venv/bin/python tools/fncmp.py "$OUT" "$@"
+FNCMP_UNIT="$UNIT" .venv/bin/python tools/fncmp.py "$OUT" "$@"

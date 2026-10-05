@@ -2,6 +2,7 @@
 #define SIMS_ESIMSCAM_H
 
 #include "engine/ERectF.h"
+#include "engine/E3DWindow.h"
 #include "engine/EMat4.h"
 #include "engine/EVec3.h"
 #include "engine/EController.h"
@@ -9,15 +10,6 @@
 #include "sims/Unk800052C8.h"
 #include "sims/Unk8037D944.h"
 
-// View window: projection and viewport of a camera. Class name from The Sims 2's
-// symbol map (ESimsCam::SetWinPos(E3DWindow&)).
-class E3DWindow {
-public:
-    void fn_80154490(float fov, float aspect, float nearPlane, float farPlane);
-    void fn_801547E0(const ERectF& rect);
-
-    char unk0[0x310]; // size inferred from ESimsCam's layout
-};
 
 // Renderer singleton (also used by ESimsApp::Update).
 struct ESimsCamRendererBase {
@@ -105,6 +97,7 @@ struct CameraParameters {
 // The cursor/target object a camera follows; vtable pointer at 0x44.
 struct Unk324 {
     void fn_80027EAC();
+    EVec3* fn_8002D2C8();
 
     char unk0[0x44];
     virtual void vfn1();
@@ -115,14 +108,43 @@ struct Unk324 {
 
 // The game camera. Class and method names follow The Sims 2's symbol map where
 // the functions line up; member names are provisional.
-class ESimsCam {
+// First base of ESimsCam: holds the panel state and declares the state hooks.
+// The real name is unknown.
+class ESimsCamBase {
 public:
+    virtual ~ESimsCamBase() {}
+    virtual void SetState(int state) = 0;
+    virtual void vfn3() = 0;
+
+    int mPanelState;
+};
+
+// Second-level base: the player the camera belongs to.
+class ESimsCamBase2 : public ESimsCamBase {
+public:
+    int unk8;  // player index
+    int unkC;
+    int unk10;
+};
+
+class ESimsCam : public ESimsCamBase2, public E3DWindow {
+public:
+    // 0x80007EC0. NON_MATCHING: 28 instructions vs 25. The original destroys the window
+    // as a base class (destructor flag 0) but does not store a second vtable pointer
+    // at 0xB0 first, which this compiler does for a polymorphic second base.
+    virtual ~ESimsCam() { fn_800058CC(); }
+    virtual void SetState(int state);
+    virtual void vfn3() {}
+    virtual void Update();
+    void operator delete(void* ptr) { fn_80169EE8(ptr); }
+
+    void GetPos(EVec3& eye, EVec3& target, EVec3& unk);
+    int fn_80007470(float left, float top, float right, float bottom);
     float GetCurZoomRatio();
     float GetNearPlane();
     float GetFarPlane();
     float GetFov();
     void CalcEyePosition(EVec3& eye, CameraParameters& params);
-    void Update();
     int fn_80005EE4();
     int fn_80005FC8();
     int fn_800060A8();
@@ -131,7 +153,6 @@ public:
     void fn_800056C8();
     void Reset();
     void fn_800058CC();
-    void SetState(int state);
     void fn_80005984();
     void fn_8000698C();
     int fn_80007430();
@@ -144,12 +165,7 @@ public:
     void SetWinPos(E3DWindow& window);
     EVec3 fn_80007DD8();
 
-    int unk0;           // panel state, see SetState
-    int unk4;
-    int unk8;           // player index
-    int unkC;
-    int unk10;
-    E3DWindow unk14;
+    char unkB4[0x324 - 0xB4];
     struct Unk324* unk324;
     int unk328;         // camera mode
     int unk32C;         // camera mode to return to

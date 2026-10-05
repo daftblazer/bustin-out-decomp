@@ -21,9 +21,9 @@ float lbl_8037B43C = 10.0f;  // near plane at the far zoom limit
 
 // Reference camera rig: an eye position and the point it looks at. The eye
 // offset for any target is derived from the direction between them.
-extern EVec3 lbl_802E57B8;
-extern EVec3 lbl_802E57C4;
-extern EVec3 lbl_802E57D0;
+EVec3 lbl_802E57B8(0.0f, 0.0f, 0.0f);
+EVec3 lbl_802E57C4(10.0f, 10.0f, 0.0f);
+EVec3 lbl_802E57D0(0.0f, 0.0f, 1.0f);
 
 // 0x8000562C
 float ESimsCam::GetCurZoomRatio() {
@@ -60,9 +60,9 @@ void ESimsCam::fn_800056C8() {
     float aspect = lbl_8037C198->vfn37();
     float nearPlane = GetNearPlane();
     float farPlane = GetFarPlane();
-    unk14.fn_80154490(fov, aspect, nearPlane, farPlane);
-    SetWinPos(unk14);
-    unk14.fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
+    fn_80154490(fov, aspect, nearPlane, farPlane);
+    SetWinPos(*this);
+    fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
 }
 
 // 0x80005838
@@ -90,7 +90,7 @@ void ESimsCam::fn_800058CC() {
 
 // 0x800058F0
 void ESimsCam::SetState(int state) {
-    unk0 = state;
+    mPanelState = state;
     switch (state) {
     case 7:
     case 8:
@@ -144,9 +144,9 @@ void ESimsCam::fn_80005984() {
 void ESimsCam::Update() {
     lbl_8037B408 = lbl_8037B428;
     lbl_8037B404 = lbl_8037B424;
-    if (unk0 != 1) {
-        if (unk0 != 3) {
-            if (unk0 != 4) {
+    if (mPanelState != 1) {
+        if (mPanelState != 3) {
+            if (mPanelState != 4) {
                 goto other;
             }
         }
@@ -202,7 +202,7 @@ other:
             }
             if (pressed == 0) {
                 blocked = 0;
-                if (unk0 == 8 || unk0 == 10 || unk0 == 11 || unk0 == 9) {
+                if (mPanelState == 8 || mPanelState == 10 || mPanelState == 11 || mPanelState == 9) {
                     blocked = 1;
                 }
                 if (!blocked && controller->fn_8015E0F8(8)) {
@@ -357,21 +357,21 @@ int ESimsCam::fn_800060A8() {
 // 0x8000650C
 void ESimsCam::fn_8000650C() {
     unk390 = (unk398.unkC - lbl_8037B408) / (lbl_8037B404 - lbl_8037B408) * (lbl_8037B414 - lbl_8037B418) + lbl_8037B418;
-    unk14.fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
+    fn_801547E0(ERectF(0.0f, 0.0f, 1.0f, 1.0f));
     float fov = GetFov();
     fov *= (float)lbl_8037C198->unk18;
     fov /= (float)lbl_8037C198->unk14;
     float aspect = lbl_8037C198->vfn37();
     float nearPlane = GetNearPlane();
     float farPlane = GetFarPlane();
-    unk14.fn_80154490(fov, aspect, nearPlane, farPlane);
+    fn_80154490(fov, aspect, nearPlane, farPlane);
     if (unk328 != 3) {
         fn_8000698C();
         if (unk3C8 == 0) {
             fn_80006C58();
         }
     } else {
-        SetWinPos(unk14);
+        SetWinPos(*this);
     }
 }
 
@@ -417,7 +417,7 @@ void ESimsCam::fn_80006D90() {
 void ESimsCam::fn_8000698C() {
     if (unk324 != 0) {
         int notState1 = 1;
-        if (unk0 == 1) {
+        if (mPanelState == 1) {
             notState1 = 0;
         }
         if (notState1 && lbl_802E6700.fn_800655C4()) {
@@ -465,7 +465,7 @@ void ESimsCam::fn_8000698C() {
         break;
     }
     }
-    SetWinPos(unk14);
+    SetWinPos(*this);
 }
 
 // 0x80006C58
@@ -477,4 +477,46 @@ void ESimsCam::fn_80006C58() {
             unk324->vfn4(cursor + unk390 * lbl_8037BFC8 * dir);
         }
     }
+}
+
+// 0x80007184
+void ESimsCam::GetPos(EVec3& eye, EVec3& target, EVec3& unk) {
+    eye = unk378;
+    target = unk398.unk0;
+    unk = unk384;
+}
+
+// 0x80007430
+int ESimsCam::fn_80007430() {
+    return fn_80007470(0.15f, 0.3f, 0.85f, 0.75f);
+}
+
+// 0x80007470
+// NON_MATCHING: 23 of 46 instructions. The original keeps the screen position at the
+// bottom of the frame (read straight off the stack) with the cursor temporary above it,
+// its address held in r29 from before the call; this lays the two out the other way.
+int ESimsCam::fn_80007470(float left, float top, float right, float bottom) {
+    EVec2 screen;
+    fn_80156130(fn_80007DD8(), &screen);
+    int flags = 0;
+    if (screen.x < left) {
+        flags = 1;
+    }
+    if (screen.x > right) {
+        flags |= 2;
+    }
+    if (screen.y < top) {
+        flags |= 4;
+    }
+    if (screen.y > bottom) {
+        flags |= 8;
+    }
+    return flags;
+}
+
+// 0x80007DD8
+EVec3 ESimsCam::fn_80007DD8() {
+    EVec3 position = *unk324->fn_8002D2C8();
+    position.z = 0.25f;
+    return position;
 }

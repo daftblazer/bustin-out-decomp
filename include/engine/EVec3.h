@@ -1,6 +1,12 @@
 #ifndef ENGINE_EVEC3_H
 #define ENGINE_EVEC3_H
 
+// Two-component vector. Class name from The Sims 2's symbol map.
+class EVec2 {
+public:
+    float x, y;
+};
+
 // Three-component vector. Class name from The Sims 2's symbol map.
 class EVec3 {
 public:

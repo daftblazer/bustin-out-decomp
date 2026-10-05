@@ -7,7 +7,7 @@ Usage: tools/fncmp.py OBJECT [-v]              (all functions named in symbols.t
   SYMBOL  mangled function symbol in OBJECT
   ADDR    address of the original function (hex)
 """
-import struct, subprocess, sys, re
+import os, struct, subprocess, sys, re
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ppcdis import load, read
@@ -18,15 +18,32 @@ objdump = root / "build/binutils/powerpc-eabi-objdump"
 MASKS = {"R_PPC_REL24": 0x03FFFFFC, "R_PPC_REL14": 0x0000FFFC, "R_PPC_EMB_SDA21": 0x001FFFFF,
          "R_PPC_ADDR16_HA": 0xFFFF, "R_PPC_ADDR16_LO": 0xFFFF, "R_PPC_ADDR16_HI": 0xFFFF, "R_PPC_ADDR32": 0xFFFFFFFF}
 
+def unit_text_range(unit):
+    """(start, end) of the unit's .text split, or an empty range if unknown."""
+    if not unit: return (0, 0)
+    current = None
+    for line in open(root / "config/G4ME69/splits.txt"):
+        if line and not line[0].isspace(): current = line.strip().rstrip(":").split(":")[0]
+        elif current == unit:
+            m = re.match(r"\s+\.text\s+start:0x([0-9A-Fa-f]+) end:0x([0-9A-Fa-f]+)", line)
+            if m: return (int(m.group(1), 16), int(m.group(2), 16))
+    return (0, 0)
+
 SIZES = {}  # original function sizes by address, when known from symbols.txt
 
 def main():
     if len(sys.argv) == 2 or sys.argv[2] == "-v":
         # Compare every function in OBJECT that is named in symbols.txt
+        # Compiler-generated names such as __static_initialization_and_destruction_0
+        # repeat in every unit; FNCMP_UNIT (the unit's name in splits.txt) picks
+        # the copy inside that unit's .text range.
+        lo, hi = unit_text_range(os.environ.get("FNCMP_UNIT"))
         table = {}
         for line in open(root / "config/G4ME69/symbols.txt"):
             m = re.match(r"(\S+) = \.\w+:0x([0-9A-F]+); // type:function size:0x([0-9A-F]+)", line)
-            if m: table[m.group(1)] = int(m.group(2), 16); SIZES[int(m.group(2), 16)] = int(m.group(3), 16)
+            if not m: continue
+            addr = int(m.group(2), 16); SIZES[addr] = int(m.group(3), 16)
+            if m.group(1) not in table or lo <= addr < hi: table[m.group(1)] = addr
         out = subprocess.run([objdump, "-dr", "-z", sys.argv[1]], capture_output=True, text=True, check=True).stdout
         ok = True
         for sym in re.findall(r"^[0-9a-f]+ <(\S+)>:$", out, re.M):

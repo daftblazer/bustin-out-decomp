@@ -1,6 +1,7 @@
 #ifndef SIMS_ESIMSAPP_H
 #define SIMS_ESIMSAPP_H
 
+#include "engine/E3DWindow.h"
 #include "engine/EApp.h"
 #include "engine/EController.h"
 #include "sims/Unk8037D944.h"
@@ -41,16 +42,7 @@ struct SimsAppUnk4E0 {
 
 typedef ERectF SimsAppUnk2B3CRect;
 
-// Size 0xA0 (ctor at 0x8018ABB0).
-struct SimsAppUnk2B3C {
-    SimsAppUnk2B3C();
-    virtual ~SimsAppUnk2B3C();
-    void fn_8018B584(const SimsAppUnk2B3CRect&);
-    void fn_8018B044(struct ERC*);
-    void* operator new(unsigned int size) { return fn_80169F1C(size, 16); }
-
-    char unk0[0x9C];
-};
+typedef E3DWindow SimsAppUnk2B3C;
 
 // Base class of the object at ESimsApp+0x2B50; introduces the vtable pointer at 0x44.
 struct SimsAppUnk2B50Base {
