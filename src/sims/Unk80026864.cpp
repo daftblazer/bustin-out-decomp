@@ -1838,6 +1838,194 @@ void fn_8002A474(ERC* rc, Unk8033FF34Resource* model) {
     }
 }
 
+// Helpers shared by the two drawing functions below.
+inline EMat4* NewMatrix(ERC* rc) {
+    EMat4* matrix = ((Unk80173D58Alloc*)rc)->fn_80173D58(0x40, 0x20);
+    matrix->fn_801B2AFC();
+    return matrix;
+}
+inline void DrawModelAt(ERC* rc, void* model, const EVec3& position, void* lights) {
+    EMat4* matrix = NewMatrix(rc);
+    matrix->fn_801B2B54(&position);
+    rc->vfn28(matrix, 1);
+    rc->vfn44(lights);
+    ((Unk8033FF34Resource*)model)->fn_8017CC58(rc);
+}
+int fn_8003401C(Unk80026864* self, EVec2* from, EVec2* to, float* scale);
+void fn_80034E10();
+void fn_800351E4();
+void fn_80034968();
+void fn_8002F794(Unk80026864* self, ERC* rc);
+void fn_8002F268(Unk80026864* self, ERC* rc);
+void fn_8002F2A4(Unk80026864* self, ERC* rc);
+void fn_80035B4C(Unk80026864* self, ERC* rc);
+void fn_80035724(Unk80026864* self, ERC* rc);
+void fn_800359C0(Unk80026864* self, ERC* rc);
+void fn_800329D8(Unk80026864* self, ERC* rc);
+void fn_80031B1C(Unk80026864* self, ERC* rc);
+
+// 0x8002A548
+// Draws the screen: the build-mode overlays for the current state, the pointer
+// model with its shadow, the hand or the tool models, and the arrow over the object
+// under the cursor.
+// NON_MATCHING: skeleton only (the original is 755 instructions). The early-out
+// tests and the order of the major calls follow the original; the many per-state
+// matrix set-ups and model draws are reduced to the pointer and tool models, and the
+// arguments of the overlay helpers are assumed. One variant tried.
+void Unk80026864::fn_8002A548(ERC* rc) {
+    bool build = IsBuildCameraMode();
+    if (unk38 == 1 && !lbl_802E6700.fn_800655C4()) {
+        return;
+    }
+    if (((Unk80026864Cam*)unkBC)->unk328 == 3) {
+        return;
+    }
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (!(unk18 & 2)) {
+        return;
+    }
+    fn_8002D1CC();
+    if (unk84 == 2) {
+        if (controller->fn_8015DF98(0x11)) {
+            fn_8002F794(this, rc);
+        }
+        if (controller->fn_8015DF98(0x12)) {
+            fn_8002F268(this, rc);
+        }
+        if (controller->fn_8015DF98(0x13)) {
+            fn_8002F2A4(this, rc);
+        }
+    }
+    if (unk84 == 3 || unk84 == 5) {
+        EVec2 centre;
+        fn_8002BC5C(&centre);
+        EVec2 corner = fn_8002BD98();
+        fn_8002B114(rc);
+        if (controller->fn_8015DF98(0x11)) {
+            fn_80035B4C(this, rc);
+        }
+        fn_80035724(this, rc);
+        fn_800359C0(this, rc);
+    }
+    if (unk84 == 4) {
+        EVec2 centre;
+        fn_8002BC5C(&centre);
+        EVec2 corner = fn_8002BD98();
+        fn_8002B114(rc);
+        if (controller->fn_8015DF98(0x11)) {
+            fn_800329D8(this, rc);
+        }
+        fn_80031B1C(this, rc);
+    }
+    if (unk84 == 1 && IsActive(unkC8)) {
+        return;
+    }
+    void* lights = &lbl_802E5B40[unk38];
+    if (unkF0 == 0) {
+        // The pointer and its shadow at the cursor.
+        EVec2 corner = fn_8002BD98();
+        EVec3 position(unkA0.x, unkA0.y, 0.0f);
+        DrawModelAt(rc, unk128, position, &lbl_802E5D00);
+        rc->vfn44(lights);
+        ((Unk8033FF34Resource*)unk130)->fn_8017CC58(rc);
+        if (unk84 == 4) {
+            DrawModelAt(rc, unk11C, position, &lbl_802E5D00);
+            rc->vfn44(lights);
+            ((Unk8033FF34Resource*)unk120)->fn_8017CC58(rc);
+            fn_8002A474(rc, (Unk8033FF34Resource*)unk124);
+        }
+        if (build && Unk802A2AC0::mode != 0 && Unk802A2AC0::mode != 9) {
+            Unk800053D4Inner* under = fn_8002C7B4(0);
+            if (under) {
+                // The arrow above the object under the cursor, turned to face the camera.
+                DrawModelAt(rc, unk134, position, &lbl_802E5D00);
+                rc->vfn44(lights);
+                ((Unk8033FF34Resource*)unk13C)->fn_8017CC58(rc);
+                rc->vfn44(lights);
+                fn_8002A474(rc, (Unk8033FF34Resource*)unk138);
+            }
+        }
+    } else {
+        // The hand holding an object.
+        EVec3 position(unkA0.x, unkA0.y, 0.0f);
+        DrawModelAt(rc, unk108, position, &lbl_802E5D00);
+        rc->vfn44(lights);
+        ((Unk8033FF34Resource*)unk10C)->fn_8017CC58(rc);
+        DrawModelAt(rc, unk114, position, &lbl_802E5D00);
+        rc->vfn44(lights);
+        fn_8002A474(rc, (Unk8033FF34Resource*)unk118);
+        fn_8002A474(rc, (Unk8033FF34Resource*)unk110);
+    }
+}
+
+// 0x8002B114
+// Draws the wall and floor tools' cursor: the pulsing tile marker, the tool model,
+// and while a wall is being dragged the post models at both ends.
+// NON_MATCHING: skeleton only (the original is 559 instructions). The pulse and the
+// choice of position follow the original; the rest keeps the order of the draws but
+// not their matrices. One variant tried.
+void Unk80026864::fn_8002B114(ERC* rc) {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    EVec2 from(unkAC, unkB0);
+    EMat4* toolMatrix = ((Unk80173D58Alloc*)rc)->fn_80173D58(0x40, 0x20);
+    float sizes[2];
+    sizes[0] = 1.0f;
+    sizes[1] = 1.1f;
+    float scale = 1.0f;
+    if (unk88 & 1) {
+        unk1BC += lbl_8037BFC8;
+        if (unk1BC > 0.4f) {
+            int swap = unk1B4;
+            unk1B4 = unk1B8;
+            unk1B8 = swap;
+            unk1BC = 1.0f;
+        }
+    }
+    float t = unk1BC / 0.4f;
+    float eased = t * -2.0f * t * t + t * 3.0f * t;
+    float size = (sizes[unk1B4] + (sizes[unk1B8] - sizes[unk1B4]) * eased) * 1.5f;
+    bool dragging = false;
+    if (unk84 == 3 && (unk88 & 2) && controller->fn_8015DF98(0x11)) {
+        dragging = true;
+    }
+    EVec2 at;
+    if (dragging) {
+        fn_8002BC5C(&at);
+    } else if (unk84 == 4 && controller->fn_8015DF98(0x11)) {
+        const EVec2& origin = ((Unk8004AD08B*)lbl_802E67B0.unk0)->unk34;
+        scale = 1.0f;
+        at.x = unkAC + origin.x;
+        at.y = unkB0 - origin.y;
+    } else {
+        fn_8003401C(this, &from, &at, &scale);
+    }
+    EMat4* matrix = NewMatrix(rc);
+    matrix->m[3][0] = at.x;
+    matrix->m[3][1] = at.y;
+    matrix->m[3][2] = 0.1f;
+    ((Unk80181824*)unkFC)->fn_80181824(rc);
+    matrix->fn_801B32D4(scale);
+    rc->vfn28(matrix, 1);
+    rc->vfn22(unkC4);
+    ((Unk8033FF34Resource*)unk130)->fn_8017CC58(rc);
+    EMat4* pulse = NewMatrix(rc);
+    *pulse = *matrix;
+    pulse->fn_801B28F0(EVec3(size, size, 1.0f));
+    rc->vfn28(pulse, 1);
+    rc->vfn44(&lbl_802E5D00);
+    rc->vfn44(&lbl_802E5B40[unk38]);
+    ((Unk8033FF34Resource*)unk12C)->fn_8017CC58(rc);
+    toolMatrix->fn_801B2AFC();
+    if (!dragging) {
+        const EVec2& origin = ((Unk8004AD08B*)lbl_802E67B0.unk0)->unk34;
+        EVec3 position(unkAC + origin.x, unkB0 - origin.y, 0.1f);
+        toolMatrix->fn_801B2B54(&position);
+        rc->vfn28(toolMatrix, 1);
+        rc->vfn44(&lbl_802E5B40[unk38]);
+        ((Unk8033FF34Resource*)unk128)->fn_8017CC58(rc);
+    }
+}
+
 // 0x8002B9D0
 float Unk80026864::fn_8002B9D0() {
     return ((Unk80026864Cam*)unkBC)->fn_8000562C() * (lbl_8037B4A8 - lbl_8037B4A4) + lbl_8037B4A4;
@@ -2134,6 +2322,95 @@ void Unk80026864::fn_8002C940() {
         fn_801767FC(lbl_8037B4B8);
         lbl_8037B4B8 = 0;
     }
+}
+
+struct Unk8002CA3CRC {
+    char unk0[0x44];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13(Unk80173D58Vertex* vertices, int count);   // line list
+};
+
+// 0x8002CA3C
+// Loads the overlay's four textures and records the lot's tile grid (one line per
+// row and per column) as a renderer object, once.
+// NON_MATCHING: condensed draft. The texture loads and the renderer calls are the
+// original's; the grid's vertices are generated by plain loops here, where the
+// original also clips the grid to the editable part of the lot. One variant tried.
+void Unk80026864::fn_8002CA3C() {
+    if (lbl_8037B4BC) {
+        return;
+    }
+    lbl_8037B4BC = 1;
+    if (lbl_8037B4AC) {
+        fn_801767FC(lbl_8037B4AC);
+        lbl_8037B4AC = 0;
+    }
+    if (lbl_8037B4B0) {
+        fn_801767FC(lbl_8037B4B0);
+        lbl_8037B4B0 = 0;
+    }
+    if (lbl_8037B4B4) {
+        fn_801767FC(lbl_8037B4B4);
+        lbl_8037B4B4 = 0;
+    }
+    if (lbl_8037B4B8) {
+        fn_801767FC(lbl_8037B4B8);
+        lbl_8037B4B8 = 0;
+    }
+    lbl_8037B4AC = lbl_80340AB8.fn_80177628(0x899BA3EB, 0, 0);
+    lbl_8037B4B0 = (Unk80181824*)lbl_80340AB8.fn_80177628(0x3B494D6C, 0, 0);
+    lbl_8037B4B4 = lbl_80340AB8.fn_80177628(0xEA1905EB, 0, 0);
+    lbl_8037B4B8 = lbl_80340AB8.fn_80177628(0x84853612, 0, 0);
+    ERC* builder = lbl_8037C198->vfn13(1);
+    EVec2 origin;
+    Unk8004AD08B* view = (Unk8004AD08B*)lbl_802E67B0.unk0;
+    if (view) {
+        origin = view->unk34;
+    } else {
+        origin = EVec2(0.0f, 0.0f);
+    }
+    int size = ((Unk8037D990F*)lbl_8037D990)->vfn6();
+    int lines = (unsigned char)(size - 1);
+    for (int pass = 0; pass < 2; pass++) {
+        Unk80173D58Vertex* vertices = (Unk80173D58Vertex*)((Unk80173D58Alloc*)builder)->fn_80173D58(lines * 0xA0, 0x20);
+        for (int i = 0; i < lines; i++) {
+            Unk80173D58Vertex* v = &vertices[i * 2];
+            v[0].unk30[0] = 0;
+            v[0].unk30[1] = 0;
+            v[0].unk30[2] = 0;
+            v[0].unk30[3] = 0x80;
+            v[1] = v[0];
+            float along = (float)i;
+            if (pass == 0) {
+                v[0].unk0[0] = origin.x;
+                v[0].unk0[1] = origin.y + along;
+                v[1].unk0[0] = origin.x + (float)size;
+                v[1].unk0[1] = origin.y + along;
+            } else {
+                v[0].unk0[0] = origin.x + along;
+                v[0].unk0[1] = origin.y;
+                v[1].unk0[0] = origin.x + along;
+                v[1].unk0[1] = origin.y + (float)size;
+            }
+            v[0].unk0[2] = 0.02f;
+            v[0].unk0[3] = 1.0f;
+            v[1].unk0[2] = 0.02f;
+            v[1].unk0[3] = 1.0f;
+        }
+        ((Unk8002CA3CRC*)builder)->vfn13(vertices, lines * 2);
+    }
+    lbl_8037B4C0 = lbl_8037C198->vfn14(builder);
 }
 
 // 0x8002D1CC

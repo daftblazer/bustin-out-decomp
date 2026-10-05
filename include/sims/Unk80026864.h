@@ -91,6 +91,8 @@ public:
     void fn_8002A0F4(void* definition);
     void fn_8002A1BC(struct ERC* rc);
     void fn_8002A234(struct ERC* rc);
+    void fn_8002A548(struct ERC* rc);
+    void fn_8002B114(struct ERC* rc);
     float fn_8002B9D0();
     void fn_8002BA04(int forward);
     void fn_8002BB64(int* tileX, int* tileY);
@@ -99,6 +101,7 @@ public:
     void fn_8002C158();
     struct Unk800053D4Inner* fn_8002C7B4(int kind);
     static void fn_8002C940();
+    static void fn_8002CA3C();
     void fn_8002D1CC();
     int fn_8002D270(int a, int b);
     void fn_8002D2A8(EVec3* out);

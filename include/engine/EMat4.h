@@ -49,6 +49,8 @@ public:
     void fn_801B28B8(float scale);
     void fn_801B2988(const EVec3& offset);           // translate
     void fn_801B28F0(const EVec3& scale);            // scale
+    void fn_801B2B54(const EVec3* position);         // set translation
+    void fn_801B32D4(float scale);                   // uniform scale
     void Scale(const EVec3& scale) { fn_801B28F0(scale); }
     void fn_801B3834(float fov, float aspect, float nearPlane, float farPlane); // perspective
     void fn_801B3494(const EVec3& scale);            // scale

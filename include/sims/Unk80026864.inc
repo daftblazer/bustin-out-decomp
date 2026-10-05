@@ -6,7 +6,9 @@
     int unk90; // 0x90
     EVec3 unk94; // 0x94 cursor position, previous
     EVec3 unkA0; // 0xa0 cursor position
-    char padAC[0x10];
+    float unkAC; // 0xac start of a drag
+    float unkB0; // 0xb0
+    char padB4[0x8];
     int unkBC; // 0xbc
     void* unkC0; // 0xc0 renderer object
     void* unkC4; // 0xc4 renderer object

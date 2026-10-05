@@ -8,6 +8,8 @@ END 0x1C8
 0x90   4      int                unk90
 0x94   0xC    EVec3              unk94            # cursor position, previous
 0xA0   0xC    EVec3              unkA0            # cursor position
+0xAC   4      float              unkAC            # start of a drag
+0xB0   4      float              unkB0
 0xBC   4      int                unkBC
 0xC0   4      void*              unkC0            # renderer object
 0xC4   4      void*              unkC4            # renderer object
