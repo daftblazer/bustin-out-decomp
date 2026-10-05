@@ -1387,6 +1387,566 @@ void CASTarget::fn_8000D7D8() {
     unk4588 = 0;
 }
 
+// Asks a yes/no question; the answer is handled in vfn2 by `kind`.
+#define CAS_ASK(question, title, body, kind)                                                    \
+    {                                                                                           \
+        fn_80014770();                                                                          \
+        EVec2 at(0.2f, 0.2f);                                                                   \
+        unk461C.fn_8003A0C0(&at, 2, &unk4EAC, GetText(question), 0, 1, 0.6f);                   \
+        unk45D8 = lbl_802E6700.fn_800667EC(title).ptr;                                          \
+        unk45DC = lbl_802E6700.fn_800667EC(body).ptr;                                           \
+        unk4580 = 12;                                                                           \
+        unk45D4 = kind;                                                                         \
+        fn_80106164(lbl_802E6700.unk90, "showDialog", 0, 0, 0);                                 \
+        unk45D0 = 0;                                                                            \
+    }
+
+// Copies the edited sim into `desc` and places a finished copy in the line-up.
+#define CAS_STORE_SIM(desc)                         \
+    Unk80018374* sim = unk4464;                     \
+    sim->unkC8->fn_800226F0(&sim->unk16C);          \
+    (desc)->unkC = sim->unk16C;                     \
+    fn_80010520(desc, 1);                           \
+    (desc)->unkC.fn_801CC688()
+
+// 0x8000D970
+// Message handler: everything the UI script and the widgets ask of the screen.
+// NON_MATCHING: 2,027 instructions vs 2,074. Every case is present with the original's
+// calls; the original repeats the yes/no prompt set-up and the sim-storing sequence with
+// slightly different tails per case (shared here through macros), keeps its frame 0x10
+// smaller, and dispatches through the same compare tree. One variant tried.
+void CASTarget::vfn7(UnkTargetBase* sender, int message) {
+    switch ((unsigned int)message) {
+    case 3: // accept
+        if (unk458C) {
+            if (fn_800E5DF8()->unk4) {
+                CASSimDesc* desc = &unk4478->sims[0];
+                CAS_STORE_SIM(desc);
+                unk4464->fn_8001C3B8();
+                desc->unkA8 = unk4464->fn_8001D04C();
+                unk4478->present[0] = 1;
+                unk4478->unk3F0[0] = 0;
+                if (unk458C && unk5314 == 0) {
+                    fn_8023C9FC((char*)lbl_802E6700.unk118 + 0x84, desc->unk28);
+                    fn_8023CA3C((char*)lbl_802E6700.unk118 + 0x3C, unk4478->unk400);
+                    fn_80014914(0x4DEB3722, unk4478->sims[0].unkC.unk8[8]);
+                }
+                fn_80014378();
+                unk4588 = 1;
+            } else {
+                CAS_ASK("cancel warning", "dialog accept title", "dialog accept", 3);
+            }
+        } else {
+            CASSimDesc* desc = &unk4478->sims[unk45CA];
+            CAS_STORE_SIM(desc);
+            delete unk4468[unk45CA];
+            unk4468[unk45CA] = new Unk80018374(desc, &unk3C8, 0);
+            unk4468[unk45CA]->fn_8001E6E8(1, 1);
+            unk4468[unk45CA]->unk14 = unk458C;
+            unk3C8.fn_8001EFEC();
+            unk4468[unk45CA]->fn_8001C384();
+            unk3C8.fn_8001EFEC();
+            EVec2 place;
+            switch (unk45CA) {
+            case 0:
+                place.x = 0.74f;
+                place.y = -7.5f;
+                break;
+            case 1:
+                place.x = -0.34f;
+                place.y = -7.5f;
+                break;
+            case 2:
+                place.x = 0.18f;
+                place.y = -7.5f;
+                break;
+            case 3:
+                place.x = 1.3f;
+                place.y = -7.5f;
+                break;
+            case 4:
+                place.x = 3.6f;
+                place.y = -7.75f;
+                break;
+            case 5:
+                place.x = 0.5f;
+                place.y = -6.5f;
+                break;
+            case 6:
+                place.x = -1.4f;
+                place.y = -7.5f;
+                break;
+            default:
+                place.x = 2.5f;
+                place.y = -7.0f;
+                break;
+            }
+            unk4468[unk45CA]->unk154 = EVec3(place.x, place.y, 0.0f);
+            unk4468[unk45CA]->fn_8001E6E8(1, 1);
+            vfn7(this, 0x2E);
+            unk45BC = unk45C0;
+            if (unk4478->present[unk45CA] == 0) {
+                unk45C9++;
+                unk4478->present[unk45CA] = 1;
+                unk4478->unk3F0[unk45CA] = 0;
+            }
+            fn_80014378();
+            fn_800143E4();
+        }
+        break;
+    case 0x4:
+        unk4580 = 0;
+        break;
+    case 0x5:
+        unk4598 = 1;
+        break;
+    case 0x6:
+        unk4464->unkC8->fn_80021928(1);
+        unk4464->unkC8->fn_80021928(7);
+        unk4464->unkC8->fn_80021928(8);
+        unk4464->unkC8->fn_80021928(9);
+        unk4464->unkC8->fn_80021928(10);
+        break;
+    case 0x7:
+        unk4464->unkC8->fn_8002196C(1);
+        unk4464->unkC8->fn_8002196C(7);
+        unk4464->unkC8->fn_8002196C(8);
+        unk4464->unkC8->fn_8002196C(9);
+        unk4464->unkC8->fn_8002196C(10);
+        break;
+    case 0x8:
+        unk4464->fn_8001C028(3);
+        break;
+    case 0x9:
+        unk4464->fn_8001C0A4(3);
+        break;
+    case 0xA:
+        unk4464->fn_8001C028(4);
+        break;
+    case 0xB:
+        unk4464->fn_8001C0A4(4);
+        break;
+    case 0xC:
+        unk4464->fn_8001C028(5);
+        break;
+    case 0xD:
+        unk4464->fn_8001C0A4(5);
+        break;
+    case 0xE:
+        unk4464->fn_8001C028(2);
+        unk4464->unkC8->fn_8002196C(13);
+        unk4464->unkC8->fn_80021928(13);
+        break;
+    case 0xF:
+        unk4464->fn_8001C0A4(2);
+        unk4464->unkC8->fn_8002196C(13);
+        unk4464->unkC8->fn_80021928(13);
+        break;
+    case 0x10:
+        unk4464->fn_8001C028(1);
+        break;
+    case 0x11:
+        unk4464->fn_8001C0A4(1);
+        break;
+    case 0x12:
+        unk4464->fn_8001C028(6);
+        if (unk4584 == 0) {
+            unk4464->unkC8->fn_80021928(12);
+        }
+        break;
+    case 0x13:
+        unk4464->fn_8001C0A4(6);
+        if (unk4584 == 0) {
+            unk4464->unkC8->fn_8002196C(12);
+        }
+        break;
+    case 0x16:
+        unk4464->fn_8001C028(0);
+        break;
+    case 0x17:
+        unk4464->fn_8001C0A4(0);
+        break;
+    case 0x18:
+        unk4464->fn_8001C028(7);
+        break;
+    case 0x19:
+        unk4464->fn_8001C0A4(7);
+        break;
+    case 0x1A:
+        unk4464->unkC8->fn_80021928(1);
+        unk4464->unkC8->fn_80021928(7);
+        unk4464->unkC8->fn_80021928(8);
+        unk4464->unkC8->fn_80021928(9);
+        unk4464->unkC8->fn_80021928(10);
+        break;
+    case 0x1B:
+        unk4464->unkC8->fn_8002196C(1);
+        unk4464->unkC8->fn_8002196C(7);
+        unk4464->unkC8->fn_8002196C(8);
+        unk4464->unkC8->fn_8002196C(9);
+        unk4464->unkC8->fn_8002196C(10);
+        break;
+    case 0x1C:
+        unk4464->unkC8->fn_80021928(2);
+        break;
+    case 0x1D:
+        unk4464->unkC8->fn_8002196C(2);
+        break;
+    case 0x1E:
+        unk4464->unkC8->fn_80021928(4);
+        break;
+    case 0x1F:
+        unk4464->unkC8->fn_8002196C(4);
+        break;
+    case 0x20:
+        unk4464->unkC8->fn_80021928(6);
+        break;
+    case 0x21:
+        unk4464->unkC8->fn_8002196C(6);
+        break;
+    case 0x22:
+        unk4464->unkC8->fn_80021928(13);
+        if (unk4584 == 0) {
+            unk4464->unkC8->fn_80021928(12);
+        }
+        break;
+    case 0x23:
+        unk4464->unkC8->fn_8002196C(13);
+        if (unk4584 == 0) {
+            unk4464->unkC8->fn_8002196C(12);
+        }
+        break;
+    case 0x26:
+        unk4464->unkC8->fn_80021928(11);
+        break;
+    case 0x27:
+        unk4464->unkC8->fn_8002196C(11);
+        break;
+    case 0x28:
+        if (unk45C8 != 0x28) {
+            unk45C8 = 0x28;
+            fn_8000FECC(0x28);
+            unk45BC = unk45C4;
+        }
+        break;
+    case 0x29:
+        if (unk45C8 != 0x29) {
+            unk45C8 = 0x29;
+            fn_8000FECC(0x29);
+            unk45BC = unk45C4;
+        }
+        break;
+    case 0x2A:
+        if (unk45C8 != 0x2A) {
+            unk45C8 = 0x2A;
+            fn_8000FECC(0x2A);
+            unk45BC = unk45C4;
+        }
+        break;
+    case 0x2B:
+        if (unk45C8 != 0x2B) {
+            unk45C8 = 0x2B;
+            fn_8000FECC(0x2B);
+            unk45BC = unk45C4;
+        }
+        break;
+    case 0x2C:
+        if (unk45C8 != 0x2C) {
+            unk45C8 = 0x2C;
+            fn_8000FECC(0x2C);
+            unk45BC = unk45C4;
+        }
+        break;
+    case 0x2D:
+        if (unk45C8 != 0x2D) {
+            unk45C8 = 0x2D;
+            fn_8000FECC(0x2D);
+            unk45BC = unk45C0;
+        }
+        break;
+    case 0x2F:
+        if (unk45C8 != 0x2F) {
+            unk45C8 = 0x2F;
+            fn_8000FECC(0x2F);
+            unk45BC = unk45C0;
+        }
+        break;
+    case 0x2E:
+        if (unk45C8 != 0x2E) {
+            unk45C8 = 0x2E;
+            fn_8000FECC(0x2E);
+        }
+        break;
+    case 0x30:
+        if (unk4584 == 2) {
+            unk4584 = 0;
+            } else {
+            unk4584 = 1;
+            delete unk4464;
+            unk4464 = new Unk80018374(0, 1, &unk3C8);
+            unk4464->unk14 = unk458C;
+        }
+        break;
+    case 0x31:
+        if (unk4584 == 0) {
+            unk4584 = 2;
+            } else {
+            unk4584 = 3;
+            delete unk4464;
+            unk4464 = new Unk80018374(0, 0, &unk3C8);
+            unk4464->unk14 = unk458C;
+        }
+        break;
+    case 0x32:
+        if (unk4584 == 3) {
+            unk4584 = 2;
+            } else {
+            unk4584 = 0;
+            delete unk4464;
+            unk4464 = new Unk80018374(1, 1, &unk3C8);
+            unk4464->unk14 = unk458C;
+        }
+        break;
+    case 0x33:
+        if (unk4584 == 2) {
+            unk4584 = 3;
+            } else {
+            unk4584 = 1;
+            delete unk4464;
+            unk4464 = new Unk80018374(0, 1, &unk3C8);
+            unk4464->unk14 = unk458C;
+        }
+        break;
+    case 0x38: // add a family member
+        if (unk45C9 <= 3) {
+            unk45CA = -1;
+            int slot;
+            for (slot = 0; slot <= 3; slot++) {
+                if (unk4478->present[slot] == 0) {
+                    unk45CA = slot;
+                    fn_8024254C(unk4478->sims[slot].unk68, fn_8023C9EC(unk4478->unk400));
+                    break;
+                }
+            }
+            for (int n = 0; n < 14; n++) {
+                unk4478->sims[slot].unkB0[n] = 0;
+            }
+            fn_80014564();
+            if (unk45CA >= 0) {
+                if (unk52FC == 0) {
+                    fn_80014770();
+                    unk52FC = new Unk800C6704(GetText("default_text_firstname"), 9, 0, GetText("first"), 0, 0, 0, 0.5f, 0.25f,
+                                              0.25f, 10, 0, 16, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0);
+                }
+                unk45A0 = 0;
+            }
+        }
+        break;
+    case 0x39:
+        if (unk45C9 == 0) {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        } else {
+            int count = 0;
+            for (int i = 0; i <= 3; i++) {
+                if (unk4468[i]) {
+                    unk3B8[count] = new CASSpinner(0x3B);
+                    EVec3 place(unk4468[i]->unk154);
+                    ((CASSpinner*)unk3B8[count])->unk4C.x = place.x;
+                    ((CASSpinner*)unk3B8[count])->unk4C.y = place.y;
+                    ((CASSpinner*)unk3B8[count])->unk58 = i;
+                    // Keep the entries sorted by position.
+                    for (int j = count; j > 0; j--) {
+                        CASSpinner* a = (CASSpinner*)unk3B8[j];
+                        EVec2 pa;
+                        pa = EVec2(a->unk4C.x, a->unk4C.y);
+                        CASSpinner* b = (CASSpinner*)unk3B8[j - 1];
+                        EVec2 pb;
+                        pb = EVec2(b->unk4C.x, b->unk4C.y);
+                        if (pb.x < pa.x || (pb.x == pa.x && pb.y < pa.y)) {
+                            unk3B8[j] = b;
+                            unk3B8[j - 1] = a;
+                        }
+                    }
+                    count++;
+                }
+            }
+            unk3B4 = new CASFamilyList(-1, 0, 0.05f, 0.0f, 0.0f);
+            unk3B4->vfn4(EVec3(0.0351f, 0.0f, 0.12f));
+            unk3B4->vfn6(EVec2(0.9297f, 0.065f));
+            unk3B4->unk7C = 0.02f;
+            unk3B4->vfn21();
+            unk3B4->unk80 = -0.01f;
+            unk3B4->vfn21();
+            unk3B4->vfn27(4);
+            unk3B4->vfn24(1, 0, 0);
+            unk3B4->vfn25(0, 3, 4, 0.33f, 0.125f);
+            for (int i = 0; i < count; i++) {
+                unk3B4->vfn20(unk3B8[i], EVec3(0.0f));
+            }
+            vfn14(unk3B4);
+            unk4468[unk3B4->unk48->unk58]->fn_8001E6E8(0, 0);
+            unk4580 = 11;
+            unk531C = 1;
+            fn_80106164(unk52C4, "hideMenu", 0, 0, 0);
+        }
+        break;
+    case 0x3A:
+        if (unk45C9 == 0) {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        } else {
+            int count = 0;
+            for (int i = 0; i <= 3; i++) {
+                if (unk4468[i]) {
+                    unk3B8[count] = new CASSpinner(0x3C);
+                    EVec3 place(unk4468[i]->unk154);
+                    ((CASSpinner*)unk3B8[count])->unk4C.x = place.x;
+                    ((CASSpinner*)unk3B8[count])->unk4C.y = place.y;
+                    ((CASSpinner*)unk3B8[count])->unk58 = i;
+                    // Keep the entries sorted by position.
+                    for (int j = count; j > 0; j--) {
+                        CASSpinner* a = (CASSpinner*)unk3B8[j];
+                        EVec2 pa;
+                        pa = EVec2(a->unk4C.x, a->unk4C.y);
+                        CASSpinner* b = (CASSpinner*)unk3B8[j - 1];
+                        EVec2 pb;
+                        pb = EVec2(b->unk4C.x, b->unk4C.y);
+                        if (pb.x < pa.x || (pb.x == pa.x && pb.y < pa.y)) {
+                            unk3B8[j] = b;
+                            unk3B8[j - 1] = a;
+                        }
+                    }
+                    count++;
+                }
+            }
+            unk3B4 = new CASFamilyList(-1, 0, 0.05f, 0.0f, 0.0f);
+            unk3B4->vfn4(EVec3(0.0351f, 0.0f, 0.12f));
+            unk3B4->vfn6(EVec2(0.9297f, 0.065f));
+            unk3B4->unk7C = 0.02f;
+            unk3B4->vfn21();
+            unk3B4->unk80 = -0.01f;
+            unk3B4->vfn21();
+            unk3B4->vfn27(4);
+            unk3B4->vfn24(1, 0, 0);
+            unk3B4->vfn25(0, 3, 4, 0.33f, 0.125f);
+            for (int i = 0; i < count; i++) {
+                unk3B4->vfn20(unk3B8[i], EVec3(0.0f));
+            }
+            vfn14(unk3B4);
+            unk4468[unk3B4->unk48->unk58]->fn_8001E6E8(0, 0);
+            unk4580 = 11;
+            unk531C = 0;
+            fn_80106164(unk52C4, "hideMenu", 0, 0, 0);
+        }
+        break;
+    case 0x3B: { // edit the chosen family member
+        unk45CA = ((CASFamilyList*)sender)->unk48->unk58;
+        delete unk4464;
+        unk4464 = new Unk80018374(&unk4478->sims[unk45CA], &unk3C8, 0);
+        unk4464->unk14 = unk458C;
+        fn_8024254C(unk57A0.unk0, unk4478->sims[unk45CA].unk28);
+        CASSimDesc* desc = &unk4478->sims[unk45CA];
+        unk533C[0].fn_80015908(desc->unk0[5]);
+        unk533C[1].fn_80015908(desc->unk0[4]);
+        unk533C[2].fn_80015908(desc->unk0[1]);
+        unk533C[3].fn_80015908(desc->unk0[3]);
+        unk533C[4].fn_80015908(desc->unk0[0]);
+        unk57A8.unk48 = desc->unk0[6];
+        if (unk4464->unk16C.unk4) {
+            if (unk4464->unk16C.unk0) {
+                unk4584 = 0;
+            } else {
+                unk4584 = 1;
+            }
+        } else {
+            if (unk4464->unk16C.unk0) {
+                unk4584 = 2;
+            } else {
+                unk4584 = 3;
+            }
+        }
+        unk45BC = unk45C4;
+        for (int i = 0; i < unk45C9; i++) {
+            unk3B4->fn_80188B10(unk3B8[i]);
+        }
+        fn_80188B10(unk3B4);
+        unk459C = 1;
+        fn_80106164(unk52C4, "showMenu", 0, 0, 0);
+        fn_80014564();
+        fn_800141C0();
+        break;
+    }
+    case 0x3C: // remove the chosen family member
+        for (int i = 0; i < unk45C9; i++) {
+            unk3B4->fn_80188B10(unk3B8[i]);
+        }
+        fn_80188B10(unk3B4);
+        unk459C = 1;
+        fn_80014770();
+        unk45D5 = ((CASFamilyList*)sender)->unk48->unk58;
+        CAS_ASK("dialog delete fam", "dialog delete fam title", "dialog delete fam", 5);
+        break;
+    case 0x3D:
+        CAS_ASK("dialog delete fam", "dialog accept title", "dialog1", 7);
+        break;
+    case 0x40:
+        fn_80106164(unk52C4, "setDPadArrowVisibility", 0, 0, 2, "up", "1");
+        fn_80106164(unk52C4, "setDPadArrowVisibility", 0, 0, 2, "down", "1");
+        unk5334 = 1;
+        break;
+    case 0x41:
+        fn_80106164(unk52C4, "setDPadArrowVisibility", 0, 0, 2, "left", "1");
+        fn_80106164(unk52C4, "setDPadArrowVisibility", 0, 0, 2, "right", "1");
+        unk5330 = 1;
+        break;
+    case 0x42:
+        fn_80106164(unk52C4, "setDPadArrowVisibility", 0, 0, 2, "up", "0");
+        fn_80106164(unk52C4, "setDPadArrowVisibility", 0, 0, 2, "down", "0");
+        unk5334 = 0;
+        break;
+    case 0x43:
+        fn_80106164(unk52C4, "setDPadArrowVisibility", 0, 0, 2, "left", "0");
+        fn_80106164(unk52C4, "setDPadArrowVisibility", 0, 0, 2, "right", "0");
+        unk5330 = 0;
+        break;
+    case 0x46: // back
+        if (unk52E8 == 0) {
+            CAS_CLOSE_DIALOG();
+            CAS_ASK("cancel warning", "dialog warning title", "cancel warning", 0);
+        } else if (unk4580 == 10 || unk4580 == 5) {
+            CAS_ASK("cancel warning", "dialog warning title", "cancel warning", 2);
+        } else {
+            CAS_CLOSE_DIALOG();
+            CAS_ASK("cancel warning", "dialog warning title", "cancel warning", 1);
+        }
+        break;
+    case 0x47:
+        unk4464->fn_8001C028(9);
+        break;
+    case 0x48:
+        unk4464->fn_8001C0A4(9);
+        break;
+    case 0x49:
+        unk4464->fn_8001C028(10);
+        break;
+    case 0x4A:
+        unk4464->fn_8001C0A4(10);
+        break;
+    case 0x4B:
+        unk4464->fn_8001C028(11);
+        break;
+    case 0x4C:
+        unk4464->fn_8001C0A4(11);
+        break;
+    case 0x4D:
+        if (unk45AC) {
+            unk45AC = 0;
+        } else {
+            CAS_ASK("cancel warning", "dialog warning title", "cancel warning", 2);
+        }
+        break;
+    }
+}
+
 // 0x8000F9D8
 int CASTarget::fn_8000F9D8() {
     vfn2();

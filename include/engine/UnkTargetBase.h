@@ -51,11 +51,11 @@ class UnkTargetBase {
 public:
     UnkTargetBase();
     virtual ~UnkTargetBase();                             // slot 1
-    virtual void vfn2();
-    virtual void vfn3();                                  // per-frame update
-    virtual void vfn4();
+    virtual void vfn2();                                  // slot 2: per-frame update
+    virtual void vfn3(struct ERC* rc);                    // slot 3: draw
+    virtual void vfn4(const EVec3& size);                  // slot 4
     virtual void vfn5();
-    virtual void vfn6();
+    virtual void vfn6(const EVec2& position);              // slot 6
     virtual void vfn7(UnkTargetBase* sender, int message); // slot 7
     virtual void vfn8();
     virtual void vfn9();
@@ -63,10 +63,11 @@ public:
     virtual void vfn11();
     virtual void vfn12();
     virtual void vfn13();
-    virtual void vfn14();
-    virtual void vfn15(UnkTargetBase* child);              // slot 15: add a child
+    virtual void vfn14(UnkTargetBase* child);              // slot 14: add a child
+    virtual void vfn15(UnkTargetBase* child);              // slot 15
 
     void fn_801887C8(); // base update
+    void fn_80188B10(UnkTargetBase* child); // detach a child
     void fn_80188850(struct ERC* rc); // base draw
 
     Unk801B4760 unk0;

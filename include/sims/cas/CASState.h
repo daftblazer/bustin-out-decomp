@@ -12,7 +12,7 @@ public:
     void Startup(int arg);
     void Shutdown();
     void fn_80008A30();
-    void Update();
+    void Draw(ERC* rc);
 
     int unk0;          // 1 once started
     CASTarget* unk4;

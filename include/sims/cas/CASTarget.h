@@ -63,7 +63,9 @@ struct CASSimDesc {
     unsigned short unk28[0x20]; // first name
     unsigned short unk68[0x20]; // family name
     int unkA8;
-    char unkAC[0xF8 - 0xAC];
+    int unkAC;
+    int unkB0[14];
+    char unkE8[0xF8 - 0xE8];
 };
 // A family of up to four sims.
 struct CASFamily {
@@ -79,6 +81,7 @@ struct Unk80039E78 {
     Unk80039E78();
     ~Unk80039E78();
     int fn_8003A500();
+    void fn_8003A0C0(EVec2* position, int, int* captions, int text, int, int, float width);
     void fn_80039F1C();
     char unk0[4];
 };
@@ -124,6 +127,8 @@ public:
 
 struct Unk800226F0 {
     void fn_800226F0(Unk801CC464* out);
+    void fn_80021928(int slot);
+    void fn_8002196C(int slot);
 };
 // The sim being shown (0x19C bytes).
 struct Unk80018374 {
@@ -133,6 +138,8 @@ struct Unk80018374 {
     void fn_8001A67C();
     void fn_8001C240();
     void fn_8001C384();
+    void fn_8001C028(int slot); // next choice
+    void fn_8001C0A4(int slot); // previous choice
     void fn_8001A908(ERC* rc, float turn, int); // draw
     void fn_8001C3B8();
     int fn_8001D04C();
@@ -369,11 +376,25 @@ extern "C" char* strcpy(char*, const char*);
 // The family-member list shown on the family page.
 class CASFamilyList : public UnkTargetBase {
 public:
-    struct Item {
-        char unk0[0x58];
-        unsigned char unk58; // family member index
-    };
-    Item* unk48; // highlighted item
+    CASFamilyList(int, int, float, float, float); // 0x80186F00
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19();
+    virtual void vfn20(UnkTargetBase* child, const EVec3& offset);
+    virtual void vfn21();
+    virtual void vfn22();
+    virtual void vfn23();
+    virtual void vfn24(int, int, int);
+    virtual void vfn25(int, int, int, float, float);
+    virtual void vfn26();
+    virtual void vfn27(int);
+
+    CASSpinner* unk48; // highlighted entry
+    char unk4C[0x7C - 0x4C];
+    float unk7C;
+    float unk80;
+    char unk84[0x100 - 0x84];
 };
 struct Unk800E5DF8 {
     int unk0;
@@ -523,6 +544,7 @@ public:
     virtual ~CASTarget();
     virtual void vfn2();
     virtual void vfn3(ERC* rc);
+    virtual void vfn7(UnkTargetBase* sender, int message);
     void fn_800123A4(ERC* rc);
     void fn_8000C458();
     int fn_8000C4A4();

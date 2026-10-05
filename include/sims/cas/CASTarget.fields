@@ -45,6 +45,8 @@ END 0x5D30
 0x45CA 1      signed char        unk45CA          # index into unk4478
 0x45CC 4      int                unk45CC          # view to switch to next
 0x45D0 4      int                unk45D0
+0x45D8 4      int*               unk45D8          # prompt title text
+0x45DC 4      int*               unk45DC          # prompt body text
 0x45E0 8      EVec2              unk45E0
 0x45E8 8      EVec2              unk45E8
 0x45F0 8      EVec2              unk45F0

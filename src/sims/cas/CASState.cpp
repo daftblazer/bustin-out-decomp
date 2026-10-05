@@ -33,9 +33,9 @@ void CASState::fn_80008A30() {
 }
 
 // 0x80008A54
-void CASState::Update() {
+void CASState::Draw(ERC* rc) {
     if (unkC == 0) {
         unkC = 1;
     }
-    unk4->vfn3();
+    unk4->vfn3(rc);
 }

@@ -48,7 +48,9 @@
     int unk45D0; // 0x45d0
     unsigned char unk45D4; // 0x45d4 which question the prompt asked
     unsigned char unk45D5; // 0x45d5 family member it is about
-    char pad45D6[0xa];
+    char pad45D6[0x2];
+    int* unk45D8; // 0x45d8 prompt title text
+    int* unk45DC; // 0x45dc prompt body text
     EVec2 unk45E0; // 0x45e0
     EVec2 unk45E8; // 0x45e8
     EVec2 unk45F0; // 0x45f0
