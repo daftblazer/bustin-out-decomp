@@ -17,6 +17,8 @@
 
 // 0x800318B0
 // Starts the wallpaper tool with a covering from the catalogue.
+// NON_MATCHING: 5 instructions: the first load of unk104 and two stores are
+// scheduled differently. Three orders tried.
 void Unk80026864::fn_800318B0(Unk800318B0Tool* tool) {
     unk84 = 4;
     unk88 = 0;
@@ -24,16 +26,16 @@ void Unk80026864::fn_800318B0(Unk800318B0Tool* tool) {
         fn_801767FC(unk104);
         unk104 = 0;
     }
-    unk1A0 = tool;
     unk1C4 = tool->unk0;
+    unk1A0 = tool;
     unk104 = lbl_80340AB8.fn_80177628(tool->unk8, 0, 0);
 }
 
 // 0x80031928
 void Unk80026864::fn_80031928() {
     if (unk84 == 4) {
-        unk88 = 0;
         unk84 = 0;
+        unk88 = 0;
     }
     if (unk104) {
         fn_801767FC(unk104);
@@ -43,7 +45,7 @@ void Unk80026864::fn_80031928() {
 
 // 0x8003210C
 // Price of wall covering `index`.
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 17 instructions vs 16, as fn_8002FEF4 (the index leaves r3).
 int fn_8003210C(int index) {
     Unk802E67C0Entry** types = ((Unk802E67C0*)lbl_802E6700.unkC4b)->unk0;
     int count = 0;
@@ -59,7 +61,8 @@ int fn_8003210C(int index) {
 // 0x800323D8
 // Works out which side of a wall an action applies to; for the two straight kinds
 // it also shifts the run by one step, depending on the direction it is drawn in.
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: same length (80), 34 instructions differ in how the four cases are
+// laid out. One variant tried.
 void fn_800323D8(int* wall, int kind, int* side, Unk801C6EF4* from, Unk801C6EF4* to) {
     int step = lbl_802D1F00[fn_800369A0(from, to)];
     if (*wall == 0x10) {
@@ -87,7 +90,8 @@ void fn_800323D8(int* wall, int kind, int* side, Unk801C6EF4* from, Unk801C6EF4*
 
 // 0x800328F4
 // The room a tile belongs to (looked up through its wall when the tile is cut).
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 3 instructions: the load of the room id and the destructor's
+// arguments are exchanged. One variant tried.
 int fn_800328F4(Unk801C6F20* tile) {
     Unk8037D990G* level = (Unk8037D990G*)lbl_8037D990;
     int room = ((Unk8037D990K*)level)->vfn24(tile);
@@ -111,7 +115,8 @@ int fn_800328F4(Unk801C6F20* tile) {
 
 // 0x800329D8
 // Draws the wallpaper preview on the walls of the room under the cursor.
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 71 instructions vs 72; draft (the argument list of the preview call
+// is partly guessed). One variant tried.
 void Unk80026864::fn_800329D8(ERC* rc) {
     Unk80056498* drawer = 0;
     Unk8004AD08C* view = (Unk8004AD08C*)lbl_802E6700.unkA8[2];
@@ -142,7 +147,6 @@ int fn_80032AF8(int a, int b) {
 
 // 0x80032FF0
 // Removes the wall run that was dragged out.
-// NON_MATCHING: not yet compared.
 int Unk80026864::fn_80032FF0() {
     EVec2 from(unkD0, unkD4);
     EVec2 to(unkD8, unkDC);
@@ -157,13 +161,12 @@ int Unk80026864::fn_80032FF0() {
 
 // 0x800330A0
 // Papers the wall run that was dragged out with the current covering.
-// NON_MATCHING: not yet compared.
 int Unk80026864::fn_800330A0() {
     EVec2 from(unkD0, unkD4);
     EVec2 to(unkD8, unkDC);
     int done = fn_80032518(&from, &to, lbl_802E6700.fn_80067434(unk1A0), unkF8 == 0);
     if (done == 1) {
-        Unk801E3F54* history = (Unk801E3F54*)lbl_802E6820[0];
+        Unk801E3F54* history = (Unk801E3F54*)lbl_802E6700.unk120;
         float x0 = from.x;
         float y0 = from.y;
         float x1 = to.x;
@@ -177,7 +180,7 @@ int Unk80026864::fn_800330A0() {
 
 // 0x800331A8
 // Sets the covering of one side of one wall of a tile, if it differs.
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 2 instructions: two argument moves are exchanged. One variant.
 void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side) {
     Unk8037D990M* level = (Unk8037D990M*)lbl_8037D990;
     Unk8023E088 info = level->vfn18(tile);
@@ -191,7 +194,8 @@ void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side) {
 
 // 0x80033484
 // Whether a direction on the ground points towards the camera.
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: same length (52), 36 instructions differ: the vector temporaries
+// are laid out differently on the stack. One variant tried.
 bool fn_80033484(EVec2* direction) {
     Unk80026864Cam* camera = (Unk80026864Cam*)lbl_802E6700.unkA8[4];
     EVec3 view = camera->unk378 - camera->unk398;
@@ -202,7 +206,6 @@ bool fn_80033484(EVec2* direction) {
 
 // 0x80033754
 // State 4's handler: what the pending wallpaper action costs.
-// NON_MATCHING: not yet compared.
 int Unk80026864::fn_80033754() {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     if (controller->fn_8015DF98(0x11) || !(unk88 & 4)) {
@@ -215,7 +218,6 @@ int Unk80026864::fn_80033754() {
 
 // 0x80033814
 // Price of the fence or wall of kind `id` (10 when it is not listed).
-// NON_MATCHING: not yet compared.
 int fn_80033814(int id) {
     Unk802E67C8Entry** list = *(Unk802E67C8Entry***)lbl_802E6700.unkC8b;
     int count = 0;
@@ -233,7 +235,8 @@ int fn_80033814(int id) {
 
 // 0x8003386C
 // Starts the wall tool (state 3), or for the fence kinds the fence tool (state 5).
-// NON_MATCHING: not yet compared.
+// NON_MATCHING: 57 instructions vs 58; the test for the fence kinds and the choice
+// of texture are merged differently. One variant tried.
 void Unk80026864::fn_8003386C(int kind) {
     unk1C0 = kind;
     bool fence;

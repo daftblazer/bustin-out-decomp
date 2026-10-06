@@ -73,7 +73,9 @@ public:
     char unkF0[0x114 - 0xF0];
     struct EGlobalUnk114* unk114;
     struct EGlobalUnk118* unk118;
-    char unk11C[0x138 - 0x11C];
+    char unk11C[0x120 - 0x11C];
+    void* unk120;                 // build history (undo)
+    char unk124[0x138 - 0x124];
     int unk138;                   // player whose turn it is in mode 9
     int unk13C;
     // Settings registered by ECheats::Init under the names in the comments.
