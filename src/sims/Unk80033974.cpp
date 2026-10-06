@@ -80,6 +80,61 @@ inline bool AllowsRun(unsigned char flags, int mask) {
     return (flags & mask) || flags == 0;
 }
 
+// One side's worth of wall data on a tile, with the operations this file uses.
+struct Unk8023E1C4 : Unk8023DD8C {
+    int fn_8023E1C4(int wall);          // what is built on a wall
+    int fn_8023E420(int half);
+    void fn_8023E2FC(int wall);         // remove a wall
+    int fn_8023DF40(int wall);
+    int fn_8023D9B8(int wall);
+};
+struct Unk8037D990Q {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual int vfn8(Unk801C6EF4* tile);
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual int vfn14(Unk801C6EF4* tile);
+    virtual void vfn15(Unk801C6EF4* tile, int type);
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023DFA8 vfn18(Unk801C6EF4* tile);
+    virtual void vfn19(Unk801C6EF4* tile, Unk8023DDC4* packed);
+};
+int fn_8023E488(int wall, int turn);
+extern float lbl_8037DA20;
+struct Unk8037D98CC {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11(void* object);
+};
+int fn_80036B14(Unk801C6EF4* tile, int wall, int* refund);
+int fn_80036D1C(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int arg, int kind);
+int fn_80036EAC(Unk801C6EF4* tile, int wall);
+int fn_80037140(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int type, int kind);
+int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag);
+void fn_80035C70(ERC* rc, void* texture, EVec2* a, EVec2* b, int* flag);
+
+inline bool IsFenceLike(int type) {
+    return type == 3 || type == 5 || type == 6 || type == 0xF || type == 0x17;
+}
+
 // 0x80033974
 // States 3 and 5's handler: what the pending wall or fence action costs.
 int Unk80026864::fn_80033974() {
@@ -199,6 +254,31 @@ void Unk80026864::fn_80033DD8(EVec2* from, EVec2* to) {
     fn_80034734(to, from);
 }
 
+// 0x8003401C
+// Places the marker of the wall tool: snaps the cursor, and when it is on a wall
+// works out that wall's ends, angle and length.
+// NON_MATCHING: skeleton (408 instructions in the original): the calls are the
+// original's, in its order; the arithmetic between them is not reconstructed.
+int Unk80026864::fn_8003401C(EVec2* from, EVec2* to, float* scale) {
+    int wall;
+    float angle = 0.0f;
+    EVec2 marker;
+    EVec3 offset;
+    fn_80033DD8(from, to);
+    if (fn_80034FF4(&wall)) {
+        fn_800351E4(from, to, wall, &angle, &marker);
+    }
+    int side = fn_80034968(from, to);
+    side = fn_80034968(from, to);
+    float length = fn_8010DF80((to->x - from->x) * (to->x - from->x) + (to->y - from->y) * (to->y - from->y));
+    fn_80033278(from, to, &offset);
+    fn_801221E4(&offset, &offset);
+    float step = fn_8010D900(GetGrid()->unk34 * GetGrid()->unk34 + GetGrid()->unk38 * GetGrid()->unk38);
+    fn_8003467C((EVec2*)&offset, &angle);
+    *scale = length / step;
+    return side;
+}
+
 // 0x8003467C
 // The angle of a wall direction, turned half a circle for the far side.
 // NON_MATCHING: 44 instructions vs 46; the axis vector's components are kept in
@@ -257,6 +337,30 @@ void Unk80026864::fn_80034734(EVec2* to, EVec2* from) {
             from->y = y - step;
         }
     }
+}
+
+// 0x80034968
+// Which of the eight directions the run from `a` to `b` is closest to.
+// NON_MATCHING: skeleton (298 instructions in the original, which compares the
+// normalized run with eight normalized direction vectors one by one).
+int Unk80026864::fn_80034968(EVec2* a, EVec2* b) {
+    static const float directions[8][2] = {
+        { 0.0f, -1.0f }, { 0.0f, 1.0f }, { -1.0f, 0.0f }, { 1.0f, 0.0f },
+        { -1.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 1.0f }, { 1.0f, -1.0f },
+    };
+    EVec2 run((*b - *a).Normalize());
+    int best = 0;
+    float bestDot = -1.0f;
+    for (int i = 0; i < 8; i++) {
+        EVec2 direction(directions[i][0], directions[i][1]);
+        direction.Normalize();
+        float dot = run.x * direction.x + run.y * direction.y;
+        if (dot > bestDot) {
+            bestDot = dot;
+            best = i;
+        }
+    }
+    return best;
 }
 
 // 0x80034E10
@@ -500,6 +604,15 @@ void Unk80026864::fn_80035B4C(ERC* rc) {
     fn_80035774(rc, &a, &b);
 }
 
+// 0x80035C70
+// Draws a stretch of wall preview as two textured quads (both faces).
+// NON_MATCHING: skeleton (844 instructions in the original, which fills sixteen
+// vertices in the open and draws four strips); here it draws through fn_80031CF0.
+void fn_80035C70(ERC* rc, void* texture, EVec2* a, EVec2* b, int* flag) {
+    fn_80031CF0(rc, (Unk80181824*)texture, a, b, *flag, 3.0f, 0.0f);
+    fn_80031CF0(rc, (Unk80181824*)texture, b, a, *flag, 3.0f, 0.0f);
+}
+
 // 0x800369A0
 // The direction (0 to 7) from one tile corner to another, 8 when they are the same.
 // NON_MATCHING: 2 instructions: `nor r0; srwi r3, r0` for the first result, here
@@ -534,6 +647,273 @@ int fn_800369A0(Unk801C6EF4* from, Unk801C6EF4* to) {
     return bv < av ? 7 : 6;
 }
 
+// 0x80036B14
+// Looks for an object hung on one side of a wall; when there is one, adds what it
+// is worth to `refund` and has it removed.
+// NON_MATCHING: 126 instructions vs 130; the calls and tests are the original's,
+// the loop is laid out differently. One variant tried.
+int fn_80036B14(Unk801C6EF4* tile, int wall, int* refund) {
+    int found = 0;
+    *refund = 0;
+    Unk801FCE7C it(*(Unk801C6F20*)tile, 0);
+    Unk800053D4Inner* hit = 0;
+    while (it.unk4) {
+        Unk800053D4Inner* object = it.unk4;
+        if (object->vfn109() == 8 && object->vfn109() != 2) {
+            int flags = object->vfn88(0xD);
+            int sides = flags;
+            int side = fn_8023E488(wall, ((8 - object->vfn88(1)) >> 1) & 3);
+            if ((side == 1 && (flags & 8)) || (side == 8 && (flags & 4)) || (side == 2 && (flags & 1)) ||
+                (side == 4 && (sides & 2))) {
+                hit = object;
+                break;
+            }
+        }
+        it.fn_801FCF04();
+    }
+    if (hit) {
+        found = 1;
+        *refund += (int)((float)hit->vfn131() * lbl_8037DA20 + 0.5f);
+        ((Unk8037D98CC*)lbl_8037D98C)->vfn11(hit->vfn111());
+    }
+    return found;
+}
+
+// 0x80036D1C
+// Removes one wall from a tile (with anything hung on it); returns what that costs.
+// NON_MATCHING: 101 instructions vs 100; register allocation differs from the
+// first call on. One variant tried.
+int fn_80036D1C(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int arg, int kind) {
+    if (!fn_80039A70(tile, (void*)wall, kind)) {
+        return 0;
+    }
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    Unk801C6EF4 scratch;
+    int refund = 0;
+    int amount = 0;
+    int type = info->fn_8023E1C4(wall);
+    if (IsFenceLike(type) || type == 0x16) {
+        if (fn_80036B14(tile, wall, &amount)) {
+            refund = -amount;
+        }
+    }
+    if (wall == 0x10 || wall == 0x20) {
+        if (level->vfn14(tile) == 0xFF) {
+            level->vfn15(tile, info->fn_8023E420(wall == 0x10 ? 4 : 3));
+        }
+    }
+    info->fn_8023E2FC(wall);
+    Unk8023DDC4 packed(*(Unk8023DFA8*)info);
+    level->vfn19(tile, &packed);
+    return refund;
+}
+
+// 0x80036EAC
+// Whether a wall may be removed: nothing stands against it on either side.
+// NON_MATCHING: skeleton (165 instructions in the original, which also looks at the
+// neighbouring tile and at the objects' footprints).
+int fn_80036EAC(Unk801C6EF4* tile, int wall) {
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    if (wall == 0 && level->vfn8(tile)) {
+        return 0;
+    }
+    Unk801FCE7C it(*(Unk801C6F20*)tile, 0);
+    while (it.unk4) {
+        Unk800053D4Inner* object = it.unk4;
+        if (object->vfn88(0xD) != 0 && object->vfn109() == 8) {
+            return 0;
+        }
+        it.fn_801FCF04();
+    }
+    return 1;
+}
+
+// 0x80037140
+// Builds one wall on a tile, replacing what is there, and returns what it costs.
+// NON_MATCHING: skeleton (151 instructions in the original): the checks and the
+// final store are the original's, the handling of the diagonal cases is not
+// reconstructed.
+int fn_80037140(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int type, int kind) {
+    if (!fn_800395B0(tile, info, type, kind)) {
+        return 0;
+    }
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    if (info->fn_8023DEA4(wall)) {
+        if (info->fn_8023E1C4(wall) == type) {
+            return 0;
+        }
+    }
+    ((Unk8023E110*)info)->fn_8023E110(type, wall, 0);
+    Unk8023DDC4 packed(*(Unk8023DFA8*)info);
+    level->vfn19(tile, &packed);
+    int refund = 0;
+    if (IsFenceLike(info->fn_8023E1C4(wall))) {
+        fn_80036B14(tile, wall, &refund);
+    }
+    return 1;
+}
+
+// 0x8003739C
+// Turns the two ends of a run on the ground into tile corners, nudged so that the
+// run covers the tiles it should for each of the eight directions.
+// NON_MATCHING: 168 instructions vs 171; the cases are the original's, the shared
+// tails of the adjustments are merged differently. One variant tried.
+void fn_8003739C(EVec2* from, EVec2* to, Unk801C6EF4* start, Unk801C6EF4* end) {
+    EVec2 a(*from);
+    EVec2 b;
+    a = EVec2(a.x - 0.5f, a.y + 0.5f);
+    b.x = to->x;
+    b.y = to->y;
+    b = EVec2(b.x - 0.5f, b.y + 0.5f);
+    EVec2 delta(to->x - from->x, to->y - from->y);
+    int signX = 1;
+    if (delta.x < 0.0f) {
+        signX = -1;
+    }
+    int signY = 1;
+    if (delta.y < 0.0f) {
+        signY = -1;
+    }
+    if (delta.x == 0.0f) {
+        if (signY > 0) {
+            a.y += 1.0f;
+            b.y += 1.0f;
+        }
+        a.x += 1.0f;
+        b.x += 1.0f;
+        a.y -= 1.0f;
+        b.y -= 1.0f;
+    } else if (delta.y == 0.0f) {
+        if (signX > 0) {
+            a.y -= 1.0f;
+            b.y -= 1.0f;
+        } else {
+            a.y -= 1.0f;
+            b.y -= 1.0f;
+            a.x -= 1.0f;
+            b.x -= 1.0f;
+        }
+        a.x += 1.0f;
+        b.x += 1.0f;
+        a.y += 1.0f;
+        b.y += 1.0f;
+    } else if (signX < 0 && signY < 0) {
+        a.y -= 1.0f;
+        b.y -= 1.0f;
+    } else if (signX > 0) {
+        if (signY < 0) {
+            a.x += 1.0f;
+            b.x += 1.0f;
+            a.y -= 1.0f;
+            b.y -= 1.0f;
+        } else if (signY > 0) {
+            a.x += 1.0f;
+            b.x += 1.0f;
+        }
+    }
+    ((Unk801C72D4*)start)->fn_801C72D4((int)a.y, (int)a.x, 1);
+    ((Unk801C72D4*)end)->fn_801C72D4((int)b.y, (int)b.x, 1);
+}
+
+// 0x80037648
+// Builds the wall or fence run that was dragged out.
+// NON_MATCHING: skeleton (174 instructions in the original): the order of the
+// checks (can build, money, room limit) and the calls are the original's; the
+// undo-history bookkeeping around them is left out.
+int Unk80026864::fn_80037648() {
+    EVec2 from(unkD0, unkD4);
+    EVec2 to(unkD8, unkDC);
+    int count = 0;
+    if (!fn_80037900(&from, &to, &count)) {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+        return 0;
+    }
+    int cost = fn_80033974();
+    if (!CheatMoney() && cost > ((Unk8037D944C*)lbl_8037D944)->vfn25(0)) {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+        return 0;
+    }
+    int built = 0;
+    if (!fn_80038424(&from, &to, &built, 0, 0)) {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+        return 0;
+    }
+    lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+    ((Unk8037D944C*)lbl_8037D944)->vfn26(7, cost, 0);
+    lbl_8037D96C->fn_8006186C(0x994E8974);
+    fn_80028ECC();
+    return 1;
+}
+
+// 0x80037900
+// Checks every tile along a run: whether a wall may be built (or removed) there.
+// `out` gets the number of tiles that pass.
+// NON_MATCHING: skeleton (205 instructions in the original): the walk and its calls
+// are the original's, the bookkeeping per tile is simplified.
+int Unk80026864::fn_80037900(EVec2* from, EVec2* to, int* out) {
+    *out = 0;
+    Unk801C6EF4 start;
+    Unk801C6EF4 end;
+    fn_8003739C(from, to, &start, &end);
+    int direction = fn_800369A0(&start, &end);
+    int wall = fn_8023DC04(direction);
+    Unk801C6EF4 current(start);
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    int ok = 1;
+    while (!level->vfn8(&current) && !(current == end)) {
+        if (!fn_8003957C(&current, (void*)wall) || !fn_80039A40(&current, (void*)wall)) {
+            ok = 0;
+        } else {
+            Unk8023E1C4 info;
+            info.fn_8023DE48(level->vfn18(&current));
+            fn_80033814(info.fn_8023E1C4(wall));
+            *out += 1;
+        }
+        current = current + lbl_8035ABB0[direction];
+    }
+    if (CheatMoney()) {
+        return 1;
+    }
+    return ok;
+}
+
+// 0x80037C34
+// Builds the four walls of the room that was dragged out.
+// NON_MATCHING: skeleton (248 instructions in the original): the four sides are
+// checked and then built in the original's order; the undo-history bookkeeping
+// is left out.
+int Unk80026864::fn_80037C34() {
+    EVec2 start(unkD0, unkD4);
+    EVec2 cursor;
+    fn_8002BC5C(&cursor);
+    EVec2 corners[5];
+    corners[0] = start;
+    corners[1] = EVec2(cursor.x, start.y);
+    corners[2] = cursor;
+    corners[3] = EVec2(start.x, cursor.y);
+    corners[4] = start;
+    int count = 0;
+    int i;
+    for (i = 0; i < 4; i++) {
+        if (!fn_80037900(&corners[i], &corners[i + 1], &count)) {
+            return 0;
+        }
+    }
+    int cost = fn_80033974();
+    if (!CheatMoney() && cost > ((Unk8037D944C*)lbl_8037D944)->vfn25(0)) {
+        return 0;
+    }
+    int built = 0;
+    for (i = 0; i < 4; i++) {
+        fn_80038424(&corners[i], &corners[i + 1], &built, 0, 0);
+    }
+    lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+    ((Unk8037D944C*)lbl_8037D944)->vfn26(7, cost, 0);
+    lbl_8037D96C->fn_8006186C(0x994E8974);
+    fn_80028ECC();
+    return 1;
+}
+
 // 0x80038014
 // Whether another room may be made (fewer than twenty rooms are in use).
 bool fn_80038014() {
@@ -549,6 +929,33 @@ bool fn_80038014() {
         node = (Unk8037D998Node*)_STL::_Rb_global<bool>::_M_increment(node);
     }
     return count <= 0x13;
+}
+
+// 0x800380C4
+// Removes the wall or fence run that was dragged out and pays the refund.
+// NON_MATCHING: skeleton (216 instructions in the original): the calls are the
+// original's; the undo-history bookkeeping and the room-count check after the
+// removal are left out.
+int Unk80026864::fn_800380C4() {
+    EVec2 from(unkD0, unkD4);
+    EVec2 to(unkD8, unkDC);
+    int removed = 0;
+    if (!fn_80038424(&from, &to, &removed, 0, 1)) {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+        return 0;
+    }
+    if (!fn_80038014()) {
+        return 0;
+    }
+    Unk801C6EF4 start;
+    Unk801C6EF4 end;
+    fn_8003739C(&from, &to, &start, &end);
+    int wall = fn_8023DC04(fn_800369A0(&start, &end));
+    lbl_8037D96C->fn_8006186C(0x994E8974);
+    ((Unk8037D944C*)lbl_8037D944)->vfn26(6, fn_80033974(), 0);
+    lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+    fn_80028ECC();
+    return 1;
 }
 
 // 0x80038424
@@ -570,6 +977,61 @@ int Unk80026864::fn_80038424(EVec2* from, EVec2* to, int* out, int arg, int remo
     return fn_80038FC0(from, to, unk1C0, kind, out, arg, remove, price);
 }
 
+// 0x8003849C
+// Draws the preview of a run tile by tile and counts the walls it covers;
+// `total` gets what removing them gives back.
+// NON_MATCHING: skeleton (376 instructions in the original, which repeats the walk
+// of fn_80038A7C with the pricing added).
+int fn_8003849C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, void* total, int kind, int flag) {
+    int count = fn_80038A7C(rc, a, b, texture, flag);
+    Unk801C6EF4 start;
+    Unk801C6EF4 end;
+    fn_8003739C(a, b, &start, &end);
+    int direction = fn_800369A0(&start, &end);
+    int wall = fn_8023DC04(direction);
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    Unk801C6EF4 current(start);
+    int refund = 0;
+    while (!level->vfn8(&current) && !(current == end)) {
+        Unk8023E1C4 info;
+        info.fn_8023DE48(level->vfn18(&current));
+        if (info.fn_8023DED4(wall) && info.fn_8023DF40(wall)) {
+            refund += fn_80033814(info.fn_8023E1C4(wall));
+        }
+        ((Unk801C711C*)&current)->fn_801C70F4(&lbl_8035ABB0[direction]);
+    }
+    *(int*)total = refund;
+    return count;
+}
+
+// 0x80038A7C
+// Draws the preview of a run tile by tile and counts the walls it covers.
+// NON_MATCHING: skeleton (337 instructions in the original, which fills the
+// vertices of each tile's quad in the open).
+int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag) {
+    Unk801C6EF4 start;
+    Unk801C6EF4 end;
+    fn_8003739C(a, b, &start, &end);
+    int direction = fn_800369A0(&start, &end);
+    if (direction == 8) {
+        return 0;
+    }
+    int wall = fn_8023DC04(direction);
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    Unk801C6EF4 current(start);
+    texture->fn_80181824(rc);
+    int count = 0;
+    while (!level->vfn8(&current) && current != end) {
+        Unk8023E1C4 info;
+        info.fn_8023DE48(level->vfn18(&current));
+        if (info.fn_8023DED4(wall)) {
+            count++;
+        }
+        ((Unk801C711C*)&current)->fn_801C70F4(&lbl_8035ABB0[direction]);
+    }
+    return count;
+}
+
 // 0x80038FC0
 // Counts (and prices) the walls along a run; true when there are any.
 int fn_80038FC0(EVec2* from, EVec2* to, int type, int kind, int* out, int arg, int remove, int price) {
@@ -588,12 +1050,100 @@ int fn_80038FC0(EVec2* from, EVec2* to, int type, int kind, int* out, int arg, i
     return *out != 0;
 }
 
+// 0x800390FC
+// Removes every wall along a run; returns how many were removed.
+// NON_MATCHING: 93 instructions vs 132; draft, the calls are the original's but
+// the loop's bookkeeping is simplified. One variant tried.
+int fn_800390FC(Unk801C6EF4* start, Unk801C6EF4* end, int* direction, int* type, int* kind, int price) {
+    Unk801C6EF4 current(*start);
+    int wall = fn_8023DC04(*direction);
+    Unk8023E1C4 info;
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    int count = 0;
+    do {
+        info.fn_8023DE48(level->vfn18(&current));
+        if (info.fn_8023DED4(wall) && info.fn_8023DF40(wall) && fn_80039A70(&current, (void*)wall, *kind)) {
+            count += fn_80036D1C(&current, &info, wall, *type, *kind);
+            count++;
+        }
+        ((Unk801C711C*)&current)->fn_801C70F4(&lbl_8035ABB0[*direction]);
+    } while (!(current == *end) && !level->vfn8(&current));
+    return count;
+}
+
+// 0x8003930C
+// Builds a wall on every tile along a run; returns how many were built.
+// NON_MATCHING: 88 instructions vs 156; draft, the original also handles the tile
+// before the first one and removes a crossing wall. One variant tried.
+int fn_8003930C(Unk801C6EF4 start, Unk801C6EF4 end, int* direction, int* type, int* kind, int price) {
+    Unk801C6EF4 current(start);
+    int wall = fn_8023DC04(*direction);
+    Unk8023E1C4 info;
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    int count = 0;
+    do {
+        info.fn_8023DE48(level->vfn18(&current));
+        if (!info.fn_8023D9B8(wall)) {
+            count += fn_80037140(&current, &info, wall, *type, *kind);
+        }
+        ((Unk801C711C*)&current)->fn_801C70F4(&lbl_8035ABB0[*direction]);
+    } while (!(current == end) && !level->vfn8(&current));
+    return count;
+}
+
 // 0x8003957C
 int Unk80026864::fn_8003957C(void* a, void* b) {
     return fn_800395B0(a, b, unk1C0, unk84);
 }
 
+// 0x800395B0
+// Whether a wall of the given type may be built on a tile: nothing in the way on
+// either side, and the neighbouring tiles agree.
+// NON_MATCHING: skeleton (292 instructions in the original, which walks the
+// objects on this tile and on the two neighbours).
+int fn_800395B0(void* a, void* b, int type, int kind) {
+    Unk801C6EF4* tile = (Unk801C6EF4*)a;
+    Unk8023E1C4* info = (Unk8023E1C4*)b;
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    if (level->vfn18(tile).fn_8023DEA4(type)) {
+        return 0;
+    }
+    if (!fn_80039A70(a, b, kind)) {
+        return 0;
+    }
+    return fn_80036EAC(tile, type);
+}
+
 // 0x80039A40
 int Unk80026864::fn_80039A40(void* a, void* b) {
     return fn_80039A70(a, b, unk84);
+}
+
+// 0x80039A70
+// Whether the wall on one side of a tile may be changed: no object hangs on it or
+// stands against it, here or on the tile across.
+// NON_MATCHING: skeleton (258 instructions in the original, which also checks the
+// tile across the wall).
+int fn_80039A70(void* a, void* b, int kind) {
+    Unk801C6EF4* tile = (Unk801C6EF4*)a;
+    int wall = (int)b;
+    Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
+    Unk8023DFA8 info = level->vfn18(tile);
+    if (!info.fn_8023DEA4(wall)) {
+        return 1;
+    }
+    Unk801FCE7C it(*(Unk801C6F20*)tile, 0);
+    while (it.unk4) {
+        Unk800053D4Inner* object = it.unk4;
+        if (object->vfn109() == 8 && object->vfn109() != 2) {
+            int flags = object->vfn88(0xD);
+            int side = fn_8023E488(wall, ((8 - object->vfn88(1)) >> 1) & 3);
+            if ((side == 1 && (flags & 8)) || (side == 8 && (flags & 4)) || (side == 2 && (flags & 1)) ||
+                (side == 4 && (flags & 2))) {
+                return 0;
+            }
+        }
+        it.fn_801FCF04();
+    }
+    return 1;
 }

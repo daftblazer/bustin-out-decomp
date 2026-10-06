@@ -143,6 +143,8 @@ public:
     void fn_800351E4(EVec2* a, EVec2* b, int wall, float* angle, EVec2* out);
     void fn_80035434(EVec2* a, EVec2* b, float* angle, int wall);
     int fn_80034968(EVec2* a, EVec2* b);
+    int fn_8003401C(EVec2* from, EVec2* to, float* scale);
+    int fn_80037900(EVec2* from, EVec2* to, int* out);
     int fn_80037C34();
     int fn_80037648();
     int fn_800380C4();

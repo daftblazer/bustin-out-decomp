@@ -176,7 +176,7 @@ struct Unk800053D4Inner {
     virtual void vfn106();
     virtual void vfn107();
     virtual void vfn108();
-    virtual void vfn109();
+    virtual int vfn109();
     virtual void vfn110();
     virtual void* vfn111();
     virtual void vfn112();

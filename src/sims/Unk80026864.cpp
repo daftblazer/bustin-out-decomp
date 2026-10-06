@@ -1090,7 +1090,6 @@ inline void DrawModelAt(ERC* rc, void* model, const EVec3& position, void* light
     rc->vfn44(lights);
     ((Unk8033FF34Resource*)model)->fn_8017CC58(rc);
 }
-int fn_8003401C(Unk80026864* self, EVec2* from, EVec2* to, float* scale);
 
 // 0x8002A548
 // Draws the screen: the build-mode overlays for the current state, the pointer
@@ -1225,7 +1224,7 @@ void Unk80026864::fn_8002B114(ERC* rc) {
         at.x = unkAC + origin.x;
         at.y = unkB0 - origin.y;
     } else {
-        fn_8003401C(this, &from, &at, &scale);
+        fn_8003401C(&from, &at, &scale);
     }
     EMat4* matrix = NewMatrix(rc);
     matrix->m[3][0] = at.x;
