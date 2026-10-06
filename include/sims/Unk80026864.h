@@ -130,6 +130,18 @@ public:
     int fn_800330A0();
     int fn_8003214C();
     void fn_8003386C(int kind);
+    int fn_80033974();
+    void fn_8003467C(EVec2* direction, float* angle);
+    void fn_80035724(struct ERC* rc);
+    void fn_80035B4C(struct ERC* rc);
+    void fn_800359C0(struct ERC* rc);
+    void fn_80035774(struct ERC* rc, EVec2* from, EVec2* to);
+    int fn_80037C34();
+    int fn_80037648();
+    int fn_800380C4();
+    int fn_80038424(EVec2* from, EVec2* to, int* out, int arg, int remove);
+    int fn_8003957C(void* a, void* b);
+    int fn_80039A40(void* a, void* b);
     void fn_8002F1BC();
     void fn_8002F268();
     void fn_8002F2A4();
@@ -145,7 +157,6 @@ public:
     void fn_80027EAC();                                // move the cursor to the player's sim
     int fn_800290B0();
     int fn_80031324();
-    int fn_80033974();
     int fn_80033754();
     int fn_80033954();
     static void fn_8002ED34();

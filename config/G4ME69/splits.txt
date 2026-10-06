@@ -92,6 +92,10 @@ sims/Unk800315FC.cpp:
 	.text       start:0x800315FC end:0x80033974
 	.rodata     start:0x802971A8 end:0x802973B0
 
+sims/Unk80033974.cpp:
+	.text       start:0x80033974 end:0x80039E78
+	.rodata     start:0x802973B0 end:0x80297670
+
 sims/Unk80039E78.cpp:
 	.text       start:0x80039E78 end:0x8003AA6C
 	.rodata     start:0x80297670 end:0x80297878

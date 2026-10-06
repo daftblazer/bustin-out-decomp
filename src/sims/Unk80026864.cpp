@@ -1094,9 +1094,6 @@ int fn_8003401C(Unk80026864* self, EVec2* from, EVec2* to, float* scale);
 void fn_80034E10();
 void fn_800351E4();
 void fn_80034968();
-void fn_80035B4C(Unk80026864* self, ERC* rc);
-void fn_80035724(Unk80026864* self, ERC* rc);
-void fn_800359C0(Unk80026864* self, ERC* rc);
 
 // 0x8002A548
 // Draws the screen: the build-mode overlays for the current state, the pointer
@@ -1136,10 +1133,10 @@ void Unk80026864::fn_8002A548(ERC* rc) {
         EVec2 corner = fn_8002BD98();
         fn_8002B114(rc);
         if (controller->fn_8015DF98(0x11)) {
-            fn_80035B4C(this, rc);
+            fn_80035B4C(rc);
         }
-        fn_80035724(this, rc);
-        fn_800359C0(this, rc);
+        fn_80035724(rc);
+        fn_800359C0(rc);
     }
     if (unk84 == 4) {
         EVec2 centre;
