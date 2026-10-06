@@ -19,7 +19,8 @@
     float unkD4; // 0xd4
     float unkD8; // 0xd8 to
     float unkDC; // 0xdc
-    char padE0[0x8];
+    float unkE0; // 0xe0 cursor on the grid
+    float unkE4; // 0xe4
     unsigned short unkE8; // 0xe8 walls the pending action covers
     char padEA[0x2];
     int unkEC; // 0xec

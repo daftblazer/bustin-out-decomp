@@ -136,6 +136,13 @@ public:
     void fn_80035B4C(struct ERC* rc);
     void fn_800359C0(struct ERC* rc);
     void fn_80035774(struct ERC* rc, EVec2* from, EVec2* to);
+    void fn_80033DD8(EVec2* from, EVec2* to);
+    void fn_80034734(EVec2* to, EVec2* from);
+    int fn_80034E10(int* wall);
+    int fn_80034FF4(int* out);
+    void fn_800351E4(EVec2* a, EVec2* b, int wall, float* angle, EVec2* out);
+    void fn_80035434(EVec2* a, EVec2* b, float* angle, int wall);
+    int fn_80034968(EVec2* a, EVec2* b);
     int fn_80037C34();
     int fn_80037648();
     int fn_800380C4();

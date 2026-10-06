@@ -1091,9 +1091,6 @@ inline void DrawModelAt(ERC* rc, void* model, const EVec3& position, void* light
     ((Unk8033FF34Resource*)model)->fn_8017CC58(rc);
 }
 int fn_8003401C(Unk80026864* self, EVec2* from, EVec2* to, float* scale);
-void fn_80034E10();
-void fn_800351E4();
-void fn_80034968();
 
 // 0x8002A548
 // Draws the screen: the build-mode overlays for the current state, the pointer

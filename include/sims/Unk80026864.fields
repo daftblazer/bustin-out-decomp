@@ -20,6 +20,8 @@ END 0x1C8
 0xD4   4      float              unkD4
 0xD8   4      float              unkD8            # to
 0xDC   4      float              unkDC
+0xE0   4      float              unkE0            # cursor on the grid
+0xE4   4      float              unkE4
 0xE8   2      unsigned short     unkE8            # walls the pending action covers
 0xEC   4      int                unkEC
 0xF0   4      struct Unk801FD05CResult* unkF0     # the object being placed

@@ -540,6 +540,8 @@ struct Unk8037D990E {
 struct Unk801C727C : Unk801C6F20 {
     int fn_801C727C();   // tile x
     int fn_801C7288();   // tile y
+    int fn_801C7204();
+    int fn_801C721C();
 };
 struct Unk8037D990F {
     virtual void vfn1();
@@ -1260,5 +1262,29 @@ struct Unk801E3EF0 {
     void fn_801E3EF0(int room, int type);
 };
 int fn_80032AF8(int a, int b);
+
+struct Unk8023DEBC : Unk8023E110 {
+    int fn_8023DEBC();   // has any wall
+};
+struct Unk8037D990P {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual int vfn8(Unk801C6EF4* tile);
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023DEBC vfn18(Unk801C6EF4* tile);
+};
 
 #endif

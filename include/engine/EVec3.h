@@ -11,6 +11,9 @@ public:
     // User-defined, like EVec3's: this also keeps EVec2 locals in memory from
     // their declaration, which fixes their stack order.
     EVec2(const EVec2& other) : x(other.x), y(other.y) {}
+    // Scales to unit length (a zero vector is left alone). The name follows
+    // EVec3::Normalize; the function is inferred from its inlined copies.
+    EVec2& Normalize();
     void operator+=(const EVec2& other) {
         x += other.x;
         y += other.y;
@@ -18,10 +21,22 @@ public:
     float x, y;
 };
 
+extern "C" float fn_8010DF80(float); // sqrtf
+inline EVec2& EVec2::Normalize() {
+    float length = fn_8010DF80(x * x + y * y);
+    if (length != 0.0f) {
+        float scale = 1.0f / length;
+        x *= scale;
+        y *= scale;
+    }
+    return *this;
+}
+
 // Three-component vector. Class name from The Sims 2's symbol map.
 inline EVec2 operator+(const EVec2& a, const EVec2& b) { return EVec2(a.x + b.x, a.y + b.y); }
 inline EVec2 operator-(const EVec2& a, const EVec2& b) { return EVec2(a.x - b.x, a.y - b.y); }
 inline EVec2 operator*(const EVec2& v, float scale) { return EVec2(v.x * scale, v.y * scale); }
+inline EVec2 operator*(float scale, const EVec2& v) { return EVec2(scale * v.x, scale * v.y); }
 
 class EVec3 {
 public:
