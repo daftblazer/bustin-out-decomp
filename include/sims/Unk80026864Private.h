@@ -1124,7 +1124,9 @@ struct Unk801C6EF4 {
     Unk801C6EF4& operator=(const Unk801C6EF4& other);      // 0x801C6FF4
     int operator==(const Unk801C6EF4& other) const;        // 0x801C7014
     Unk801C6EF4 operator+(const struct Unk8035ABB0& step) const;   // 0x801C7144
-    char unk0[2];
+    int operator!=(const Unk801C6EF4& other) const;        // 0x801C7054
+    signed char x;
+    signed char y;
     char unk2;
     char unk3[5];
 };
@@ -1227,5 +1229,36 @@ bool fn_80033484(EVec2* direction);
 extern float lbl_8037B4C4;   // how far a wall preview stands off its line
 
 extern "C" float fn_8010DF80(float); // sqrtf
+
+struct Unk8023DD8C : Unk8023E088 {
+    Unk8023DD8C();                                  // 0x8023DD8C
+    void fn_8023DE48(const Unk8023DFA8& other);     // assign
+    int fn_8023DED4(int wall);
+};
+struct Unk8037D990N {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual int vfn8(Unk801C6EF4* tile);
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual Unk8023DFA8 vfn18(Unk801C6EF4* tile);
+};
+int fn_8003210C(int index);
+struct Unk801E3EF0 {
+    void fn_801E3EF0(int room, int type);
+};
+int fn_80032AF8(int a, int b);
 
 #endif

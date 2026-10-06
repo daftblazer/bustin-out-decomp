@@ -15,6 +15,73 @@
 
 // The wall and wallpaper tools of build mode: part of Unk80026864 and its helpers.
 
+// 0x800315FC
+// Puts the two ends of a wall run in a fixed order (lower first), and moves the run
+// one tile along when that changed its first end.
+// NON_MATCHING: 169 instructions vs 173; draft, the byte-sized min/max and the
+// swaps are laid out differently. One variant tried.
+void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end) {
+    Unk801C6EF4 a(*start);
+    Unk801C6EF4 b(*end);
+    if (a.x == b.x) {
+        signed char lo = b.y;
+        if (b.y > a.y) {
+            lo = a.y;
+        }
+        signed char hi = b.y;
+        if (b.y < a.y) {
+            hi = a.y;
+        }
+        a.y = lo;
+        b.y = hi;
+        if (a != *start) {
+            a.y++;
+            b.y++;
+        }
+    } else if (a.y == b.y) {
+        signed char lo = b.x;
+        if (b.x > a.x) {
+            lo = a.x;
+        }
+        signed char hi = b.x;
+        if (b.x < a.x) {
+            hi = a.x;
+        }
+        a.x = lo;
+        b.x = hi;
+        if (a != *start) {
+            a.x++;
+            b.x++;
+        }
+    } else if ((float)(b.y - a.y) / (float)(b.x - a.x) > 0.0f) {
+        if (a.x > b.x) {
+            Unk801C6EF4 swap(a);
+            a = b;
+            b = swap;
+        }
+        if (a != *start) {
+            a.y++;
+            a.x++;
+            b.y++;
+            b.x++;
+        }
+    } else {
+        if (a.y > b.y) {
+            Unk801C6EF4 swap(a);
+            a = b;
+            b = swap;
+        }
+        if (a != *start) {
+            a.y++;
+            a.x--;
+            b.y++;
+            b.x--;
+        }
+    }
+    *start = a;
+    *end = b;
+}
+
 // 0x800318B0
 // Starts the wallpaper tool with a covering from the catalogue.
 // NON_MATCHING: 5 instructions: the first load of unk104 and two stores are
@@ -118,6 +185,36 @@ void Unk80026864::fn_80031B1C(ERC* rc, int remove) {
     fn_80031CF0(rc, unkE8 ? lbl_8037B4B0 : (Unk80181824*)lbl_8037B4B4, (EVec2*)&unkD0, (EVec2*)&unkD8, 0, 3.5f, 0.0f);
 }
 
+// 0x80031CF0
+// Draws an upright textured quad between two points on the ground.
+// NON_MATCHING: condensed draft (263 instructions in the original, which sets the
+// render state and fills the vertices in the open). One variant tried.
+void fn_80031CF0(ERC* rc, Unk80181824* texture, EVec2* a, EVec2* b, int flag, float height, float base) {
+    texture->fn_80181824(rc);
+    rc->vfn54(0, 1, 0, 0);
+    rc->vfn44(&lbl_802E5D00);
+    ((Unk8002D2D4RC*)rc)->vfn29();
+    Unk80173D58Vertex* vertices = (Unk80173D58Vertex*)((Unk80173D58Alloc*)rc)->fn_80173D58(0x140, 0x20);
+    for (int i = 0; i < 4; i++) {
+        const EVec2* at = (i & 2) ? b : a;
+        vertices[i].unk0[0] = at->x;
+        vertices[i].unk0[1] = at->y;
+        vertices[i].unk0[2] = (i & 1) ? base : height;
+        vertices[i].unk0[3] = 1.0f;
+        vertices[i].unk10[0] = 0;
+        vertices[i].unk10[1] = 0x7F;
+        vertices[i].unk10[2] = 0;
+        vertices[i].unk1C = 0;
+        vertices[i].unk20[0] = (i & 2) ? 1.0f : 0.0f;
+        vertices[i].unk20[1] = (i & 1) ? 1.0f : 0.0f;
+        vertices[i].unk30[0] = 0x80;
+        vertices[i].unk30[1] = 0x80;
+        vertices[i].unk30[2] = 0x80;
+        vertices[i].unk30[3] = flag ? 0x40 : 0x80;
+    }
+    ((Unk8002D2D4RC*)rc)->vfn3(vertices, 4);
+}
+
 // 0x8003210C
 // Price of wall covering `index`.
 // NON_MATCHING: 17 instructions vs 16, as fn_8002FEF4 (the index leaves r3).
@@ -131,6 +228,49 @@ int fn_8003210C(int index) {
         return 0;
     }
     return types[index]->unk0;
+}
+
+// 0x8003214C
+// What stripping the covering from the dragged wall run gives back.
+// NON_MATCHING: 171 instructions vs 163; draft, calls and loop are the original's.
+// One variant tried.
+int Unk80026864::fn_8003214C() {
+    EVec2 from(unkD0, unkD4);
+    EVec2 to(unkD8, unkDC);
+    Unk801C6EF4 start;
+    Unk801C6EF4 end;
+    fn_8003739C(&from, &to, &start, &end);
+    fn_800315FC(&start, &end);
+    int direction = fn_800369A0(&start, &end);
+    if (direction == 8) {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+        return 0;
+    }
+    int total = 0;
+    int wall = fn_8023DC04(direction);
+    Unk801C6EF4 current(start);
+    int side = 0;
+    fn_800323D8(&wall, unkF8 == 0, &side, &current, &end);
+    Unk8023DD8C info;
+    Unk8037D990N* level = (Unk8037D990N*)lbl_8037D990;
+    while (!level->vfn8(&current) && !(current == end)) {
+        info.fn_8023DE48(level->vfn18(&current));
+        if (info.fn_8023DED4(wall)) {
+            side = 0;
+            if (wall == 0x10) {
+                side = unkF8 ? 4 : 2;
+            } else if (wall == 0x20) {
+                side = unkF8 ? 3 : 1;
+            }
+            total += fn_8003210C(info.fn_8023E088(wall, side));
+        }
+        ((Unk801C711C*)&current)->fn_801C70F4(&lbl_8035ABB0[direction]);
+        current.unk2 = 1;
+    }
+    if (CheatMoney()) {
+        return 0;
+    }
+    return total;
 }
 
 // 0x800323D8
@@ -161,6 +301,58 @@ void fn_800323D8(int* wall, int kind, int* side, Unk801C6EF4* from, Unk801C6EF4*
         ((Unk801C711C*)from)->fn_801C70F4(&lbl_8035ABB0[step]);
         ((Unk801C711C*)to)->fn_801C70F4(&lbl_8035ABB0[step]);
     }
+}
+
+// 0x80032518
+// Applies a covering (0 strips it) to one side of every wall along a run, after
+// checking that it can be paid for.
+// NON_MATCHING: draft built on fn_8002EA74, which has the same walk; the checks at
+// the start (a valid direction, money) are in the original's order, the rest is not
+// compared in detail (224 instructions vs 247). One variant tried.
+int Unk80026864::fn_80032518(EVec2* from, EVec2* to, int type, int flag) {
+    Unk801C6EF4 start;
+    Unk801C6EF4 end;
+    fn_8003739C(from, to, &start, &end);
+    fn_800315FC(&start, &end);
+    int direction = fn_800369A0(&start, &end);
+    if (direction == 8) {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+        return 0;
+    }
+    int wall = fn_8023DC04(direction);
+    Unk801C6EF4 current(start);
+    Unk801C6EF4 last(end);
+    int side = 0;
+    fn_800323D8(&wall, flag, &side, &current, &last);
+    if (!CheatMoney() && fn_80033754() > ((Unk8037D944C*)lbl_8037D944)->vfn25(0)) {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+        return 0;
+    }
+    ((Unk8037D944C*)lbl_8037D944)->vfn26(type ? 7 : 6, fn_80033754(), 0);
+    lbl_8037D96C->fn_8006186C(type ? 0xB2AD3ECD : 0x994E8974);
+    Unk8037D990H* level = (Unk8037D990H*)lbl_8037D990;
+    int steps = 0;
+    bool done = false;
+    do {
+        Unk8023E110 info = level->vfn18(&current);
+        if (info.fn_8023DEA4(wall)) {
+            info.fn_8023E110(type, wall, side);
+            Unk8023DDC4 packed(info);
+            level->vfn19(&current, &packed);
+        }
+        current = current + lbl_8035ABB0[direction];
+        if (level->vfn8(&current)) {
+            done = true;
+        }
+        if (!done && current == last) {
+            done = true;
+        }
+        steps++;
+        if (steps >= level->vfn6()) {
+            break;
+        }
+    } while (!done);
+    return 1;
 }
 
 // 0x800328F4
@@ -218,6 +410,35 @@ int fn_80032AF8(int a, int b) {
         return 0;
     }
     return ((Unk800563C0*)((Unk8004AD08C*)lbl_802E6700.unkA8[2])->unk8)->fn_800563C0(a, b);
+}
+
+// 0x80032B64
+// Papers every wall of the room under the cursor with the current covering.
+// NON_MATCHING: draft built on fn_8002E73C, which has the same walk over the room's
+// tiles and walls; the pricing at the start follows the original's calls, the rest
+// is reduced to a call of that function (98 instructions vs 291). One variant.
+int Unk80026864::fn_80032B64() {
+    int tileX;
+    int tileY;
+    fn_8002BB64(&tileX, &tileY);
+    Unk801C6F44 tile(tileY, tileX, 1);
+    int room = fn_800328F4(&tile);
+    Unk80234390* list = FindList((void*)room);
+    if (list == 0 || room == 0) {
+        return 0;
+    }
+    int type = lbl_802E6700.fn_80067434(unk1A0);
+    ((Unk801E3EF0*)lbl_802E6700.unk120)->fn_801E3EF0(room, type);
+    int cost = fn_80032AF8(room, type) * unk1C4;
+    if (!CheatMoney() && cost > ((Unk8037D944C*)lbl_8037D944)->vfn25(0)) {
+        lbl_8037D96C->fn_8006186C(0x3804219F);
+        return 0;
+    }
+    ((Unk8037D944C*)lbl_8037D944)->vfn26(7, cost, 0);
+    lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+    lbl_8037D96C->fn_8006186C(0x994E8974);
+    fn_8002E73C(room, type);
+    return 1;
 }
 
 // 0x80032FF0
@@ -325,6 +546,44 @@ bool fn_80033484(EVec2* direction) {
     view.Normalize();
     EVec2 flat(view.x, view.y);
     return flat.x * direction->x + flat.y * direction->y > 0.0f;
+}
+
+// 0x80033554
+// Moves a point `amount` tiles in one of the eight directions.
+// NON_MATCHING: same length (128), 26 instructions differ: the original converts
+// the amount once per case and shares the two stores of the diagonal cases
+// differently. One variant tried.
+void fn_80033554(int direction, int amount, EVec2* point) {
+    switch (direction) {
+    case 0:
+        point->x -= (float)amount;
+        break;
+    case 1:
+        point->x += (float)amount;
+        break;
+    case 2:
+        point->y -= (float)amount;
+        break;
+    case 3:
+        point->y += (float)amount;
+        break;
+    case 4:
+        point->y -= (float)amount;
+        point->x -= (float)amount;
+        break;
+    case 5:
+        point->y += (float)amount;
+        point->x += (float)amount;
+        break;
+    case 6:
+        point->y += (float)amount;
+        point->x -= (float)amount;
+        break;
+    case 7:
+        point->y -= (float)amount;
+        point->x += (float)amount;
+        break;
+    }
 }
 
 // 0x80033754

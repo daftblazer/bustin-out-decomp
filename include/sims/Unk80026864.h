@@ -161,6 +161,12 @@ struct Unk802E5B28 {
     EVec3 unkC;
 };
 
+// Light sets and scratch vectors defined in Unk80026864.cpp.
+extern Unk802E5B28 lbl_802E5B28;
+extern ELightSet lbl_802E5B40[2];
+extern ELightSet lbl_802E5D00;
+extern EVec3 lbl_802E5DE0;
+
 int fn_800266C0(int* id);
 void fn_800266EC(Unk800053D4Inner* object, Unk80026864List* out);
 void fn_8002ECE8(void* arg);
