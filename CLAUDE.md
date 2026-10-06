@@ -343,4 +343,11 @@ Switching a unit to `Matching` needs more than matching functions (see `sims/Unk
     written with the node pointer and `_STL::_Rb_global<bool>::_M_increment` directly (see `fn_80038014`).
   - A global declared with a placeholder type smaller than 8 bytes is addressed through `r13` even when the real object is
     large; give `extern` placeholders their real size (`lbl_802F7658`).
+  - A function whose every path ends in `li r3, N` but one path computes through `r0` first (`nor r0; srwi r3, r0`)
+    has a single result variable assigned in an `if`/`else if` chain and one `return result;` (`fn_800369A0`).
+  - `!(flags & 1)` in a condition can come out as `xori; andi.`; `(flags & 1) == 0` gives the plain `andi.; bne`.
+  - Two `rlwinm` in a row clearing different bits are two statements (`f &= ~1; f &= ~4;`); one expression
+    `(f & ~1) & ~4` folds into `li r9, -6; and`.
+  - Cross-jumping never merges a call site into the code that falls off the end of the function (checked in a
+    scratch file). If the original's shared tail is the last call, something followed it in the source.
 

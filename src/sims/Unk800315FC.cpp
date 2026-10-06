@@ -85,7 +85,7 @@ void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end) {
 // 0x800318B0
 // Starts the wallpaper tool with a covering from the catalogue.
 // NON_MATCHING: 5 instructions: the first load of unk104 and two stores are
-// scheduled differently. Three orders tried.
+// scheduled differently. Ten variants tried (store orders, an inline release helper).
 void Unk80026864::fn_800318B0(Unk800318B0Tool* tool) {
     unk84 = 4;
     unk88 = 0;
@@ -113,8 +113,6 @@ void Unk80026864::fn_80031928() {
 // 0x80031980
 // The wallpaper tool's buttons. unk88: bit 0 a run is being dragged, bit 1 to paper
 // it, bit 2 to strip it.
-// NON_MATCHING: 105 instructions vs 103; the branches share their final store of
-// unk88 differently. One variant tried.
 void Unk80026864::fn_80031980() {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     if (controller->fn_8015DF98(0x11)) {
@@ -127,12 +125,12 @@ void Unk80026864::fn_80031980() {
         unk88 = 0;
         return;
     }
-    if (!(unk88 & 1)) {
+    if ((unk88 & 1) == 0) {
         if (controller->fn_8015E0F8(5)) {
             unk88 |= 3;
             return;
         }
-        if (!(unk88 & 1) && controller->fn_8015E0F8(0xF)) {
+        if ((unk88 & 1) == 0 && controller->fn_8015E0F8(0xF)) {
             unk88 |= 5;
         }
         return;
@@ -148,7 +146,8 @@ void Unk80026864::fn_80031980() {
         if (!fn_80032FF0()) {
             lbl_8037D96C->fn_8006186C(0x3804219F);
         }
-        unk88 = (unk88 & ~1) & ~4;
+        unk88 &= ~1;
+        unk88 &= ~4;
         return;
     }
     if (controller->fn_8015DF98(7)) {
@@ -357,8 +356,6 @@ int Unk80026864::fn_80032518(EVec2* from, EVec2* to, int type, int flag) {
 
 // 0x800328F4
 // The room a tile belongs to (looked up through its wall when the tile is cut).
-// NON_MATCHING: 3 instructions: the load of the room id and the destructor's
-// arguments are exchanged. One variant tried.
 int fn_800328F4(Unk801C6F20* tile) {
     Unk8037D990G* level = (Unk8037D990G*)lbl_8037D990;
     int room = ((Unk8037D990K*)level)->vfn24(tile);
@@ -372,10 +369,12 @@ int fn_800328F4(Unk801C6F20* tile) {
         int sideB;
         ((Unk80234774*)lbl_8037D998)->fn_80234774(tile, &a, &b, &sideA, &sideB);
         Unk8023E354 info = level->vfn18(tile);
-        if (!info.fn_8023DEA4(0x20)) {
+        if (info.fn_8023DEA4(0x20)) {
+            room = *a;
+        } else {
             info.fn_8023DEA4(0x10);
+            room = *a;
         }
-        room = *a;
     }
     return room;
 }
@@ -476,7 +475,8 @@ int Unk80026864::fn_800330A0() {
 
 // 0x800331A8
 // Sets the covering of one side of one wall of a tile, if it differs.
-// NON_MATCHING: 2 instructions: two argument moves are exchanged. One variant.
+// NON_MATCHING: 2 instructions: the original sets up `this` for the setter between
+// its second and first arguments, here it comes one earlier. Eight variants tried.
 void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side) {
     Unk8037D990M* level = (Unk8037D990M*)lbl_8037D990;
     Unk8023E088 info = level->vfn18(tile);

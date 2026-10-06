@@ -157,9 +157,14 @@ void Unk8003AA6C::vfn2(int newMode) {
 
 // 0x8003ADE0
 // Turns the player's button presses into messages for the parent screen.
-// NON_MATCHING: 418 instructions vs 411, identical up to 0x8003B3D8: the original
-// shares the tail of the call for message 0x2E with the one for 0x2F, here it is
-// emitted twice. Five shapes of the last block tried.
+// NON_MATCHING: 418 instructions vs 411, identical up to 0x8003B3D8. Every call
+// that sends a message for unk38 shares one tail; in the original that tail is the
+// last call (0x2F) and the one for 0x2E jumps into it, here the tail stays with
+// 0x2E and the last call is a second copy. A scratch file shows the same for
+// every shape tried (else-if chains, early returns, nesting; 13 variants, all five
+// compiler versions): this compiler never merges a call site into the code that
+// falls off the end of the function, so the original's last call was probably
+// not the last thing in its source.
 void Unk8003AA6C::vfn2() {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     if (IsBuildMode()) {
@@ -272,8 +277,7 @@ void Unk8003AA6C::vfn2() {
         }
         return;
     }
-    Unk8003AA6CGlobal118* state = (Unk8003AA6CGlobal118*)lbl_802E6700.unk118;
-    if (state->unk8 == 1) {
+    if (((Unk8003AA6CGlobal118*)lbl_802E6700.unk118)->unk8 == 1) {
         if (controller->fn_8015E0F8(0x15)) {
             lbl_8037D96C->fn_8006186C(0x0C21C2A9);
             ((UnkTargetBase*)unkC)->vfn7((UnkTargetBase*)unk38, 8);
@@ -285,21 +289,22 @@ void Unk8003AA6C::vfn2() {
             return;
         }
     }
-    if (((Unk8003AA6CGlobal118*)lbl_802E6700.unk118)->unk8 == 0) {
-        if (controller->fn_8015E0F8(0x15)) {
-            lbl_8037D96C->fn_8006186C(0x0C21C2A9);
-            ((UnkTargetBase*)unkC)->vfn7((UnkTargetBase*)unk38, 0x2E);
-        } else {
-            if (((Unk8003AA6CGlobal118*)lbl_802E6700.unk118)->unk8 != 0) {
-                return;
-            }
-            if (!controller->fn_8015E0F8(0x16)) {
-                return;
-            }
-            lbl_8037D96C->fn_8006186C(0x0C21C2A9);
-            ((UnkTargetBase*)unkC)->vfn7((UnkTargetBase*)unk38, 0x2F);
-        }
+    if (((Unk8003AA6CGlobal118*)lbl_802E6700.unk118)->unk8 != 0) {
+        return;
     }
+    if (controller->fn_8015E0F8(0x15)) {
+        lbl_8037D96C->fn_8006186C(0x0C21C2A9);
+        ((UnkTargetBase*)unkC)->vfn7((UnkTargetBase*)unk38, 0x2E);
+        return;
+    }
+    if (((Unk8003AA6CGlobal118*)lbl_802E6700.unk118)->unk8 != 0) {
+        return;
+    }
+    if (!controller->fn_8015E0F8(0x16)) {
+        return;
+    }
+    lbl_8037D96C->fn_8006186C(0x0C21C2A9);
+    ((UnkTargetBase*)unkC)->vfn7((UnkTargetBase*)unk38, 0x2F);
 }
 
 // 0x8003B44C

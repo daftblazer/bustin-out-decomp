@@ -188,8 +188,6 @@ void Unk80026864::fn_80033BAC() {
 
 // 0x80033C3C
 // The wall tool's buttons (the same scheme as the wallpaper tool's, fn_80031980).
-// NON_MATCHING: 105 instructions vs 103, as fn_80031980: the branches share their
-// final store of unk88 differently. Two variants tried.
 void Unk80026864::fn_80033C3C() {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     if (controller->fn_8015DF98(0x11) && controller->fn_8015E0F8(5)) {
@@ -197,10 +195,10 @@ void Unk80026864::fn_80033C3C() {
             lbl_8037D96C->fn_8006186C(0x3804219F);
         }
         unk88 = 0;
-    } else if (!(unk88 & 1)) {
+    } else if ((unk88 & 1) == 0) {
         if (controller->fn_8015E0F8(5)) {
             unk88 |= 3;
-        } else if (!(unk88 & 1) && controller->fn_8015E0F8(0xF)) {
+        } else if ((unk88 & 1) == 0 && controller->fn_8015E0F8(0xF)) {
             unk88 |= 5;
         }
     } else if ((unk88 & 2) && controller->fn_8015E0F8(5)) {
@@ -212,7 +210,8 @@ void Unk80026864::fn_80033C3C() {
         if (!fn_800380C4()) {
             lbl_8037D96C->fn_8006186C(0x3804219F);
         }
-        unk88 = (unk88 & ~1) & ~4;
+        unk88 &= ~1;
+        unk88 &= ~4;
     } else if (controller->fn_8015DF98(7)) {
         unk88 = 0;
     }
@@ -306,8 +305,6 @@ void Unk80026864::fn_8003467C(EVec2* direction, float* angle) {
 // 0x80034734
 // Moves the start of a run one grid step back from the cursor along the run, and
 // keeps it on the cursor's side of a straight run.
-// NON_MATCHING: 4 instructions: the last comparison keeps from->y in f1, here f13.
-// Four variants tried.
 void Unk80026864::fn_80034734(EVec2* to, EVec2* from) {
     if (SamePoint(*to, *from)) {
         return;
@@ -321,6 +318,7 @@ void Unk80026864::fn_80034734(EVec2* to, EVec2* from) {
     }
     *from = unkB4 - step * direction;
     EVec2 back((*(EVec2*)&unkE0 - *from).Normalize());
+    float value;
     if (direction.x == 0.0f) {
         float x = from->x;
         if (unkE0 > x) {
@@ -330,37 +328,8 @@ void Unk80026864::fn_80034734(EVec2* to, EVec2* from) {
         }
     }
     if (direction.y == 0.0f) {
-        float y = from->y;
-        if (unkE4 > y) {
-            from->y = y + step;
-        } else {
-            from->y = y - step;
-        }
+        from->y = unkE4 > from->y ? from->y + step : from->y - step;
     }
-}
-
-// 0x80034968
-// Which of the eight directions the run from `a` to `b` is closest to.
-// NON_MATCHING: skeleton (298 instructions in the original, which compares the
-// normalized run with eight normalized direction vectors one by one).
-int Unk80026864::fn_80034968(EVec2* a, EVec2* b) {
-    static const float directions[8][2] = {
-        { 0.0f, -1.0f }, { 0.0f, 1.0f }, { -1.0f, 0.0f }, { 1.0f, 0.0f },
-        { -1.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 1.0f }, { 1.0f, -1.0f },
-    };
-    EVec2 run((*b - *a).Normalize());
-    int best = 0;
-    float bestDot = -1.0f;
-    for (int i = 0; i < 8; i++) {
-        EVec2 direction(directions[i][0], directions[i][1]);
-        direction.Normalize();
-        float dot = run.x * direction.x + run.y * direction.y;
-        if (dot > bestDot) {
-            bestDot = dot;
-            best = i;
-        }
-    }
-    return best;
 }
 
 // 0x80034E10
@@ -615,8 +584,6 @@ void fn_80035C70(ERC* rc, void* texture, EVec2* a, EVec2* b, int* flag) {
 
 // 0x800369A0
 // The direction (0 to 7) from one tile corner to another, 8 when they are the same.
-// NON_MATCHING: 2 instructions: `nor r0; srwi r3, r0` for the first result, here
-// the nor goes straight into r3. Two variants tried.
 int fn_800369A0(Unk801C6EF4* from, Unk801C6EF4* to) {
     if (*from == *to) {
         return 8;
@@ -635,16 +602,17 @@ int fn_800369A0(Unk801C6EF4* from, Unk801C6EF4* to) {
     int height = __builtin_abs(dy);
     int halfV = __builtin_abs(bv - av) / 2;
     int halfU = __builtin_abs(bu - au) / 2;
+    int result;
     if (width < height && width <= halfV && width <= halfU) {
-        return dy < 0 ? 0 : 1;
+        result = dy >= 0;
+    } else if (height < width && height <= halfV && height <= halfU) {
+        result = dx < 0 ? 2 : 3;
+    } else if (halfV < width && halfV < height && halfV < halfU) {
+        result = bu < au ? 4 : 5;
+    } else {
+        result = bv < av ? 7 : 6;
     }
-    if (height < width && height <= halfV && height <= halfU) {
-        return dx < 0 ? 2 : 3;
-    }
-    if (halfV < width && halfV < height && halfV < halfU) {
-        return bu < au ? 4 : 5;
-    }
-    return bv < av ? 7 : 6;
+    return result;
 }
 
 // 0x80036B14
