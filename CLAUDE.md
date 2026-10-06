@@ -309,3 +309,38 @@ Single-line commit messages, no co-author or tool attribution.
     message. Check the size of `build/try/*.o` when `tools/tu.sh` prints nothing.
   - Names from the header strings of the skin-texture unit: the layer images are `ERRleTexture`
     (`games/sims/ESrc/e_rrletexture.h`), the "material" is `EShader`; placeholders are not renamed yet.
+
+## Linking a unit from source
+
+Switching a unit to `Matching` needs more than matching functions (see `sims/Unk800052C8.cpp`, `sims/cas/CASState.cpp`):
+
+- Every function the unit calls needs its mangled name in `symbols.txt`. A missing one makes `ngcld` exit 99 with no message.
+- The run of class-name strings at the start of a unit's `.rodata` comes from unused inline functions in the engine headers,
+  in include order. The stand-ins are `include/engine/e_*.h` and `include/sims/e_*.h`; include them in the order the strings appear.
+- The engine build string carries the compile time of each file (`#define EOR_BUILD_TIME "21:41:26"` before
+  `engine/e_engine.h`). It goes up file by file, so it also tells source files apart inside one constructor-table "unit":
+  the unit after `Unk80026864` is five files (21:41:24, :26, :26, :27, :28).
+- Objects built from source carry an empty `.sbss2`; `ldscript.ld` folds it into `.sbss`.
+- A file that defines a class twice through two header sets (or includes `sims/ESimsApp.h` after `sims/cas/CASSim.h`) can
+  come out as an empty ~800-byte object with no error from `tools/tu.sh`. Compile it directly and add the includes one at a time.
+
+- More source idioms (cheats, cursor screen and build tools):
+  - `EVec2(float v)` sets `x = y = v` (y is stored first); `EVec2(0.0f)` is the zero vector in constructors.
+  - `EVec2::Normalize()` returns `EVec2&` and is called on temporaries: `EVec2 dir((*to - *from).Normalize());` puts the
+    temporary above `dir` on the stack and copies it float by float. Operand order of the scalar product is visible:
+    `step * v` gives `fmuls f, step, v.x`, `v * step` the reverse.
+  - A table of pointers to member functions is filled in source order (mostly); a pointer to member is null-tested by its
+    index word. The constants sit in `.rodata` as `{delta, index, pfn}` and look like a small vtable.
+  - The screens derive from `UnkTargetBase` and virtually from `Unk802A2AC0` (mode word + three virtuals): constructors take
+    an in-charge flag (`__11Classii`), the virtual base pointer is at 0x48.
+  - `x < 0 ? 2 : 3` emits `li 3; bge; li 2`; `x >= 0 ? 3 : 2` the other way round.
+  - Two `return` statements with the same expression in an `if`/`else` keep both copies of the code; one shared
+    `return` after a variable assigned in each branch merges them.
+  - Pointers that are reloaded before every use (`lwz r3, 0xc(r29)` each time) were not cached in a local: write
+    `((T*)unkC)->f()` at each use. The same goes for `lbl_802E6700.unkBC`.
+  - `bool r = cond ? InlineA() : InlineB(); if (!r)` costs an extra `mr`; testing the conditional expression directly does not.
+  - STLport iterators live in memory (they have a copy constructor). A tree walk that keeps the node in a register was
+    written with the node pointer and `_STL::_Rb_global<bool>::_M_increment` directly (see `fn_80038014`).
+  - A global declared with a placeholder type smaller than 8 bytes is addressed through `r13` even when the real object is
+    large; give `extern` placeholders their real size (`lbl_802F7658`).
+

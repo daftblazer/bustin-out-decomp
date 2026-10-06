@@ -2166,4 +2166,5 @@ void Unk80026864::vfn3() {
 // it is the first one in link order to offer it; units further on call it. Nothing
 // in this file uses a std::map or std::set yet, so the compiler has no instance to
 // emit. Its symbol carries the mangled name, so including the header that uses the
-// tree here (once it is identified) is all that is missing.
+// tree here (once it is identified) is all that is missing. sims/Unk80033974.cpp
+// calls this copy (fn_80038014 walks the room table with it).
