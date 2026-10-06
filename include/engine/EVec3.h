@@ -6,6 +6,8 @@ class EVec2 {
 public:
     EVec2() {}
     EVec2(float x_, float y_) : x(x_), y(y_) {}
+    // Both components set to one value (y is stored first).
+    EVec2(float value) { x = y = value; }
     // User-defined, like EVec3's: this also keeps EVec2 locals in memory from
     // their declaration, which fixes their stack order.
     EVec2(const EVec2& other) : x(other.x), y(other.y) {}
