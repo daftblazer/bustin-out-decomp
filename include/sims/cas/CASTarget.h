@@ -1,6 +1,7 @@
 #ifndef SIMS_CAS_CASTARGET_H
 #define SIMS_CAS_CASTARGET_H
 
+#include "sims/Unk80039E78.h"
 #include "engine/Unk801543AC.h"
 #include "engine/ELightSet.h"
 #include "engine/EMat4.h"
@@ -16,15 +17,6 @@ extern "C" void* fn_80111C78(void*, int, unsigned int); // memset
 
 // Member classes, known only by their constructors. Sizes are lower bounds
 // except where an array fixes them.
-
-struct Unk80039E78 {
-    Unk80039E78();
-    ~Unk80039E78();
-    int fn_8003A500();
-    void fn_8003A0C0(EVec2* position, int, int* captions, int text, int, int, float width);
-    void fn_80039F1C();
-    char unk0[4];
-};
 
 // Text-entry dialog (0x178 bytes).
 class Unk800C6704 : public UnkTargetBase {

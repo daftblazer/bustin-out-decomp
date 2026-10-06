@@ -59,7 +59,6 @@
     EVec2 unk4610; // 0x4610
     int unk4618; // 0x4618
     Unk80039E78 unk461C; // 0x461c
-    char pad4620[0x88c];
     int unk4EAC; // 0x4eac
     int unk4EB0; // 0x4eb0
     int unk4EB4; // 0x4eb4

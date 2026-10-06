@@ -57,7 +57,7 @@ END 0x5D30
 0x4618 4      int                unk4618
 0x45D4 1      unsigned char      unk45D4          # which question the prompt asked
 0x45D5 1      unsigned char      unk45D5          # family member it is about
-0x461C 4      Unk80039E78        unk461C
+0x461C 0x890  Unk80039E78        unk461C
 0x4EAC 4      int                unk4EAC
 0x4EB0 4      int                unk4EB0
 0x4EB4 4      int                unk4EB4
