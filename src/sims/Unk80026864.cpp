@@ -1097,7 +1097,6 @@ void fn_80034968();
 void fn_80035B4C(Unk80026864* self, ERC* rc);
 void fn_80035724(Unk80026864* self, ERC* rc);
 void fn_800359C0(Unk80026864* self, ERC* rc);
-void fn_80031B1C(Unk80026864* self, ERC* rc);
 
 // 0x8002A548
 // Draws the screen: the build-mode overlays for the current state, the pointer
@@ -1150,7 +1149,7 @@ void Unk80026864::fn_8002A548(ERC* rc) {
         if (controller->fn_8015DF98(0x11)) {
             fn_800329D8(rc);
         }
-        fn_80031B1C(this, rc);
+        fn_80031B1C(rc, 0);
     }
     if (unk84 == 1 && IsActive(unkC8)) {
         return;
@@ -1793,7 +1792,6 @@ void fn_8002DB04(ERC* rc, Unk8002D67CItem* item) {
 // repeated once per unit of length.
 // NON_MATCHING: condensed draft (the original fills four renderer-allocated vertices
 // in the open and treats kinds 3 and 5 specially). One variant tried.
-extern "C" float fn_8010DF80(float); // sqrtf
 void fn_8002DB60(ERC* rc, Unk8002D67CItem* item) {
     EVec2 delta(item->unk8 - item->unk10, item->unkC - item->unk14);
     int kind = item->unk24;

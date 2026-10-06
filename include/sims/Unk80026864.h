@@ -124,6 +124,9 @@ public:
     void fn_800329D8(struct ERC* rc);
     int fn_80032518(EVec2* from, EVec2* to, int type, int flag);
     int fn_80032FF0();
+    int fn_80032B64();
+    void fn_80031B1C(struct ERC* rc, int remove);
+    char fn_80033278(EVec2* from, EVec2* to, EVec3* offset);
     int fn_800330A0();
     int fn_8003214C();
     void fn_8003386C(int kind);

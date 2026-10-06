@@ -469,7 +469,7 @@ extern void* lbl_8037B4AC;
 extern void* lbl_8037B4B4;
 extern void* lbl_8037B4B8;
 void fn_80031CF0(ERC* rc, Unk80181824* texture, EVec2* a, EVec2* b, int, float, float);
-void fn_8003849C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, void* out, int kind, int);
+int fn_8003849C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, void* out, int kind, int);
 struct Unk80234390 {
     int unk0;
     char* unk4;   // first
@@ -1219,6 +1219,13 @@ int fn_80033814(int id);
 struct Unk80056498B {
     unsigned short fn_80056498(ERC* rc, unsigned short room, EVec2* at);
 };
-void fn_801E36E4b(void* history, int kind, unsigned short* room, int, int, void* a, void* b, int, int, void* texture, int);
+// Records a pending build action for the preview/undo history (argument meanings
+// depend on the kind).
+void fn_801E36E4b(void* history, int kind, void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, int i);
+
+bool fn_80033484(EVec2* direction);
+extern float lbl_8037B4C4;   // how far a wall preview stands off its line
+
+extern "C" float fn_8010DF80(float); // sqrtf
 
 #endif

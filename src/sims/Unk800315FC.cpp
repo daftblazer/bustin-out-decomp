@@ -43,6 +43,81 @@ void Unk80026864::fn_80031928() {
     }
 }
 
+// 0x80031980
+// The wallpaper tool's buttons. unk88: bit 0 a run is being dragged, bit 1 to paper
+// it, bit 2 to strip it.
+// NON_MATCHING: 105 instructions vs 103; the branches share their final store of
+// unk88 differently. One variant tried.
+void Unk80026864::fn_80031980() {
+    EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
+    if (controller->fn_8015DF98(0x11)) {
+        if (!controller->fn_8015E0F8(5)) {
+            return;
+        }
+        if (!fn_80032B64()) {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+        unk88 = 0;
+        return;
+    }
+    if (!(unk88 & 1)) {
+        if (controller->fn_8015E0F8(5)) {
+            unk88 |= 3;
+            return;
+        }
+        if (!(unk88 & 1) && controller->fn_8015E0F8(0xF)) {
+            unk88 |= 5;
+        }
+        return;
+    }
+    if ((unk88 & 2) && controller->fn_8015E0F8(5)) {
+        if (!fn_800330A0()) {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+        unk88 &= ~3;
+        return;
+    }
+    if ((unk88 & 4) && controller->fn_8015E0F8(5)) {
+        if (!fn_80032FF0()) {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+        }
+        unk88 = (unk88 & ~1) & ~4;
+        return;
+    }
+    if (controller->fn_8015DF98(7)) {
+        unk88 = 0;
+    }
+}
+
+// 0x80031B1C
+// Draws the wall run being dragged (papered or, with `remove`, marked for stripping).
+// NON_MATCHING: 118 instructions vs 117; draft (the history call's arguments are
+// partly guessed). One variant tried.
+void Unk80026864::fn_80031B1C(ERC* rc, int remove) {
+    Unk80181824* texture;
+    if (remove) {
+        texture = (Unk80181824*)lbl_8037B4AC;
+    } else {
+        texture = (Unk80181824*)unk104;
+    }
+    void* handle = *(void**)((char*)texture + 4);
+    texture->fn_80181824(rc);
+    EVec2 from(unkD0, unkD4);
+    EVec2 to(unkD8, unkDC);
+    EVec3 offset;
+    int unused;
+    fn_80033278(&from, &to, &offset);
+    from += *(EVec2*)&offset;
+    to += *(EVec2*)&offset;
+    if (remove) {
+        fn_801E36E4b(lbl_802E6700.unk120, 9, 0, &unkD0, &unkD4, &unkD8, &unkDC, &offset, &unused, &handle, 0);
+    } else {
+        fn_801E36E4b(lbl_802E6700.unk120, 8, 0, &unkD0, &unkD4, &unkD8, &unkDC, &offset, &unused, &handle, remove);
+    }
+    unkE8 = fn_8003849C(rc, &from, &to, texture, &unkEC, unk84, unkF8 == 0);
+    fn_80031CF0(rc, unkE8 ? lbl_8037B4B0 : (Unk80181824*)lbl_8037B4B4, (EVec2*)&unkD0, (EVec2*)&unkD8, 0, 3.5f, 0.0f);
+}
+
 // 0x8003210C
 // Price of wall covering `index`.
 // NON_MATCHING: 17 instructions vs 16, as fn_8002FEF4 (the index leaves r3).
@@ -190,6 +265,54 @@ void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side) {
     info.fn_8023E110(arg, wall, side);
     Unk8023DDC4 packed(info);
     level->vfn19(tile, &packed);
+}
+
+// 0x80033278
+// Orders the two ends of a wall run, and gives the offset that puts its preview on
+// the side facing the camera; unkF8 records which side that is.
+// NON_MATCHING: 134 instructions vs 131; condensed draft, the ordering of the end
+// points is simplified. One variant tried.
+char Unk80026864::fn_80033278(EVec2* from, EVec2* to, EVec3* offset) {
+    EVec2 a(*from);
+    EVec2 b(*to);
+    if (a.x == b.x) {
+        float lo = a.y < b.y ? a.y : b.y;
+        float hi = a.y > b.y ? a.y : b.y;
+        a.y = lo;
+        b.y = hi;
+    } else if (a.y == b.y) {
+        float lo = a.x < b.x ? a.x : b.x;
+        float hi = a.x > b.x ? a.x : b.x;
+        a.x = lo;
+        b.x = hi;
+    } else {
+        float slope = (b.y - a.y) / (b.x - a.x);
+        if (slope > 0.0f ? a.x > b.x : a.y > b.y) {
+            EVec2 swap(a.x, a.y);
+            a = b;
+            b = swap;
+        }
+    }
+    EVec2 along(b.x - a.x, b.y - a.y);
+    EVec2 normal(along.y, -along.x);
+    float length = fn_8010DF80(normal.y * normal.y + normal.x * normal.x);
+    if (length != 0.0f) {
+        float scale = 1.0f / length;
+        normal.y *= scale;
+        normal.x *= scale;
+    }
+    unkF8 = fn_80033484(&normal);
+    normal.x *= lbl_8037B4C4;
+    normal.y *= lbl_8037B4C4;
+    offset->z = 0.0f;
+    offset->x = normal.x;
+    offset->y = normal.y;
+    if (unkF8) {
+        *offset = EVec3(-normal.x, -normal.y, -0.0f);
+    } else {
+        *offset = EVec3(normal.x, normal.y, 0.0f);
+    }
+    return unkF8;
 }
 
 // 0x80033484
