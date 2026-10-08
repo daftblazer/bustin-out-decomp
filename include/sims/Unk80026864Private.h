@@ -5,6 +5,7 @@
 // build-mode tools around it. Everything here is provisional: most of these types
 // belong to engine or game classes that have not been identified yet.
 
+#include "sims/Unk8023DD8C.h"
 #include <stddef.h>
 #include "sims/Unk80026864.h"
 #include "sims/cas/CASSim.h"
@@ -492,18 +493,6 @@ inline void CentreSubTile(ETilePair& tile) {
     tile.y = (tile.y & ~0xF) | 8;
     tile.x = (tile.x & ~0xF) | 8;
 }
-// What stands on a tile, as the level reports it (0x38 bytes), and its packed form.
-struct Unk8023DFA8 {
-    ~Unk8023DFA8();
-    int fn_8023DFA8();
-    int fn_8023DEA4(int mask);
-    void fn_8023E43C(int flag, int which);
-    char unk0[0x38];
-};
-struct Unk8023DDC4 {
-    Unk8023DDC4(const Unk8023DFA8& info);
-    char unk0[0x38];
-};
 int fn_8002FE20(CTilePt* tile, int flag);
 struct Unk8037D990E {
     virtual void vfn1();
@@ -523,7 +512,7 @@ struct Unk8037D990E {
     virtual void vfn15(CTilePt* tile, int value);
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023DFA8 vfn18(CTilePt* tile);
+    virtual Unk8023DD8C vfn18(CTilePt* tile);
     virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 
@@ -831,10 +820,6 @@ struct Unk802E67C0 {
 struct Unk80234774 {
     int fn_80234774(CTilePt* tile, unsigned short** a, unsigned short** b, int* sideA, int* sideB);
 };
-struct Unk8023E354 : Unk8023DFA8 {
-    int fn_8023E354();           // first wall on the tile
-    int fn_8023E3BC(int wall);   // the one after
-};
 int fn_8023E4A4(int side, int);
 void fn_800331A8(CTilePt* tile, int arg, int wall, int side);
 struct Unk8037D990G {
@@ -855,7 +840,7 @@ struct Unk8037D990G {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023E354 vfn18(CTilePt* tile);
+    virtual Unk8023DD8C vfn18(CTilePt* tile);
     virtual void vfn19();
     virtual void vfn20();
     virtual int vfn21(CTilePt* tile);
@@ -870,9 +855,6 @@ struct Unk8002F000Tool {
 };
 struct Unk80235F64 {
     int fn_80235F64(CTilePt* tile);
-};
-struct Unk8023E420 : Unk8023E354 {
-    int fn_8023E420(int side);   // floor type on one half
 };
 struct Unk8037D990J {
     virtual void vfn1();
@@ -892,9 +874,9 @@ struct Unk8037D990J {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023E420 vfn18(CTilePt* tile);
+    virtual Unk8023DD8C vfn18(CTilePt* tile);
 };
-void fn_80031084(void* table, CTilePt* tile, Unk8023DFA8* info, int* sideA, int* sideB);
+void fn_80031084(void* table, CTilePt* tile, Unk8023DD8C* info, int* sideA, int* sideB);
 int fn_8002FEF4(int index);
 int fn_8002FFB8(CTilePt* tile);
 void fn_8002EFAC(ERC* rc, struct Unk8002EFACItem* item);
@@ -1109,9 +1091,6 @@ void fn_800315FC(CTilePt* start, CTilePt* end);
 int fn_800369A0(CTilePt* start, CTilePt* end);
 int fn_8023DC04(int direction);
 void fn_800323D8(int* wall, int kind, int* side, CTilePt* from, CTilePt* to);
-struct Unk8023E110 : Unk8023DFA8 {
-    void fn_8023E110(int arg, int wall, int side);
-};
 struct Unk8037D990H {
     virtual void vfn1();
     virtual void vfn2();
@@ -1130,7 +1109,7 @@ struct Unk8037D990H {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023E110 vfn18(CTilePt* tile);
+    virtual Unk8023DD8C vfn18(CTilePt* tile);
     virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 struct Unk80233FC0 {
@@ -1151,9 +1130,6 @@ struct Unk800563C0 {
 struct Unk801E3F54 {
     void fn_801E3F54(int type, int flag, float x0, float y0, float x1, float y1);
 };
-struct Unk8023E088 : Unk8023E110 {
-    int fn_8023E088(int wall, int side);
-};
 struct Unk8037D990M {
     virtual void vfn1();
     virtual void vfn2();
@@ -1172,7 +1148,7 @@ struct Unk8037D990M {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023E088 vfn18(CTilePt* tile);
+    virtual Unk8023DD8C vfn18(CTilePt* tile);
     virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 // The camera at the global's +0xB8 (the same ESimsCam fields as Unk80026864Cam).
@@ -1196,11 +1172,6 @@ extern float lbl_8037B4C4;   // how far a wall preview stands off its line
 
 extern "C" float fn_8010DF80(float); // sqrtf
 
-struct Unk8023DD8C : Unk8023E088 {
-    Unk8023DD8C();                                  // 0x8023DD8C
-    void fn_8023DE48(const Unk8023DFA8& other);     // assign
-    int fn_8023DED4(int wall);
-};
 struct Unk8037D990N {
     virtual void vfn1();
     virtual void vfn2();
@@ -1219,7 +1190,7 @@ struct Unk8037D990N {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023DFA8 vfn18(CTilePt* tile);
+    virtual Unk8023DD8C vfn18(CTilePt* tile);
 };
 int fn_8003210C(int index);
 struct Unk801E3EF0 {
@@ -1227,9 +1198,6 @@ struct Unk801E3EF0 {
 };
 int fn_80032AF8(int a, int b);
 
-struct Unk8023DEBC : Unk8023E110 {
-    int fn_8023DEBC();   // has any wall
-};
 struct Unk8037D990P {
     virtual void vfn1();
     virtual void vfn2();
@@ -1248,7 +1216,7 @@ struct Unk8037D990P {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023DEBC vfn18(CTilePt* tile);
+    virtual Unk8023DD8C vfn18(CTilePt* tile);
 };
 
 #endif

@@ -28,18 +28,6 @@ struct Unk80033484Vec2 : EVec2 {
     Unk80033484Vec2(const EVec3& v) : EVec2(v.x, v.y) {}
 };
 
-// What stands on a tile (0x38 bytes). The shared header spreads this class over a
-// chain of placeholder structs that inherit Unk8023DFA8's destructor; the code here
-// only matches when the class has its own destructor, and when the functions that
-// are ignored at the call site still return something (assignment and the setter
-// return a reference: the call then loads its arguments before `this`).
-struct Unk800315FCInfo : Unk8023E088 {
-    Unk800315FCInfo();                                           // 0x8023DD8C
-    ~Unk800315FCInfo();                                          // 0x8023DE20
-    Unk800315FCInfo& fn_8023DE48(const Unk8023DFA8& other);      // 0x8023DE48, operator=
-    int fn_8023DED4(int wall);
-    Unk800315FCInfo& fn_8023E110(int arg, int wall, int side);   // 0x8023E110
-};
 // The level's tile grid, with the tile contents returned as the class above.
 struct Unk800315FCLevel {
     virtual void vfn1();
@@ -59,7 +47,7 @@ struct Unk800315FCLevel {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk800315FCInfo vfn18(CTilePt* tile);
+    virtual Unk8023DD8C vfn18(CTilePt* tile);
     virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 // The room list at lbl_8037D998: slot 19 is called after walls have changed.
@@ -373,7 +361,7 @@ int Unk80026864::fn_8003214C() {
     int side = 0;
     fn_800323D8(&wall, unkF8 == 0, &side, &current, &end);
     int total = 0;
-    Unk800315FCInfo info;
+    Unk8023DD8C info;
     Unk8037D990N* level = (Unk8037D990N*)lbl_8037D990;
     while (!level->vfn8(&current) && !(current == end)) {
         info.fn_8023DE48(level->vfn18(&current));
@@ -468,7 +456,7 @@ int Unk80026864::fn_80032518(EVec2* from, EVec2* to, int type, int flag) {
     int steps = 0;
     bool done;
     do {
-        Unk800315FCInfo info = level->vfn18(&current);
+        Unk8023DD8C info = level->vfn18(&current);
         if (info.fn_8023DEA4(wall)) {
             info.fn_8023E110(type, wall, side);
             Unk8023DDC4 packed(info);
@@ -503,7 +491,7 @@ int fn_800328F4(CTilePt* tile) {
         int sideA;
         int sideB;
         ((Unk80234774*)lbl_8037D998)->fn_80234774(tile, &a, &b, &sideA, &sideB);
-        Unk8023E354 info = level->vfn18(tile);
+        Unk8023DD8C info = level->vfn18(tile);
         if (info.fn_8023DEA4(0x20)) {
             room = *a;
         } else {
@@ -599,7 +587,7 @@ int Unk80026864::fn_80032B64() {
     for (char* it = tiles->begin; it != tiles->end; it += 3) {
         CTilePt current(*(CTilePt*)it);
         if (level->vfn21(&current)) {
-            Unk8023E354 info = level->vfn18(&current);
+            Unk8023DD8C info = level->vfn18(&current);
             int count = 0;
             int sides[2] = { 0, 0 };
             for (int wall = info.fn_8023E354(); wall; wall = info.fn_8023E3BC(wall)) {
@@ -707,11 +695,11 @@ int Unk80026864::fn_800330A0() {
 // Sets the covering of one side of one wall of a tile, if it differs.
 void fn_800331A8(CTilePt* tile, int arg, int wall, int side) {
     Unk8037D990M* level = (Unk8037D990M*)lbl_8037D990;
-    Unk8023E088 info = level->vfn18(tile);
+    Unk8023DD8C info = level->vfn18(tile);
     if (info.fn_8023E088(wall, side) == arg) {
         return;
     }
-    ((Unk800315FCInfo*)&info)->fn_8023E110(arg, wall, side);
+    ((Unk8023DD8C*)&info)->fn_8023E110(arg, wall, side);
     Unk8023DDC4 packed(info);
     level->vfn19(tile, &packed);
 }

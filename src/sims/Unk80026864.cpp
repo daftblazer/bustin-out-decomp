@@ -1841,7 +1841,7 @@ void fn_8002E2A0(int flag, int x0, int y0, int x1, int y1) {
             CTilePt tile(x, y, 1);
             if (fn_8002FE20(&tile, flag)) {
                 Unk8037D990E* level = (Unk8037D990E*)lbl_8037D990;
-                Unk8023DFA8 info = level->vfn18(&tile);
+                Unk8023DD8C info = level->vfn18(&tile);
                 if (!info.fn_8023DFA8()) {
                     level->vfn15(&tile, flag);
                 } else {
@@ -1957,7 +1957,7 @@ void fn_8002E73C(int key, int arg) {
     for (char* it = list->unk4; it != list->unk8; it += 3) {
         CTilePt tile(*(CTilePt*)it);
         if (level->vfn21(&tile)) {
-            Unk8023E354 info = level->vfn18(&tile);
+            Unk8023DD8C info = level->vfn18(&tile);
             int count = 0;
             int sides[2];
             sides[0] = 0;
@@ -2043,7 +2043,7 @@ void fn_8002EA74(int arg, int kind, float x0, float y0, float x1, float y1) {
     bool done = false;
     Unk8037D990H* level = (Unk8037D990H*)lbl_8037D990;
     do {
-        Unk8023E110 info = level->vfn18(&current);
+        Unk8023DD8C info = level->vfn18(&current);
         if (info.fn_8023DEA4(wall)) {
             info.fn_8023E110(arg, wall, side);
             Unk8023DDC4 packed(info);

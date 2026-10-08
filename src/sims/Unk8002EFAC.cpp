@@ -397,7 +397,7 @@ int fn_8003025C(int* any, void* table, Unk80234390* tiles, int type) {
         CTilePt* tile = (CTilePt*)((char*)tiles->unk0 + i * 3);
         if (fn_8002FE20(tile, type)) {
             *any = 1;
-            Unk8023E420 info = ((Unk8037D990J*)lbl_8037D990)->vfn18(tile);
+            Unk8023DD8C info = ((Unk8037D990J*)lbl_8037D990)->vfn18(tile);
             if (!info.fn_8023DFA8()) {
                 if (!remove) {
                     total += fn_8002FEF4(type);
@@ -463,8 +463,8 @@ inline void fn_8003043CLay(const CTilePt& at, int type) {
     CTilePt* tile = (CTilePt*)&at;
     if (fn_8002FE20(tile, type)) {
         Unk8037D990E* level = (Unk8037D990E*)lbl_8037D990;
-        Unk8023DFA8 data = level->vfn18(tile);
-        Unk8023DFA8* info = &data;
+        Unk8023DD8C data = level->vfn18(tile);
+        Unk8023DD8C* info = &data;
         if (!info->fn_8023DFA8()) {
             level->vfn15(tile, type);
         } else {
@@ -633,7 +633,7 @@ void Unk80026864::fn_8003043C() {
 // 0x80031084
 // Which halves of a diagonally cut tile lie inside the room: looks for the room on
 // the tiles to the left and right.
-void fn_80031084(void* table, CTilePt* tile, Unk8023DFA8* info, int* sideA, int* sideB) {
+void fn_80031084(void* table, CTilePt* tile, Unk8023DD8C* info, int* sideA, int* sideB) {
     *sideA = 0;
     *sideB = 0;
     if (info->fn_8023DFA8()) {
@@ -669,7 +669,7 @@ void fn_80031084(void* table, CTilePt* tile, Unk8023DFA8* info, int* sideA, int*
 // Lays floor `type` on one tile of a room (on the halves inside it when the tile is cut).
 void fn_800311B0(CTilePt* tile, int type, void* table) {
     if (fn_8002FE20(tile, type)) {
-        Unk8023DFA8 info = ((Unk8037D990E*)lbl_8037D990)->vfn18(tile);
+        Unk8023DD8C info = ((Unk8037D990E*)lbl_8037D990)->vfn18(tile);
         if (!info.fn_8023DFA8()) {
             ((Unk8037D990E*)lbl_8037D990)->vfn15(tile, type);
         } else {

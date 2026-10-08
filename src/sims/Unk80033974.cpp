@@ -84,14 +84,6 @@ inline bool AllowsRun(unsigned char flags, int mask) {
     return (flags & mask) || flags == 0;
 }
 
-// One side's worth of wall data on a tile, with the operations this file uses.
-struct Unk8023E1C4 : Unk8023DD8C {
-    int fn_8023E1C4(int wall);          // what is built on a wall
-    int fn_8023E420(int half);
-    void fn_8023E2FC(int wall);         // remove a wall
-    int fn_8023DF40(int wall);
-    int fn_8023D9B8(int wall);
-};
 struct Unk8037D990Q {
     virtual void vfn1();
     virtual void vfn2();
@@ -110,7 +102,7 @@ struct Unk8037D990Q {
     virtual void vfn15(CTilePt* tile, int type);
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023DFA8 vfn18(CTilePt* tile);
+    virtual Unk8023DD8C vfn18(CTilePt* tile);
     virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 int fn_8023E488(int wall, int turn);
@@ -129,9 +121,9 @@ struct Unk8037D98CC {
     virtual void vfn11(void* object);
 };
 int fn_80036B14(CTilePt* tile, int wall, int* refund);
-int fn_80036D1C(CTilePt* tile, Unk8023E1C4* info, int wall, int arg, int kind);
+int fn_80036D1C(CTilePt* tile, Unk8023DD8C* info, int wall, int arg, int kind);
 int fn_80036EAC(CTilePt* tile, int wall);
-int fn_80037140(CTilePt* tile, Unk8023E1C4* info, int wall, int type, int kind);
+int fn_80037140(CTilePt* tile, Unk8023DD8C* info, int wall, int type, int kind);
 int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag);
 void fn_80035C70(ERC* rc, void* texture, EVec2* a, EVec2* b, int* flag);
 
@@ -669,7 +661,7 @@ int fn_80036B14(CTilePt* tile, int wall, int* refund) {
 
 // 0x80036D1C
 // Removes one wall from a tile (with anything hung on it); returns what that costs.
-int fn_80036D1C(CTilePt* tile, Unk8023E1C4* info, int wall, int arg, int kind) {
+int fn_80036D1C(CTilePt* tile, Unk8023DD8C* info, int wall, int arg, int kind) {
     if (!fn_80039A70(tile, (void*)wall, kind)) {
         return 0;
     }
@@ -690,7 +682,7 @@ int fn_80036D1C(CTilePt* tile, Unk8023E1C4* info, int wall, int arg, int kind) {
         }
     }
     info->fn_8023E2FC(wall);
-    Unk8023DDC4 packed(*(Unk8023DFA8*)info);
+    Unk8023DDC4 packed(*(Unk8023DD8C*)info);
     level->vfn19(tile, &packed);
     return refund;
 }
@@ -720,7 +712,7 @@ int fn_80036EAC(CTilePt* tile, int wall) {
 // NON_MATCHING: skeleton (151 instructions in the original): the checks and the
 // final store are the original's, the handling of the diagonal cases is not
 // reconstructed.
-int fn_80037140(CTilePt* tile, Unk8023E1C4* info, int wall, int type, int kind) {
+int fn_80037140(CTilePt* tile, Unk8023DD8C* info, int wall, int type, int kind) {
     if (!fn_800395B0(tile, info, type, kind)) {
         return 0;
     }
@@ -730,8 +722,8 @@ int fn_80037140(CTilePt* tile, Unk8023E1C4* info, int wall, int type, int kind) 
             return 0;
         }
     }
-    ((Unk8023E110*)info)->fn_8023E110(type, wall, 0);
-    Unk8023DDC4 packed(*(Unk8023DFA8*)info);
+    ((Unk8023DD8C*)info)->fn_8023E110(type, wall, 0);
+    Unk8023DDC4 packed(*(Unk8023DD8C*)info);
     level->vfn19(tile, &packed);
     int refund = 0;
     if (IsFenceLike(info->fn_8023E1C4(wall))) {
@@ -850,7 +842,7 @@ int Unk80026864::fn_80037900(EVec2* from, EVec2* to, int* out) {
         if (!fn_8003957C(&current, (void*)wall) || !fn_80039A40(&current, (void*)wall)) {
             ok = 0;
         } else {
-            Unk8023E1C4 info;
+            Unk8023DD8C info;
             info.fn_8023DE48(level->vfn18(&current));
             fn_80033814(info.fn_8023E1C4(wall));
             *out += 1;
@@ -974,7 +966,7 @@ int fn_8003849C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, void* total, 
     CTilePt current(start);
     int refund = 0;
     while (!level->vfn8(&current) && !(current == end)) {
-        Unk8023E1C4 info;
+        Unk8023DD8C info;
         info.fn_8023DE48(level->vfn18(&current));
         if (info.fn_8023DED4(wall) && info.fn_8023DF40(wall)) {
             refund += fn_80033814(info.fn_8023E1C4(wall));
@@ -1003,7 +995,7 @@ int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag) {
     texture->fn_80181824(rc);
     int count = 0;
     while (!level->vfn8(&current) && current != end) {
-        Unk8023E1C4 info;
+        Unk8023DD8C info;
         info.fn_8023DE48(level->vfn18(&current));
         if (info.fn_8023DED4(wall)) {
             count++;
@@ -1038,7 +1030,7 @@ int fn_80038FC0(EVec2* from, EVec2* to, int type, int kind, int* out, int arg, i
 int fn_800390FC(CTilePt* start, CTilePt* end, int* direction, int* type, int* kind, int price) {
     CTilePt current(*start);
     int wall = fn_8023DC04(*direction);
-    Unk8023E1C4 info;
+    Unk8023DD8C info;
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
     int count = 0;
     do {
@@ -1059,7 +1051,7 @@ int fn_800390FC(CTilePt* start, CTilePt* end, int* direction, int* type, int* ki
 int fn_8003930C(CTilePt start, CTilePt end, int* direction, int* type, int* kind, int price) {
     CTilePt current(start);
     int wall = fn_8023DC04(*direction);
-    Unk8023E1C4 info;
+    Unk8023DD8C info;
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
     int count = 0;
     do {
@@ -1084,7 +1076,7 @@ int Unk80026864::fn_8003957C(void* a, void* b) {
 // objects on this tile and on the two neighbours).
 int fn_800395B0(void* a, void* b, int type, int kind) {
     CTilePt* tile = (CTilePt*)a;
-    Unk8023E1C4* info = (Unk8023E1C4*)b;
+    Unk8023DD8C* info = (Unk8023DD8C*)b;
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
     if (level->vfn18(tile).fn_8023DEA4(type)) {
         return 0;
@@ -1109,7 +1101,7 @@ int fn_80039A70(void* a, void* b, int kind) {
     CTilePt* tile = (CTilePt*)a;
     int wall = (int)b;
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
-    Unk8023DFA8 info = level->vfn18(tile);
+    Unk8023DD8C info = level->vfn18(tile);
     if (!info.fn_8023DEA4(wall)) {
         return 1;
     }
