@@ -276,6 +276,7 @@ config.libs = [
             Object(NonMatching, "sims/Unk80033974.cpp"),
             Object(NonMatching, "sims/Unk80039E78.cpp"),
             Object(NonMatching, "sims/Unk8003AA6C.cpp"),
+            Object(NonMatching, "sims/ERFont.cpp"),
         ],
     ),
 ]
