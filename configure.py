@@ -281,6 +281,7 @@ config.libs = [
             Object(Matching, "sims/Unk8003DE78.cpp"),
             Object(Matching, "sims/ERRleTexture.cpp"),
             Object(NonMatching, "sims/ESimsDataManager.cpp"),
+            Object(NonMatching, "sims/Unk800401FC.cpp"),
         ],
     ),
 ]

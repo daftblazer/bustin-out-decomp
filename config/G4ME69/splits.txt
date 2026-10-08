@@ -132,3 +132,8 @@ sims/ESimsDataManager.cpp:
 	.rodata     start:0x802983B0 end:0x802988D8
 	.bss        start:0x802E5EC0 end:0x802E5F7C
 	.sbss       start:0x8037CAB0 end:0x8037CAB8
+
+sims/Unk800401FC.cpp:
+	.text       start:0x800401FC end:0x80044D84
+	.ctors      start:0x80291CD8 end:0x80291CDC
+	.rodata     start:0x802988D8 end:0x802991B0

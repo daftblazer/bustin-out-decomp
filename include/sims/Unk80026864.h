@@ -23,36 +23,7 @@ public:
     virtual void vfn3();
 };
 
-// Doubly linked list of pointers (first node, last node, "owns its items" flag).
-// It shares its clearing function (0x801B4760) with the screen objects' child list.
-struct Unk80026864Node {
-    void* item;
-    Unk80026864Node* prev;
-    Unk80026864Node* next;
-};
-struct Unk80026864List {
-    Unk80026864List() {
-        tail = 0;
-        head = 0;
-        owns = 1;
-    }
-    ~Unk80026864List() { fn_801B4760(); }
-    void fn_801B4760();                 // clear
-    void Clear() {
-        if (head) {
-            fn_801B4760();
-        }
-    }
-    void fn_801B4600(void* item);       // append
-    int fn_801B484C(void* item);        // contains
-
-    Unk80026864Node* Head() const { return head; }
-    Unk80026864Node* Tail() const { return tail; }
-
-    Unk80026864Node* head;
-    Unk80026864Node* tail;
-    int owns;
-};
+#include "sims/Unk80026864List.h"
 
 // 0x28 bytes of zeroed words (constructor 0x8002EF48).
 struct Unk8002EF48 {
