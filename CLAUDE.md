@@ -447,4 +447,21 @@ differently, and functions then miss by a register or a stack slot. These are no
 When a class is renamed, the mangled names in `symbols.txt` that contain it must be renamed too
 (`11Unk801C6F20` -> `7CTilePt`), or `tools/tu.sh` reports the functions as "not in symbols.txt" and stops
 comparing them.
+  - A member that is read back from memory right after being stored (`stw r29, 0xb4(r31); lwz r9, 0xb4(r31)`), with
+    nothing in between that could alias it, is declared `volatile` (the loader manager's current object).
+  - A byte swap whose stores make the compiler reload a member pointer afterwards works through a pointer
+    variable of the enclosing function that is assigned in more than one place (a macro over shared locals); an
+    inline function with its own parameter keeps the member in a register.
+  - `unsigned int run = member; if (run >> 7)` keeps the full `rlwinm. 25,7,31`; testing the byte member directly
+    collapses to one bit.
+  - STLport's `std::sort` brings these with it, in this order of address: `__adjust_heap`, `make_heap`, `pop_heap`,
+    `__partial_sort`, `partial_sort`, `__unguarded_partition`, `__introsort_loop`, `__unguarded_linear_insert`,
+    `__insertion_sort`, `__unguarded_insertion_sort_aux`, `__final_insertion_sort`, `sort` (`__median` and `__lg`
+    are inlined). Name the top one, run `tools/tu.sh`, and read `build/try/<unit>.rpo`: lines starting with `O`
+    are the instances on offer for the next level.
+  - `std::vector<T>::push_back` is fully inlined (a 60-instruction block with the node allocator); functions made
+    of two or three such blocks match from plain `push_back` calls (`fn_8003E898`, `fn_8003EB64`).
+  - Changing a virtual's signature in a shared base class changes the mangled names in every vtable that uses it,
+    including those of units already linked from source. After such a change, check the undefined symbols of the
+    objects under `build/G4ME69/src/` against `symbols.txt` (a missing one makes the link fail silently).
 

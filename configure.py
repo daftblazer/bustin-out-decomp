@@ -280,6 +280,7 @@ config.libs = [
             Object(NonMatching, "sims/ERFont.cpp"),
             Object(Matching, "sims/Unk8003DE78.cpp"),
             Object(NonMatching, "sims/ERRleTexture.cpp"),
+            Object(NonMatching, "sims/Unk8003E844.cpp"),
         ],
     ),
 ]
