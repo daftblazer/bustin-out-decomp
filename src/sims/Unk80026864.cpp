@@ -201,13 +201,36 @@ void Unk80026864::fn_8002775C(int value) {
     fn_80027EAC();
 }
 
+// Release macros. The `do { } while (0)` wrapper is visible in the code: the loop note
+// it leaves keeps the scheduler from moving the first load above a preceding store.
+#define E_RELEASE_RESOURCE(p) \
+    do { \
+        if (p) { \
+            fn_801767FC(p); \
+            p = 0; \
+        } \
+    } while (0)
+#define E_RELEASE_RECORDED(p) \
+    do { \
+        if (p) { \
+            if (lbl_8037C198->vfn19(p)) { \
+                lbl_8037C198->vfn8(); \
+            } \
+            lbl_8037C198->vfn18(p); \
+            p = 0; \
+        } \
+    } while (0)
+
 // Deletes the objects a list owns, then empties it.
+inline bool IsNode1(Unk80026864Node* node) {
+    return node != 0 ? true : false;
+}
 inline void DeleteAll(Unk80026864List& list) {
     if (list.head) {
         Unk80026864Node* node = list.tail;
-        while (EIsValid(node)) {
-            Unk8002FD24* item = (Unk8002FD24*)node->item;
+        while (IsNode1(node)) {
             Unk80026864Node* next = node->prev;
+            Unk8002FD24* item = (Unk8002FD24*)node->item;
             if (list.owns && item) {
                 item->fn_8002FD24();
                 fn_80169EE8(item);
@@ -219,99 +242,33 @@ inline void DeleteAll(Unk80026864List& list) {
 }
 
 // 0x80027780
-// NON_MATCHING: 8 instructions. The list walk keeps its node in r3 instead of r9, and
-// the load of the first resource is hoisted above the store that clears unkC8.
-// Four variants tried.
 void Unk80026864::fn_80027780() {
     unk148.Clear();
     DeleteAll(unk194);
-    if (unkC0) {
-        if (lbl_8037C198->vfn19(unkC0)) {
-            lbl_8037C198->vfn8();
-        }
-        lbl_8037C198->vfn18(unkC0);
-        unkC0 = 0;
-    }
-    if (unkC4) {
-        if (lbl_8037C198->vfn19(unkC4)) {
-            lbl_8037C198->vfn8();
-        }
-        lbl_8037C198->vfn18(unkC4);
-        unkC4 = 0;
-    }
+    E_RELEASE_RECORDED(unkC0);
+    E_RELEASE_RECORDED(unkC4);
     vfn15(unkC8);
     if (unkC8) {
         delete unkC8;
     }
     unkC8 = 0;
-    if (unkFC) {
-        fn_801767FC(unkFC);
-        unkFC = 0;
-    }
-    if (unk100) {
-        fn_801767FC(unk100);
-        unk100 = 0;
-    }
-    if (unk104) {
-        fn_801767FC(unk104);
-        unk104 = 0;
-    }
-    if (unk108) {
-        fn_801767FC(unk108);
-        unk108 = 0;
-    }
-    if (unk10C) {
-        fn_801767FC(unk10C);
-        unk10C = 0;
-    }
-    if (unk110) {
-        fn_801767FC(unk110);
-        unk110 = 0;
-    }
-    if (unk114) {
-        fn_801767FC(unk114);
-        unk114 = 0;
-    }
-    if (unk118) {
-        fn_801767FC(unk118);
-        unk118 = 0;
-    }
-    if (unk11C) {
-        fn_801767FC(unk11C);
-        unk11C = 0;
-    }
-    if (unk120) {
-        fn_801767FC(unk120);
-        unk120 = 0;
-    }
-    if (unk124) {
-        fn_801767FC(unk124);
-        unk124 = 0;
-    }
-    if (unk128) {
-        fn_801767FC(unk128);
-        unk128 = 0;
-    }
-    if (unk12C) {
-        fn_801767FC(unk12C);
-        unk12C = 0;
-    }
-    if (unk130) {
-        fn_801767FC(unk130);
-        unk130 = 0;
-    }
-    if (unk134) {
-        fn_801767FC(unk134);
-        unk134 = 0;
-    }
-    if (unk138) {
-        fn_801767FC(unk138);
-        unk138 = 0;
-    }
-    if (unk13C) {
-        fn_801767FC(unk13C);
-        unk13C = 0;
-    }
+    E_RELEASE_RESOURCE(unkFC);
+    E_RELEASE_RESOURCE(unk100);
+    E_RELEASE_RESOURCE(unk104);
+    E_RELEASE_RESOURCE(unk108);
+    E_RELEASE_RESOURCE(unk10C);
+    E_RELEASE_RESOURCE(unk110);
+    E_RELEASE_RESOURCE(unk114);
+    E_RELEASE_RESOURCE(unk118);
+    E_RELEASE_RESOURCE(unk11C);
+    E_RELEASE_RESOURCE(unk120);
+    E_RELEASE_RESOURCE(unk124);
+    E_RELEASE_RESOURCE(unk128);
+    E_RELEASE_RESOURCE(unk12C);
+    E_RELEASE_RESOURCE(unk130);
+    E_RELEASE_RESOURCE(unk134);
+    E_RELEASE_RESOURCE(unk138);
+    E_RELEASE_RESOURCE(unk13C);
     fn_80027EAC();
     unk84 = 0;
 }
@@ -355,18 +312,19 @@ int Unk80026864::fn_80027BF0() {
 }
 
 // 0x80027D24
-// NON_MATCHING: 4 instructions. The selection list's address is in r4 in the original
-// and r9 here, and the final store of the state and `li r3,1` are exchanged. Four
-// variants tried.
+// NON_MATCHING: 2 instructions. The selection list's address is in r4 in the original
+// and r9 here (register choice only). About sixteen variants tried: inline predicates on
+// the list, a pointer or reference local, the first node in a local, both orders of
+// the comparison.
 int Unk80026864::fn_80027D24() {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     int button = IsBuildCameraMode() ? 5 : 6;
     if (unk84 != 1 && controller->fn_8015E0F8(button)) {
-        int state;
         fn_8002A0A8();
         if (unk148.Head() != 0 && unk148.Head() == unk148.Tail()) {
             vfn7((UnkTargetBase*)fn_80080418(unk148.head->item)->vfn111(), 0x1C);
-            state = 0;
+            unk84 = 0;
+            return 1;
         } else {
             int ok = ((Unk8004E8C8*)unkC8)->fn_8004ED28();
             if (ok == 0) {
@@ -375,10 +333,9 @@ int Unk80026864::fn_80027D24() {
                 return 0;
             }
             lbl_8037D96C->fn_8006186C(0x7D99927F);
-            state = 1;
+            unk84 = 1;
+            return 1;
         }
-        unk84 = state;
-        return 1;
     }
     return 0;
 }
@@ -551,23 +508,20 @@ void Unk80026864::fn_800285D4() {
 }
 
 // 0x800286CC
-// NON_MATCHING: same length, 51 instructions differ. The original evaluates and
-// discards a two-mode test of the camera (`cmpwi 8; beq; cmpwi 10`) before the state
-// check; no form tried here keeps it, and the rest is shifted by it. Three variants.
 void Unk80026864::fn_800286CC() {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
-    IsBuildCameraMode();
+    int button = IsBuildCameraMode() ? 5 : 6;
     if (unk84 - 2 <= 3) {
         int up = controller->fn_8015E0F8(0x33);
         int down = controller->fn_8015E0F8(0x34);
         int left = controller->fn_8015E0F8(0x35);
         int right = controller->fn_8015E0F8(0x36);
         bool moved = up || down || left || right;
-        if (moved || (controller->fn_8015E0F8(7) && !(unk88 & 1))) {
+        if (moved || (controller->fn_8015E0F8(7) && (unk88 & 1) == 0)) {
             ((UnkTargetBase*)unkC)->vfn7(this, 0x27);
         }
     }
-    switch (unk84) {
+    switch ((int)unk84) {
     case 2:
         fn_80029BF8();
         fn_8003043C();
@@ -615,20 +569,20 @@ int Unk80026864::fn_80028860() {
 
 // 0x80028AA4
 // Moves an object to the nearest free tile; false when there is none.
-// NON_MATCHING: 66 instructions vs 67. The original places the object right after the
-// first successful search and jumps back to that code after the second; here the
-// placement comes after both searches. Three variants tried.
+// NON_MATCHING: same length (67), 25 instructions differ. The original places the
+// object right after the first successful search and jumps back to that code after the
+// second; here the placement comes after both searches (and the query's two `1` stores
+// are exchanged). Nested ifs give 66 instructions, duplicated placement 77. About
+// fourteen variants tried (result variable, if/else chains, inline helpers).
 int fn_80028AA4(Unk800053D4Inner* object) {
     if (object && fn_80217FDC(object->vfn119())->unk18->unk12 != 7) {
         Unk80028AA4Query query;
         ETilePair tile;
-        if (!object->vfn61(&query, &tile)) {
-            query.unk14 = 0;
-            if (!object->vfn61(&query, &tile)) {
-                return 0;
-            }
+        if (object->vfn61(&query, &tile) || (query.unk14 = 0, object->vfn61(&query, &tile))) {
+            object->vfn50(&tile, 1, 0, 0);
+        } else {
+            return 0;
         }
-        object->vfn50(&tile, 1, 0, 0);
     }
     return 1;
 }
@@ -636,7 +590,6 @@ int fn_80028AA4(Unk800053D4Inner* object) {
 // 0x80028BB0
 // Lets go of the object being placed: a moved object goes back (or to the
 // nearest free tile, or is destroyed), a bought one is refunded.
-// NON_MATCHING: not yet compared.
 void Unk80026864::fn_80028BB0(int notify) {
     unk84 = 0;
     if (unkF0 == 0) {
@@ -684,7 +637,13 @@ void Unk80026864::fn_80028BB0(int notify) {
 
 // 0x80028E84
 void* Unk80026864::fn_80028E84() {
-    return unkF0 ? unkF0->vfn8b() : 0;
+    void* r;
+    if (unkF0 == 0) {
+        r = 0;
+    } else {
+        r = unkF0->vfn8b();
+    }
+    return r;
 }
 
 // 0x80028ECC
@@ -1020,10 +979,22 @@ void Unk80026864::fn_8002A1BC(ERC* rc) {
     }
 }
 
+inline float ELerp1(float lo, float hi, float t) { return t * (hi - lo) + lo; }
+inline bool IsWallState1(int state) {
+    bool result = false;
+    if (state == 3 || state == 5) {
+        result = true;
+    }
+    return result;
+}
+
 // 0x8002A234
 // Draws the tile cursor under the pointer (or, while dragging, at the grabbed spot).
-// NON_MATCHING: 137 instructions vs 144. Draft; the early-out tests and the discarded
-// camera-mode test differ as in fn_800286CC. One variant tried.
+// NON_MATCHING: same length (144), 20 instructions differ, all of them one register
+// swap: the original keeps `this` in r31 and the address of the scale vector in r29,
+// and stores the vector's z straight to the stack (`stfs f30,0x10(r1)`) where this
+// stores it through the address register. About twenty variants tried (ways of
+// building the vector, order of the matrix stores).
 void Unk80026864::fn_8002A234(ERC* rc) {
     if (unk38 == 1 && !lbl_802E6700.fn_800655C4()) {
         return;
@@ -1032,7 +1003,7 @@ void Unk80026864::fn_8002A234(ERC* rc) {
         return;
     }
     lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
-    IsBuildCameraMode();
+    int button = IsBuildCameraMode() ? 5 : 6;
     if (unk84 == 1 && IsActive(unkC8)) {
         return;
     }
@@ -1040,36 +1011,45 @@ void Unk80026864::fn_8002A234(ERC* rc) {
         return;
     }
     ((Unk80181824*)unkFC)->fn_80181824(rc);
-    float size = ((Unk80026864Cam*)unkBC)->fn_8000562C() * (2.5f - 1.0f) + 1.0f;
+    float size = ELerp1(1.0f, 2.5f, ((Unk80026864Cam*)unkBC)->fn_8000562C());
     EMat4* matrix = ((Unk80173D58Alloc*)rc)->fn_80173D58(0x40, 0x20);
     matrix->fn_801B2AFC();
-    EVec3 scale(1.0f, 1.0f, size);
-    matrix->fn_801B2BA4(&scale);
+    {
+        EVec3 scale(1.0f, 1.0f, size);
+        matrix->fn_801B2BA4(&scale);
+    }
     if (unk84 == 2) {
         EVec2 at = fn_8002BD98();
         matrix->m[3][0] = at.x;
-        matrix->m[3][2] = 0.1f;
         matrix->m[3][1] = at.y;
+        matrix->m[3][2] = 0.1f;
         rc->vfn28(matrix, 1);
         rc->vfn22(unkC4);
-    } else if (unk84 != 4 && !(unk84 == 3 || unk84 == 5)) {
+    } else if (unk84 != 4 && !IsWallState1(unk84)) {
         matrix->m[3][0] = unkA0.x;
-        matrix->m[3][2] = 0.0f;
         matrix->m[3][1] = unkA0.y;
+        matrix->m[3][2] = 0.0f;
         rc->vfn28(matrix, 1);
         rc->vfn22(unkC4);
     }
 }
 
+// Counted array read through accessors (the engine's TArray; the shared header has no
+// accessors yet).
+template <class T> struct Array1 {
+    int Size() const { return size; }
+    T& operator[](int index) { return data[index]; }
+    T* data;
+    int size;
+};
+
 // 0x8002A474
 // Draws every piece of a model with its own texture.
-// NON_MATCHING: 51 instructions vs 53. The original reaches the group array through
-// the address of the {pointer, count} pair (inline accessors). One variant tried.
 void fn_8002A474(ERC* rc, Unk8033FF34Resource* model) {
-    for (int i = 0; i < model->unk24; i++) {
-        EModelGroup* group = &model->unk20[i];
-        for (int j = 0; j < group->unk4; j++) {
-            Unk80184C00* piece = &group->unk0[j];
+    for (int i = 0; i < ((Array1<EModelGroup>*)&model->unk20)->Size(); i++) {
+        Array1<Unk80184C00>& group = *(Array1<Unk80184C00>*)&(*(Array1<EModelGroup>*)&model->unk20)[i];
+        for (int j = 0; j < group.Size(); j++) {
+            Unk80184C00* piece = &group[j];
             piece->unk4->fn_80181824(rc);
             rc->vfn54(0, 1, 0, 0);
             piece->fn_80184C00(rc);
@@ -1260,22 +1240,11 @@ float Unk80026864::fn_8002B9D0() {
 
 // Keeps a direction (0, 2, 4, 6) in range.
 inline int WrapDirection(int direction) {
-    int result;
-    if (direction < 0) {
-        result = 6;
-    } else {
-        result = 0;
-        if (direction <= 6) {
-            result = direction;
-        }
-    }
-    return result;
+    return direction < 0 ? 6 : direction > 6 ? 0 : direction;
 }
 
 // 0x8002BA04
 // Turns the held object a quarter turn.
-// NON_MATCHING: 87 instructions vs 88; the wrap of the direction is laid out
-// differently (the original tests the sign straight after each add). Four variants.
 void Unk80026864::fn_8002BA04(int forward) {
     Unk801FD05CResult* part = unkF0;
     Unk800053D4Inner* object = part->vfn8b();
@@ -1386,11 +1355,15 @@ void Unk80026864::fn_8002BE48(Unk800053D4Inner* object) {
     }
 }
 
+// Sub-tile coordinates of a tile's corner, y first (the shared header's SetSubTile
+// assigns x first, which lets the compiler fold the centring into the shift).
+inline void SetSubTile2(ETilePair& out, int tileX, int tileY) {
+    out.y = tileY << 4;
+    out.x = tileX << 4;
+}
+
 // 0x8002C158
 // Moves the held object to the middle of the tile under the cursor if it fits.
-// NON_MATCHING: 131 instructions vs 134. The original stores the sub-tile pair and
-// reloads each half from the stack before centring it; here the shift and the mask
-// are combined in registers. One variant tried.
 void Unk80026864::fn_8002C158() {
     Unk801FD05CResult* part = unkF0;
     ETilePair old;
@@ -1406,7 +1379,7 @@ void Unk80026864::fn_8002C158() {
     int tileY;
     ETilePair tile;
     fn_8002BB64(&tileX, &tileY);
-    SetSubTile(tile, tileX, tileY);
+    SetSubTile2(tile, tileX, tileY);
     CentreSubTile(tile);
     if (!((Unk8037D990E*)lbl_8037D990)->vfn10(&tile)) {
         if (part->Object()->vfn49(&tile, 1, 0, 0)) {
@@ -1470,25 +1443,9 @@ void Unk80026864::fn_8002C370(Unk800053D4Inner* object) {
     }
 }
 
-// 0x8002C7B4
-// The object on the tile under the cursor that matches `kind` (0 any, 1 without
-// either wall flag, 2 and 3 with one of them).
-// NON_MATCHING: 100 instructions vs 99. The switch and the loop agree; the original
-// does not keep the iterator's address in a register, and loads both tile indices
-// before shifting them. Two variants tried.
-Unk800053D4Inner* Unk80026864::fn_8002C7B4(int kind) {
-    int tileX;
-    int tileY;
-    fn_8002BB64(&tileX, &tileY);
-    ETilePair subTile;
-    SetSubTile(subTile, tileX, tileY);
-    Unk801C6F20 tile(subTile, 1);
-    if (((Unk8037D990D*)lbl_8037D990)->vfn8(&tile)) {
-        return 0;
-    }
+inline Unk800053D4Inner* FindOnTile1(const Unk801C6F20& tile, int kind) {
     Unk800053D4Inner* found = 0;
-    Unk801C6F20 copy(tile);
-    Unk801FCE7C it(copy, 0);
+    Unk801FCE7C it(tile, 0);
     while (it.unk4) {
         Unk800053D4Inner* object = it.unk4;
         int flags = object->vfn88(0x28);
@@ -1519,36 +1476,37 @@ Unk800053D4Inner* Unk80026864::fn_8002C7B4(int kind) {
     }
     return found;
 }
+// 0x8002C7B4
+// The object on the tile under the cursor that matches `kind` (0 any, 1 without
+// either wall flag, 2 and 3 with one of them).
+// NON_MATCHING: same length (99), 5 instructions differ: the original clears the result
+// (`li r31,0`) before it builds the copy of the tile, here that comes after the copy's
+// constructor. The copy is a temporary bound to the inline helper's `const&` parameter
+// (that gives the second address register and the destructor at the end). About
+// twenty variants tried: by-value parameter or constructor, named copy, reference-bound
+// temporary, result passed in, result declared outside the helper.
+Unk800053D4Inner* Unk80026864::fn_8002C7B4(int kind) {
+    int tileX;
+    int tileY;
+    fn_8002BB64(&tileX, &tileY);
+    ETilePair subTile;
+    SetSubTile2(subTile, tileX, tileY);
+    Unk801C6F20 tile(subTile, 1);
+    if (((Unk8037D990D*)lbl_8037D990)->vfn8(&tile)) {
+        return 0;
+    }
+    return FindOnTile1(Unk801C6F20(tile), kind);
+}
 
 // 0x8002C940
 // Releases the overlay's shared textures.
-// NON_MATCHING: 3 instructions at the entry are in a different order (the store that
-// clears lbl_8037B4BC and the first load). One variant tried.
 void Unk80026864::fn_8002C940() {
     lbl_8037B4BC = 0;
-    if (lbl_8037B4C0) {
-        if (lbl_8037C198->vfn19(lbl_8037B4C0)) {
-            lbl_8037C198->vfn8();
-        }
-        lbl_8037C198->vfn18(lbl_8037B4C0);
-        lbl_8037B4C0 = 0;
-    }
-    if (lbl_8037B4AC) {
-        fn_801767FC(lbl_8037B4AC);
-        lbl_8037B4AC = 0;
-    }
-    if (lbl_8037B4B0) {
-        fn_801767FC(lbl_8037B4B0);
-        lbl_8037B4B0 = 0;
-    }
-    if (lbl_8037B4B4) {
-        fn_801767FC(lbl_8037B4B4);
-        lbl_8037B4B4 = 0;
-    }
-    if (lbl_8037B4B8) {
-        fn_801767FC(lbl_8037B4B8);
-        lbl_8037B4B8 = 0;
-    }
+    E_RELEASE_RECORDED(lbl_8037B4C0);
+    E_RELEASE_RESOURCE(lbl_8037B4AC);
+    E_RELEASE_RESOURCE(lbl_8037B4B0);
+    E_RELEASE_RESOURCE(lbl_8037B4B4);
+    E_RELEASE_RESOURCE(lbl_8037B4B8);
 }
 
 struct Unk8002CA3CRC {
@@ -1579,22 +1537,10 @@ void Unk80026864::fn_8002CA3C() {
         return;
     }
     lbl_8037B4BC = 1;
-    if (lbl_8037B4AC) {
-        fn_801767FC(lbl_8037B4AC);
-        lbl_8037B4AC = 0;
-    }
-    if (lbl_8037B4B0) {
-        fn_801767FC(lbl_8037B4B0);
-        lbl_8037B4B0 = 0;
-    }
-    if (lbl_8037B4B4) {
-        fn_801767FC(lbl_8037B4B4);
-        lbl_8037B4B4 = 0;
-    }
-    if (lbl_8037B4B8) {
-        fn_801767FC(lbl_8037B4B8);
-        lbl_8037B4B8 = 0;
-    }
+    E_RELEASE_RESOURCE(lbl_8037B4AC);
+    E_RELEASE_RESOURCE(lbl_8037B4B0);
+    E_RELEASE_RESOURCE(lbl_8037B4B4);
+    E_RELEASE_RESOURCE(lbl_8037B4B8);
     lbl_8037B4AC = lbl_80340AB8.fn_80177628(0x899BA3EB, 0, 0);
     lbl_8037B4B0 = (Unk80181824*)lbl_80340AB8.fn_80177628(0x3B494D6C, 0, 0);
     lbl_8037B4B4 = lbl_80340AB8.fn_80177628(0xEA1905EB, 0, 0);
@@ -1675,6 +1621,16 @@ EVec3* Unk80026864::fn_8002D2C8() {
 // 0x8002D2D0
 void Unk80026864::fn_8002D2D0() {
 }
+
+// The tiles filed under a key: the vector at +4 of a list record, read through its
+// accessors (which keeps the vector's address in a register).
+struct TileVec1 {
+    char* Begin() const { return first; }
+    char* End() const { return last; }
+    char* first;
+    char* last;
+};
+inline TileVec1& Tiles1(Unk80234390* list) { return *(TileVec1*)&list->unk4; }
 
 // A flat, upward-facing vertex of the overlay quads.
 inline void SetFlatVertex(Unk80173D58Vertex* vertex, float x, float y, float u, float v) {
@@ -1860,17 +1816,16 @@ void fn_8002E19C(ERC* rc, Unk8002D67CItem* item) {
 
 // 0x8002E1BC
 // Callback: applies an action to every entry filed under a key.
-// NON_MATCHING: 56 instructions vs 57; the loop over the three-byte entries is laid
-// out differently. One variant tried.
 void fn_8002E1BC(void* key, int flag) {
     Unk80234390* list = FindList(key);
     if (list && key) {
-        char* it = list->unk4;
-        if (it != list->unk8) {
+        TileVec1& tiles = Tiles1(list);
+        char* it = tiles.Begin();
+        if (it != tiles.End()) {
             do {
                 fn_800311B0((Unk801C6F20*)it, flag, list);
                 it += 3;
-            } while (it != list->unk8);
+            } while (it != tiles.End());
             if (fn_8007600C()) {
                 if (flag) {
                     lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
@@ -1928,20 +1883,27 @@ void fn_8002E2A0(int flag, int x0, int y0, int x1, int y1) {
     }
 }
 
+int fn_80038FC0(EVec2* from, EVec2* to, int type, int kind, int* out, int arg, int remove, int price);
+inline int PlaceWall(EVec2* from, EVec2* to, void* type, int kind, int* out, int arg, int remove, int price) {
+    return fn_80038FC0(from, to, (int)type, kind, out, arg, remove, price);
+}
+
 // 0x8002E498
 // Callback: an outline, drawn as four edges.
-// NON_MATCHING: same length, 32 instructions differ: the eight coordinate stores of
-// the four corners and the argument set-up are interleaved differently. One variant.
 void fn_8002E498(void* arg, int kind, float x0, float x1, float y0, float y1) {
     EVec2 a(x0, y0);
     EVec2 b(x1, y0);
     EVec2 c(x1, y1);
     EVec2 d(x0, y1);
     int out = 0;
-    fn_80038FC0(&a, &b, arg, kind, &out, 1, 0, 0);
-    fn_80038FC0(&b, &c, arg, kind, &out, 1, 0, 0);
-    fn_80038FC0(&d, &c, arg, kind, &out, 1, 0, 0);
-    fn_80038FC0(&d, &a, arg, kind, &out, 1, 0, 0);
+    EVec2* pa = &a;
+    EVec2* pb = &b;
+    EVec2* pc = &c;
+    EVec2* pd = &d;
+    PlaceWall(pa, pb, arg, kind, &out, 1, 0, 0);
+    PlaceWall(pb, pc, arg, kind, &out, 1, 0, 0);
+    PlaceWall(pd, pc, arg, kind, &out, 1, 0, 0);
+    PlaceWall(pd, pa, arg, kind, &out, 1, 0, 0);
     if (((Unk80057920*)((Unk8004AD08C*)lbl_802E67B0.unk0)->unk8)->fn_80057920(kind == 5)) {
         lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
         Unk80026864::fn_80028ECC();
@@ -1951,13 +1913,11 @@ void fn_8002E498(void* arg, int kind, float x0, float x1, float y0, float y1) {
 }
 
 // 0x8002E5DC
-// NON_MATCHING: 8 instructions; the address of the first point is loaded into r3
-// last in the original (after the other arguments) and first here. One variant.
 void fn_8002E5DC(void* arg, int kind, float x0, float y0, float x1, float y1) {
     EVec2 a(x0, y0);
     EVec2 b(x1, y1);
     int out = 0;
-    fn_80038FC0(&a, &b, arg, kind, &out, 1, 0, 0);
+    PlaceWall(&a, &b, arg, kind, &out, 1, 0, 0);
     if (((Unk80057920*)((Unk8004AD08C*)lbl_802E67B0.unk0)->unk8)->fn_80057920(kind == 5)) {
         lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
         Unk80026864::fn_80028ECC();
@@ -1967,12 +1927,11 @@ void fn_8002E5DC(void* arg, int kind, float x0, float y0, float x1, float y1) {
 }
 
 // 0x8002E68C
-// NON_MATCHING: as fn_8002E5DC.
 void fn_8002E68C(void* arg, int kind, float x0, float y0, float x1, float y1) {
     EVec2 a(x0, y0);
     EVec2 b(x1, y1);
     int out = 0;
-    fn_80038FC0(&a, &b, arg, kind, &out, 1, 1, 0);
+    PlaceWall(&a, &b, arg, kind, &out, 1, 1, 0);
     if (((Unk80057920*)((Unk8004AD08C*)lbl_802E67B0.unk0)->unk8)->fn_80057920(kind == 5)) {
         lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
         Unk80026864::fn_80028ECC();
@@ -2068,6 +2027,7 @@ void fn_8002E73C(int key, int arg) {
     Unk80026864::fn_80028ECC();
 }
 
+inline void Segment1(EVec2* a, EVec2* b, Unk801C6EF4* start, Unk801C6EF4* end) { fn_8003739C(a, b, start, end); }
 // 0x8002EA74
 // Callback: walks the tiles from one point to another and applies an action to the
 // wall on each.
@@ -2079,15 +2039,15 @@ void fn_8002EA74(int arg, int kind, float x0, float y0, float x1, float y1) {
     Unk801C6EF4 start;
     Unk801C6EF4 end;
     fn_8003739C(&a, &b, &start, &end);
-    int steps = 0;
     fn_800315FC(&start, &end);
-    bool done = false;
     int direction = fn_800369A0(&start, &end);
     int wall = fn_8023DC04(direction);
     Unk801C6EF4 current(start);
     Unk801C6EF4 last(end);
     int side = 0;
     fn_800323D8(&wall, kind, &side, &current, &last);
+    int steps = 0;
+    bool done = false;
     Unk8037D990H* level = (Unk8037D990H*)lbl_8037D990;
     do {
         Unk8023E110 info = level->vfn18(&current);

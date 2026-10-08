@@ -48,6 +48,19 @@ void Unk80039E78::fn_80039F1C() {
     unk838 = new E3DWindow;
 }
 
+// Height of the list of choices. Inline in the original (its result slot is not
+// shared with the caller's locals); it belongs in the class as a member.
+inline float M39Height(Unk80039E78* self) {
+    float height = 0.0f;
+    for (unsigned int i = 0; i < self->unk888; i++) {
+        height += self->unk0->fn_8003D550((const unsigned short*)self->unk884[i], 1, 0).y;
+        if (i < self->unk888 - 1) {
+            height += self->unk0->fn_8003DC1C(0);
+        }
+    }
+    return height;
+}
+
 // 0x8003A0C0
 // Opens the box: stores the text and the choices and lays everything out.
 // NON_MATCHING: 259 instructions vs 272; condensed draft of the layout, the stores
@@ -70,36 +83,35 @@ void Unk80039E78::fn_8003A0C0(EVec2* position, int count, int* items, int text, 
     unk854 = EVec2(0.0f, 0.0f);
     unk84C = EVec2(unk83C.x - 32.0f / screen.x, 0.0f);
     unk87C = EVec2(unk854.x + unk86C.x, unk854.y + unk86C.y + unk878);
-    unk824 = 0;
     unk81C = 0;
+    unk824 = 0;
     unk0->fn_8003C95C(1, 16.0f, 1.0f);
     unk0->unk64 = lbl_802E6964;
     fn_8003A734(0, 0, 0);
-    EVec2 extent = unk0->fn_8003D550(unkC ? unk14.fn_8023C9EC() : unk10, 1, 0);
-    unk84C.y = (float)unk824 * (extent.y + unk0->fn_8003DC1C(0)) + (unk86C.y + unk86C.y);
+    float extentY;
+    if (unkC) {
+        extentY = unk0->fn_8003D550(unk14.fn_8023C9EC(), 1, 0).y;
+    } else {
+        extentY = unk0->fn_8003D550(unk10, 1, 0).y;
+    }
+    unk84C.y = (float)unk824 * (extentY + unk0->fn_8003DC1C(0)) + (unk86C.y + unk86C.y);
     if (unk824 == 1) {
         unk830 = unk824;
     } else {
         unk830 = 0;
     }
     EVec2 margin(5.0f / screen.x, 5.0f / screen.y);
-    EVec2 box(unk84C.x, 0.0f);
+    EVec2 box(0.0f, 0.0f);
+    box = unk84C;
     unk85C = box.x;
-    float height = 0.0f;
-    for (unsigned int i = 0; i < unk888; i++) {
-        EVec2 line = unk0->fn_8003D550((const unsigned short*)unk884[i], 1, 0);
-        height += line.y;
-        if (i < unk888 - 1) {
-            height += unk0->fn_8003DC1C(0);
-        }
-    }
+    float height = M39Height(this);
     unk860 = height;
-    EVec2 at(unk844.x + 16.0f / screen.x, unk844.y + 16.0f / screen.y);
     box.y += height + margin.y;
+    EVec2 at(unk844.x + 16.0f / screen.x, unk844.y + 16.0f / screen.y);
     unk83C.y = box.y + 32.0f / screen.y;
     unk854 = at;
-    unk864.x = at.x;
-    unk864.y = at.y + unk84C.y + margin.y;
+    at.y += unk84C.y + margin.y;
+    unk864 = at;
     ERectF rect(unk854.x + unk86C.x - 1.0f / screen.x, unk854.y + unk86C.y - 1.0f / screen.y,
                 unk854.x + unk84C.x - unk86C.x + 1.0f / screen.x, unk854.y + unk84C.y - unk86C.y + 1.0f / screen.y);
     unk838->fn_8018B584(rect);

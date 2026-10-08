@@ -17,8 +17,8 @@
 // The wall and fence tools of build mode: part of Unk80026864 and its helpers.
 
 extern "C" double fn_8010D684(double); // acos
-void fn_801C6310(int id, int on);
-inline void SetButtonHint(int id, bool on) { fn_801C6310(id, on); }
+int fn_801C6310(int id, int on);
+inline int SetButtonHint(int id, bool on) { return fn_801C6310(id, on); }
 int fn_800390FC(Unk801C6EF4* start, Unk801C6EF4* end, int* direction, int* type, int* kind, int price);
 int fn_8003930C(Unk801C6EF4 start, Unk801C6EF4 end, int* direction, int* type, int* kind, int price);
 int fn_80038FC0(EVec2* from, EVec2* to, int type, int kind, int* out, int arg, int remove, int price);
@@ -74,6 +74,13 @@ inline void NormalizeVec2(EVec2& v) {
         v.x *= scale;
     }
 }
+
+// Linear blend; as an inline function its constant arguments are not folded.
+inline float Blend(float from, float to, float amount) { return amount * (to - from) + from; }
+// EVec2::operator[] (the shared header has none yet): a store through it keeps the
+// component's address in a register.
+inline float& Component(EVec2& v, int index) { return (&v.x)[index]; }
+inline float Dot2(const EVec2& a, const EVec2& b) { return a.x * b.x + b.y * a.y; }
 
 // Whether the run directions in `flags` (1 diagonal, 2 straight; 0 = any) include `mask`.
 inline bool AllowsRun(unsigned char flags, int mask) {
@@ -131,8 +138,19 @@ int fn_80037140(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int type, int ki
 int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag);
 void fn_80035C70(ERC* rc, void* texture, EVec2* a, EVec2* b, int* flag);
 
+// The objects on a tile (the iterator with its inline wrappers).
+struct TileObjects : Unk801FCE7C {
+    TileObjects(const Unk801C6F20& tile) : Unk801FCE7C(tile, 0) {}
+    Unk800053D4Inner* Get() { return unk4; }
+};
+
+// Rounds to the nearest whole number (an inline function: 0.5 is loaded before the value).
+inline int RoundToInt(float value) { return (int)(value + 0.5f); }
 inline bool IsFenceLike(int type) {
-    return type == 3 || type == 5 || type == 6 || type == 0xF || type == 0x17;
+    if (type == 3 || type == 5 || type == 6 || type == 0xF || type == 0x17) {
+        return true;
+    }
+    return false;
 }
 
 // 0x80033974
@@ -166,8 +184,8 @@ int Unk80026864::fn_80033974() {
 
 // 0x80033BAC
 // Leaves the wall or fence tool.
-// NON_MATCHING: 6 instructions: the original loads the second argument of each
-// button-hint call before the first. Four forms of the call tried.
+// The hint function returns a value (that puts its second argument first), and the
+// release at the end is a `do { } while (0)` macro (that does the same for the last call).
 void Unk80026864::fn_80033BAC() {
     bool active = false;
     if (unk84 == 3 || unk84 == 5) {
@@ -179,10 +197,12 @@ void Unk80026864::fn_80033BAC() {
         SetButtonHint(0x90, false);
         SetButtonHint(0x100, false);
         SetButtonHint(0xEF, true);
-        if (unk104) {
-            fn_801767FC(unk104);
-            unk104 = 0;
-        }
+        do {
+            if (unk104) {
+                fn_801767FC(unk104);
+                unk104 = 0;
+            }
+        } while (0);
     }
 }
 
@@ -219,17 +239,15 @@ void Unk80026864::fn_80033C3C() {
 
 // 0x80033DD8
 // Snaps the dragged end of a wall run to a straight or diagonal line from its start.
-// NON_MATCHING: 139 instructions vs 145; the slopes and signs are computed in a
-// different order. One variant tried.
 void Unk80026864::fn_80033DD8(EVec2* from, EVec2* to) {
     EVec2 cursor;
     fn_8002BC5C(&cursor);
-    EVec2 delta(cursor.x - from->x, cursor.y - from->y);
-    float rise = delta.y / delta.x;
+    EVec2 delta(cursor - *from);
     float run = delta.x / delta.y;
+    float rise = delta.y / delta.x;
     float signX = delta.x < 0.0f ? -1.0f : 1.0f;
     float signY = delta.y < 0.0f ? -1.0f : 1.0f;
-    float threshold = 1.0f / (delta.x * delta.x + delta.y * delta.y) * (-0.25f - 0.25f) + 0.25f + 0.5f;
+    float threshold = Blend(0.25f, -0.25f, 1.0f / (delta.x * delta.x + delta.y * delta.y)) + 0.5f;
     run = EABS(run);
     rise = EABS(rise);
     if (run == 1.0f) {
@@ -240,17 +258,16 @@ void Unk80026864::fn_80033DD8(EVec2* from, EVec2* to) {
     if (run < threshold) {
         delta.x = 0.0f;
     } else if (run >= threshold && run < 1.0f) {
-        delta.x = signX * EABS(delta.y);
+        Component(delta, 0) = signX * EABS(delta.y);
     } else if (rise < threshold) {
         delta.y = 0.0f;
     } else if (rise >= threshold && rise < 1.0f) {
-        delta.y = signY * EABS(delta.x);
+        Component(delta, 1) = signY * EABS(delta.x);
     }
     *to = EVec2(from->x + delta.x, from->y + delta.y);
-    if (unk84 == 3 && unkCC) {
-        return;
+    if (unk84 != 3 || ((unkCC ^ 1) & 1)) {
+        fn_80034734(to, from);
     }
-    fn_80034734(to, from);
 }
 
 // 0x8003401C
@@ -280,14 +297,15 @@ int Unk80026864::fn_8003401C(EVec2* from, EVec2* to, float* scale) {
 
 // 0x8003467C
 // The angle of a wall direction, turned half a circle for the far side.
-// NON_MATCHING: 44 instructions vs 46; the axis vector's components are kept in
-// registers differently. Three variants tried.
 void Unk80026864::fn_8003467C(EVec2* direction, float* angle) {
-    EVec2 axis;
-    axis.x = 1.0f;
-    axis.y = 0.0f;
-    float dot = axis.x * direction->x + direction->y * axis.y;
-    float cosine = EABS(dot);
+    EVec2 axis(1.0f, 0.0f);
+    float dot = Dot2(axis, *direction);
+    float cosine;
+    if (dot >= 0.0f) {
+        cosine = dot;
+    } else {
+        cosine = -dot;
+    }
     double turned;
     if (direction->y * direction->x >= 0.0f) {
         turned = fn_8010D684(cosine);
@@ -332,20 +350,40 @@ void Unk80026864::fn_80034734(EVec2* to, EVec2* from) {
     }
 }
 
+// 0x80034968
+// Which of the eight directions the run from `a` to `b` is closest to.
+// NON_MATCHING: skeleton (298 instructions in the original, which compares the
+// normalized run with eight normalized direction vectors one by one).
+int Unk80026864::fn_80034968(EVec2* a, EVec2* b) {
+    static const float directions[8][2] = {
+        { 0.0f, -1.0f }, { 0.0f, 1.0f }, { -1.0f, 0.0f }, { 1.0f, 0.0f },
+        { -1.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 1.0f }, { 1.0f, -1.0f },
+    };
+    EVec2 run((*b - *a).Normalize());
+    int best = 0;
+    float bestDot = -1.0f;
+    for (int i = 0; i < 8; i++) {
+        EVec2 direction(directions[i][0], directions[i][1]);
+        direction.Normalize();
+        float dot = run.x * direction.x + run.y * direction.y;
+        if (dot > bestDot) {
+            bestDot = dot;
+            best = i;
+        }
+    }
+    return best;
+}
+
 // 0x80034E10
 // Whether a diagonal wall crosses the tile under the cursor (and which diagonal).
-// NON_MATCHING: 123 instructions vs 121; the two points are set up in a different
-// order. One variant tried.
 int Unk80026864::fn_80034E10(int* wall) {
     float size = GetGrid()->unk34;
     Unk801C6EF4 first;
     Unk801C6EF4 second;
     EVec2 a(unkAC, unkB0);
-    EVec2 b;
     a.x -= GetGrid()->unk34;
-    b.x = a.x + (size + size);
-    b.y = a.y - GetGrid()->unk38;
-    a.y = b.y;
+    a.y -= GetGrid()->unk38;
+    EVec2 b(a.x + (size + size), a.y);
     for (int i = 0; i <= 1; i++) {
         *wall = i == 0 ? 0x10 : 0x20;
         ((Unk801C72D4*)&first)->fn_801C72D4((int)a.y, (int)a.x, 1);
@@ -353,8 +391,7 @@ int Unk80026864::fn_80034E10(int* wall) {
         Unk8037D990H* level = (Unk8037D990H*)lbl_8037D990;
         int direction = fn_800369A0(&first, &second);
         if (!level->vfn8(&second) && direction != 8) {
-            Unk8023E110 info = level->vfn18(&second);
-            if (info.fn_8023DEA4(*wall)) {
+            if (level->vfn18(&second).fn_8023DEA4(*wall)) {
                 return 1;
             }
         }
@@ -364,17 +401,14 @@ int Unk80026864::fn_80034E10(int* wall) {
 
 // 0x80034FF4
 // Whether there is a wall on the tile under the cursor; gives its description.
-// NON_MATCHING: 123 instructions vs 124; as fn_80034E10. One variant tried.
 int Unk80026864::fn_80034FF4(int* out) {
     float size = GetGrid()->unk34;
     Unk801C6EF4 first;
     Unk801C6EF4 second;
     EVec2 a(unkAC, unkB0);
-    EVec2 b;
     a.x -= GetGrid()->unk34;
-    b.x = a.x + (size + size);
     a.y -= GetGrid()->unk38;
-    b.y = a.y;
+    EVec2 b(a.x + (size + size), a.y);
     ((Unk801C72D4*)&first)->fn_801C72D4((int)a.y, (int)a.x, 1);
     ((Unk801C72D4*)&second)->fn_801C72D4((int)b.y, (int)b.x, 1);
     Unk8037D990P* level = (Unk8037D990P*)lbl_8037D990;
@@ -397,27 +431,20 @@ void Unk80026864::fn_800351E4(EVec2* a, EVec2* b, int wall, float* angle, EVec2*
     *out = *b;
     EVec3 offset;
     fn_80033278(a, out, &offset);
-    if (offset.x != 0.0f || offset.y != 0.0f || offset.z != 0.0f) {
-        fn_801221E4(&offset, &offset);
-    }
+    offset.Normalize();
     float step = fn_8010D900(GetGrid()->unk34 * GetGrid()->unk34 + GetGrid()->unk38 * GetGrid()->unk38);
-    EVec3 scaled(step * offset.x, step * offset.y, step * offset.z);
-    EVec2 plus(unkB4.x + scaled.x, unkB4.y + scaled.y);
-    EVec3 direction(step * offset.x, step * offset.y, step * offset.z);
-    EVec2 minus(unkB4.x - direction.x, unkB4.y - direction.y);
+    EVec2 plus = unkB4 + *(EVec2*)&(step * offset);
+    EVec2 minus = unkB4 - *(EVec2*)&(step * offset);
     if (unk84 == 4 || (unk88 & 4)) {
         *b = minus;
         *a = plus;
-        direction.x = offset.x;
-        direction.y = offset.y;
-        fn_8003467C((EVec2*)&direction, angle);
+        EVec2 flat(offset.x, offset.y);
+        fn_8003467C(&flat, angle);
     }
+    EVec3 direction;
     fn_80033278(&plus, &minus, &direction);
-    if (direction.x != 0.0f || direction.y != 0.0f || direction.z != 0.0f) {
-        fn_801221E4(&direction, &direction);
-    }
-    EVec3 moved(step * direction.x, step * direction.y, step * direction.z);
-    *out = EVec2(unkB4.x + moved.x, unkB4.y + moved.y);
+    direction.Normalize();
+    *out = unkB4 + *(EVec2*)&(step * direction);
 }
 
 // 0x80035434
@@ -483,7 +510,11 @@ void Unk80026864::fn_80035724(ERC* rc) {
 // Draws one stretch of wall or fence preview, in the "cannot build" texture when
 // the run's direction is not allowed.
 // NON_MATCHING: same length (147), 28 instructions: the registers of the two
-// texture pointers are exchanged and the copy sits before the test. Four variants.
+// texture pointers are exchanged (r30/r29), the copy `shown = texture` sits before
+// the direction test instead of between its `cmpwi` and `bne`, and `flag`/`height`
+// are loaded in the other order for the draw call. About twenty variants tried
+// (named bool, inline predicates, if/else forms, declaration orders); a named bool
+// moves the copy to the right place but costs an extra `mr`.
 void Unk80026864::fn_80035774(ERC* rc, EVec2* from, EVec2* to) {
     float height;
     if (unk84 == 5) {
@@ -522,15 +553,14 @@ void Unk80026864::fn_80035774(ERC* rc, EVec2* from, EVec2* to) {
 
 // 0x800359C0
 // Draws the wall or fence run being dragged.
-// NON_MATCHING: 98 instructions vs 99; as fn_80031B1C. One variant tried.
 void Unk80026864::fn_800359C0(ERC* rc) {
     EVec2 from(unkD0, unkD4);
     EVec2 to(unkD8, unkDC);
     EVec3 offset;
-    int unused;
     fn_80033278(&from, &to, &offset);
-    from += *(EVec2*)&offset;
-    to += *(EVec2*)&offset;
+    EVec2* shift = (EVec2*)&offset;
+    from += *shift;
+    to += *shift;
     float height;
     if (unk84 == 5) {
         height = 1.5f;
@@ -545,7 +575,7 @@ void Unk80026864::fn_800359C0(ERC* rc) {
         texture = (Unk80181824*)lbl_8037B4B4;
     }
     void* handle = *(void**)((char*)texture + 4);
-    fn_801E36E4b(lbl_802E6700.unk120, 6, 0, &unkD0, &unkD4, &unkD8, &unkDC, &offset, &unused, &handle, (int)&unk84);
+    fn_801E36E4b(lbl_802E6700.unk120, 6, 0, &unkD0, &unkD4, &unkD8, &unkDC, &offset.x, &offset.y, &handle, (int)&unk84);
     fn_80031CF0(rc, texture, (EVec2*)&unkD0, (EVec2*)&unkD8, 0, height, 0.0f);
 }
 
@@ -618,15 +648,13 @@ int fn_800369A0(Unk801C6EF4* from, Unk801C6EF4* to) {
 // 0x80036B14
 // Looks for an object hung on one side of a wall; when there is one, adds what it
 // is worth to `refund` and has it removed.
-// NON_MATCHING: 126 instructions vs 130; the calls and tests are the original's,
-// the loop is laid out differently. One variant tried.
 int fn_80036B14(Unk801C6EF4* tile, int wall, int* refund) {
     int found = 0;
     *refund = 0;
-    Unk801FCE7C it(*(Unk801C6F20*)tile, 0);
+    TileObjects it(*(Unk801C6F20*)tile);
     Unk800053D4Inner* hit = 0;
-    while (it.unk4) {
-        Unk800053D4Inner* object = it.unk4;
+    while (it.Get()) {
+        Unk800053D4Inner* object = it.Get();
         if (object->vfn109() == 8 && object->vfn109() != 2) {
             int flags = object->vfn88(0xD);
             int sides = flags;
@@ -641,7 +669,7 @@ int fn_80036B14(Unk801C6EF4* tile, int wall, int* refund) {
     }
     if (hit) {
         found = 1;
-        *refund += (int)((float)hit->vfn131() * lbl_8037DA20 + 0.5f);
+        *refund += RoundToInt((float)hit->vfn131() * lbl_8037DA20);
         ((Unk8037D98CC*)lbl_8037D98C)->vfn11(hit->vfn111());
     }
     return found;
@@ -649,8 +677,6 @@ int fn_80036B14(Unk801C6EF4* tile, int wall, int* refund) {
 
 // 0x80036D1C
 // Removes one wall from a tile (with anything hung on it); returns what that costs.
-// NON_MATCHING: 101 instructions vs 100; register allocation differs from the
-// first call on. One variant tried.
 int fn_80036D1C(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int arg, int kind) {
     if (!fn_80039A70(tile, (void*)wall, kind)) {
         return 0;
@@ -667,7 +693,8 @@ int fn_80036D1C(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int arg, int kin
     }
     if (wall == 0x10 || wall == 0x20) {
         if (level->vfn14(tile) == 0xFF) {
-            level->vfn15(tile, info->fn_8023E420(wall == 0x10 ? 4 : 3));
+            int half = wall == 0x10 ? 4 : 3;
+            level->vfn15(tile, info->fn_8023E420(half));
         }
     }
     info->fn_8023E2FC(wall);
@@ -724,16 +751,13 @@ int fn_80037140(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int type, int ki
 // 0x8003739C
 // Turns the two ends of a run on the ground into tile corners, nudged so that the
 // run covers the tiles it should for each of the eight directions.
-// NON_MATCHING: 168 instructions vs 171; the cases are the original's, the shared
-// tails of the adjustments are merged differently. One variant tried.
 void fn_8003739C(EVec2* from, EVec2* to, Unk801C6EF4* start, Unk801C6EF4* end) {
     EVec2 a(*from);
-    EVec2 b;
+    EVec2 b(*to);
     a = EVec2(a.x - 0.5f, a.y + 0.5f);
-    b.x = to->x;
-    b.y = to->y;
     b = EVec2(b.x - 0.5f, b.y + 0.5f);
-    EVec2 delta(to->x - from->x, to->y - from->y);
+    EVec2 unused;   // a local that is never used leaves its slot in the frame
+    EVec2 delta(*to - *from);
     int signX = 1;
     if (delta.x < 0.0f) {
         signX = -1;
@@ -742,29 +766,31 @@ void fn_8003739C(EVec2* from, EVec2* to, Unk801C6EF4* start, Unk801C6EF4* end) {
     if (delta.y < 0.0f) {
         signY = -1;
     }
-    if (delta.x == 0.0f) {
-        if (signY > 0) {
-            a.y += 1.0f;
-            b.y += 1.0f;
-        }
-        a.x += 1.0f;
-        b.x += 1.0f;
-        a.y -= 1.0f;
-        b.y -= 1.0f;
-    } else if (delta.y == 0.0f) {
-        if (signX > 0) {
+    if (delta.x == 0.0f || delta.y == 0.0f) {
+        if (delta.x == 0.0f) {
+            if (signY > 0) {
+                a.y += 1.0f;
+                b.y += 1.0f;
+            }
+            a.x += 1.0f;
+            b.x += 1.0f;
             a.y -= 1.0f;
             b.y -= 1.0f;
         } else {
-            a.y -= 1.0f;
-            b.y -= 1.0f;
-            a.x -= 1.0f;
-            b.x -= 1.0f;
+            if (signX > 0) {
+                a.y -= 1.0f;
+                b.y -= 1.0f;
+            } else {
+                a.y -= 1.0f;
+                b.y -= 1.0f;
+                a.x -= 1.0f;
+                b.x -= 1.0f;
+            }
+            a.x += 1.0f;
+            b.x += 1.0f;
+            a.y += 1.0f;
+            b.y += 1.0f;
         }
-        a.x += 1.0f;
-        b.x += 1.0f;
-        a.y += 1.0f;
-        b.y += 1.0f;
     } else if (signX < 0 && signY < 0) {
         a.y -= 1.0f;
         b.y -= 1.0f;
@@ -927,22 +953,17 @@ int Unk80026864::fn_800380C4() {
 }
 
 // 0x80038424
-// NON_MATCHING: 26 instructions vs 30: the original keeps `remove` in a saved
-// register (and so has a larger frame). One variant tried.
 int Unk80026864::fn_80038424(EVec2* from, EVec2* to, int* out, int arg, int remove) {
     int price;
-    int kind;
     if (remove) {
         price = unkEC;
-        kind = unk84;
     } else {
-        kind = unk84;
         price = 0x46;
-        if (kind != 3) {
+        if (unk84 != 3) {
             price = unk1C4;
         }
     }
-    return fn_80038FC0(from, to, unk1C0, kind, out, arg, remove, price);
+    return fn_80038FC0(from, to, unk1C0, unk84, out, arg, remove, price);
 }
 
 // 0x8003849C
