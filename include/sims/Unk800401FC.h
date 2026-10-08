@@ -43,6 +43,23 @@ struct Unk800401FC {
 // How a dialog fades and grows (0x44 bytes).
 struct Unk8004024CRange {
     Unk8004024CRange(float lo, float hi) : unk0(lo), unk4(hi) { unk8 = unk0; }
+    void Clamp() {
+        float value;
+        if (unk8 < unk0) {
+            value = unk0;
+        } else if (unk8 > unk4) {
+            value = unk4;
+        } else {
+            value = unk8;
+        }
+        unk8 = value;
+    }
+    void Set(float lo, float hi, float value) {
+        unk8 = value;
+        unk0 = lo;
+        unk4 = hi;
+        Clamp();
+    }
     float unk0;
     float unk4;
     float unk8;                       // current, kept between the two

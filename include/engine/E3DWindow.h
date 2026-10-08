@@ -26,6 +26,11 @@ public:
     void fn_80154798(const EVec3& eye, const EVec3& target, const EVec3& up); // look-at
     void fn_80156130(const EVec3& world, EVec2* screen); // project to screen
 
+    // The window's rectangle on the screen (0x60 to 0x6C).
+    float Left() const { return *(float*)&mWindowData[0x60]; }
+    float Top() const { return *(float*)&mWindowData[0x64]; }
+    float Right() const { return *(float*)&mWindowData[0x68]; }
+    float Bottom() const { return *(float*)&mWindowData[0x6C]; }
     void* operator new(unsigned int size) { return fn_80169F1C(size, 16); }
     void operator delete(void* ptr) { fn_80169EE8(ptr); }
 

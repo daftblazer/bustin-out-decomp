@@ -20,12 +20,12 @@
 #include "engine/ERFont.h"
 #include "engine/EController.h"
 
-// The dialog boxes (unit 0x800401FC). IN PROGRESS: 34 of the unit's 51 functions
-// match and 8 more are written with notes. Not written yet, in address order:
-//   0x80040640 update (488 instructions)      0x80040EAC draw (181)
+// The dialog boxes (unit 0x800401FC). IN PROGRESS: 33 of the unit's 51 functions
+// match and more are written with notes. Not written yet, in address order:
+//   0x80040640 update (488 instructions)
 //   0x800411A8 body text and scroll arrows (402)
 //   0x800424F0 set-up from a dialog description (721)
-//   0x80043110 word wrapping (301)            0x800435C4 layout (151)
+//   0x80043110 word wrapping (301)
 //   0x80044974 icon (132)                     0x80044C5C a two-instruction accessor
 // Its .rodata is not complete either: "Missing String!!!" is a 16-bit string in the
 // original and the motive names at 0x80298CE0 are missing.
@@ -64,7 +64,9 @@ struct Unk80042228Record {
     short unk16[1];
 };
 extern Unk8003B870String lbl_8037D3B4;
+extern float lbl_8037B500;
 extern float lbl_8037B504;
+extern float lbl_8037B50C;
 extern EColorF lbl_802E6964;           // text colour
 extern EColorF lbl_802E6974;           // shadow colour
 extern EColorF lbl_802E6A34;           // text colour while its button is held
@@ -240,6 +242,64 @@ void Unk80040274::fn_80040DE0() {
     unk50->Clear();
     if (lbl_802E6700.unkBC) {
         ((UnkTargetBase*)lbl_802E6700.unkBC)->vfn7(0, 0x1F);
+    }
+}
+
+// 0x80040EAC
+// Draws the dialog: its title, body, icon and buttons.
+// NON_MATCHING: 182 instructions against 181; same calls in the same order, the
+// unused title size and position are computed in a different order.
+void Unk80040274::vfn3(ERC* rc) {
+    if (unk7C == 3) {
+        if (unk58) {
+            unk58->vfn3(rc);
+        }
+        return;
+    }
+    lbl_802E6700.unkE4->fn_80181824(rc);
+    float half = 0.5f;
+    float middle = unk64->Left() + (unk64->Right() - unk64->Left()) * half;
+    EVec2 size = lbl_802E6700.unkEC->DoGetStringSize(unk50->unk10.fn_801C5B24(), true, 0);
+    size.x += 0.1f;
+    lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
+    lbl_802E6700.unkEC->unk64 = lbl_802E6964;
+    lbl_802E6700.unkEC->Select(rc);
+    lbl_802E6700.unkE4->fn_80181824(rc);
+    EVec2 position(lbl_8037CAC0.x, lbl_8037CAC0.y + lbl_8037CAD8.y + lbl_8037B50C);
+    float width = lbl_8037CAE8.x;
+    switch (unk7C) {
+    case 0:
+    case 10:
+        position.x = middle - width * 0.3f * half;
+        break;
+    case 1:
+        position.x = middle - width * 0.6f * half;
+        break;
+    case 2:
+        break;
+    }
+    if (unk48 == 1) {
+        lbl_802E6700.unkEC->SetSize(true, 18.0f, 1.0f);
+        lbl_802E6700.unkEC->unk64 = lbl_802E6964;
+        lbl_802E6700.unkEC->DrawDs(rc, unk50->unk10.fn_801C5B24(), &unkE4, 2, 2, 0, 2.0f, 1.0f);
+        fn_800411A8(rc, 1);
+        if (unk94) {
+            fn_80044974(rc);
+        }
+        switch (unk7C) {
+        case 2:
+            fn_800417F0(rc);
+            break;
+        case 1:
+            fn_80041CB0(rc);
+            break;
+        case 0:
+        case 3:
+        case 4:
+        case 10:
+            fn_80041F74(rc);
+            break;
+        }
     }
 }
 
@@ -494,6 +554,39 @@ bool fn_800430EC(int character) {
         return true;
     }
     return (unsigned int)(character - 9) <= 4;
+}
+
+// 0x800435C4
+// Works out where the dialog goes and starts it fading in.
+// NON_MATCHING: 144 instructions against 151; the two rectangle computations are
+// folded differently (the original keeps the height sum separate in both branches).
+void Unk80040274::fn_800435C4(int flag) {
+    unkF0 = 1;
+    unk50->unk24 = unk64->Top();
+    unk80 = 0;
+    unk4C->unk3C = 120.0f;
+    float line = 32.0f / (float)lbl_8037C198->unk18;
+    lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
+    EVec2 size = lbl_802E6700.unkEC->DoGetStringSize("A!Wyj^?}|", false, 0);
+    ERectF rect;
+    if (flag == 0) {
+        float gap = 0.005f;
+        float height = unk64->Bottom() - unk64->Top() + 0.01f + size.y + gap + gap + line;
+        rect.unk4 = unk64->Top() - gap - size.y;
+        rect.unk0 = unk64->Left() - 0.05f;
+        rect.unk8 = unk64->Right() + 0.05f;
+        rect.unkC = rect.unk4 + height;
+    } else {
+        float height = unk64->Bottom() - unk64->Top() + 0.01f;
+        rect.unk4 = unk64->Top() - 0.01f;
+        rect.unk0 = unk64->Left() - 0.025f;
+        rect.unk8 = unk64->Right() + 0.025f;
+        rect.unkC = rect.unk4 + height;
+    }
+    unk4C->unk10 = rect;
+    unk4C->unk30.Set(0.0f, lbl_8037B500, 0.0f);
+    fn_800448F4();
+    unk4C->unk20 = unk4C->unk10;
 }
 
 // 0x80043820
