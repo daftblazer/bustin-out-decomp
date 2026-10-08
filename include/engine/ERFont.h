@@ -75,7 +75,7 @@ public:
     void Load(EFile& file);
     void SetSize(bool pick, float size, float aspect);
     void SelectPage(ERC* rc, int page);
-    void DoDraw(const void* text, bool wide, bool noSnapX, bool noSnapY, const EVec2& position, ERC* rc,
+    void DoDraw(const void* text, bool wide, bool snapX, bool snapY, const EVec2& position, ERC* rc,
                 EVec2* size, EWindow* window);
     EVec2 DoGetStringSize(const void* text, bool wide, EWindow* window);
     void SnapPosToPixel(EVec2& position, bool snapX, bool snapY, EWindow* window);
@@ -91,9 +91,13 @@ public:
     int unk18;
     int unk1C;
     ERFontSizeList unk20;
-    int unk30;
-    int unk34;
-    char unk38[0x58 - 0x38];
+    int unk30;               // line height, in units of unk40
+    int unk34;               // ascent
+    int unk38;               // default kerning
+    int unk3C;
+    int unk40;               // design size
+    int unk44;               // width of a missing character
+    char unk48[0x58 - 0x48]; // kerning pairs (a map keyed by both characters)
     float unk58;             // current size
     float unk5C;             // current aspect
     EFontSize* unk60;        // the size record in use
