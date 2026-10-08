@@ -3,7 +3,7 @@
 
 // What a request to the background loader is for: an interface of sixteen virtuals
 // with defaults (vtable 0x80298848). It is defined ahead of the engine headers (its
-// empty string opens the .rodata of sims/Unk8003E844.cpp).
+// empty string opens the .rodata of sims/ESimsDataManager.cpp).
 //
 // Its vtable and virtuals exist once in the binary, as *globals* at the end of that
 // file, and engine code uses that copy. Compiled like this they are emitted in the

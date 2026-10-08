@@ -476,7 +476,7 @@ comparing them.
 ## Inline virtuals shared between units (open problem)
 
 `tools/tu.sh` compares functions by name. It does not check their **order** in the object or whether a symbol is
-local or global; only linking the unit does. `sims/Unk8003E844.cpp` matches in all 70 functions and its `.rodata`
+local or global; only linking the unit does. `sims/ESimsDataManager.cpp` matches in all 70 functions and its `.rodata`
 is byte-identical, yet cannot be linked from source:
 
 - Its base interface class (`Unk80298848`, sixteen inline virtuals, no key function) has its vtable and virtuals
@@ -506,4 +506,8 @@ is byte-identical, yet cannot be linked from source:
 - So before spending time on data splits for a unit, check `findref.py` on its inline-virtual tail: if another
   unit references those functions or their vtable, the unit hits this problem.
 - The engine's string object is `Unk801C3E10` (`include/engine/Unk801C3E10.h`), 8 bytes.
+- Read `config/G4ME69/sims2_hints.txt` for a unit's address range **before** writing it. The data manager was
+  first written with placeholder names although twenty of its functions had `=` hints (`ESimsDataManager`,
+  `ObjSelector`, `ReconBuffer`, `ObjectSaveTypeTable2::DoStream`). The hinted signatures also correct guesses:
+  which functions are static members, which take a `bool`, which object is an `ESim`.
 
