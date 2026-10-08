@@ -17,6 +17,7 @@
 #include "sims/Unk800421C0Sim.h"
 #include "sims/EGlobal.h"
 #include "engine/ResourceManagers.h"
+#include "engine/ERFont.h"
 
 // The dialog boxes (unit 0x800401FC). STAGE 1 of the unit: the object that queues
 // dialogs is complete; of the dialog itself only the constructor of its texts, the
@@ -37,6 +38,29 @@ struct Unk80108290 {
     int fn_801082CC();
 };
 extern "C" void fn_80106164(void* viewer, const char* command, ...);
+extern "C" int fn_80111ECC(const char* a, const char* b);              // strcmp
+extern "C" int fn_8010F7F0(const char* text, const char* format, ...); // sscanf
+extern "C" int fn_8010F710(char* out, const char* format, ...);        // sprintf
+extern "C" int fn_80110874(const char* text);                          // atoi
+int fn_801BA640(const unsigned short* text);                           // length
+void fn_800B772C();
+
+// A table of localized strings (vtable pointer at 0): slot 6 looks one up.
+struct Unk80043034Table {
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual Unk800669ACResult vfn6(int key, ...);
+};
+// What a sim's slot 167 returns: flags per choice.
+struct Unk80042228Record {
+    char unk0[0x16];
+    short unk16[1];
+};
+extern Unk8003B870String lbl_8037D3B4;
+extern float lbl_8037B504;
 
 // The level (lbl_8037D998): slot 8 is told when a dialog's texts go away.
 struct Unk8037D998Level {
@@ -164,6 +188,19 @@ void Unk80040274::fn_80040DE0() {
     }
 }
 
+// 0x80041180
+void fn_80041180() {
+    fn_800B772C();
+}
+
+// 0x800411A0
+void fn_800411A0() {
+}
+
+// 0x800411A4
+void fn_800411A4() {
+}
+
 // 0x80042170
 void Unk80040274::vfn19(Unk8003B870String* text) {
     Unk8003B870String typed(unk5C.Get());
@@ -186,9 +223,84 @@ void Unk80040274::vfn21(int id) {
     unk68 = 0;
 }
 
+// 0x80042228
+// Acts on the answer; returns 1 when the dialog is finished with.
+long long Unk80040274::fn_80042228() {
+    switch (unk80) {
+    case 0:
+    case 1:
+        return 0;
+    case 2:
+        if (unk7C == 3) {
+            vfn19(&lbl_8037D3B4);
+        }
+        break;
+    case 3:
+        if (unk7C == 2) {
+            int choice = unk78;
+            Unk80042228Record* record = unk68 ? (Unk80042228Record*)unk68->vfn167() : 0;
+            record->unk16[choice] = 0;
+        }
+        return 0;
+    case 4:
+        if (unk7C == 2) {
+            int choice = unk78;
+            Unk80042228Record* record = unk68 ? (Unk80042228Record*)unk68->vfn167() : 0;
+            record->unk16[choice] = 1;
+        }
+        return 0;
+    }
+    return 1;
+}
+
 // 0x80042358
 int Unk80040274::vfn24(void* a, void* b, void* c, void* d) {
     return 1;
+}
+
+// 0x80042360
+// Sets up a dialog with a title and one button.
+// NON_MATCHING: 101 instructions against 100. The frame is 8 bytes larger and the
+// address of the size temporary is kept in a saved register; the original passes
+// sp+0x10 directly and copies x before y.
+int Unk80040274::vfn23(void* a, const char* title) {
+    Unk8003B870String text((const unsigned short*)GetTextB(title));
+    unk70 = 2;
+    unk7C = 0;
+    unk78 = 0;
+    unk84 = unk68 ? unk68->vfn111() : 0;
+    unk50->unk10 = text;
+    lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
+    unk50->unk1C = (const unsigned short*)GetTextB("ok");
+    Unk800401FC* texts = unk50;
+    EVec2 size = lbl_802E6700.unkEC->DoGetStringSize(texts->unk1C.fn_801C5B24(), true, 0);
+    texts->unk34 = size;
+    unk50->unk18.fn_801C5704(0, -1);
+    unk50->unk14.fn_801C5704(0, -1);
+    fn_80043110(a, 0);
+    return 1;
+}
+
+// 0x80043034
+// Looks a string up in a table; uses the fallback when there is none or it is empty.
+// NON_MATCHING: 42 instructions against 46. The original tests the looked-up text
+// through two separate null checks (cr7 kept across them) and loads the virtual's
+// address before its this-offset.
+void fn_80043034(Unk80043034Table* table, Unk8003B870String* out, int key, const unsigned short* fallback) {
+    Unk800669ACResult result = table->vfn6(key);
+    if ((result.ptr ? *result.ptr : 0) != 0 && fn_801BA640((const unsigned short*)(result.ptr ? *result.ptr : 0)) != 0) {
+        out->fn_801C55CC((const unsigned short*)(result.ptr ? *result.ptr : 0));
+    } else if (fallback) {
+        out->fn_801C55CC(fallback);
+    }
+}
+
+// 0x800430EC
+bool fn_800430EC(int character) {
+    if (character == ' ') {
+        return true;
+    }
+    return (unsigned int)(character - 9) <= 4;
 }
 
 // 0x80043820
@@ -303,7 +415,7 @@ int Unk80043820::vfn3(void* a, void* b, Unk800421C0Sim* sim) {
     if (sim) {
         dialog->vfn20(sim);
     }
-    dialog->vfn23(a, b);
+    dialog->vfn23(a, (const char*)b);
     dialog->unk54 = this;
     if (unk14 == 0) {
         unk14 = dialog;
@@ -376,6 +488,149 @@ Unk80040274* Unk80043820::fn_80044128() {
 ERectF Unk80040274::fn_80044174() {
     ERectF rect(unk4C->unk10.unk0, unk4C->unk10.unk4, unk4C->unk10.unk8, unk4C->unk10.unkC);
     return rect;
+}
+
+inline float TextWidth(ERFont* font, Unk8003B870String& text) {
+    EVec2 size = font->DoGetStringSize(text.fn_801C5B24(), true, 0);
+    return size.x;
+}
+
+// 0x800441C0
+// The width of the widest button text.
+// NON_MATCHING: 98 instructions against 100. The original keeps one size slot at
+// sp+8 with its address in r30 for the second and third calls and a 0x30 frame; an
+// inline helper, named locals and `.x` on the call result all give other frames.
+float Unk80040274::fn_800441C0() {
+    ERFont* font = lbl_802E6700.unkEC;
+    font->SetSize(true, 14.0f, 1.0f);
+    float width;
+    if (unk7C == 1) {
+        float first = TextWidth(font, unk50->unk1C);
+        float second = TextWidth(font, unk50->unk18);
+        width = first;
+        if (width < second) {
+            width = second;
+        }
+    } else if (unk7C == 2) {
+        float first = TextWidth(font, unk50->unk1C);
+        float second = TextWidth(font, unk50->unk18);
+        float third = TextWidth(font, unk50->unk14);
+        width = first;
+        if (width < second) {
+            width = second;
+        }
+        if (width < third) {
+            width = third;
+        }
+    } else {
+        width = TextWidth(font, unk50->unk1C);
+    }
+    return width;
+}
+
+// 0x80044350
+// A variable set by the UI script.
+void Unk80040274::vfn8(const char* name, const char* value) {
+    fn_80110874(value);
+    if (fn_80111ECC("dialog_key_press", name) == 0) {
+        return;
+    }
+    if (fn_80111ECC("dialog_current_button", name) == 0) {
+        if (fn_80111ECC("1", value) == 0) {
+            unkC4 = 1;
+        } else if (fn_80111ECC("2", value) == 0) {
+            unkC4 = 2;
+        } else {
+            unkC4 = 3;
+        }
+    } else if (fn_80111ECC("dialog_button_accept_x", name) == 0) {
+        fn_8010F7F0(value, "%f", &unkD4[0]);
+    } else if (fn_80111ECC("dialog_button_accept_y", name) == 0) {
+        fn_8010F7F0(value, "%f", &unkC8[0]);
+    } else if (fn_80111ECC("dialog_button_alt2_x", name) == 0) {
+        fn_8010F7F0(value, "%f", &unkD4[1]);
+    } else if (fn_80111ECC("dialog_button_alt2_y", name) == 0) {
+        fn_8010F7F0(value, "%f", &unkC8[1]);
+    } else if (fn_80111ECC("dialog_button_decline_x", name) == 0) {
+        fn_8010F7F0(value, "%f", &unkD4[2]);
+    } else if (fn_80111ECC("dialog_button_decline_y", name) == 0) {
+        fn_8010F7F0(value, "%f", &unkC8[2]);
+    } else if (fn_80111ECC("dialog_title_bar_x", name) == 0) {
+        fn_8010F7F0(value, "%f", &unkE4.x);
+    } else if (fn_80111ECC("dialog_title_bar_y", name) == 0) {
+        fn_8010F7F0(value, "%f", &unkE4.y);
+    } else {
+        int different = fn_80111ECC("dialog_status", name);
+        if (different == 0) {
+            if (fn_80111ECC(value, "true") == 0) {
+                unk48 = 1;
+            } else {
+                unk48 = different;
+            }
+        }
+    }
+}
+
+// 0x800445EC
+// A variable read by the UI script; the caller frees the text.
+// NON_MATCHING: 197 instructions against 194; not yet compared in detail (the
+// branches share one sprintf tail in the original).
+char* Unk80040274::vfn9(const char* name) {
+    char* text = (char*)fn_80169F1C(0x20, 4);
+    ERectF rect = fn_80044174();
+    float buttonWidth = fn_800441C0();
+    text[0] = 0;
+    if (fn_80111ECC("dialog_box_width", name) == 0) {
+        fn_8010F710(text, "%f", 0.6f);
+    } else if (fn_80111ECC("dialog_box_height", name) == 0) {
+        float extra = 0.1f;
+        float height;
+        if (unk94) {
+            height = rect.unkC - rect.unk4 + extra;
+        } else {
+            height = rect.unkC - rect.unk4;
+        }
+        fn_8010F710(text, "%f", height);
+    } else if (fn_80111ECC("dialog_x", name) == 0) {
+        fn_8010F710(text, "%f", 0.2f);
+    } else if (fn_80111ECC("dialog_y", name) == 0) {
+        fn_8010F710(text, "%f", 0.18f);
+    } else if (fn_80111ECC("right", name) == 0) {
+        fn_8010F710(text, "%f", rect.unk8);
+    } else if (fn_80111ECC("bottom", name) == 0) {
+        fn_8010F710(text, "%f", rect.unkC);
+    } else if (fn_80111ECC("number_of_buttons", name) == 0) {
+        int count;
+        switch (unk7C) {
+        case 0:
+        case 10:
+            count = 1;
+            break;
+        case 1:
+            count = 2;
+            break;
+        case 2:
+            count = 3;
+            break;
+        default:
+            count = 0;
+            break;
+        }
+        fn_8010F710(text, "%d", count);
+    } else if (fn_80111ECC("UI_button_width", name) == 0) {
+        fn_8010F710(text, "%f", buttonWidth);
+    } else if (fn_80111ECC("is_critical_dialog", name) == 0) {
+        fn_8010F710(text, "%d", 0);
+    } else if (fn_80111ECC("dialog_title_bar_width", name) != 0) {
+        fn_80169EE8(text);
+        return 0;
+    } else {
+        lbl_802E6700.unkEC->SetSize(true, 20.0f, 1.0f);
+        unk50->unk4C = lbl_802E6700.unkEC->DoGetStringSize(unk50->unk10.fn_801C5B24(), true, 0);
+        unkE0 = unk50->unk4C.x;
+        fn_8010F710(text, "%f", unkE0);
+    }
+    return text;
 }
 
 // 0x800448F4

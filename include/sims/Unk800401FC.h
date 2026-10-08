@@ -11,10 +11,10 @@
 // The Sims 2 has a reworked dialog system (DlgWrapper, MDITarget, UIDialog) whose
 // functions do not line up with these.
 
-extern "C" void* memset(void* dst, int value, unsigned int size);
+extern "C" void* fn_80111C78(void* dst, int value, unsigned int size); // memset
 
 struct ERC;
-struct ERFont;
+class ERFont;
 struct Unk80181824;
 class Unk80043820;
 
@@ -66,7 +66,7 @@ public:
     virtual void vfn20(struct Unk800421C0Sim* sim);              // 0x800421C0
     virtual void vfn21(int id);                                  // 0x80042218
     virtual int vfn22(void* a, unsigned char* b, void* c);       // 0x800424F0
-    virtual int vfn23(void* a, void* b);                         // 0x80042360
+    virtual int vfn23(void* a, const char* title);               // 0x80042360
     virtual int vfn24(void* a, void* b, void* c, void* d);       // 0x80042358
     virtual void vfn25();                                        // 0x800405F4
 
@@ -85,7 +85,7 @@ public:
 
     void* operator new(unsigned int size) {
         void* block = fn_80169F1C(size, 16);
-        memset(block, 0, size);
+        fn_80111C78(block, 0, size);
         return block;
     }
     void operator delete(void* ptr) { fn_80169EE8(ptr); }
