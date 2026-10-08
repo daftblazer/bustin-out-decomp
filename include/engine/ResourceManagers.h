@@ -1,6 +1,8 @@
 #ifndef ENGINE_RESOURCEMANAGERS_H
 #define ENGINE_RESOURCEMANAGERS_H
 
+#include "engine/EResourceManager.h"
+
 // Global resource managers. They share the lookup method at 0x80177628, so they
 // are probably instances of one class (or of classes with a common base); until
 // that is established each has its own placeholder type.
@@ -38,12 +40,12 @@ extern Unk803401C4 lbl_803401C4;
 extern Unk80340AB8 lbl_80340AB8;
 extern Unk8033F5C4 lbl_8033F5C4;
 
-// Manager of the run-length encoded textures (ERRleTexture).
-struct Unk802E5E1C {
-    char unk0[0x100]; // size unknown
-    void Shutdown();
-    void fn_80176C78(const char*, int);
-    void* fn_80177628(unsigned int id, int, int); // look up / load a resource by id
+// Manager of the run-length encoded textures (ERRleTexture); defined in
+// sims/Unk8003DE78.cpp. Its own name is unknown.
+class Unk802E5E1C : public EResourceManager {
+public:
+    virtual EHeap* GetHeap();
+    virtual EResource* AllocateAndLoadResource(EFile* file, unsigned int, unsigned int);
 };
 extern Unk802E5E1C lbl_802E5E1C;
 
