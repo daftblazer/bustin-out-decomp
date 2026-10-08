@@ -439,7 +439,7 @@ int fn_8003025C(int* any, void* table, Unk80234390* tiles, int type) {
 
 // The undo record as the floor tool makes it: an unnamed record of the whole lot.
 struct Unk8003043CUndo : Unk801E6424 {
-    Unk8003043CUndo() : Unk801E6424(1, 0x40, 0x40, &Unk801C3E30("")) {}
+    Unk8003043CUndo() : Unk801E6424(1, 0x40, 0x40, &Unk801C3E10("")) {}
 };
 
 // Sets `free` when purchases cost nothing and fetches the household's funds.

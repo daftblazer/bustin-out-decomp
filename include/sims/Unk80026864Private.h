@@ -5,6 +5,7 @@
 // build-mode tools around it. Everything here is provisional: most of these types
 // belong to engine or game classes that have not been identified yet.
 
+#include "engine/Unk801C3E10.h"
 #include "sims/Unk8023DD8C.h"
 #include <stddef.h>
 #include "sims/Unk80026864.h"
@@ -992,15 +993,10 @@ struct Unk8037D944C {
 // Undo record of a build action (constructor 0x801E6424, commit 0x801E6BC4,
 // discard 0x801E64B0).
 struct Unk801E6424 {
-    Unk801E6424(int kind, int width, int height, struct Unk801C3E30* name);
+    Unk801E6424(int kind, int width, int height, struct Unk801C3E10* name);
     ~Unk801E6424();                    // 0x801E64B0
     void fn_801E6BC4(void* levelState);
     char unk0[0x18];
-};
-struct Unk801C3E30 {
-    Unk801C3E30(const char* text);     // 0x801C3E30
-    ~Unk801C3E30();                    // 0x801C3E78
-    char unk0[0x78];
 };
 struct Unk8037D990L {
     virtual void vfn1();

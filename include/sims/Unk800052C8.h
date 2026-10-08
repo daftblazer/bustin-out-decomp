@@ -5,6 +5,7 @@
 #include "engine/EMat4.h"
 #include "engine/EVec3.h"
 #include "sims/EGlobal.h"
+#include "engine/EResourceManager.h"
 
 // Small helper object built at 0x800B07DC and 0x800B084C (two per caller). It
 // looks up a resource, creates a 0x17C-byte engine object for it and registers
@@ -33,9 +34,8 @@ struct Unk80340120Resource {
     EVec3 unk2C;
 };
 
-struct Unk80340120 {
-    Unk80340120Resource* fn_80177628(unsigned int id, int, int);
-    char unk0[0x100]; // size unknown
+struct Unk80340120 : EResourceManager {
+    char unkA4[0x100 - 0xA4]; // size unknown
 };
 
 struct Unk80179D60 {

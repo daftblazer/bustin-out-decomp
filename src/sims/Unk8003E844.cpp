@@ -1,3 +1,29 @@
+#include "sims/Unk8003E844.h"
+
+// The kind of loader request this file uses (vtable 0x802987B8).
+class Unk802987B8 : public Unk80298848 {
+public:
+    virtual int vfn2(int, int value) { return value; }
+    virtual int vfn3(int, int value) { return value; }
+    virtual int vfn4(int value) {
+        unk4 = value;
+        return value;
+    }
+    virtual int vfn5() { return unk4; }
+    virtual int vfn6() { return 1; }
+    virtual int vfn7() { return 0; }
+    virtual int vfn8() { return 1; }
+    virtual int vfn9() { return 0; }
+    virtual int vfn10() { return 0; }
+    virtual const char* vfn11() { return 0; }
+    virtual const char* vfn12() { return 0; }
+    virtual const char* vfn13() { return 0; }
+    virtual const char* vfn14() { return 0; }
+    virtual int vfn15() { return 0; }
+    virtual void vfn16() {}
+    int unk4;
+};
+
 #include "engine/e_storable.h"
 #include "engine/e_instance.h"
 #include "engine/e_igameinstance.h"
@@ -5,14 +31,19 @@
 #include "engine/e_resource.h"
 #include "engine/e_rcharacter.h"
 #include "engine/e_rfont.h"
-#include "engine/e_texture.h"
 #include "engine/e_shader.h"
 #include "engine/e_rshader.h"
+#include "engine/e_texture.h"
 #include "engine/e_submodelshader.h"
 #include "engine/e_submodel.h"
 #include "engine/e_rmodel.h"
 #include "engine/e_ranim.h"
 #include "sims/i_siminstance.h"
+#include "sims/i_simsobjectmodel.h"
+#include "sims/i_simswallobjectmodel.h"
+#include "sims/i_simsmultitileobjectmodel.h"
+#include "sims/i_simscountertopobject.h"
+#include "sims/i_shrubobject.h"
 #define EOR_BUILD_TIME "21:41:33"
 #include "engine/e_engine.h"
 #include "sims/e_sim.h"
@@ -21,11 +52,11 @@
 #include <algorithm>
 #include "engine/EResourceManager.h"
 #include "engine/EStaticObject.h"
+#include "engine/Unk801C3E10.h"
 
 // The manager that loads and unloads the resources of the objects on a lot
 // (unit 0x8003E844). Its header strings name the object-model interfaces
-// (ISimsObjectModel and others) between ISimInstance and the engine string; those
-// headers have no stand-ins yet, so this file's .rodata is not complete.
+// (ISimsObjectModel and others) between ISimInstance and the engine string.
 
 struct EFile;
 typedef std::vector<unsigned int> Unk8003E844Ids;
@@ -80,6 +111,7 @@ struct Unk8037D988List {
 extern Unk8037D988List* lbl_8037D988;
 
 struct Unk8033F5C4Manager : EResourceManager {
+    char unkA4[0x100 - 0xA4];   // size unknown
 };
 extern Unk8033F5C4Manager lbl_8033F5C4;
 
@@ -119,55 +151,6 @@ struct Unk802306D0 {
     void fn_802306D0(int* value, int count);
     void fn_80230530(short* value, int count);
     void fn_80230ACC(struct Unk801C3E10* text);
-};
-struct Unk801C3E10 {
-    Unk801C3E10();
-    ~Unk801C3E10();
-    char unk0[8];
-};
-
-// What a request to the loader is for: an interface of sixteen virtuals with
-// defaults (vtable 0x80298848), and the kind this file uses (vtable 0x802987B8).
-class Unk80298848 {
-public:
-    virtual ~Unk80298848() {}
-    virtual int vfn2(int, int) { return 0; }
-    virtual int vfn3(int, int) { return 0; }
-    virtual int vfn4(int) { return 0; }
-    virtual int vfn5() { return 0; }
-    virtual int vfn6() { return 0; }
-    virtual int vfn7() { return 13; }
-    virtual int vfn8() { return 8; }
-    virtual int vfn9() { return 2; }
-    virtual int vfn10() { return 7; }
-    virtual const char* vfn11() { return ""; }
-    virtual const char* vfn12() { return ""; }
-    virtual const char* vfn13() { return ""; }
-    virtual const char* vfn14() { return ""; }
-    virtual int vfn15() { return 0; }
-    virtual void vfn16() {}
-};
-class Unk802987B8 : public Unk80298848 {
-public:
-    virtual int vfn2(int, int value) { return value; }
-    virtual int vfn3(int, int value) { return value; }
-    virtual int vfn4(int value) {
-        unk4 = value;
-        return value;
-    }
-    virtual int vfn5() { return unk4; }
-    virtual int vfn6() { return 1; }
-    virtual int vfn7() { return 0; }
-    virtual int vfn8() { return 1; }
-    virtual int vfn9() { return 0; }
-    virtual int vfn10() { return 0; }
-    virtual const char* vfn11() { return 0; }
-    virtual const char* vfn12() { return 0; }
-    virtual const char* vfn13() { return 0; }
-    virtual const char* vfn14() { return 0; }
-    virtual int vfn15() { return 0; }
-    virtual void vfn16() {}
-    int unk4;
 };
 
 // The manager itself (0xBC bytes).

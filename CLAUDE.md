@@ -473,3 +473,29 @@ comparing them.
     including those of units already linked from source. After such a change, check the undefined symbols of the
     objects under `build/G4ME69/src/` against `symbols.txt` (a missing one makes the link fail silently).
 
+## Inline virtuals shared between units (open problem)
+
+`tools/tu.sh` compares functions by name. It does not check their **order** in the object or whether a symbol is
+local or global; only linking the unit does. `sims/Unk8003E844.cpp` matches in all 70 functions and its `.rodata`
+is byte-identical, yet cannot be linked from source:
+
+- Its base interface class (`Unk80298848`, sixteen inline virtuals, no key function) has its vtable and virtuals
+  at the end of the unit, after the derived class's, and they are **global**: engine code at 0x80178DF4 and
+  0x801C1998 and two engine vtables use this copy, and no other copy exists in the binary.
+- With `-fno-weak` a class with only inline virtuals gets a local vtable and local functions in every unit,
+  emitted when first referenced. That gives the original order (template class, derived, base) and the original
+  vtable order in `.rodata`, but local symbols, so the engine's references are undefined at link time.
+- Tried, all with every function still matching:
+  - `#pragma interface` on the header plus `#pragma implementation` here: global, but emitted *first*
+    (public inlines are written before the reference-driven local ones). Bodies outside the pragma: same.
+    With the pragma the derived class needs an explicit `virtual ~X() {}` to keep inlining the base destructor.
+  - Base class as a template instance (through `-frepo`): global, emitted first, and its strings move to the end
+    of `.rodata`. Base and derived both templates: order derived, template, base, and the vtables reorder.
+- What the original shows is the profile of a weak symbol: emitted on demand like a local, but visible to other
+  units, one copy in the first unit in link order that uses it. Template functions have the same profile, which
+  `-frepo` reproduces; for non-template classes nothing found so far does. Worth testing next: whether the SN
+  build marked such classes some other way (an SN-specific pragma or attribute in the ProDG headers).
+- So before spending time on data splits for a unit, check `findref.py` on its inline-virtual tail: if another
+  unit references those functions or their vtable, the unit hits this problem.
+- The engine's string object is `Unk801C3E10` (`include/engine/Unk801C3E10.h`), 8 bytes.
+

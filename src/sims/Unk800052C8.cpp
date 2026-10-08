@@ -17,7 +17,7 @@ Unk800052C8::Unk800052C8(unsigned int resourceId, Unk800053D4Owner* owner, Unk80
     unk4 = source->unk0;
     unk10.Set(source->unk8, source->unkC, source->unk10);
     unk0 = owner;
-    unkC = lbl_80340120.fn_80177628(resourceId, 0, 0);
+    unkC = (Unk80340120Resource*)lbl_80340120.fn_80177628(resourceId, 0, 0);
     unk8 = new Unk8016BC18;
     lbl_802E67B0.unk0->unk1C->fn_80179D60(unk8, 0);
     unk8->fn_8016C750(unkC->unk4);
