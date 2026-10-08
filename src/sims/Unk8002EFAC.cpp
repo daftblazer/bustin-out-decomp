@@ -511,7 +511,9 @@ inline void fn_8003043CLay(const Unk801C6F20& at, int type) {
 // cursor; otherwise button 5 floors the dragged rectangle and 0xF clears it. Each
 // action is priced, checked against the household's money, recorded for undo,
 // applied tile by tile and paid for. With no button the marker follows the cursor.
-// NON_MATCHING: see the count from tools/tu.sh below.
+// NON_MATCHING: 781 instructions vs 786, 456 differ. A full reconstruction that an
+// interrupted pass left part-way: the structure and calls follow the original, the
+// register and stack layout do not yet. It was not taken further in this pass.
 void Unk80026864::fn_8003043C() {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     if (controller->fn_8015DF98(0x11)) {
