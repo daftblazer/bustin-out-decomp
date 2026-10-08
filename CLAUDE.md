@@ -350,4 +350,27 @@ Switching a unit to `Matching` needs more than matching functions (see `sims/Unk
     `(f & ~1) & ~4` folds into `li r9, -6; and`.
   - Cross-jumping never merges a call site into the code that falls off the end of the function (checked in a
     scratch file). If the original's shared tail is the last call, something followed it in the source.
+  - Releasing a resource is a statement macro wrapped in `do { } while (0)`
+    (`do { if (p) { fn_801767FC(p); p = 0; } } while (0)`). The loop note it leaves keeps the first load of the
+    pointer behind the stores that precede it, and changes how the last call before it is scheduled. Several
+    destructors and reset functions only match this way (`fn_800318B0`, `fn_80033BAC`); try it wherever a release
+    block's first load comes "too early". The copies in the build-tool files (`E_RELEASE_RESOURCE`,
+    `UNK_RELEASE_801767FC`) should become one shared macro.
+  - Whether a callee returns a value changes the order its arguments are loaded in, even when the result is
+    ignored: declared `int fn(int id, bool on)` the second argument is loaded first, declared `void` the first.
+    The same holds for members: an `operator=` or setter that returns a reference loads its arguments before `this`.
+    When only the argument order of a call differs, change the callee's return type before anything else.
+  - A function returning `char` adds `extsb r3, r3` before the return; none means `unsigned char`.
+  - A class modelled as a chain of placeholder structs inheriting one destructor does not behave like the real
+    class: with its own destructor declared, temporaries of it are placed and destroyed differently. Likewise a
+    "derived" placeholder with an implicit inline destructor keeps the object's address in a register;
+    0x801C6F44 is a constructor of `Unk801C6F20` itself, not of a derived class.
+  - Minimum and maximum of converted ints are macros (`((a) < (b) ? (a) : (b))`): the int-to-float conversion is
+    evaluated again for each use, which an inline function would not do.
+  - An inline `int Round(float v) { return (int)(v + 0.5f); }` loads the 0.5 before the value; written out, the
+    value comes first. An inline linear blend keeps its constant arguments unfolded.
+  - `EVec2` has an indexing operator (a store through it keeps the component's address in a register) and can be
+    built from an `EVec3` (first two components). Sub-tile coordinates are set y first.
+  - Assigning the same value in both branches of an `if`/`else` (`handle = texture->unk4;` in each) reproduces
+    code where a load is duplicated into both arms; it usually stands for an inline accessor used in each arm.
 

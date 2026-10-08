@@ -165,6 +165,10 @@ void Unk8003AA6C::vfn2(int newMode) {
 // compiler versions): this compiler never merges a call site into the code that
 // falls off the end of the function, so the original's last call was probably
 // not the last thing in its source.
+// More scratch tests: the shared tail does land on the last call when that call is
+// followed by a jump at the time of cross-jumping, as in a function whose sites each
+// end in `return true;` with `return false;` at the end. That form sets r3, which the
+// original does not; do-while(0) and switch wrappers reorder the blocks instead.
 void Unk8003AA6C::vfn2() {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     if (IsBuildMode()) {

@@ -566,11 +566,7 @@ void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side) {
 // 0x80033278
 // Orders the two ends of a wall run, and gives the offset that puts its preview on
 // the side facing the camera; unkF8 records which side that is.
-// NON_MATCHING: 132 instructions vs 131, one extra `extsb r3, r3` before the return
-// and nothing else: the original returns `unsigned char`. The header declares
-// `char fn_80033278`; with that one declaration changed to `unsigned char` (tried
-// against a scratch copy of the header) this source is a full MATCH.
-char Unk80026864::fn_80033278(EVec2* from, EVec2* to, EVec3* offset) {
+unsigned char Unk80026864::fn_80033278(EVec2* from, EVec2* to, EVec3* offset) {
     EVec2 a(*from);
     EVec2 b(*to);
     if (a.x == b.x) {
