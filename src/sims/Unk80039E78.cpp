@@ -177,17 +177,16 @@ void Unk80039E78::fn_8003A6AC() {
 }
 
 // 0x8003A734
-// Breaks the text into lines that fit the box and, with `draw`, draws them (left
-// aligned, or centred); always counts them in unk824.
-// NON_MATCHING: 200 instructions vs 206; condensed draft: the line
-// breaking backs up to the last break character as the original does, but the
-// loop is not laid out the same way.
+// Breaks the text into lines that fit the box and, with `draw`, draws the ones from
+// unk820 on (left aligned, or centred); the lines skipped are counted in unk824.
+// NON_MATCHING: same length (206), 73 instructions differ, nearly all register
+// numbers: the original has `this` in r30 and the text pointer in r29 (here r29 and
+// r28) and keeps the address of the extent's return slot in r28. The line buffer is
+// at the bottom of the original's frame and the unused extent at 0x208; here the
+// extent comes out below the buffer. About fourteen variants tried (scopes of the
+// buffer, the extent and the terminator; forms of the two selections at the start).
 void Unk80039E78::fn_8003A734(ERC* rc, int draw, int centred) {
-    if (unkC == 0) {
-        if (unk10 == 0) {
-            return;
-        }
-    } else if (unk14.fn_8023C8A8() == 0) {
+    if (unkC == 0 ? unk10 == 0 : unk14.fn_8023C8A8() == 0) {
         return;
     }
     if (draw) {
@@ -197,68 +196,67 @@ void Unk80039E78::fn_8003A734(ERC* rc, int draw, int centred) {
     float left = unk87C.x;
     float lineHeight = unk0->fn_8003DC1C(0);
     const unsigned short* text = unkC ? unk14.fn_8023C9EC() : unk10;
-    while (*text) {
+    EVec2 size;
+    unsigned short zero = 0;
+    while (*text != 0) {
         unsigned short line[0x100];
         fn_80111C78(line, 0, sizeof(line));
         int length = 0;
         bool ended = false;
-        int lastBreak = 0;
         unsigned short* out = line;
-        while (*text && !ended) {
+        int lastBreak = 0;
+        while (*text != 0 && !ended) {
             *out = *text;
             if (*text == 10) {
                 text++;
                 ended = true;
-                continue;
-            }
-            EVec2 one = unk0->fn_8003D550(out, 1, 0);
-            if (fn_800430EC(*text)) {
-                lastBreak = length;
-            }
-            EVec2 extent = unk0->fn_8003D550(line, 1, 0);
-            if (extent.x > width) {
-                ended = true;
-                int back = length - lastBreak;
-                if (back != 0) {
-                    if (length == back) {
-                        back = 0;
-                        text--;
-                    }
-                    length -= back;
-                    text -= back;
-                    line[length] = 0;
-                } else {
-                    line[length] = 0;
-                }
-                length--;
-            }
-            length++;
-            out++;
-            text++;
-            if (length > 0xFD) {
-                break;
-            }
-        }
-        if (!ended && line[0] == 0) {
-            continue;
-        }
-        line[length] = 0;
-        if (unk824 >= unk820 && draw) {
-            if (centred == 0) {
-                EVec2 at(unk87C.x, unk87C.y);
-                unk0->fn_8003D740(rc, line, 1, at, 0, 0, (int)&unk87C);
             } else {
-                EVec2 middle(unk84C.x * 0.5f + unk854.x, unk87C.y);
-                EVec2 at(middle);
-                unk0->fn_8003D740(rc, line, 1, at, 2, 0, (int)&unk87C);
+                size = unk0->fn_8003D550(out, 1, 0);
+                if (fn_800430EC(*text)) {
+                    lastBreak = length;
+                }
+                bool over = unk0->fn_8003D550(line, 1, 0).x > width;
+                if (over) {
+                    ended = true;
+                    int back = length - lastBreak;
+                    if (back != 0) {
+                        if (length == back) {
+                            back = 0;
+                            text--;
+                        }
+                        length -= back;
+                        text -= back;
+                        line[length] = zero;
+                    } else {
+                        line[length] = back;
+                    }
+                    length--;
+                }
+                length++;
+                out++;
+                text++;
+                if (length > 0xFD) {
+                    break;
+                }
             }
-            unk87C.x = left;
-            unk87C.y += lineHeight;
-            if (unk87C.y > unk854.y + unk84C.y - unk86C.y - unk878) {
-                unk81C = 1;
+        }
+        if (ended || line[0] != 0) {
+            line[length] = zero;
+            if (unk824 >= unk820 && draw) {
+                if (centred == 0) {
+                    unk0->fn_8003D740(rc, line, 1, unk87C, 0, 0, (int)&unk87C);
+                } else {
+                    EVec2 at(unk84C.x * 0.5f + unk854.x, unk87C.y);
+                    unk0->fn_8003D740(rc, line, 1, at, 2, 0, (int)&unk87C);
+                }
+                unk87C.x = left;
+                unk87C.y += lineHeight;
+                if (unk87C.y > unk854.y + unk84C.y - unk86C.y - unk878) {
+                    unk81C = 1;
+                }
+            } else {
+                unk824++;
             }
-        } else {
-            unk824++;
         }
     }
 }

@@ -567,31 +567,130 @@ int fn_80032AF8(int a, int b) {
 }
 
 // 0x80032B64
-// Papers every wall of the room under the cursor with the current covering.
-// NON_MATCHING: draft built on fn_8002E73C, which has the same walk over the room's
-// tiles and walls; the pricing at the start follows the original's calls, the rest
-// is reduced to a call of that function (98 instructions vs 291). One variant.
+// Papers every wall of the room under the cursor with the current covering: pays
+// for it, then for each tile of the room and each wall on it works out which sides
+// face the room and sets the covering on those.
+// NON_MATCHING: 286 instructions vs 291; the first 95 and the loops agree. The
+// original keeps two copies of the "both sides" code (for a wall no room entry
+// narrows down, and for a wall with no entry at all); here they are merged, and the
+// counter and the saved condition register are in each other's registers. Seven
+// variants tried (spellings of the side tables, an inline helper in either place).
+struct Unk80032B64Tiles {
+    char* begin;
+    char* end;
+};
+// The tile position built from tile coordinates (see Unk800329D8's note: the shared
+// header's derived Unk801C6F44 makes the compiler keep the object's address).
+struct Unk80032B64Tile {
+    Unk80032B64Tile(int tileX, int tileY, int);   // 0x801C6F44
+    ~Unk80032B64Tile();                           // 0x801C6FCC
+    char unk0[8];
+};
 int Unk80026864::fn_80032B64() {
     int tileX;
     int tileY;
     fn_8002BB64(&tileX, &tileY);
-    Unk801C6F44 tile(tileY, tileX, 1);
-    int room = fn_800328F4(&tile);
-    Unk80234390* list = FindList((void*)room);
-    if (list == 0 || room == 0) {
+    Unk80032B64Tile tile(tileY, tileX, 1);
+    int room = fn_800328F4((Unk801C6F20*)&tile);
+    Unk80234774* table = (Unk80234774*)lbl_8037D998;
+    Unk8037D990G* level = (Unk8037D990G*)lbl_8037D990;
+    if (table == 0) {
         return 0;
     }
+    Unk80234390* list = fn_80234390(table, (void*)room);
+    if (list == 0) {
+        return 0;
+    }
+    Unk80032B64Tiles* tiles = (Unk80032B64Tiles*)&list->unk4;
     int type = lbl_802E6700.fn_80067434(unk1A0);
+    bool free = false;
     ((Unk801E3EF0*)lbl_802E6700.unk120)->fn_801E3EF0(room, type);
-    int cost = fn_80032AF8(room, type) * unk1C4;
-    if (!CheatMoney() && cost > ((Unk8037D944C*)lbl_8037D944)->vfn25(0)) {
+    int cost = fn_80032AF8(((Unk800318B0Tool*)unk1A0)->unk8, room);
+    int funds = ((Unk8037D944C*)lbl_8037D944)->vfn25(0);
+    if (CheatMoney()) {
+        free = true;
+    }
+    if (!free && cost > funds) {
         lbl_8037D96C->fn_8006186C(0x3804219F);
         return 0;
     }
     ((Unk8037D944C*)lbl_8037D944)->vfn26(7, cost, 0);
-    lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
-    lbl_8037D96C->fn_8006186C(0x994E8974);
-    fn_8002E73C(room, type);
+    if (unk1C4 != 0) {
+        lbl_8037D96C->fn_8006186C(0xB2AD3ECD);
+    } else {
+        lbl_8037D96C->fn_8006186C(0x994E8974);
+    }
+    for (char* it = tiles->begin; it != tiles->end; it += 3) {
+        Unk801C6F20 current(*(Unk801C6F20*)it);
+        if (level->vfn21(&current)) {
+            Unk8023E354 info = level->vfn18(&current);
+            int count = 0;
+            int sides[2] = { 0, 0 };
+            for (int wall = info.fn_8023E354(); wall; wall = info.fn_8023E3BC(wall)) {
+                if (wall == 0x10 || wall == 0x20) {
+                    Unk801C6F20 copy(current);
+                    unsigned short* a = 0;
+                    unsigned short* b = 0;
+                    int sideA;
+                    int sideB;
+                    if (table->fn_80234774(&copy, &a, &b, &sideA, &sideB)) {
+                        if (a && *a == room) {
+                            if (sideA == 3) {
+                                sides[count] = 1;
+                            } else if (sideA == 1) {
+                                sides[count] = 3;
+                            } else if (sideA == 4) {
+                                sides[count] = 2;
+                            } else if (sideA == 2) {
+                                sides[count] = 4;
+                            } else if (wall == 0x10) {
+                                sides[count++] = 2;
+                                sides[count] = 4;
+                            } else {
+                                sides[count++] = 3;
+                                sides[count] = 1;
+                            }
+                            count++;
+                        }
+                        if (b && b != a && *b == room) {
+                            if (sideB == 3) {
+                                sides[count] = 1;
+                                count++;
+                            }
+                            if (sideB == 1) {
+                                sides[count] = 3;
+                                count++;
+                            } else if (sideB == 4) {
+                                sides[count] = 2;
+                                count++;
+                            } else if (sideB == 2) {
+                                sides[count] = 4;
+                                count++;
+                            }
+                        }
+                    } else {
+                        if (wall == 0x10) {
+                            sides[count++] = 2;
+                            sides[count] = 4;
+                        } else {
+                            sides[count++] = 3;
+                            sides[count] = 1;
+                        }
+                        count++;
+                    }
+                } else {
+                    count = 1;
+                }
+                for (int i = 0; i < count; i++) {
+                    if (sides[i]) {
+                        sides[i] = fn_8023E4A4(sides[i], 0);
+                    }
+                    fn_800331A8(&current, type, wall, sides[i]);
+                }
+            }
+        }
+    }
+    fn_80028ECC();
     return 1;
 }
 
