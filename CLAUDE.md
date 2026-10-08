@@ -392,10 +392,18 @@ defines; `sims/ERFont.cpp` is the first unit built on it. What the tail of such 
   &parentRecord)` and stores the result. The class record is a **static data member** (`Class::sInfo`; the member
   name is ours). This compiler emits static data members as common symbols, which is why the records sit
   together at the end of `.bss`, away from their units' other data.
-- That placement blocks linking these units from source for now: the linker script has no rule for common
-  symbols, a `common` split puts the record in the wrong place (`main.dol` no longer matches), and the order of
-  the 242 symbols in that region (0x80376E60-0x8037B3D4) is not link order. `sims/ERRleTexture.cpp` matches in
-  all 21 functions and its `.rodata` is byte-identical, but stays `NonMatching` until that order is understood.
+- Common symbols do **not** block linking a unit from source, and need no split: the record stays defined in
+  dtk's automatic `.bss` object, and a real definition beats the common one in the compiled object
+  (`sims/ERRleTexture.cpp` links this way). Never add a `common` split for them.
+- How `ngcld` places commons (measured with scratch links in `build/try/cm`): after every `.bss` input section,
+  in the order the linker first *sees each name*, object by object in link order and in symbol-table order
+  inside an object. An undefined reference counts as seeing it, so a record lands where the first unit that
+  mentions it sits, not where its class is defined. Commons of 8 bytes or less go to `.sbss` instead. That is
+  the order of the 242 symbols at 0x80376E60-0x8037B3D4; it only has to be reproduced once the units that
+  reference them are all built from source.
+- `ngcld` exits 99 *and still writes `main.elf`* when a symbol is undefined. `powerpc-eabi-nm main.elf | grep ' U '`
+  names it. An undefined `lbl_XXXXXXXX` inside a unit linked from source means the split boundary is wrong
+  (the empty string at 0x802983B0 belonged to the next unit).
 - When a link fails, `build/G4ME69/main.dol` from the previous build is still there and still checks `OK`.
   Delete it (or look for `FAILED` in the ninja output) before trusting the checksum.
 - The vtable pointer of a storable class is at offset 0 (`EStorable` has no data members).
