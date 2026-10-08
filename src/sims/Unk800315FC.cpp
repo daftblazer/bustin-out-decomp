@@ -40,12 +40,6 @@ struct Unk800315FCInfo : Unk8023E088 {
     int fn_8023DED4(int wall);
     Unk800315FCInfo& fn_8023E110(int arg, int wall, int side);   // 0x8023E110
 };
-// The tile position's += and -= with a direction step; they return the tile.
-struct Unk800315FCTile : CTilePt {
-    Unk800315FCTile& fn_801C711C(const CTilePt* step);       // 0x801C711C, +=
-    Unk800315FCTile& fn_801C70F4(const CTilePt* step);       // 0x801C70F4, -=
-};
-
 // The level's tile grid, with the tile contents returned as the class above.
 struct Unk800315FCLevel {
     virtual void vfn1();
@@ -395,7 +389,7 @@ int Unk80026864::fn_8003214C() {
             }
             total += fn_8003210C(info.fn_8023E088(wall, side));
         }
-        ((Unk800315FCTile*)&current)->fn_801C70F4(&lbl_8035ABB0[direction]);
+        ((CTilePt*)&current)->fn_801C70F4(&lbl_8035ABB0[direction]);
         current.unk2 = 1;
     }
     if (CheatMoney()) {
@@ -428,12 +422,12 @@ void fn_800323D8(int* wall, int kind, int* side, CTilePt* from, CTilePt* to) {
     }
     if (*wall == 1 && kind == 0) {
         *wall = fn_8023DB98(1);
-        ((Unk800315FCTile*)from)->fn_801C711C(&lbl_8035ABB0[step]);
-        ((Unk800315FCTile*)to)->fn_801C711C(&lbl_8035ABB0[step]);
+        ((CTilePt*)from)->fn_801C711C(&lbl_8035ABB0[step]);
+        ((CTilePt*)to)->fn_801C711C(&lbl_8035ABB0[step]);
     } else if (*wall == 2 && kind == 1) {
         *wall = fn_8023DB98(2);
-        ((Unk800315FCTile*)from)->fn_801C70F4(&lbl_8035ABB0[step]);
-        ((Unk800315FCTile*)to)->fn_801C70F4(&lbl_8035ABB0[step]);
+        ((CTilePt*)from)->fn_801C70F4(&lbl_8035ABB0[step]);
+        ((CTilePt*)to)->fn_801C70F4(&lbl_8035ABB0[step]);
     }
 }
 
@@ -540,7 +534,7 @@ void Unk80026864::fn_800329D8(ERC* rc) {
         int tileY;
         fn_8002BB64(&tileX, &tileY);
         tile = *(CTilePt*)&CTilePt(tileY, tileX, 1);
-        unsigned short room = fn_800328F4((CTilePt*)&tile);
+        unsigned short room = fn_800328F4(&tile);
         void* texture = *(void**)((char*)unk104 + 4);
         fn_801E36E4b(lbl_802E6700.unk120, 7, &room, 0, 0, &unkB4, &unkB4, 0, 0, &texture, 0);
         unkE8 = ((Unk80056498B*)drawer)->fn_80056498(rc, room, &unkB4);
@@ -568,19 +562,12 @@ struct Unk80032B64Tiles {
     char* begin;
     char* end;
 };
-// The tile position built from tile coordinates (see Unk800329D8's note: the shared
-// header's derived CTilePt makes the compiler keep the object's address).
-struct Unk80032B64Tile {
-    Unk80032B64Tile(int tileX, int tileY, int);   // 0x801C6F44
-    ~Unk80032B64Tile();                           // 0x801C6FCC
-    char unk0[8];
-};
 int Unk80026864::fn_80032B64() {
     int tileX;
     int tileY;
     fn_8002BB64(&tileX, &tileY);
-    Unk80032B64Tile tile(tileY, tileX, 1);
-    int room = fn_800328F4((CTilePt*)&tile);
+    CTilePt tile(tileY, tileX, 1);
+    int room = fn_800328F4(&tile);
     Unk80234774* table = (Unk80234774*)lbl_8037D998;
     Unk8037D990G* level = (Unk8037D990G*)lbl_8037D990;
     if (table == 0) {

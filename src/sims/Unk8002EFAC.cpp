@@ -83,20 +83,6 @@ struct Unk8002EFACList : Unk80026864List {
 };
 
 // A tile reference as the room lists store it (three bytes).
-struct Unk8002EFACTile {
-    char unk0[3];
-};
-
-// A tile reference built from tile coordinates. The shared header models this as
-// CTilePt, a class derived from CTilePt, but the derived class's implicit
-// inline destructor makes the compiler keep the object's address in a register,
-// which the original does not do: 0x801C6F44 is a constructor of CTilePt itself.
-struct Unk8002EFACTileAt {
-    Unk8002EFACTileAt(int tileX, int tileY, int);
-    ~Unk8002EFACTileAt();
-    operator CTilePt*() { return (CTilePt*)this; }
-    char unk0[8];
-};
 
 // Minimum and maximum as macros: the original evaluates the int-to-float
 // conversion again for each use, which the inline EMinF/EMaxF do not.
@@ -406,7 +392,7 @@ int fn_8003025C(int* any, void* table, Unk80234390* tiles, int type) {
     *any = 0;
     bool remove = type == 0;
     int total = 0;
-    int count = (Unk8002EFACTile*)tiles->unk4 - (Unk8002EFACTile*)tiles->unk0;
+    int count = (CTilePt*)tiles->unk4 - (CTilePt*)tiles->unk0;
     for (int i = 0; i < count; i++) {
         CTilePt* tile = (CTilePt*)((char*)tiles->unk0 + i * 3);
         if (fn_8002FE20(tile, type)) {
@@ -517,13 +503,13 @@ void Unk80026864::fn_8003043C() {
             int tileX;
             int tileY;
             fn_8002BB64(&tileX, &tileY);
-            Unk8002EFACTileAt tile(tileY, tileX, 1);
-            int room = ((Unk8037D990K*)lbl_8037D990)->vfn24(tile);
+            CTilePt tile(tileY, tileX, 1);
+            int room = ((Unk8037D990K*)lbl_8037D990)->vfn24(&tile);
             Unk80234390* list = FindList((void*)room);
             if (list && room) {
                 Unk80234390* tiles = (Unk80234390*)&list->unk4;
-                Unk8002EFACTile* it = (Unk8002EFACTile*)tiles->unk0;
-                if (it != (Unk8002EFACTile*)tiles->unk4) {
+                CTilePt* it = (CTilePt*)tiles->unk0;
+                if (it != (CTilePt*)tiles->unk4) {
                     int any = 0;
                     int cost = fn_8003025C(&any, list, tiles, type);
                     F2EFAC_FUNDS(free, funds)
@@ -532,7 +518,7 @@ void Unk80026864::fn_8003043C() {
                     } else {
                         Unk8003043CUndo undo;
                         undo.fn_801E6BC4(((Unk8037D990L*)lbl_8037D990)->vfn13());
-                        for (; it != (Unk8002EFACTile*)tiles->unk4; it++) {
+                        for (; it != (CTilePt*)tiles->unk4; it++) {
                             fn_800311B0((CTilePt*)it, type, list);
                         }
                         if (fn_8007600C()) {
@@ -654,13 +640,13 @@ void fn_80031084(void* table, CTilePt* tile, Unk8023DFA8* info, int* sideA, int*
         CTilePt* at = (CTilePt*)tile;
         int left;
         {
-            Unk8002EFACTileAt neighbour(at->fn_801C727C() - 1, at->fn_801C7288(), 1);
-            left = ((Unk80235F64*)table)->fn_80235F64((CTilePt*)&neighbour);
+            CTilePt neighbour(at->fn_801C727C() - 1, at->fn_801C7288(), 1);
+            left = ((Unk80235F64*)table)->fn_80235F64(&neighbour);
         }
         int right;
         {
-            Unk8002EFACTileAt neighbour(at->fn_801C727C() + 1, at->fn_801C7288(), 1);
-            right = ((Unk80235F64*)table)->fn_80235F64((CTilePt*)&neighbour);
+            CTilePt neighbour(at->fn_801C727C() + 1, at->fn_801C7288(), 1);
+            right = ((Unk80235F64*)table)->fn_80235F64(&neighbour);
         }
         if (left) {
             if (info->fn_8023DEA4(0x10)) {

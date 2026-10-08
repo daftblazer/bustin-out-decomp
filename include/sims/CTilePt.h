@@ -19,8 +19,8 @@ struct CTilePt {
     CTilePt& operator=(const CTilePt& other);          // 0x801C6FF4
     int operator==(const CTilePt& other) const;        // 0x801C7014
     int operator!=(const CTilePt& other) const;        // 0x801C7054
-    void fn_801C70F4(const CTilePt* step);             // 0x801C70F4: += or -= (Sims 2 has += first)
-    void fn_801C711C(const CTilePt* step);             // 0x801C711C
+    CTilePt& fn_801C70F4(const CTilePt* step);            // 0x801C70F4: += or -= (Sims 2 has += first)
+    CTilePt& fn_801C711C(const CTilePt* step);            // 0x801C711C
     CTilePt operator+(const CTilePt& step) const;      // 0x801C7144
     EVec3 GetEVec3() const;                            // 0x801C6DEC
     int fn_801C7204();                                 // GetRow / GetColumn by position
