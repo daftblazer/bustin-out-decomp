@@ -16,6 +16,7 @@ public:
     void Shutdown();
     void* fn_80177628(unsigned int id, int, int);         // look up / load a resource by id
     void* fn_80177EBC(unsigned int size, const char* file, int line, const char* name);   // allocate
+    void fn_80177FE0(void* block);                        // free
 
     char unk0[0xA0];
 

@@ -119,3 +119,9 @@ sims/Unk8003DE78.cpp:
 	.ctors      start:0x80291CCC end:0x80291CD0
 	.rodata     start:0x80298188 end:0x80298240
 	.bss        start:0x802E5E1C end:0x802E5EC0
+
+sims/ERRleTexture.cpp:
+	.text       start:0x8003DF9C end:0x8003E844
+	.ctors      start:0x80291CD0 end:0x80291CD4
+	.rodata     start:0x80298240 end:0x802983B4
+	.sbss       start:0x8037CAA0 end:0x8037CAA4

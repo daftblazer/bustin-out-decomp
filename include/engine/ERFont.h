@@ -44,7 +44,6 @@ struct ERFontSizeList {
     char unk8[8];
 };
 
-extern EStorableClass lbl_803795A8;   // ERFont's record
 EStorable* fn_8003DD38();
 EStorable* fn_8003DD60(void* place);
 void fn_8003DD8C(EStorable* object);
@@ -74,7 +73,8 @@ public:
     void Select(ERC* rc);
     float GetLineSpacing(EWindow* window);
 
-    E_STORABLE_BODY(ERFont, lbl_803795A8, fn_8003DD38, fn_8003DD60, fn_8003DD8C)
+    E_STORABLE_BODY(ERFont, fn_8003DD38, fn_8003DD60, fn_8003DD8C)
+    void operator delete(void* ptr) { fn_80169EE8(ptr); }
 
     int unk18;
     int unk1C;

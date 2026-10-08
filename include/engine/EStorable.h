@@ -48,26 +48,30 @@ public:
     virtual void vfn12();
     virtual void vfn13();
 
+    static EStorableClass sInfo;              // the class record (a common symbol)
+
     char unk4[0x14];
 };
-extern EStorableClass lbl_803794E0;           // EResource's record
 
-// The members every storable class defines. The three functions that create and
+// The members every storable class defines. The class record is a static data
+// member: this compiler emits those as common symbols, which is why the records
+// sit together at the end of .bss, away from their units' other data.
+// The three functions that create and
 // destroy an instance are friends defined in the class body (static members would
 // not be emitted under -fno-implement-inlines); their names are passed in because
 // the original's are unknown. They use the global operator new of engine/ENew.h,
 // which a source file includes after its class headers.
 void* operator new(unsigned int size);
 void* operator new(unsigned int size, void* place);
-#define E_STORABLE_BODY(Class, info, create, createAt, destroy)                         \
+#define E_STORABLE_BODY(Class, create, createAt, destroy)                         \
     friend EStorable* create() { return new Class; }                                    \
     friend EStorable* createAt(void* place) { return new (place) Class; }               \
     friend void destroy(EStorable* object) { ((Class*)object)->Class::~Class(); }       \
     virtual void Delete() { delete this; }                                              \
-    virtual EStorableClass* GetClass() { return &info; }                                \
-    virtual int vfn3() { return info.unkC; }                                            \
-    virtual int vfn4() { return info.unk10; }                                           \
-    virtual unsigned short vfn5() { return info.unk14; }                                \
-    void operator delete(void* ptr) { fn_80169EE8(ptr); }
+    static EStorableClass sInfo;                                                        \
+    virtual EStorableClass* GetClass() { return &sInfo; }                                \
+    virtual int vfn3() { return sInfo.unkC; }                                            \
+    virtual int vfn4() { return sInfo.unk10; }                                           \
+    virtual unsigned short vfn5() { return sInfo.unk14; }
 
 #endif

@@ -32,9 +32,9 @@ struct EWindow {
 extern EWindow* lbl_8037C0DC;
 
 static EVec2 lbl_8037CA94(1.0f, 1.0f);
-EStorableClass lbl_803795A8;
-static int lbl_8037CA9C = fn_801BBFCC(&lbl_803795A8, fn_8003DD38, fn_8003DD60, fn_8003DD8C, 0,
-                                      "ERFont", &lbl_803794E0);
+EStorableClass ERFont::sInfo;
+static int lbl_8037CA9C = fn_801BBFCC(&ERFont::sInfo, fn_8003DD38, fn_8003DD60, fn_8003DD8C, 0,
+                                      "ERFont", &EResource::sInfo);
 
 // Sets all four components of a colour (in the original presumably a member of the
 // colour class; alpha is stored first).

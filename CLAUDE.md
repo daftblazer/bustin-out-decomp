@@ -385,10 +385,19 @@ defines; `sims/ERFont.cpp` is the first unit built on it. What the tail of such 
 - The three creation functions are **friends defined in the class body**. Static members with the same bodies
   are not emitted at all under `-fno-implement-inlines` when the class has a key function (they stay undefined).
 - `operator new` and placement new are **global inline operators defined after the class**
-  (`include/engine/ENew.h`, included last). Defined later than their first use, they are called out of line and
+  (`include/engine/ENew.h`, included last; `sims/e_rrletexture.h` has its own, allocating from the texture
+  manager, with placement new from `<new>` included after the class). Defined later than their first use, they are called out of line and
   the unit gets local copies named `__builtin_new` and `__nw__FUiPv`; both need `scope:local` in `symbols.txt`.
 - The static initialiser registers the class with `fn_801BBFCC(&record, create, createAt, destroy, 0, "Name",
-  &parentRecord)` and stores the result. The class record is in `.bss` far from the unit's other data.
+  &parentRecord)` and stores the result. The class record is a **static data member** (`Class::sInfo`; the member
+  name is ours). This compiler emits static data members as common symbols, which is why the records sit
+  together at the end of `.bss`, away from their units' other data.
+- That placement blocks linking these units from source for now: the linker script has no rule for common
+  symbols, a `common` split puts the record in the wrong place (`main.dol` no longer matches), and the order of
+  the 242 symbols in that region (0x80376E60-0x8037B3D4) is not link order. `sims/ERRleTexture.cpp` matches in
+  all 21 functions and its `.rodata` is byte-identical, but stays `NonMatching` until that order is understood.
+- When a link fails, `build/G4ME69/main.dol` from the previous build is still there and still checks `OK`.
+  Delete it (or look for `FAILED` in the ninja output) before trusting the checksum.
 - The vtable pointer of a storable class is at offset 0 (`EStorable` has no data members).
 - A resource manager is a class derived from `EResourceManager` (`include/engine/EResourceManager.h`, vtable
   pointer at 0xA0) that overrides `GetHeap` and `AllocateAndLoadResource`; the resource's `operator new`
