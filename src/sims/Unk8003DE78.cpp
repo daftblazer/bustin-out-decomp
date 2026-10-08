@@ -32,10 +32,4 @@ EResource* Unk802E5E1C::AllocateAndLoadResource(EFile* file, unsigned int, unsig
     return texture;
 }
 
-// NON_MATCHING (static initialiser 0x8003DEF8): 27 instructions vs 22, as in
-// sims/ECheats.cpp. The original only constructs the manager; here the compiler also
-// emits the branch that destroys it and a _GLOBAL_.D function, because the class has
-// a (virtual, implicit) destructor. All five compiler versions do this. A wrapper
-// object without a destructor that constructs the manager in its own storage would
-// give the original's code, but there is no evidence for one.
-Unk802E5E1C lbl_802E5E1C;
+EStaticObject<Unk802E5E1C> lbl_802E5E1C;

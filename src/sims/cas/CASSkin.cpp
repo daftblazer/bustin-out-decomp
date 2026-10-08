@@ -217,7 +217,7 @@ void Unk8001EE8C::fn_8001F34C() {
     unk406C[7] = 0;
     unk406C[8] = 0;
     unk406C[9] = 0;
-    unk0[11] = (Unk80021CEC*)lbl_802E5E1C.fn_80177628(0xC9E921E7, 0, 0);
+    unk0[11] = (Unk80021CEC*)lbl_802E5E1C->fn_80177628(0xC9E921E7, 0, 0);
     fn_8001FEA8(11, 0xD57882B9);
     unk408C = 0;
     unk4090 = 0;
@@ -353,7 +353,7 @@ void Unk8001EE8C::fn_8001FEA8(int layer, unsigned int textureId) {
             unk0[0] = 0;
         }
         if (textureId != 0) {
-            unk0[0] = (Unk80021CEC*)lbl_802E5E1C.fn_80177628(textureId, 0, 0);
+            unk0[0] = (Unk80021CEC*)lbl_802E5E1C->fn_80177628(textureId, 0, 0);
         }
         break;
     case 7:

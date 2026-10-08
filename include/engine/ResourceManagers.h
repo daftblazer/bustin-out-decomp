@@ -2,6 +2,7 @@
 #define ENGINE_RESOURCEMANAGERS_H
 
 #include "engine/EResourceManager.h"
+#include "engine/EStaticObject.h"
 
 // Global resource managers. They share the lookup method at 0x80177628, so they
 // are probably instances of one class (or of classes with a common base); until
@@ -47,6 +48,6 @@ public:
     virtual EHeap* GetHeap();
     virtual EResource* AllocateAndLoadResource(EFile* file, unsigned int, unsigned int);
 };
-extern Unk802E5E1C lbl_802E5E1C;
+extern EStaticObject<Unk802E5E1C> lbl_802E5E1C;
 
 #endif

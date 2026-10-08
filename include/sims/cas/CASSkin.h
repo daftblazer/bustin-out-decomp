@@ -48,7 +48,7 @@ struct Unk8001EE8C {
             unk0[slot] = 0;
         }
         if (textureId != 0) {
-            unk0[slot] = (Unk80021CEC*)lbl_802E5E1C.fn_80177628(textureId, 0, 0);
+            unk0[slot] = (Unk80021CEC*)lbl_802E5E1C->fn_80177628(textureId, 0, 0);
             fn_80021CEC(unk0[slot], index);
         }
     }
@@ -101,7 +101,7 @@ inline void Unk8001EE8C::LoadSkinLayer(int slot, int layer, unsigned int texture
         unk0[slot] = 0;
     }
     if (textureId != 0) {
-        unk0[slot] = (Unk80021CEC*)lbl_802E5E1C.fn_80177628(textureId, 0, 0);
+        unk0[slot] = (Unk80021CEC*)lbl_802E5E1C->fn_80177628(textureId, 0, 0);
         fn_80021CEC(unk0[slot], slot);
         EVec3 hsl;
         hsl.Zero();

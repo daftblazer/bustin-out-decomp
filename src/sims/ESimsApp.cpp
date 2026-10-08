@@ -175,7 +175,7 @@ void ESimsApp::Shutdown() {
     unk2B60 = 0;
     lbl_802E6700.End();
     lbl_80340094.Shutdown();
-    lbl_802E5E1C.Shutdown();
+    lbl_802E5E1C->Shutdown();
     if (unk2B3C) {
         delete unk2B3C;
     }
@@ -203,8 +203,8 @@ void ESimsApp::Init() {
         lbl_8037C114->vfn4(cheats);
     }
     parseCommandLine();
-    lbl_802E5E1C.fn_80176C78("rletextures", 0x100);
-    lbl_8037C0B4 = &lbl_802E5E1C;
+    lbl_802E5E1C->fn_80176C78("rletextures", 0x100);
+    lbl_8037C0B4 = lbl_802E5E1C;
     lbl_803401C4.unkA4 = GetDefaultLanguage();
     lbl_8037CA30.unk0 = 1;
     // The original has a second, separate empty string here; an identical "" would be

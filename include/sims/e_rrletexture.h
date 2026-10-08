@@ -22,7 +22,7 @@ public:
     void fn_8003E084(EFile* file);                        // load
 
     void* operator new(unsigned int size) {
-        return lbl_802E5E1C.fn_80177EBC(size, "c:/eor/src2/games/sims/ESrc/e_rrletexture.h", 44,
+        return lbl_802E5E1C->fn_80177EBC(size, "c:/eor/src2/games/sims/ESrc/e_rrletexture.h", 44,
                                         "ERRleTexture operator new");
     }
 
