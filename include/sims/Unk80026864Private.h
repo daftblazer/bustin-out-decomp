@@ -436,9 +436,6 @@ struct Unk8004FC0C {
     int fn_8004FC0C(int, int);
 };
 
-// Tile position as used by the object search (8 bytes; constructors 0x801C6F20 and
-// 0x801C6F00, destructor 0x801C6FCC). This is CTilePt; the shared header's copy has
-// a different size, so it is declared apart until that is sorted out.
 // Walks the objects standing on a tile.
 struct Unk801FCE7C {
     Unk801FCE7C(const CTilePt& tile, int);

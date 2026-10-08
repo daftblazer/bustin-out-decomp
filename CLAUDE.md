@@ -420,3 +420,22 @@ defines; `sims/ERFont.cpp` is the first unit built on it. What the tail of such 
   - An array indexed with the base register first (`lwzx r11, r9, r8`) is read through an inline accessor
     (`EFontPage*& Page(int i)`); see the earlier note on `At(i)`.
 
+## Shared classes that replaced placeholders
+
+Model a class as **one** class. Declaring it as a chain of placeholder structs (one per function, each deriving
+from the last) compiles, but the compiler treats temporaries and destructors of the derived placeholders
+differently, and functions then miss by a register or a stack slot. These are now single classes:
+
+- `CTilePt` (`include/sims/CTilePt.h`): tile position, 3 bytes (an object on the stack still takes an 8-byte
+  slot). Name and method order from The Sims 2; formerly `Unk801C6EF4`, `Unk801C6F20`, `Unk801C6F44` and others.
+  The direction steps at `lbl_8035ABB0` are `CTilePt` too, and the room lists are arrays of them (`it += 3`).
+- `Unk8023DD8C` (`include/sims/Unk8023DD8C.h`): what is on a tile (walls, coverings, floor), 0x38 bytes.
+- `ERFont` (`include/engine/ERFont.h`): formerly `Unk8003C95C` in the Create-A-Sim headers.
+- `E_RELEASE_RESOURCE(p)` in `include/engine/ResourceManagers.h` is the one release macro. Try it wherever a
+  plain `if (p) { fn_801767FC(p); p = 0; }` sits in a function that does not match: three destructors matched
+  that way.
+
+When a class is renamed, the mangled names in `symbols.txt` that contain it must be renamed too
+(`11Unk801C6F20` -> `7CTilePt`), or `tools/tu.sh` reports the functions as "not in symbols.txt" and stops
+comparing them.
+
