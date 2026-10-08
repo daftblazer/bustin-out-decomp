@@ -13,7 +13,6 @@
 // 0x80297EB0, 0x80297F80). This is the first; the second has no functions of its
 // own in the binary (only its header strings), the third is sims/ERFont.cpp.
 
-void fn_801767FC(void* resource);
 
 struct Unk80181824 {
     void fn_80181824(ERC* rc);
@@ -269,14 +268,6 @@ struct Unk8037D9A4 {
 };
 extern Unk8037D9A4* lbl_8037D9A4;
 
-#define UNK8003B870_RELEASE(p) \
-    do { \
-        if (p) { \
-            fn_801767FC(p); \
-            p = 0; \
-        } \
-    } while (0)
-
 // 0x8003B870
 Unk8003B870::Unk8003B870(int player) {
     unk0 = player;
@@ -292,10 +283,10 @@ Unk8003B870::Unk8003B870(int player) {
 
 // 0x8003B8FC
 Unk8003B870::~Unk8003B870() {
-    UNK8003B870_RELEASE(unk2C);
-    UNK8003B870_RELEASE(unk30);
-    UNK8003B870_RELEASE(unk34);
-    UNK8003B870_RELEASE(unk38);
+    E_RELEASE_RESOURCE(unk2C);
+    E_RELEASE_RESOURCE(unk30);
+    E_RELEASE_RESOURCE(unk34);
+    E_RELEASE_RESOURCE(unk38);
 }
 
 // 0x8003B9E0

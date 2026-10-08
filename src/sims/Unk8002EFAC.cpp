@@ -145,13 +145,8 @@ void Unk80026864::fn_8002F000(Unk8002F000Tool* tool) {
 
 // 0x8002F1BC
 // Releases the floor tool's texture and markers.
-// NON_MATCHING: 9 instructions, all one register swap: `this` is in r28 and the
-// list's address in r29, the other way round in the original. Eight variants tried.
 void Unk80026864::fn_8002F1BC() {
-    if (unk100) {
-        fn_801767FC(unk100);
-        unk100 = 0;
-    }
+    E_RELEASE_RESOURCE(unk100);
     DeleteMarkers(unk194);
     if (unk84 == 2) {
         unk84 = 0;

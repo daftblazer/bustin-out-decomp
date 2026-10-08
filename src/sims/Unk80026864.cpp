@@ -1,3 +1,4 @@
+#include "engine/ResourceManagers.h"
 #include "sims/Unk80026864.h"
 
 #include "sims/Unk80026864Private.h"
@@ -201,15 +202,7 @@ void Unk80026864::fn_8002775C(int value) {
     fn_80027EAC();
 }
 
-// Release macros. The `do { } while (0)` wrapper is visible in the code: the loop note
-// it leaves keeps the scheduler from moving the first load above a preceding store.
-#define E_RELEASE_RESOURCE(p) \
-    do { \
-        if (p) { \
-            fn_801767FC(p); \
-            p = 0; \
-        } \
-    } while (0)
+// Releasing a recorded sprite: a statement macro like E_RELEASE_RESOURCE.
 #define E_RELEASE_RECORDED(p) \
     do { \
         if (p) { \

@@ -197,12 +197,7 @@ void Unk80026864::fn_80033BAC() {
         SetButtonHint(0x90, false);
         SetButtonHint(0x100, false);
         SetButtonHint(0xEF, true);
-        do {
-            if (unk104) {
-                fn_801767FC(unk104);
-                unk104 = 0;
-            }
-        } while (0);
+        E_RELEASE_RESOURCE(unk104);
     }
 }
 

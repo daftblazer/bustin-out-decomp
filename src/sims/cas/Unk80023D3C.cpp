@@ -17,14 +17,8 @@ EColorF lbl_802E5AFC(0.08f, 0.43f, 0.43f, 0.75f);
 EColorF lbl_802E5B0C(0.25f, 0.25f, 0.25f, 0.75f);
 
 // 0x80023D3C
-// NON_MATCHING: six instructions at the entry are in a different order, exactly as in
-// ~Unk800230AC (the original stores the vtable pointer before loading unkC4). Three
-// variants tried.
 Unk80023D3C::~Unk80023D3C() {
-    if (unkC4) {
-        fn_801767FC(unkC4);
-        unkC4 = 0;
-    }
+    E_RELEASE_RESOURCE(unkC4);
 }
 
 // 0x80023DA4

@@ -8,17 +8,11 @@
 #include "sims/cas/Unk800230AC.h"
 #include "sims/EGlobal.h"
 #include "engine/EController.h"
+#include "engine/ResourceManagers.h"
 
 // 0x800230AC
-// NON_MATCHING: six instructions at the entry are in a different order (the original
-// stores the vtable pointer before loading unk7C; here the load is hoisted above the
-// store). The rest, including the member destructors, is identical. Three variants
-// tried (plain ifs, an inline member, a reference-taking helper).
 Unk800230AC::~Unk800230AC() {
-    if (unk7C) {
-        fn_801767FC(unk7C);
-        unk7C = 0;
-    }
+    E_RELEASE_RESOURCE(unk7C);
     if (unk80) {
         fn_801767FC(unk80);
         unk80 = 0;

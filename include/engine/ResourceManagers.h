@@ -50,4 +50,19 @@ public:
 };
 extern EStaticObject<Unk802E5E1C> lbl_802E5E1C;
 
+// Drops a reference to a resource (0x801767FC).
+void fn_801767FC(void* resource);
+
+// Releasing a resource pointer is a statement macro in the original. The
+// `do { } while (0)` is visible in the code: the loop note it leaves keeps the first
+// load of the pointer behind the stores that precede it (a vtable store in a
+// destructor, for instance) and changes how the call before it is scheduled.
+#define E_RELEASE_RESOURCE(p) \
+    do { \
+        if (p) { \
+            fn_801767FC(p); \
+            p = 0; \
+        } \
+    } while (0)
+
 #endif

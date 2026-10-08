@@ -22,17 +22,6 @@ struct Unk8003210CList {
     Unk802E67C0Entry*& At(int i) { return unk0[i]; }
 };
 
-// Releasing a resource is a statement macro in the original: the `do { } while (0)`
-// keeps the first load of the pointer behind the stores that precede it
-// (fn_800318B0 only matches this way).
-#define UNK_RELEASE_801767FC(p) \
-    do { \
-        if (p) { \
-            fn_801767FC(p); \
-            p = 0; \
-        } \
-    } while (0)
-
 // A flat vector made from the first two components of an EVec3. In the original
 // this is presumably a constructor of EVec2 itself (EVec2(const EVec3&)).
 struct Unk80033484Vec2 : EVec2 {
@@ -163,7 +152,7 @@ void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end) {
 void Unk80026864::fn_800318B0(Unk800318B0Tool* tool) {
     unk84 = 4;
     unk88 = 0;
-    UNK_RELEASE_801767FC(unk104);
+    E_RELEASE_RESOURCE(unk104);
     unk1C4 = tool->unk0;
     unk1A0 = tool;
     unk104 = lbl_80340AB8.fn_80177628(tool->unk8, 0, 0);
@@ -175,7 +164,7 @@ void Unk80026864::fn_80031928() {
         unk84 = 0;
         unk88 = 0;
     }
-    UNK_RELEASE_801767FC(unk104);
+    E_RELEASE_RESOURCE(unk104);
 }
 
 // 0x80031980
@@ -881,7 +870,7 @@ void Unk80026864::fn_8003386C(int kind) {
         unk1C4 = fn_80033814(kind);
         unk104 = lbl_80340AB8.fn_80177628(texture, 0, 0);
     } else {
-        UNK_RELEASE_801767FC(unk104);
+        E_RELEASE_RESOURCE(unk104);
         unk84 = 3;
     }
     unk88 = 0;
