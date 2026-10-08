@@ -493,8 +493,16 @@ is byte-identical, yet cannot be linked from source:
     of `.rodata`. Base and derived both templates: order derived, template, base, and the vtables reorder.
 - What the original shows is the profile of a weak symbol: emitted on demand like a local, but visible to other
   units, one copy in the first unit in link order that uses it. Template functions have the same profile, which
-  `-frepo` reproduces; for non-template classes nothing found so far does. Worth testing next: whether the SN
-  build marked such classes some other way (an SN-specific pragma or attribute in the ProDG headers).
+  `-frepo` reproduces; for non-template classes nothing found so far does.
+- Also ruled out (scratch compiles in `build/try/cm`):
+  - `#pragma vtable` and the `+e0`/`+e1`/`+e2` options: the strings are in `cc1plus.exe`, but the options are
+    rejected and the pragma is "invalid". `#pragma unit` is the stock GCC one; there is no SN-specific pragma.
+  - Default `-fweak`: vtables and inline virtuals go to `.gnu.linkonce.d.*` / `.gnu.linkonce.t.*` sections.
+  - Virtuals declared in the class and defined later as `inline`, `extern inline`, or declared `inline` and
+    defined at the end of the file: all local, as before.
+  - The pragma pair with the bodies defined at the very end of the file: still emitted first, so their position
+    in the source does not matter; the vtable order becomes template, manager, base, derived.
+  - No other copy of the base class's functions exists in the DOL, so it is not a per-unit weak copy either.
 - So before spending time on data splits for a unit, check `findref.py` on its inline-virtual tail: if another
   unit references those functions or their vtable, the unit hits this problem.
 - The engine's string object is `Unk801C3E10` (`include/engine/Unk801C3E10.h`), 8 bytes.
