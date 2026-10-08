@@ -458,8 +458,11 @@ int fn_800328F4(Unk801C6F20* tile) {
 
 // 0x800329D8
 // Draws the wallpaper preview on the walls of the room under the cursor.
-// NON_MATCHING: 71 instructions vs 72; draft (the argument list of the preview call
-// is partly guessed). One variant tried.
+// NON_MATCHING: 71 instructions vs 72. The original loads the history object into r6
+// and moves it to r3 (`mr r3, r6`), needs one saved register and 8 bytes of frame
+// less, and has the temporary tile below `room` on the stack. Ten variants tried
+// (member and inline forwarding forms of the history call, a single tile class with
+// its own constructor, an inline cursor-tile helper, declaration orders).
 void Unk80026864::fn_800329D8(ERC* rc) {
     Unk80056498* drawer = 0;
     Unk8004AD08C* view = (Unk8004AD08C*)lbl_802E6700.unkA8[2];

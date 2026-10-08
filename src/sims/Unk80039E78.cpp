@@ -63,8 +63,10 @@ inline float M39Height(Unk80039E78* self) {
 
 // 0x8003A0C0
 // Opens the box: stores the text and the choices and lays everything out.
-// NON_MATCHING: 259 instructions vs 272; condensed draft of the layout, the stores
-// at the start and the calls are the original's. One variant tried.
+// NON_MATCHING: same length (272), 17 instructions, all in the window rectangle at
+// the end: the original computes and stores it in the order x1, x0, y0, y1, here
+// x1, y1, x0, y0. About sixty variants tried (all 24 orders of named locals, all 24
+// orders of assignments in a constructor body, inline helpers, vector forms).
 void Unk80039E78::fn_8003A0C0(EVec2* position, int count, int* items, int text, int copy, int cancel, float width) {
     unk834 = cancel;
     unk844 = *position;
