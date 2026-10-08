@@ -19,8 +19,8 @@
 extern "C" double fn_8010D684(double); // acos
 int fn_801C6310(int id, int on);
 inline int SetButtonHint(int id, bool on) { return fn_801C6310(id, on); }
-int fn_800390FC(Unk801C6EF4* start, Unk801C6EF4* end, int* direction, int* type, int* kind, int price);
-int fn_8003930C(Unk801C6EF4 start, Unk801C6EF4 end, int* direction, int* type, int* kind, int price);
+int fn_800390FC(CTilePt* start, CTilePt* end, int* direction, int* type, int* kind, int price);
+int fn_8003930C(CTilePt start, CTilePt end, int* direction, int* type, int* kind, int price);
 int fn_80038FC0(EVec2* from, EVec2* to, int type, int kind, int* out, int arg, int remove, int price);
 int fn_800395B0(void* a, void* b, int type, int kind);
 int fn_80039A70(void* a, void* b, int kind);
@@ -54,9 +54,6 @@ struct Unk80034734View {
 };
 inline Unk80034734View* GetGrid() { return (Unk80034734View*)lbl_802E6700.unkA8[2]; }
 
-struct Unk801C72D4 : Unk801C6EF4 {
-    void fn_801C72D4(int y, int x, int);
-};
 
 inline bool SamePoint(const EVec2& a, const EVec2& b) {
     bool same = false;
@@ -103,18 +100,18 @@ struct Unk8037D990Q {
     virtual void vfn5();
     virtual void vfn6();
     virtual void vfn7();
-    virtual int vfn8(Unk801C6EF4* tile);
+    virtual int vfn8(CTilePt* tile);
     virtual void vfn9();
     virtual void vfn10();
     virtual void vfn11();
     virtual void vfn12();
     virtual void vfn13();
-    virtual int vfn14(Unk801C6EF4* tile);
-    virtual void vfn15(Unk801C6EF4* tile, int type);
+    virtual int vfn14(CTilePt* tile);
+    virtual void vfn15(CTilePt* tile, int type);
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023DFA8 vfn18(Unk801C6EF4* tile);
-    virtual void vfn19(Unk801C6EF4* tile, Unk8023DDC4* packed);
+    virtual Unk8023DFA8 vfn18(CTilePt* tile);
+    virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 int fn_8023E488(int wall, int turn);
 extern float lbl_8037DA20;
@@ -131,16 +128,16 @@ struct Unk8037D98CC {
     virtual void vfn10();
     virtual void vfn11(void* object);
 };
-int fn_80036B14(Unk801C6EF4* tile, int wall, int* refund);
-int fn_80036D1C(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int arg, int kind);
-int fn_80036EAC(Unk801C6EF4* tile, int wall);
-int fn_80037140(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int type, int kind);
+int fn_80036B14(CTilePt* tile, int wall, int* refund);
+int fn_80036D1C(CTilePt* tile, Unk8023E1C4* info, int wall, int arg, int kind);
+int fn_80036EAC(CTilePt* tile, int wall);
+int fn_80037140(CTilePt* tile, Unk8023E1C4* info, int wall, int type, int kind);
 int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag);
 void fn_80035C70(ERC* rc, void* texture, EVec2* a, EVec2* b, int* flag);
 
 // The objects on a tile (the iterator with its inline wrappers).
 struct TileObjects : Unk801FCE7C {
-    TileObjects(const Unk801C6F20& tile) : Unk801FCE7C(tile, 0) {}
+    TileObjects(const CTilePt& tile) : Unk801FCE7C(tile, 0) {}
     Unk800053D4Inner* Get() { return unk4; }
 };
 
@@ -373,16 +370,16 @@ int Unk80026864::fn_80034968(EVec2* a, EVec2* b) {
 // Whether a diagonal wall crosses the tile under the cursor (and which diagonal).
 int Unk80026864::fn_80034E10(int* wall) {
     float size = GetGrid()->unk34;
-    Unk801C6EF4 first;
-    Unk801C6EF4 second;
+    CTilePt first;
+    CTilePt second;
     EVec2 a(unkAC, unkB0);
     a.x -= GetGrid()->unk34;
     a.y -= GetGrid()->unk38;
     EVec2 b(a.x + (size + size), a.y);
     for (int i = 0; i <= 1; i++) {
         *wall = i == 0 ? 0x10 : 0x20;
-        ((Unk801C72D4*)&first)->fn_801C72D4((int)a.y, (int)a.x, 1);
-        ((Unk801C72D4*)&second)->fn_801C72D4((int)b.y, (int)b.x, 1);
+        ((CTilePt*)&first)->fn_801C72D4((int)a.y, (int)a.x, 1);
+        ((CTilePt*)&second)->fn_801C72D4((int)b.y, (int)b.x, 1);
         Unk8037D990H* level = (Unk8037D990H*)lbl_8037D990;
         int direction = fn_800369A0(&first, &second);
         if (!level->vfn8(&second) && direction != 8) {
@@ -398,14 +395,14 @@ int Unk80026864::fn_80034E10(int* wall) {
 // Whether there is a wall on the tile under the cursor; gives its description.
 int Unk80026864::fn_80034FF4(int* out) {
     float size = GetGrid()->unk34;
-    Unk801C6EF4 first;
-    Unk801C6EF4 second;
+    CTilePt first;
+    CTilePt second;
     EVec2 a(unkAC, unkB0);
     a.x -= GetGrid()->unk34;
     a.y -= GetGrid()->unk38;
     EVec2 b(a.x + (size + size), a.y);
-    ((Unk801C72D4*)&first)->fn_801C72D4((int)a.y, (int)a.x, 1);
-    ((Unk801C72D4*)&second)->fn_801C72D4((int)b.y, (int)b.x, 1);
+    ((CTilePt*)&first)->fn_801C72D4((int)a.y, (int)a.x, 1);
+    ((CTilePt*)&second)->fn_801C72D4((int)b.y, (int)b.x, 1);
     Unk8037D990P* level = (Unk8037D990P*)lbl_8037D990;
     int direction = fn_800369A0(&first, &second);
     if (!level->vfn8(&second) && direction != 8) {
@@ -609,12 +606,12 @@ void fn_80035C70(ERC* rc, void* texture, EVec2* a, EVec2* b, int* flag) {
 
 // 0x800369A0
 // The direction (0 to 7) from one tile corner to another, 8 when they are the same.
-int fn_800369A0(Unk801C6EF4* from, Unk801C6EF4* to) {
+int fn_800369A0(CTilePt* from, CTilePt* to) {
     if (*from == *to) {
         return 8;
     }
-    Unk801C727C* a = (Unk801C727C*)from;
-    Unk801C727C* b = (Unk801C727C*)to;
+    CTilePt* a = (CTilePt*)from;
+    CTilePt* b = (CTilePt*)to;
     int ax = a->fn_801C727C();
     int ay = a->fn_801C7288();
     int dx = b->fn_801C727C() - ax;
@@ -643,10 +640,10 @@ int fn_800369A0(Unk801C6EF4* from, Unk801C6EF4* to) {
 // 0x80036B14
 // Looks for an object hung on one side of a wall; when there is one, adds what it
 // is worth to `refund` and has it removed.
-int fn_80036B14(Unk801C6EF4* tile, int wall, int* refund) {
+int fn_80036B14(CTilePt* tile, int wall, int* refund) {
     int found = 0;
     *refund = 0;
-    TileObjects it(*(Unk801C6F20*)tile);
+    TileObjects it(*(CTilePt*)tile);
     Unk800053D4Inner* hit = 0;
     while (it.Get()) {
         Unk800053D4Inner* object = it.Get();
@@ -672,12 +669,12 @@ int fn_80036B14(Unk801C6EF4* tile, int wall, int* refund) {
 
 // 0x80036D1C
 // Removes one wall from a tile (with anything hung on it); returns what that costs.
-int fn_80036D1C(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int arg, int kind) {
+int fn_80036D1C(CTilePt* tile, Unk8023E1C4* info, int wall, int arg, int kind) {
     if (!fn_80039A70(tile, (void*)wall, kind)) {
         return 0;
     }
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
-    Unk801C6EF4 scratch;
+    CTilePt scratch;
     int refund = 0;
     int amount = 0;
     int type = info->fn_8023E1C4(wall);
@@ -702,12 +699,12 @@ int fn_80036D1C(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int arg, int kin
 // Whether a wall may be removed: nothing stands against it on either side.
 // NON_MATCHING: skeleton (165 instructions in the original, which also looks at the
 // neighbouring tile and at the objects' footprints).
-int fn_80036EAC(Unk801C6EF4* tile, int wall) {
+int fn_80036EAC(CTilePt* tile, int wall) {
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
     if (wall == 0 && level->vfn8(tile)) {
         return 0;
     }
-    Unk801FCE7C it(*(Unk801C6F20*)tile, 0);
+    Unk801FCE7C it(*(CTilePt*)tile, 0);
     while (it.unk4) {
         Unk800053D4Inner* object = it.unk4;
         if (object->vfn88(0xD) != 0 && object->vfn109() == 8) {
@@ -723,7 +720,7 @@ int fn_80036EAC(Unk801C6EF4* tile, int wall) {
 // NON_MATCHING: skeleton (151 instructions in the original): the checks and the
 // final store are the original's, the handling of the diagonal cases is not
 // reconstructed.
-int fn_80037140(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int type, int kind) {
+int fn_80037140(CTilePt* tile, Unk8023E1C4* info, int wall, int type, int kind) {
     if (!fn_800395B0(tile, info, type, kind)) {
         return 0;
     }
@@ -746,7 +743,7 @@ int fn_80037140(Unk801C6EF4* tile, Unk8023E1C4* info, int wall, int type, int ki
 // 0x8003739C
 // Turns the two ends of a run on the ground into tile corners, nudged so that the
 // run covers the tiles it should for each of the eight directions.
-void fn_8003739C(EVec2* from, EVec2* to, Unk801C6EF4* start, Unk801C6EF4* end) {
+void fn_8003739C(EVec2* from, EVec2* to, CTilePt* start, CTilePt* end) {
     EVec2 a(*from);
     EVec2 b(*to);
     a = EVec2(a.x - 0.5f, a.y + 0.5f);
@@ -800,8 +797,8 @@ void fn_8003739C(EVec2* from, EVec2* to, Unk801C6EF4* start, Unk801C6EF4* end) {
             b.x += 1.0f;
         }
     }
-    ((Unk801C72D4*)start)->fn_801C72D4((int)a.y, (int)a.x, 1);
-    ((Unk801C72D4*)end)->fn_801C72D4((int)b.y, (int)b.x, 1);
+    ((CTilePt*)start)->fn_801C72D4((int)a.y, (int)a.x, 1);
+    ((CTilePt*)end)->fn_801C72D4((int)b.y, (int)b.x, 1);
 }
 
 // 0x80037648
@@ -841,12 +838,12 @@ int Unk80026864::fn_80037648() {
 // are the original's, the bookkeeping per tile is simplified.
 int Unk80026864::fn_80037900(EVec2* from, EVec2* to, int* out) {
     *out = 0;
-    Unk801C6EF4 start;
-    Unk801C6EF4 end;
+    CTilePt start;
+    CTilePt end;
     fn_8003739C(from, to, &start, &end);
     int direction = fn_800369A0(&start, &end);
     int wall = fn_8023DC04(direction);
-    Unk801C6EF4 current(start);
+    CTilePt current(start);
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
     int ok = 1;
     while (!level->vfn8(&current) && !(current == end)) {
@@ -936,8 +933,8 @@ int Unk80026864::fn_800380C4() {
     if (!fn_80038014()) {
         return 0;
     }
-    Unk801C6EF4 start;
-    Unk801C6EF4 end;
+    CTilePt start;
+    CTilePt end;
     fn_8003739C(&from, &to, &start, &end);
     int wall = fn_8023DC04(fn_800369A0(&start, &end));
     lbl_8037D96C->fn_8006186C(0x994E8974);
@@ -968,13 +965,13 @@ int Unk80026864::fn_80038424(EVec2* from, EVec2* to, int* out, int arg, int remo
 // of fn_80038A7C with the pricing added).
 int fn_8003849C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, void* total, int kind, int flag) {
     int count = fn_80038A7C(rc, a, b, texture, flag);
-    Unk801C6EF4 start;
-    Unk801C6EF4 end;
+    CTilePt start;
+    CTilePt end;
     fn_8003739C(a, b, &start, &end);
     int direction = fn_800369A0(&start, &end);
     int wall = fn_8023DC04(direction);
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
-    Unk801C6EF4 current(start);
+    CTilePt current(start);
     int refund = 0;
     while (!level->vfn8(&current) && !(current == end)) {
         Unk8023E1C4 info;
@@ -982,7 +979,7 @@ int fn_8003849C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, void* total, 
         if (info.fn_8023DED4(wall) && info.fn_8023DF40(wall)) {
             refund += fn_80033814(info.fn_8023E1C4(wall));
         }
-        ((Unk801C711C*)&current)->fn_801C70F4(&lbl_8035ABB0[direction]);
+        ((CTilePt*)&current)->fn_801C70F4(&lbl_8035ABB0[direction]);
     }
     *(int*)total = refund;
     return count;
@@ -993,8 +990,8 @@ int fn_8003849C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, void* total, 
 // NON_MATCHING: skeleton (337 instructions in the original, which fills the
 // vertices of each tile's quad in the open).
 int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag) {
-    Unk801C6EF4 start;
-    Unk801C6EF4 end;
+    CTilePt start;
+    CTilePt end;
     fn_8003739C(a, b, &start, &end);
     int direction = fn_800369A0(&start, &end);
     if (direction == 8) {
@@ -1002,7 +999,7 @@ int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag) {
     }
     int wall = fn_8023DC04(direction);
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
-    Unk801C6EF4 current(start);
+    CTilePt current(start);
     texture->fn_80181824(rc);
     int count = 0;
     while (!level->vfn8(&current) && current != end) {
@@ -1011,7 +1008,7 @@ int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag) {
         if (info.fn_8023DED4(wall)) {
             count++;
         }
-        ((Unk801C711C*)&current)->fn_801C70F4(&lbl_8035ABB0[direction]);
+        ((CTilePt*)&current)->fn_801C70F4(&lbl_8035ABB0[direction]);
     }
     return count;
 }
@@ -1019,8 +1016,8 @@ int fn_80038A7C(ERC* rc, EVec2* a, EVec2* b, Unk80181824* texture, int flag) {
 // 0x80038FC0
 // Counts (and prices) the walls along a run; true when there are any.
 int fn_80038FC0(EVec2* from, EVec2* to, int type, int kind, int* out, int arg, int remove, int price) {
-    Unk801C6EF4 start;
-    Unk801C6EF4 end;
+    CTilePt start;
+    CTilePt end;
     EVec2 a(*from);
     EVec2 b(*to);
     fn_8003739C(&a, &b, &start, &end);
@@ -1038,8 +1035,8 @@ int fn_80038FC0(EVec2* from, EVec2* to, int type, int kind, int* out, int arg, i
 // Removes every wall along a run; returns how many were removed.
 // NON_MATCHING: 93 instructions vs 132; draft, the calls are the original's but
 // the loop's bookkeeping is simplified. One variant tried.
-int fn_800390FC(Unk801C6EF4* start, Unk801C6EF4* end, int* direction, int* type, int* kind, int price) {
-    Unk801C6EF4 current(*start);
+int fn_800390FC(CTilePt* start, CTilePt* end, int* direction, int* type, int* kind, int price) {
+    CTilePt current(*start);
     int wall = fn_8023DC04(*direction);
     Unk8023E1C4 info;
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
@@ -1050,7 +1047,7 @@ int fn_800390FC(Unk801C6EF4* start, Unk801C6EF4* end, int* direction, int* type,
             count += fn_80036D1C(&current, &info, wall, *type, *kind);
             count++;
         }
-        ((Unk801C711C*)&current)->fn_801C70F4(&lbl_8035ABB0[*direction]);
+        ((CTilePt*)&current)->fn_801C70F4(&lbl_8035ABB0[*direction]);
     } while (!(current == *end) && !level->vfn8(&current));
     return count;
 }
@@ -1059,8 +1056,8 @@ int fn_800390FC(Unk801C6EF4* start, Unk801C6EF4* end, int* direction, int* type,
 // Builds a wall on every tile along a run; returns how many were built.
 // NON_MATCHING: 88 instructions vs 156; draft, the original also handles the tile
 // before the first one and removes a crossing wall. One variant tried.
-int fn_8003930C(Unk801C6EF4 start, Unk801C6EF4 end, int* direction, int* type, int* kind, int price) {
-    Unk801C6EF4 current(start);
+int fn_8003930C(CTilePt start, CTilePt end, int* direction, int* type, int* kind, int price) {
+    CTilePt current(start);
     int wall = fn_8023DC04(*direction);
     Unk8023E1C4 info;
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
@@ -1070,7 +1067,7 @@ int fn_8003930C(Unk801C6EF4 start, Unk801C6EF4 end, int* direction, int* type, i
         if (!info.fn_8023D9B8(wall)) {
             count += fn_80037140(&current, &info, wall, *type, *kind);
         }
-        ((Unk801C711C*)&current)->fn_801C70F4(&lbl_8035ABB0[*direction]);
+        ((CTilePt*)&current)->fn_801C70F4(&lbl_8035ABB0[*direction]);
     } while (!(current == end) && !level->vfn8(&current));
     return count;
 }
@@ -1086,7 +1083,7 @@ int Unk80026864::fn_8003957C(void* a, void* b) {
 // NON_MATCHING: skeleton (292 instructions in the original, which walks the
 // objects on this tile and on the two neighbours).
 int fn_800395B0(void* a, void* b, int type, int kind) {
-    Unk801C6EF4* tile = (Unk801C6EF4*)a;
+    CTilePt* tile = (CTilePt*)a;
     Unk8023E1C4* info = (Unk8023E1C4*)b;
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
     if (level->vfn18(tile).fn_8023DEA4(type)) {
@@ -1109,14 +1106,14 @@ int Unk80026864::fn_80039A40(void* a, void* b) {
 // NON_MATCHING: skeleton (258 instructions in the original, which also checks the
 // tile across the wall).
 int fn_80039A70(void* a, void* b, int kind) {
-    Unk801C6EF4* tile = (Unk801C6EF4*)a;
+    CTilePt* tile = (CTilePt*)a;
     int wall = (int)b;
     Unk8037D990Q* level = (Unk8037D990Q*)lbl_8037D990;
     Unk8023DFA8 info = level->vfn18(tile);
     if (!info.fn_8023DEA4(wall)) {
         return 1;
     }
-    Unk801FCE7C it(*(Unk801C6F20*)tile, 0);
+    Unk801FCE7C it(*(CTilePt*)tile, 0);
     while (it.unk4) {
         Unk800053D4Inner* object = it.unk4;
         if (object->vfn109() == 8 && object->vfn109() != 2) {

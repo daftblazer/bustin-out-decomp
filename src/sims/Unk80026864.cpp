@@ -746,7 +746,7 @@ void Unk80026864::fn_8002917C() {
     if (controller->fn_8015E0F8(confirm)) {
         bool onLot = false;
         Unk800053D4Inner* object = unkF0->vfn8b();
-        Unk801C727C tile = ((Unk800053D4InnerB*)object)->vfn117();
+        CTilePt tile = ((Unk800053D4InnerB*)object)->vfn117();
         if (tile.fn_801C727C() >= 0 && tile.fn_801C727C() <= ((Unk8037D990F*)lbl_8037D990)->vfn6() &&
             tile.fn_801C7288() >= 0) {
             onLot = tile.fn_801C7288() <= ((Unk8037D990F*)lbl_8037D990)->vfn6();
@@ -942,8 +942,8 @@ void Unk80026864::fn_80029BF8() {
     int tileY;
     fn_8002BB64(&tileX, &tileY);
     if (tileY >= 0 && tileX >= 0) {
-        Unk801C6F44 tile(tileY, tileX, 1);
-        fn_800328F4((Unk801C6F20*)&tile);
+        CTilePt tile(tileY, tileX, 1);
+        fn_800328F4((CTilePt*)&tile);
     }
 }
 
@@ -1312,7 +1312,7 @@ void Unk80026864::fn_8002BE48(Unk800053D4Inner* object) {
     if (model) {
         if (!model->vfn51()) {
             model->unk320.vfn2();
-            Unk801C727C tile = ((Unk800053D4InnerB*)object)->vfn117();
+            CTilePt tile = ((Unk800053D4InnerB*)object)->vfn117();
             model->vfn50(0);
             if (!object->vfn124()) {
                 for (Unk800053D4Inner* above = object->vfn98(0); above; above = above->vfn98(0)) {
@@ -1393,7 +1393,7 @@ void Unk80026864::fn_8002C370(Unk800053D4Inner* object) {
     if (model) {
         if (!model->vfn51()) {
             model->unk320.vfn2();
-            Unk801C727C tile = ((Unk800053D4InnerB*)object)->vfn117();
+            CTilePt tile = ((Unk800053D4InnerB*)object)->vfn117();
             if (IsOffLot(tile)) {
                 model->vfn50(1);
             } else {
@@ -1425,7 +1425,7 @@ void Unk80026864::fn_8002C370(Unk800053D4Inner* object) {
             for (Unk80026864Node* node = models.head; node; node = node->next) {
                 Unk80068758* part = (Unk80068758*)node->item;
                 part->unk320.vfn2();
-                Unk801C727C tile = ((Unk800053D4InnerB*)object)->vfn117();
+                CTilePt tile = ((Unk800053D4InnerB*)object)->vfn117();
                 if (IsOffLot(tile)) {
                     part->vfn50(1);
                 } else {
@@ -1436,7 +1436,7 @@ void Unk80026864::fn_8002C370(Unk800053D4Inner* object) {
     }
 }
 
-inline Unk800053D4Inner* FindOnTile1(const Unk801C6F20& tile, int kind) {
+inline Unk800053D4Inner* FindOnTile1(const CTilePt& tile, int kind) {
     Unk800053D4Inner* found = 0;
     Unk801FCE7C it(tile, 0);
     while (it.unk4) {
@@ -1484,11 +1484,11 @@ Unk800053D4Inner* Unk80026864::fn_8002C7B4(int kind) {
     fn_8002BB64(&tileX, &tileY);
     ETilePair subTile;
     SetSubTile2(subTile, tileX, tileY);
-    Unk801C6F20 tile(subTile, 1);
+    CTilePt tile(subTile, 1);
     if (((Unk8037D990D*)lbl_8037D990)->vfn8(&tile)) {
         return 0;
     }
-    return FindOnTile1(Unk801C6F20(tile), kind);
+    return FindOnTile1(CTilePt(tile), kind);
 }
 
 // 0x8002C940
@@ -1816,7 +1816,7 @@ void fn_8002E1BC(void* key, int flag) {
         char* it = tiles.Begin();
         if (it != tiles.End()) {
             do {
-                fn_800311B0((Unk801C6F20*)it, flag, list);
+                fn_800311B0((CTilePt*)it, flag, list);
                 it += 3;
             } while (it != tiles.End());
             if (fn_8007600C()) {
@@ -1838,7 +1838,7 @@ void fn_8002E1BC(void* key, int flag) {
 void fn_8002E2A0(int flag, int x0, int y0, int x1, int y1) {
     for (int x = x0; x <= x1; x++) {
         for (int y = y0; y <= y1; y++) {
-            Unk801C6F44 tile(x, y, 1);
+            CTilePt tile(x, y, 1);
             if (fn_8002FE20(&tile, flag)) {
                 Unk8037D990E* level = (Unk8037D990E*)lbl_8037D990;
                 Unk8023DFA8 info = level->vfn18(&tile);
@@ -1955,7 +1955,7 @@ void fn_8002E73C(int key, int arg) {
     Unk8037D990G* level = (Unk8037D990G*)lbl_8037D990;
     Unk80234390* list = fn_80234390(table, (void*)key);
     for (char* it = list->unk4; it != list->unk8; it += 3) {
-        Unk801C6F20 tile(*(Unk801C6F20*)it);
+        CTilePt tile(*(CTilePt*)it);
         if (level->vfn21(&tile)) {
             Unk8023E354 info = level->vfn18(&tile);
             int count = 0;
@@ -1964,7 +1964,7 @@ void fn_8002E73C(int key, int arg) {
             sides[1] = 0;
             for (int wall = info.fn_8023E354(); wall; wall = info.fn_8023E3BC(wall)) {
                 if (wall == 0x10 || wall == 0x20) {
-                    Unk801C6F20 copy(tile);
+                    CTilePt copy(tile);
                     unsigned short* a = 0;
                     unsigned short* b = 0;
                     int sideA;
@@ -2020,7 +2020,7 @@ void fn_8002E73C(int key, int arg) {
     Unk80026864::fn_80028ECC();
 }
 
-inline void Segment1(EVec2* a, EVec2* b, Unk801C6EF4* start, Unk801C6EF4* end) { fn_8003739C(a, b, start, end); }
+inline void Segment1(EVec2* a, EVec2* b, CTilePt* start, CTilePt* end) { fn_8003739C(a, b, start, end); }
 // 0x8002EA74
 // Callback: walks the tiles from one point to another and applies an action to the
 // wall on each.
@@ -2029,14 +2029,14 @@ inline void Segment1(EVec2* a, EVec2* b, Unk801C6EF4* start, Unk801C6EF4* end) {
 void fn_8002EA74(int arg, int kind, float x0, float y0, float x1, float y1) {
     EVec2 a(x0, y0);
     EVec2 b(x1, y1);
-    Unk801C6EF4 start;
-    Unk801C6EF4 end;
+    CTilePt start;
+    CTilePt end;
     fn_8003739C(&a, &b, &start, &end);
     fn_800315FC(&start, &end);
     int direction = fn_800369A0(&start, &end);
     int wall = fn_8023DC04(direction);
-    Unk801C6EF4 current(start);
-    Unk801C6EF4 last(end);
+    CTilePt current(start);
+    CTilePt last(end);
     int side = 0;
     fn_800323D8(&wall, kind, &side, &current, &last);
     int steps = 0;

@@ -41,9 +41,9 @@ struct Unk800315FCInfo : Unk8023E088 {
     Unk800315FCInfo& fn_8023E110(int arg, int wall, int side);   // 0x8023E110
 };
 // The tile position's += and -= with a direction step; they return the tile.
-struct Unk800315FCTile : Unk801C6EF4 {
-    Unk800315FCTile& fn_801C711C(const Unk8035ABB0* step);       // 0x801C711C, +=
-    Unk800315FCTile& fn_801C70F4(const Unk8035ABB0* step);       // 0x801C70F4, -=
+struct Unk800315FCTile : CTilePt {
+    Unk800315FCTile& fn_801C711C(const CTilePt* step);       // 0x801C711C, +=
+    Unk800315FCTile& fn_801C70F4(const CTilePt* step);       // 0x801C70F4, -=
 };
 
 // The level's tile grid, with the tile contents returned as the class above.
@@ -55,7 +55,7 @@ struct Unk800315FCLevel {
     virtual void vfn5();
     virtual int vfn6();
     virtual void vfn7();
-    virtual int vfn8(Unk801C6EF4* tile);
+    virtual int vfn8(CTilePt* tile);
     virtual void vfn9();
     virtual void vfn10();
     virtual void vfn11();
@@ -65,8 +65,8 @@ struct Unk800315FCLevel {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk800315FCInfo vfn18(Unk801C6EF4* tile);
-    virtual void vfn19(Unk801C6EF4* tile, Unk8023DDC4* packed);
+    virtual Unk800315FCInfo vfn18(CTilePt* tile);
+    virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 // The room list at lbl_8037D998: slot 19 is called after walls have changed.
 struct Unk800315FCRooms {
@@ -94,9 +94,9 @@ struct Unk800315FCRooms {
 // 0x800315FC
 // Puts the two ends of a wall run in a fixed order (lower first), and moves the run
 // one tile along when that changed its first end.
-void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end) {
-    Unk801C6EF4 a(*start);
-    Unk801C6EF4 b(*end);
+void fn_800315FC(CTilePt* start, CTilePt* end) {
+    CTilePt a(*start);
+    CTilePt b(*end);
     if (a.x == b.x) {
         signed char lo = a.y < b.y ? a.y : b.y;
         signed char hi = a.y > b.y ? a.y : b.y;
@@ -119,7 +119,7 @@ void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end) {
         float slope = (float)(b.y - a.y) / (float)(b.x - a.x);
         if (slope > 0.0f) {
             if (a.x > b.x) {
-                Unk801C6EF4 swap(a);
+                CTilePt swap(a);
                 a = b;
                 b = swap;
             }
@@ -131,7 +131,7 @@ void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end) {
             }
         } else {
             if (a.y > b.y) {
-                Unk801C6EF4 swap(a);
+                CTilePt swap(a);
                 a = b;
                 b = swap;
             }
@@ -365,8 +365,8 @@ int fn_8003210C(int index) {
 // 0x8003214C
 // What stripping the covering from the dragged wall run gives back.
 int Unk80026864::fn_8003214C() {
-    Unk801C6EF4 start;
-    Unk801C6EF4 end;
+    CTilePt start;
+    CTilePt end;
     fn_8003739C((EVec2*)&unkD0, (EVec2*)&unkD8, &start, &end);
     fn_800315FC(&start, &end);
     int direction = fn_800369A0(&start, &end);
@@ -375,7 +375,7 @@ int Unk80026864::fn_8003214C() {
         return 0;
     }
     int wall = fn_8023DC04(direction);
-    Unk801C6EF4 current(start);
+    CTilePt current(start);
     int side = 0;
     fn_800323D8(&wall, unkF8 == 0, &side, &current, &end);
     int total = 0;
@@ -407,7 +407,7 @@ int Unk80026864::fn_8003214C() {
 // 0x800323D8
 // Works out which side of a wall an action applies to; for the two straight kinds
 // it also shifts the run by one step, depending on the direction it is drawn in.
-void fn_800323D8(int* wall, int kind, int* side, Unk801C6EF4* from, Unk801C6EF4* to) {
+void fn_800323D8(int* wall, int kind, int* side, CTilePt* from, CTilePt* to) {
     int direction = fn_800369A0(from, to);
     int step = lbl_802D1F00[direction];
     if (*wall == 0x10) {
@@ -441,8 +441,8 @@ void fn_800323D8(int* wall, int kind, int* side, Unk801C6EF4* from, Unk801C6EF4*
 // Applies a covering (0 strips it) to one side of every wall along the dragged run,
 // after checking that it can be paid for. The two points passed in are not used.
 int Unk80026864::fn_80032518(EVec2* from, EVec2* to, int type, int flag) {
-    Unk801C6EF4 start;
-    Unk801C6EF4 end;
+    CTilePt start;
+    CTilePt end;
     EVec2 a(unkD0, unkD4);
     EVec2 b(unkD8, unkDC);
     fn_8003739C(&a, &b, &start, &end);
@@ -453,8 +453,8 @@ int Unk80026864::fn_80032518(EVec2* from, EVec2* to, int type, int flag) {
         return 0;
     }
     int wall = fn_8023DC04(direction);
-    Unk801C6EF4 current(start);
-    Unk801C6EF4 last(end);
+    CTilePt current(start);
+    CTilePt last(end);
     int side = 0;
     fn_800323D8(&wall, flag, &side, &current, &last);
     int cost;
@@ -497,7 +497,7 @@ int Unk80026864::fn_80032518(EVec2* from, EVec2* to, int type, int flag) {
 
 // 0x800328F4
 // The room a tile belongs to (looked up through its wall when the tile is cut).
-int fn_800328F4(Unk801C6F20* tile) {
+int fn_800328F4(CTilePt* tile) {
     Unk8037D990G* level = (Unk8037D990G*)lbl_8037D990;
     int room = ((Unk8037D990K*)level)->vfn24(tile);
     if (lbl_8037D998 == 0) {
@@ -533,14 +533,14 @@ void Unk80026864::fn_800329D8(ERC* rc) {
     if (view) {
         drawer = view->unk8;
     }
-    Unk801C6EF4 tile;
+    CTilePt tile;
     if (drawer) {
         ((Unk80181824*)unk104)->fn_80181824(rc);
         int tileX;
         int tileY;
         fn_8002BB64(&tileX, &tileY);
-        tile = *(Unk801C6EF4*)&Unk801C6F44(tileY, tileX, 1);
-        unsigned short room = fn_800328F4((Unk801C6F20*)&tile);
+        tile = *(CTilePt*)&CTilePt(tileY, tileX, 1);
+        unsigned short room = fn_800328F4((CTilePt*)&tile);
         void* texture = *(void**)((char*)unk104 + 4);
         fn_801E36E4b(lbl_802E6700.unk120, 7, &room, 0, 0, &unkB4, &unkB4, 0, 0, &texture, 0);
         unkE8 = ((Unk80056498B*)drawer)->fn_80056498(rc, room, &unkB4);
@@ -569,7 +569,7 @@ struct Unk80032B64Tiles {
     char* end;
 };
 // The tile position built from tile coordinates (see Unk800329D8's note: the shared
-// header's derived Unk801C6F44 makes the compiler keep the object's address).
+// header's derived CTilePt makes the compiler keep the object's address).
 struct Unk80032B64Tile {
     Unk80032B64Tile(int tileX, int tileY, int);   // 0x801C6F44
     ~Unk80032B64Tile();                           // 0x801C6FCC
@@ -580,7 +580,7 @@ int Unk80026864::fn_80032B64() {
     int tileY;
     fn_8002BB64(&tileX, &tileY);
     Unk80032B64Tile tile(tileY, tileX, 1);
-    int room = fn_800328F4((Unk801C6F20*)&tile);
+    int room = fn_800328F4((CTilePt*)&tile);
     Unk80234774* table = (Unk80234774*)lbl_8037D998;
     Unk8037D990G* level = (Unk8037D990G*)lbl_8037D990;
     if (table == 0) {
@@ -610,14 +610,14 @@ int Unk80026864::fn_80032B64() {
         lbl_8037D96C->fn_8006186C(0x994E8974);
     }
     for (char* it = tiles->begin; it != tiles->end; it += 3) {
-        Unk801C6F20 current(*(Unk801C6F20*)it);
+        CTilePt current(*(CTilePt*)it);
         if (level->vfn21(&current)) {
             Unk8023E354 info = level->vfn18(&current);
             int count = 0;
             int sides[2] = { 0, 0 };
             for (int wall = info.fn_8023E354(); wall; wall = info.fn_8023E3BC(wall)) {
                 if (wall == 0x10 || wall == 0x20) {
-                    Unk801C6F20 copy(current);
+                    CTilePt copy(current);
                     unsigned short* a = 0;
                     unsigned short* b = 0;
                     int sideA;
@@ -718,7 +718,7 @@ int Unk80026864::fn_800330A0() {
 
 // 0x800331A8
 // Sets the covering of one side of one wall of a tile, if it differs.
-void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side) {
+void fn_800331A8(CTilePt* tile, int arg, int wall, int side) {
     Unk8037D990M* level = (Unk8037D990M*)lbl_8037D990;
     Unk8023E088 info = level->vfn18(tile);
     if (info.fn_8023E088(wall, side) == arg) {

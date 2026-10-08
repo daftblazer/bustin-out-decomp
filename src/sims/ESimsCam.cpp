@@ -504,7 +504,7 @@ void ESimsCam::fn_80006E6C() {
     player->vfn37()->vfn34(2, &position);
     position.z = 0.0f;
     if (position.LengthSquared() < 0.5f) {
-        position = lbl_802E6700.unk9C[unk8]->unk0->vfn117();
+        position = lbl_802E6700.unk9C[unk8]->unk0->vfn117().GetEVec3();
         position.z = 0.0f;
     }
     if (unk324 != 0) {

@@ -1,6 +1,7 @@
 #ifndef SIMS_UNK800052C8_H
 #define SIMS_UNK800052C8_H
 
+#include "sims/CTilePt.h"
 #include "engine/EMat4.h"
 #include "engine/EVec3.h"
 #include "sims/EGlobal.h"
@@ -49,14 +50,6 @@ struct Unk802E67B0Target {
 struct Unk802E67B0 {
     Unk802E67B0Target* unk0;
     char unk4[0x100]; // size unknown
-};
-
-// Tile position (0x10 bytes here; name from The Sims 2's symbol map, where
-// CTilePt has constructors from EVec3). Conversion at 0x801C6DEC, dtor 0x801C6FCC.
-struct CTilePt {
-    ~CTilePt();
-    operator EVec3() const; // 0x801C6DEC
-    char unk0[0x10];
 };
 
 // Tile coordinates as a pair of ints.

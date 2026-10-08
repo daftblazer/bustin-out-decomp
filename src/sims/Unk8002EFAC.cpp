@@ -88,13 +88,13 @@ struct Unk8002EFACTile {
 };
 
 // A tile reference built from tile coordinates. The shared header models this as
-// Unk801C6F44, a class derived from Unk801C6F20, but the derived class's implicit
+// CTilePt, a class derived from CTilePt, but the derived class's implicit
 // inline destructor makes the compiler keep the object's address in a register,
-// which the original does not do: 0x801C6F44 is a constructor of Unk801C6F20 itself.
+// which the original does not do: 0x801C6F44 is a constructor of CTilePt itself.
 struct Unk8002EFACTileAt {
     Unk8002EFACTileAt(int tileX, int tileY, int);
     ~Unk8002EFACTileAt();
-    operator Unk801C6F20*() { return (Unk801C6F20*)this; }
+    operator CTilePt*() { return (CTilePt*)this; }
     char unk0[8];
 };
 
@@ -217,7 +217,7 @@ void Unk80026864::fn_8002F794(ERC* rc) {
     int tileX;
     int tileY;
     fn_8002BB64(&tileX, &tileY);
-    Unk801C6F44 tile(tileY, tileX, 1);
+    CTilePt tile(tileY, tileX, 1);
     unsigned short room = ((Unk8037D990K*)lbl_8037D990)->vfn24(&tile);
     if (room == 0xFFFB) {
         unsigned short* a;
@@ -299,13 +299,13 @@ void Unk8002FC60::fn_8002FDC0(const EVec2* at) {
 
 // The objects on a tile (the iterator with its inline wrappers).
 struct Unk8002FE20Iter : Unk801FCE7C {
-    Unk8002FE20Iter(const Unk801C6F20& tile) : Unk801FCE7C(tile, 0) {}
+    Unk8002FE20Iter(const CTilePt& tile) : Unk801FCE7C(tile, 0) {}
     Unk800053D4Inner* Get() { return unk4; }
 };
 
 // 0x8002FE20
 // Whether floor can be laid on a tile; with `flag`, nothing on it may object either.
-int fn_8002FE20(Unk801C6F20* tile, int flag) {
+int fn_8002FE20(CTilePt* tile, int flag) {
     if ((((Unk8037D990I*)lbl_8037D990)->vfn26(tile) & 0x21) != 1) {
         return 0;
     }
@@ -343,7 +343,7 @@ int fn_8002FF30(int index) {
 
 // 0x8002FFB8
 // Refund for the floor on a tile (the mean of the two halves when it is split).
-int fn_8002FFB8(Unk801C6F20* tile) {
+int fn_8002FFB8(CTilePt* tile) {
     int type = ((Unk8037D990I*)lbl_8037D990)->vfn14(tile);
     unsigned char* record = ((Unk8037D990I*)lbl_8037D990)->vfn22(tile);
     bool split = false;
@@ -366,7 +366,7 @@ int fn_80030084(int* any, int x0, int x1, int y0, int y1, int type) {
     int total = 0;
     for (int x = x0; x <= x1; x++) {
         for (int y = y0; y <= y1; y++) {
-            Unk801C6F44 tile(x, y, 1);
+            CTilePt tile(x, y, 1);
             if (fn_8002FE20(&tile, type)) {
                 *any = 1;
                 total += fn_8002FEF4(type);
@@ -386,7 +386,7 @@ int fn_80030170(int* any, int x0, int x1, int y0, int y1, int flag) {
     int total = 0;
     for (int x = x0; x <= x1; x++) {
         for (int y = y0; y <= y1; y++) {
-            Unk801C6F44 tile(x, y, 1);
+            CTilePt tile(x, y, 1);
             if (fn_8002FE20(&tile, flag)) {
                 *any = 1;
                 total += fn_8002FFB8(&tile);
@@ -408,7 +408,7 @@ int fn_8003025C(int* any, void* table, Unk80234390* tiles, int type) {
     int total = 0;
     int count = (Unk8002EFACTile*)tiles->unk4 - (Unk8002EFACTile*)tiles->unk0;
     for (int i = 0; i < count; i++) {
-        Unk801C6F20* tile = (Unk801C6F20*)((char*)tiles->unk0 + i * 3);
+        CTilePt* tile = (CTilePt*)((char*)tiles->unk0 + i * 3);
         if (fn_8002FE20(tile, type)) {
             *any = 1;
             Unk8023E420 info = ((Unk8037D990J*)lbl_8037D990)->vfn18(tile);
@@ -467,14 +467,14 @@ struct Unk8003043CUndo : Unk801E6424 {
 // Lays floor `type` on one tile of a rectangle: an older form of fn_800311B0
 // that floors both halves of a cut tile.
 // A tile reference built from tile coordinates, with an inline constructor.
-struct Unk8003043CTile : Unk801C6F44 {
-    Unk8003043CTile(int tileX, int tileY) : Unk801C6F44(tileX, tileY, 1) {}
+struct Unk8003043CTile : CTilePt {
+    Unk8003043CTile(int tileX, int tileY) : CTilePt(tileX, tileY, 1) {}
 };
 
 // Lays floor `type` on one tile of a rectangle: an older form of fn_800311B0
 // that floors both halves of a cut tile.
-inline void fn_8003043CLay(const Unk801C6F20& at, int type) {
-    Unk801C6F20* tile = (Unk801C6F20*)&at;
+inline void fn_8003043CLay(const CTilePt& at, int type) {
+    CTilePt* tile = (CTilePt*)&at;
     if (fn_8002FE20(tile, type)) {
         Unk8037D990E* level = (Unk8037D990E*)lbl_8037D990;
         Unk8023DFA8 data = level->vfn18(tile);
@@ -533,7 +533,7 @@ void Unk80026864::fn_8003043C() {
                         Unk8003043CUndo undo;
                         undo.fn_801E6BC4(((Unk8037D990L*)lbl_8037D990)->vfn13());
                         for (; it != (Unk8002EFACTile*)tiles->unk4; it++) {
-                            fn_800311B0((Unk801C6F20*)it, type, list);
+                            fn_800311B0((CTilePt*)it, type, list);
                         }
                         if (fn_8007600C()) {
                             lbl_802E6820[0]->fn_801E3C80(room, type);
@@ -647,20 +647,20 @@ void Unk80026864::fn_8003043C() {
 // 0x80031084
 // Which halves of a diagonally cut tile lie inside the room: looks for the room on
 // the tiles to the left and right.
-void fn_80031084(void* table, Unk801C6F20* tile, Unk8023DFA8* info, int* sideA, int* sideB) {
+void fn_80031084(void* table, CTilePt* tile, Unk8023DFA8* info, int* sideA, int* sideB) {
     *sideA = 0;
     *sideB = 0;
     if (info->fn_8023DFA8()) {
-        Unk801C727C* at = (Unk801C727C*)tile;
+        CTilePt* at = (CTilePt*)tile;
         int left;
         {
             Unk8002EFACTileAt neighbour(at->fn_801C727C() - 1, at->fn_801C7288(), 1);
-            left = ((Unk80235F64*)table)->fn_80235F64((Unk801C6F20*)&neighbour);
+            left = ((Unk80235F64*)table)->fn_80235F64((CTilePt*)&neighbour);
         }
         int right;
         {
             Unk8002EFACTileAt neighbour(at->fn_801C727C() + 1, at->fn_801C7288(), 1);
-            right = ((Unk80235F64*)table)->fn_80235F64((Unk801C6F20*)&neighbour);
+            right = ((Unk80235F64*)table)->fn_80235F64((CTilePt*)&neighbour);
         }
         if (left) {
             if (info->fn_8023DEA4(0x10)) {
@@ -681,7 +681,7 @@ void fn_80031084(void* table, Unk801C6F20* tile, Unk8023DFA8* info, int* sideA, 
 
 // 0x800311B0
 // Lays floor `type` on one tile of a room (on the halves inside it when the tile is cut).
-void fn_800311B0(Unk801C6F20* tile, int type, void* table) {
+void fn_800311B0(CTilePt* tile, int type, void* table) {
     if (fn_8002FE20(tile, type)) {
         Unk8023DFA8 info = ((Unk8037D990E*)lbl_8037D990)->vfn18(tile);
         if (!info.fn_8023DFA8()) {
@@ -723,7 +723,7 @@ int Unk80026864::fn_80031324() {
         int tileX;
         int tileY;
         fn_8002BB64(&tileX, &tileY);
-        Unk801C6F44 tile(tileY, tileX, 1);
+        CTilePt tile(tileY, tileX, 1);
         int room = ((Unk8037D990K*)lbl_8037D990)->vfn24(&tile);
         Unk80234390* list = FindList((void*)room);
         if (list == 0 || room == 0) {

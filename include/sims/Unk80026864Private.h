@@ -389,7 +389,7 @@ struct Unk80026864Cam {
 };
 extern float lbl_8037B4A0;
 extern "C" float fn_8010DD60(float y, float x); // atan2f
-int fn_800328F4(struct Unk801C6F20* tile);
+int fn_800328F4(struct CTilePt* tile);
 // A stick axis squared, keeping its sign.
 inline float SignedSquare(float value) {
     if (value < 0.0f) {
@@ -438,16 +438,9 @@ struct Unk8004FC0C {
 // Tile position as used by the object search (8 bytes; constructors 0x801C6F20 and
 // 0x801C6F00, destructor 0x801C6FCC). This is CTilePt; the shared header's copy has
 // a different size, so it is declared apart until that is sorted out.
-struct Unk801C6F20 {
-    Unk801C6F20() {}
-    Unk801C6F20(const ETilePair& subTile, int);
-    Unk801C6F20(const Unk801C6F20& other);
-    ~Unk801C6F20();
-    char unk0[8];
-};
 // Walks the objects standing on a tile.
 struct Unk801FCE7C {
-    Unk801FCE7C(const Unk801C6F20& tile, int);
+    Unk801FCE7C(const CTilePt& tile, int);
     void fn_801FCF04();   // next
     int unk0;
     Unk800053D4Inner* unk4;   // current object
@@ -461,7 +454,7 @@ struct Unk8037D990D {
     virtual void vfn5();
     virtual void vfn6();
     virtual void vfn7();
-    virtual int vfn8(Unk801C6F20* tile);   // off the lot
+    virtual int vfn8(CTilePt* tile);   // off the lot
 };
 extern int lbl_8037B4BC;
 extern void* lbl_8037B4C0;
@@ -477,7 +470,7 @@ struct Unk80234390 {
 };
 extern void* lbl_8037D998;
 Unk80234390* fn_80234390(void* table, void* key);
-void fn_800311B0(Unk801C6F20* tile, int type, void* table);
+void fn_800311B0(CTilePt* tile, int type, void* table);
 int fn_8007600C();
 void fn_80038FC0(EVec2* a, EVec2* b, void* arg, int kind, int* out, int, int, int);
 struct Unk80057920 {
@@ -511,10 +504,7 @@ struct Unk8023DDC4 {
     Unk8023DDC4(const Unk8023DFA8& info);
     char unk0[0x38];
 };
-struct Unk801C6F44 : Unk801C6F20 {
-    Unk801C6F44(int tileX, int tileY, int);
-};
-int fn_8002FE20(Unk801C6F20* tile, int flag);
+int fn_8002FE20(CTilePt* tile, int flag);
 struct Unk8037D990E {
     virtual void vfn1();
     virtual void vfn2();
@@ -530,19 +520,13 @@ struct Unk8037D990E {
     virtual void vfn12();
     virtual void vfn13();
     virtual void vfn14();
-    virtual void vfn15(Unk801C6F20* tile, int value);
+    virtual void vfn15(CTilePt* tile, int value);
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023DFA8 vfn18(Unk801C6F20* tile);
-    virtual void vfn19(Unk801C6F20* tile, Unk8023DDC4* packed);
+    virtual Unk8023DFA8 vfn18(CTilePt* tile);
+    virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 
-struct Unk801C727C : Unk801C6F20 {
-    int fn_801C727C();   // tile x
-    int fn_801C7288();   // tile y
-    int fn_801C7204();
-    int fn_801C721C();
-};
 struct Unk8037D990F {
     virtual void vfn1();
     virtual void vfn2();
@@ -680,7 +664,7 @@ struct Unk800053D4InnerB {
     virtual void vfn114();
     virtual void vfn115();
     virtual void vfn116();
-    virtual Unk801C727C vfn117();
+    virtual CTilePt vfn117();
 };
 // An object's model: vtable pointer at 0, and at +0x320 a part with its own vtable
 // whose slot 2 resets it.
@@ -745,7 +729,7 @@ struct Unk80068758 {
 };
 Unk80068758* fn_80068758(Unk800053D4Inner* object);
 inline Unk80068758* GetModel(Unk800053D4Inner* object) { return (Unk80068758*)GetUnk20(object)->vfn19(); }
-inline bool IsOffLot(Unk801C727C& tile) {
+inline bool IsOffLot(CTilePt& tile) {
     return !(tile.fn_801C727C() >= 0 && tile.fn_801C727C() <= ((Unk8037D990F*)lbl_8037D990)->vfn6() &&
              tile.fn_801C7288() >= 0 && tile.fn_801C7288() <= ((Unk8037D990F*)lbl_8037D990)->vfn6());
 }
@@ -822,7 +806,7 @@ struct Unk8037D990I {
     virtual void vfn11();
     virtual void vfn12();
     virtual void vfn13();
-    virtual int vfn14(Unk801C6F20* tile);                // floor type on a tile
+    virtual int vfn14(CTilePt* tile);                // floor type on a tile
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
@@ -830,11 +814,11 @@ struct Unk8037D990I {
     virtual void vfn19();
     virtual void vfn20();
     virtual void vfn21();
-    virtual unsigned char* vfn22(Unk801C6F20* tile);     // floor record of a tile
+    virtual unsigned char* vfn22(CTilePt* tile);     // floor record of a tile
     virtual void vfn23();
     virtual void vfn24();
     virtual void vfn25();
-    virtual int vfn26(Unk801C6F20* tile);                // tile flags
+    virtual int vfn26(CTilePt* tile);                // tile flags
 };
 // Counted array of pointers kept by the global at +0xC0.
 struct Unk802E67C0Entry {
@@ -845,14 +829,14 @@ struct Unk802E67C0 {
 };
 
 struct Unk80234774 {
-    int fn_80234774(Unk801C6F20* tile, unsigned short** a, unsigned short** b, int* sideA, int* sideB);
+    int fn_80234774(CTilePt* tile, unsigned short** a, unsigned short** b, int* sideA, int* sideB);
 };
 struct Unk8023E354 : Unk8023DFA8 {
     int fn_8023E354();           // first wall on the tile
     int fn_8023E3BC(int wall);   // the one after
 };
 int fn_8023E4A4(int side, int);
-void fn_800331A8(Unk801C6F20* tile, int arg, int wall, int side);
+void fn_800331A8(CTilePt* tile, int arg, int wall, int side);
 struct Unk8037D990G {
     virtual void vfn1();
     virtual void vfn2();
@@ -871,10 +855,10 @@ struct Unk8037D990G {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023E354 vfn18(Unk801C6F20* tile);
+    virtual Unk8023E354 vfn18(CTilePt* tile);
     virtual void vfn19();
     virtual void vfn20();
-    virtual int vfn21(Unk801C6F20* tile);
+    virtual int vfn21(CTilePt* tile);
 };
 void* fn_80169F1C(unsigned int size, int align);
 // A floor type as the catalogue hands it to the tool.
@@ -885,7 +869,7 @@ struct Unk8002F000Tool {
     unsigned int unkC;   // texture id
 };
 struct Unk80235F64 {
-    int fn_80235F64(Unk801C6F20* tile);
+    int fn_80235F64(CTilePt* tile);
 };
 struct Unk8023E420 : Unk8023E354 {
     int fn_8023E420(int side);   // floor type on one half
@@ -908,11 +892,11 @@ struct Unk8037D990J {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023E420 vfn18(Unk801C6F20* tile);
+    virtual Unk8023E420 vfn18(CTilePt* tile);
 };
-void fn_80031084(void* table, Unk801C6F20* tile, Unk8023DFA8* info, int* sideA, int* sideB);
+void fn_80031084(void* table, CTilePt* tile, Unk8023DFA8* info, int* sideA, int* sideB);
 int fn_8002FEF4(int index);
-int fn_8002FFB8(Unk801C6F20* tile);
+int fn_8002FFB8(CTilePt* tile);
 void fn_8002EFAC(ERC* rc, struct Unk8002EFACItem* item);
 // True when purchases are free (the freeitems setting, or the mode fn_80068ED8 tests).
 #define CheatMoney() (lbl_802E6700.unk144 != 0 || lbl_802E6700.fn_80068ED8())
@@ -941,7 +925,7 @@ struct Unk8037D990K {
     virtual void vfn21();
     virtual void vfn22();
     virtual void vfn23();
-    virtual int vfn24(Unk801C6F20* tile);   // room a tile belongs to
+    virtual int vfn24(CTilePt* tile);   // room a tile belongs to
 };
 int fn_80030084(int* any, int x0, int x1, int y0, int y1, int type);
 int fn_80030170(int* any, int x0, int x1, int y0, int y1, int flag);
@@ -1119,28 +1103,12 @@ struct Unk8002F794RC {
 
 // Tile position with the operations the wall-run callback uses (the same 8-byte
 // CTilePt as above).
-struct Unk801C6EF4 {
-    Unk801C6EF4();                                         // 0x801C6EF4
-    Unk801C6EF4(const Unk801C6EF4& other);                 // 0x801C6F00
-    ~Unk801C6EF4();                                        // 0x801C6FCC
-    Unk801C6EF4& operator=(const Unk801C6EF4& other);      // 0x801C6FF4
-    int operator==(const Unk801C6EF4& other) const;        // 0x801C7014
-    Unk801C6EF4 operator+(const struct Unk8035ABB0& step) const;   // 0x801C7144
-    int operator!=(const Unk801C6EF4& other) const;        // 0x801C7054
-    signed char x;
-    signed char y;
-    char unk2;
-    char unk3[5];
-};
-struct Unk8035ABB0 {
-    char unk0[3];
-};
-extern Unk8035ABB0 lbl_8035ABB0[];   // one step per direction
-void fn_8003739C(EVec2* a, EVec2* b, Unk801C6EF4* start, Unk801C6EF4* end);
-void fn_800315FC(Unk801C6EF4* start, Unk801C6EF4* end);
-int fn_800369A0(Unk801C6EF4* start, Unk801C6EF4* end);
+extern CTilePt lbl_8035ABB0[];   // one step per direction
+void fn_8003739C(EVec2* a, EVec2* b, CTilePt* start, CTilePt* end);
+void fn_800315FC(CTilePt* start, CTilePt* end);
+int fn_800369A0(CTilePt* start, CTilePt* end);
 int fn_8023DC04(int direction);
-void fn_800323D8(int* wall, int kind, int* side, Unk801C6EF4* from, Unk801C6EF4* to);
+void fn_800323D8(int* wall, int kind, int* side, CTilePt* from, CTilePt* to);
 struct Unk8023E110 : Unk8023DFA8 {
     void fn_8023E110(int arg, int wall, int side);
 };
@@ -1152,7 +1120,7 @@ struct Unk8037D990H {
     virtual void vfn5();
     virtual int vfn6();
     virtual void vfn7();
-    virtual int vfn8(Unk801C6EF4* tile);
+    virtual int vfn8(CTilePt* tile);
     virtual void vfn9();
     virtual void vfn10();
     virtual void vfn11();
@@ -1162,8 +1130,8 @@ struct Unk8037D990H {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023E110 vfn18(Unk801C6EF4* tile);
-    virtual void vfn19(Unk801C6EF4* tile, Unk8023DDC4* packed);
+    virtual Unk8023E110 vfn18(CTilePt* tile);
+    virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 struct Unk80233FC0 {
     void fn_80233FC0();
@@ -1177,10 +1145,6 @@ struct Unk800318B0Tool {
 };
 extern int lbl_802D1F00[];           // direction -> index into lbl_8035ABB0
 int fn_8023DB98(int wall);
-struct Unk801C711C : Unk801C6EF4 {
-    void fn_801C711C(const Unk8035ABB0* step);   // +=
-    void fn_801C70F4(const Unk8035ABB0* step);   // -=
-};
 struct Unk800563C0 {
     int fn_800563C0(int a, int b);
 };
@@ -1208,8 +1172,8 @@ struct Unk8037D990M {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023E088 vfn18(Unk801C6F20* tile);
-    virtual void vfn19(Unk801C6F20* tile, Unk8023DDC4* packed);
+    virtual Unk8023E088 vfn18(CTilePt* tile);
+    virtual void vfn19(CTilePt* tile, Unk8023DDC4* packed);
 };
 // The camera at the global's +0xB8 (the same ESimsCam fields as Unk80026864Cam).
 // Counted array of {.., value at 4, .., id at 0xC} records at the global's +0xC8.
@@ -1245,7 +1209,7 @@ struct Unk8037D990N {
     virtual void vfn5();
     virtual void vfn6();
     virtual void vfn7();
-    virtual int vfn8(Unk801C6EF4* tile);
+    virtual int vfn8(CTilePt* tile);
     virtual void vfn9();
     virtual void vfn10();
     virtual void vfn11();
@@ -1255,7 +1219,7 @@ struct Unk8037D990N {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023DFA8 vfn18(Unk801C6EF4* tile);
+    virtual Unk8023DFA8 vfn18(CTilePt* tile);
 };
 int fn_8003210C(int index);
 struct Unk801E3EF0 {
@@ -1274,7 +1238,7 @@ struct Unk8037D990P {
     virtual void vfn5();
     virtual void vfn6();
     virtual void vfn7();
-    virtual int vfn8(Unk801C6EF4* tile);
+    virtual int vfn8(CTilePt* tile);
     virtual void vfn9();
     virtual void vfn10();
     virtual void vfn11();
@@ -1284,7 +1248,7 @@ struct Unk8037D990P {
     virtual void vfn15();
     virtual void vfn16();
     virtual void vfn17();
-    virtual Unk8023DEBC vfn18(Unk801C6EF4* tile);
+    virtual Unk8023DEBC vfn18(CTilePt* tile);
 };
 
 #endif
