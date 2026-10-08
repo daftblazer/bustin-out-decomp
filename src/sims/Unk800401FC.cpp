@@ -18,13 +18,17 @@
 #include "sims/EGlobal.h"
 #include "engine/ResourceManagers.h"
 #include "engine/ERFont.h"
+#include "engine/EController.h"
 
-// The dialog boxes (unit 0x800401FC). STAGE 1 of the unit: the object that queues
-// dialogs is complete; of the dialog itself only the constructor of its texts, the
-// destructor and the small members are written. Still to write: the constructor
-// (0x80040274), update (0x80040640), the drawing functions (0x80040EAC to 0x80041F74),
-// the two set-up functions (0x80042360, 0x800424F0), the word wrapping (0x80043034 to
-// 0x800435C4) and the script variables (0x80044174 to 0x80044974).
+// The dialog boxes (unit 0x800401FC). IN PROGRESS: 34 of the unit's 51 functions
+// match and 8 more are written with notes. Not written yet, in address order:
+//   0x80040640 update (488 instructions)      0x80040EAC draw (181)
+//   0x800411A8 body text and scroll arrows (402)
+//   0x800424F0 set-up from a dialog description (721)
+//   0x80043110 word wrapping (301)            0x800435C4 layout (151)
+//   0x80044974 icon (132)                     0x80044C5C a two-instruction accessor
+// Its .rodata is not complete either: "Missing String!!!" is a 16-bit string in the
+// original and the motive names at 0x80298CE0 are missing.
 
 struct Unk80181824 {
     void fn_80181824(ERC* rc);
@@ -61,9 +65,12 @@ struct Unk80042228Record {
 };
 extern Unk8003B870String lbl_8037D3B4;
 extern float lbl_8037B504;
+extern EColorF lbl_802E6964;           // text colour
+extern EColorF lbl_802E6974;           // shadow colour
+extern EColorF lbl_802E6A34;           // text colour while its button is held
 
-// The level (lbl_8037D998): slot 8 is told when a dialog's texts go away.
-struct Unk8037D998Level {
+// The display (lbl_8037C198): slot 8 is told when a dialog's texts go away.
+struct Unk8037C198Screen {
     virtual void vfn1();
     virtual void vfn2();
     virtual void vfn3();
@@ -72,8 +79,11 @@ struct Unk8037D998Level {
     virtual void vfn6();
     virtual void vfn7();
     virtual void vfn8();
+    char unk4[0x14 - 0x4];
+    int unk14;                        // width in pixels
+    int unk18;                        // height in pixels
 };
-extern Unk8037D998Level* lbl_8037D998;
+extern Unk8037C198Screen* lbl_8037C198;
 
 // Callbacks another unit installs while a dialog is up.
 extern void (*lbl_8037C0D0)();
@@ -122,6 +132,51 @@ Unk800401FC::Unk800401FC() {
     unk30 = 0;
 }
 
+inline ERectF MakeRect(const EVec2& position, const EVec2& size) {
+    EVec2 from(position);
+    EVec2 to(from + size);
+    return ERectF(from.x, from.y, to.x, to.y);
+}
+
+// 0x80040274
+// NON_MATCHING: 115 instructions against 117. Same calls and stores; the inline
+// constructor of the fade state initialises its members in another order (the range
+// at 0x30 comes first in the original) and the window rectangle is built from a copy
+// of the position kept in two registers.
+Unk80040274::Unk80040274() {
+    unk54 = 0;
+    unk68 = 0;
+    unk6C = 0;
+    unk84 = 0;
+    unk80 = 0;
+    unk7C = 0;
+    unk60 = 0;
+    unk64 = new E3DWindow;
+    unk4C = new Unk8004024C;
+    unk50 = new Unk800401FC;
+    unk70 = 2;
+    unk64->fn_8018B584(MakeRect(lbl_8037CAC0, lbl_8037CAD8));
+    unkB0 = 0;
+    unkC0 = 0.5f;
+    unkC4 = 1;
+    unk58 = 0;
+    unk88 = 0;
+    unk8C = 0;
+    unk9C = 0;
+    unkA0 = 0;
+    unkB4 = 0.0f;
+    unkB8 = 0.0f;
+    unkA4 = 0;
+    unkA8 = 0;
+    unkBC = 0.5f;
+    for (int i = 0; i < 3; i++) {
+        unkD4[i] = 0.0f;
+        unkC8[i] = 0.0f;
+    }
+    unkEC = 0;
+    unk48 = 0;
+}
+
 // 0x80040448
 Unk80040274::~Unk80040274() {
     if ((unsigned int)(unk7C - 7) > 1 && unkB0 != 0) {
@@ -138,7 +193,7 @@ Unk80040274::~Unk80040274() {
     }
     unk50 = 0;
     if (unk4C) {
-        fn_80169EE8(unk4C);
+        delete unk4C;
     }
     unk4C = 0;
     if (unk64) {
@@ -160,7 +215,7 @@ inline bool IsNode(Unk80026864Node* node) {
 // the node in memory instead.
 inline void Unk800401FC::Clear() {
     unk20 = 0;
-    lbl_8037D998->vfn8();
+    lbl_8037C198->vfn8();
     Unk80026864Node* next;
     for (Unk80026864Node* node = unk0.tail; IsNode(node); node = next) {
         Unk8003B870String* text = (Unk8003B870String*)node->item;
@@ -199,6 +254,144 @@ void fn_800411A0() {
 
 // 0x800411A4
 void fn_800411A4() {
+}
+
+// The controllers that may answer: the first player's and, with two players, the second's.
+inline EController* FirstPad() {
+    return lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(0));
+}
+inline EController* SecondPad() {
+    EController* pad = 0;
+    if (lbl_802E6700.fn_800655C4() && lbl_8037C11C->fn_8015E564(1)) {
+        pad = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(1));
+    }
+    return pad;
+}
+
+// 0x800417F0
+// Draws the buttons of a three-button dialog; the first has a shadow.
+// NON_MATCHING: 305 instructions against 304; the shadow's position temporaries are
+// laid out differently (not yet worked through).
+void Unk80040274::fn_800417F0(ERC* rc) {
+    if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
+        return;
+    }
+    if (unkD4[0] == 0.0f || unkC8[0] == 0.0f || unkD4[1] == 0.0f || unkC8[1] == 0.0f || unkD4[2] == 0.0f ||
+        unkC8[2] == 0.0f) {
+        return;
+    }
+    EController* first = FirstPad();
+    EController* second = SecondPad();
+    ERFont* font = lbl_802E6700.unkEC;
+    float size = 13.0f;
+    float x = unkD4[0];
+    float y = unkC8[0];
+    font->Select(rc);
+    font->SetSize(true, size, 1.0f);
+    font->unk64 = lbl_802E6974;
+    {
+        const void* text = unk50->unk1C.fn_801C5B24();
+        EVec2 position(x, y);
+        EVec2 offset(0.0025f);
+        EVec2 shadow(position + offset);
+        font->DoDrawAlign(rc, text, true, shadow, 2, 2, 0);
+    }
+    if (first->fn_8015E204(5) || (second && second->fn_8015E204(5))) {
+        font->unk64 = lbl_802E6A34;
+        EVec2 at(x, y);
+        font->DoDrawAlign(rc, unk50->unk1C.fn_801C5B24(), true, at, 2, 2, 0);
+    } else {
+        font->unk64 = lbl_802E6964;
+        EVec2 at(x, y);
+        font->DoDrawAlign(rc, unk50->unk1C.fn_801C5B24(), true, at, 2, 2, 0);
+    }
+    x = unkD4[1];
+    y = unkC8[1];
+    font->Select(rc);
+    font->SetSize(true, size, 1.0f);
+    if (first->fn_8015E024(0x10) || (second && second->fn_8015E024(0x10))) {
+        font->unk64 = lbl_802E6A34;
+    } else {
+        font->unk64 = lbl_802E6964;
+    }
+    font->DrawDs(rc, unk50->unk18.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
+    x = unkD4[2];
+    y = unkC8[2];
+    font->Select(rc);
+    font->SetSize(true, size, 1.0f);
+    if (first->fn_8015E204(7) || (second && second->fn_8015E204(7))) {
+        font->unk64 = lbl_802E6A34;
+    } else {
+        font->unk64 = lbl_802E6964;
+    }
+    font->DrawDs(rc, unk50->unk14.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
+}
+
+// 0x80041CB0
+// Draws the buttons of a two-button dialog.
+// NON_MATCHING: 2 of 177 instructions. In the first SetSize call the original loads
+// the size (fmr f1) before `li r4, 1`; here they are the other way round. The second
+// call, written the same way, matches.
+void Unk80040274::fn_80041CB0(ERC* rc) {
+    if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
+        return;
+    }
+    if (unkD4[0] == 0.0f || unkC8[0] == 0.0f || unkD4[2] == 0.0f || unkC8[2] == 0.0f) {
+        return;
+    }
+    EController* first = FirstPad();
+    EController* second = SecondPad();
+    ERFont* font = lbl_802E6700.unkEC;
+    float size = 15.0f;
+    float x = unkD4[0];
+    float y = unkC8[0];
+    font->Select(rc);
+    font->SetSize(true, size, 1.0f);
+    if (first->fn_8015E204(5) || (second && second->fn_8015E204(5))) {
+        font->unk64 = lbl_802E6A34;
+    } else {
+        font->unk64 = lbl_802E6964;
+    }
+    font->DrawDs(rc, unk50->unk1C.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
+    x = unkD4[2];
+    y = unkC8[2];
+    font->SetSize(true, size, 1.0f);
+    if (first->fn_8015E204(7) || (second && second->fn_8015E204(7))) {
+        font->unk64 = lbl_802E6A34;
+    } else {
+        font->unk64 = lbl_802E6964;
+    }
+    font->DrawDs(rc, unk50->unk18.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
+}
+
+// 0x80041F74
+// Draws the button of a one-button dialog.
+void Unk80040274::fn_80041F74(ERC* rc) {
+    if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
+        return;
+    }
+    if (unkD4[0] == 0.0f || unkC8[0] == 0.0f) {
+        return;
+    }
+    EController* first = FirstPad();
+    EController* second = SecondPad();
+    ERFont* font = lbl_802E6700.unkEC;
+    float small = 12.0f;
+    float large = 15.0f;
+    font->Select(rc);
+    if (unkC4 == 1) {
+        font->SetSize(true, large, 1.0f);
+    } else {
+        font->SetSize(true, small, 1.0f);
+    }
+    float x = unkD4[0];
+    float y = unkC8[0];
+    if (first->fn_8015E204(5) || (second && second->fn_8015E204(5))) {
+        font->unk64 = lbl_802E6A34;
+    } else {
+        font->unk64 = lbl_802E6964;
+    }
+    font->DrawDs(rc, unk50->unk1C.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
 }
 
 // 0x80042170

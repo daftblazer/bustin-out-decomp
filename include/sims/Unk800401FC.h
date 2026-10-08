@@ -41,15 +41,25 @@ struct Unk800401FC {
 };
 
 // How a dialog fades and grows (0x44 bytes).
+struct Unk8004024CRange {
+    Unk8004024CRange(float lo, float hi) : unk0(lo), unk4(hi) { unk8 = unk0; }
+    float unk0;
+    float unk4;
+    float unk8;                       // current, kept between the two
+};
 struct Unk8004024C {
+    Unk8004024C() : unk20(0.0f, 0.0f, 0.0f, 0.0f), unk30(0.0f, 0.0f), unk3C(0.0f), unk40(0.0f) {
+        unk10 = unk20;
+        unk0 = unk10;
+    }
+    void* operator new(unsigned int size) { return fn_80169F1C(size, 16); }
+    void operator delete(void* ptr) { fn_80169EE8(ptr); }
     ERectF unk0;
     ERectF unk10;                     // where it is going
     ERectF unk20;                     // where it is
-    float unk30;
-    float unk34;
-    float unk38;
-    float unk3C;
-    float unk40;
+    Unk8004024CRange unk30;           // how far it has faded in
+    float unk3C;                      // how long it waits before answering itself
+    float unk40;                      // how long it has been still
 };
 
 // A dialog box (0xF4 bytes).

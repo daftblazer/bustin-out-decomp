@@ -15,6 +15,7 @@ struct EController {
     int fn_8015E0F8(int);           // button just pressed
     int fn_8015DF98(int);           // button held
     int fn_8015E204(int);
+    int fn_8015E024(int);
 };
 
 // Controller manager singleton at 0x8037C11C.
@@ -23,6 +24,7 @@ struct Unk8037C11C {
     void fn_8015E550(int);
     int fn_8015E614(int);
     EController* fn_8015E5FC(int);
+    int fn_8015E564(int);           // non-zero when that player has a controller
 };
 
 extern Unk8037C11C* lbl_8037C11C;
