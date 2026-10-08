@@ -3,7 +3,7 @@
 
 #include "engine/Unk8018643C.h"
 
-struct Unk8003C95C;
+struct ERFont;
 
 // Caption of a text button: an owned wide string or a pointer to a looked-up one.
 struct Unk8018A154 {
@@ -30,7 +30,7 @@ public:
         return unkA0.unk4 ? *unkA0.unk4 : 0;
     }
 
-    Unk8003C95C* unk80;   // font
+    ERFont* unk80;   // font
     int unk84;
     int unk88;            // alignment
     int unk8C;

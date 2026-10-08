@@ -26,7 +26,7 @@ void CASTargetUnk533C::fn_800156C8() {
     unkD4 = (Unk80181824*)manager->fn_80177628(0xA25EBA9A, 0, 0);
     unkD8 = (Unk80181824*)manager->fn_80177628(0xE3E852F9, 0, 0);
     unkDC = (Unk80181824*)manager->fn_80177628(0x19E76F9A, 0, 0);
-    unk7C = (Unk8003C95C*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    unk7C = (ERFont*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
     unk54 = lbl_802E6964;
     unk64 = lbl_802E6964;
     // Bar brightness ramps: 0.1 to 1.0 going out from the centre, then back.
@@ -107,21 +107,21 @@ void CASTargetUnk533C::vfn3(ERC* rc) {
             rc->vfn49(EVec2(unk2C.x + unk4C + 0.004f, unk2C.z - 0.022f), EVec2(1.0f, 1.0f), unk54, 0.0f);
             unkDC->fn_80181824(rc);
             rc->vfn49(EVec2(unk2C.x + 0.133f + unk4C, unk2C.z - 0.022f), EVec2(1.0f, 1.0f), unk64, 0.0f);
-            unk7C->fn_8003DBE8(rc);
-            unk7C->fn_8003C95C(1, 14.0f, 1.0f);
+            unk7C->Select(rc);
+            unk7C->SetSize(1, 14.0f, 1.0f);
             unk7C->unk64 = lbl_802E69C4;
         } else {
-            unk7C->fn_8003DBE8(rc);
-            unk7C->fn_8003C95C(1, 14.0f, 1.0f);
+            unk7C->Select(rc);
+            unk7C->SetSize(1, 14.0f, 1.0f);
             unk7C->unk64 = lbl_802E6964;
         }
         {
             EVec2 at(unk2C.x + unk4C, unk2C.z - 0.005f);
-            unk7C->fn_8003D740(rc, unk74[0].ptr, 1, at, 1, 0, 0);
+            unk7C->DoDrawAlign(rc, unk74[0].ptr, 1, at, 1, 0, 0);
         }
         {
             EVec2 at(unk2C.x + 0.157f + unk4C, unk2C.z - 0.005f);
-            unk7C->fn_8003D740(rc, unk74[1].ptr, 1, at, 0, 0, 0);
+            unk7C->DoDrawAlign(rc, unk74[1].ptr, 1, at, 0, 0, 0);
         }
         float left = unk2C.x + 0.02613f + unk4C;
         float top = unk2C.z + 0.00208f;
@@ -215,7 +215,7 @@ void Unk80016448::fn_800164D4() {
     unk4C[10] = GetText("capricorn");
     unk4C[11] = GetText("aquarius");
     unk4C[12] = GetText("pisces");
-    unk80 = (Unk8003C95C*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    unk80 = (ERFont*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
     Unk80340AB8* manager = &lbl_80340AB8;
     unk84 = manager->fn_80177628(0xA25EBA9A, 0, 0);
     unk88 = (Unk80181824*)manager->fn_80177628(0xE3E852F9, 0, 0);
@@ -242,14 +242,14 @@ void Unk80016448::vfn3(ERC* rc) {
     EColorF color(lbl_802E6964);
     float centre = unk20.x * 0.5f + unk2C.x;
     if (unk18 & 8) {
-        unk80->fn_8003DBE8(rc);
-        unk80->fn_8003C95C(1, 14.0f, 1.0f);
+        unk80->Select(rc);
+        unk80->SetSize(1, 14.0f, 1.0f);
         unk80->unk64 = lbl_802E69C4;
         {
             EVec2 at(centre, unk2C.z);
-            unk80->fn_8003D740(rc, (const unsigned short*)unk4C[unk48], 1, at, 2, 0, 0);
+            unk80->DoDrawAlign(rc, (const unsigned short*)unk4C[unk48], 1, at, 2, 0, 0);
         }
-        EVec2 extent = unk80->fn_8003D550((const unsigned short*)unk4C[unk48], 1, 0);
+        EVec2 extent = unk80->DoGetStringSize((const unsigned short*)unk4C[unk48], 1, 0);
         float half = extent.x * 0.5f + 0.01f;
         if (controller->fn_8015DF98(4)) {
             color = lbl_802E69C4;
@@ -264,11 +264,11 @@ void Unk80016448::vfn3(ERC* rc) {
         unk88->fn_80181824(rc);
         rc->vfn49(EVec2(centre - half - 0.018f, unk2C.z - 0.017f), EVec2(1.0f, 1.0f), color, 0.0f);
     } else {
-        unk80->fn_8003DBE8(rc);
-        unk80->fn_8003C95C(1, 14.0f, 1.0f);
+        unk80->Select(rc);
+        unk80->SetSize(1, 14.0f, 1.0f);
         unk80->unk64 = lbl_802E6964;
         EVec2 at(centre, unk2C.z);
-        unk80->fn_8003D740(rc, (const unsigned short*)unk4C[unk48], 1, at, 2, 0, 0);
+        unk80->DoDrawAlign(rc, (const unsigned short*)unk4C[unk48], 1, at, 2, 0, 0);
     }
 }
 
@@ -297,18 +297,18 @@ void Unk80016448::vfn2() {
 void Unk80016CF0::vfn3(ERC* rc) {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     if (unk18 & 8) {
-        unk58->fn_8003DBE8(rc);
-        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->Select(rc);
+        unk58->SetSize(1, 14.0f, 1.0f);
         unk58->unk64 = lbl_802E69C4;
         {
             EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+            unk58->DoDrawAlign(rc, unk50, 1, at, 1, 0, 0);
         }
         {
             EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+            unk58->DoDrawAlign(rc, unk54, 1, at, 0, 0, 0);
         }
-        EVec2 extent = unk58->fn_8003D550(unk54, 1, 0);
+        EVec2 extent = unk58->DoGetStringSize(unk54, 1, 0);
         EColorF color;
         if (controller->fn_8015DF98(4)) {
             color = lbl_802E69C4;
@@ -325,16 +325,16 @@ void Unk80016CF0::vfn3(ERC* rc) {
         unk60->fn_80181824(rc);
         rc->vfn49(EVec2(unk2C.x + 0.124f, unk2C.z - 0.016f), EVec2(1.0f, 1.0f), color, 0.0f);
     } else {
-        unk58->fn_8003DBE8(rc);
-        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->Select(rc);
+        unk58->SetSize(1, 14.0f, 1.0f);
         unk58->unk64 = lbl_802E6964;
         {
             EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+            unk58->DoDrawAlign(rc, unk50, 1, at, 1, 0, 0);
         }
         {
             EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+            unk58->DoDrawAlign(rc, unk54, 1, at, 0, 0, 0);
         }
     }
 }
@@ -364,20 +364,20 @@ void Unk80017218::vfn2() {
 // NON_MATCHING: 10 of 162 differ, the same float-register pattern as Unk80016CF0::vfn3.
 void Unk80017218::vfn3(ERC* rc) {
     if (unk18 & 8) {
-        unk58->fn_8003DBE8(rc);
-        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->Select(rc);
+        unk58->SetSize(1, 14.0f, 1.0f);
         unk58->unk64 = lbl_802E69C4;
         {
             EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+            unk58->DoDrawAlign(rc, unk50, 1, at, 1, 0, 0);
         }
         {
             EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+            unk58->DoDrawAlign(rc, unk54, 1, at, 0, 0, 0);
         }
     } else {
-        unk58->fn_8003DBE8(rc);
-        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->Select(rc);
+        unk58->SetSize(1, 14.0f, 1.0f);
         if (unk18 & 0x10) {
             unk58->unk64 = lbl_802E6964;
         } else {
@@ -385,11 +385,11 @@ void Unk80017218::vfn3(ERC* rc) {
         }
         {
             EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+            unk58->DoDrawAlign(rc, unk50, 1, at, 1, 0, 0);
         }
         {
             EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+            unk58->DoDrawAlign(rc, unk54, 1, at, 0, 0, 0);
         }
     }
 }
@@ -444,18 +444,18 @@ void Unk800176C0::vfn2() {
 void Unk800176C0::vfn3(ERC* rc) {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     if (unk18 & 8) {
-        unk58->fn_8003DBE8(rc);
-        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->Select(rc);
+        unk58->SetSize(1, 14.0f, 1.0f);
         unk58->unk64 = lbl_802E69C4;
         {
             EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+            unk58->DoDrawAlign(rc, unk50, 1, at, 1, 0, 0);
         }
         {
             EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+            unk58->DoDrawAlign(rc, unk54, 1, at, 0, 0, 0);
         }
-        EVec2 extent = unk58->fn_8003D550(unk54, 1, 0);
+        EVec2 extent = unk58->DoGetStringSize(unk54, 1, 0);
         EColorF color;
         if (controller->fn_8015DF98(4)) {
             color = lbl_802E69C4;
@@ -472,8 +472,8 @@ void Unk800176C0::vfn3(ERC* rc) {
         unk60->fn_80181824(rc);
         rc->vfn49(EVec2(unk2C.x + unk4C + 0.004f, unk2C.z - 0.016f), EVec2(1.0f, 1.0f), color, 0.0f);
     } else {
-        unk58->fn_8003DBE8(rc);
-        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->Select(rc);
+        unk58->SetSize(1, 14.0f, 1.0f);
         if (unk18 & 0x10) {
             unk58->unk64 = lbl_802E6964;
         } else {
@@ -481,11 +481,11 @@ void Unk800176C0::vfn3(ERC* rc) {
         }
         {
             EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+            unk58->DoDrawAlign(rc, unk50, 1, at, 1, 0, 0);
         }
         {
             EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+            unk58->DoDrawAlign(rc, unk54, 1, at, 0, 0, 0);
         }
     }
 }
@@ -540,18 +540,18 @@ void Unk80017D68::vfn2() {
 void Unk80017D68::vfn3(ERC* rc) {
     EController* controller = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(unk38));
     if (unk18 & 8) {
-        unk58->fn_8003DBE8(rc);
-        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->Select(rc);
+        unk58->SetSize(1, 14.0f, 1.0f);
         unk58->unk64 = lbl_802E69C4;
         {
             EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+            unk58->DoDrawAlign(rc, unk50, 1, at, 1, 0, 0);
         }
         {
             EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+            unk58->DoDrawAlign(rc, unk54, 1, at, 0, 0, 0);
         }
-        EVec2 extent = unk58->fn_8003D550(unk54, 1, 0);
+        EVec2 extent = unk58->DoGetStringSize(unk54, 1, 0);
         EColorF color;
         if (controller->fn_8015DF98(4)) {
             color = lbl_802E69C4;
@@ -568,8 +568,8 @@ void Unk80017D68::vfn3(ERC* rc) {
         unk60->fn_80181824(rc);
         rc->vfn49(EVec2(unk2C.x + unk4C + 0.005f, unk2C.z - 0.016f), EVec2(1.0f, 1.0f), color, 0.0f);
     } else {
-        unk58->fn_8003DBE8(rc);
-        unk58->fn_8003C95C(1, 14.0f, 1.0f);
+        unk58->Select(rc);
+        unk58->SetSize(1, 14.0f, 1.0f);
         if (unk18 & 0x10) {
             unk58->unk64 = lbl_802E6964;
         } else {
@@ -577,11 +577,11 @@ void Unk80017D68::vfn3(ERC* rc) {
         }
         {
             EVec2 at(unk2C.x + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk50, 1, at, 1, 0, 0);
+            unk58->DoDrawAlign(rc, unk50, 1, at, 1, 0, 0);
         }
         {
             EVec2 at(unk2C.x + 0.0261f + unk4C, unk2C.z + 0.0021f);
-            unk58->fn_8003D740(rc, unk54, 1, at, 0, 0, 0);
+            unk58->DoDrawAlign(rc, unk54, 1, at, 0, 0, 0);
         }
     }
 }

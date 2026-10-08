@@ -5,7 +5,7 @@
 
 struct ERC;
 class E3DWindow;
-struct Unk8003C95C;
+struct ERFont;
 
 // Text held in a caller-supplied buffer of 16-bit characters (functions at 0x8023C868).
 struct Unk8023C868 {
@@ -31,7 +31,7 @@ public:
     int fn_8003A500();
     void fn_8003A734(ERC* rc, int draw, int centred);
 
-    Unk8003C95C* unk0;               // font
+    ERFont* unk0;               // font
     void* unk4;                      // cursor texture
     float unk8;                      // cursor animation phase
     int unkC;                        // the text was copied into unk14

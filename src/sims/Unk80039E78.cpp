@@ -33,7 +33,7 @@ void Unk80039E78::fn_80039F1C() {
         fn_801767FC(unk0);
         unk0 = 0;
     }
-    unk0 = (Unk8003C95C*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    unk0 = (ERFont*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
     EVec2 screen((float)lbl_8037C198->unk14, (float)lbl_8037C198->unk18);
     unk83C = EVec2(0.6f, 0.5f);
     unk844 = EVec2(0.2f, 0.15f);
@@ -53,9 +53,9 @@ void Unk80039E78::fn_80039F1C() {
 inline float M39Height(Unk80039E78* self) {
     float height = 0.0f;
     for (unsigned int i = 0; i < self->unk888; i++) {
-        height += self->unk0->fn_8003D550((const unsigned short*)self->unk884[i], 1, 0).y;
+        height += self->unk0->DoGetStringSize((const unsigned short*)self->unk884[i], 1, 0).y;
         if (i < self->unk888 - 1) {
-            height += self->unk0->fn_8003DC1C(0);
+            height += self->unk0->GetLineSpacing(0);
         }
     }
     return height;
@@ -87,16 +87,16 @@ void Unk80039E78::fn_8003A0C0(EVec2* position, int count, int* items, int text, 
     unk87C = EVec2(unk854.x + unk86C.x, unk854.y + unk86C.y + unk878);
     unk81C = 0;
     unk824 = 0;
-    unk0->fn_8003C95C(1, 16.0f, 1.0f);
+    unk0->SetSize(1, 16.0f, 1.0f);
     unk0->unk64 = lbl_802E6964;
     fn_8003A734(0, 0, 0);
     float extentY;
     if (unkC) {
-        extentY = unk0->fn_8003D550(unk14.fn_8023C9EC(), 1, 0).y;
+        extentY = unk0->DoGetStringSize(unk14.fn_8023C9EC(), 1, 0).y;
     } else {
-        extentY = unk0->fn_8003D550(unk10, 1, 0).y;
+        extentY = unk0->DoGetStringSize(unk10, 1, 0).y;
     }
-    unk84C.y = (float)unk824 * (extentY + unk0->fn_8003DC1C(0)) + (unk86C.y + unk86C.y);
+    unk84C.y = (float)unk824 * (extentY + unk0->GetLineSpacing(0)) + (unk86C.y + unk86C.y);
     if (unk824 == 1) {
         unk830 = unk824;
     } else {
@@ -190,11 +190,11 @@ void Unk80039E78::fn_8003A734(ERC* rc, int draw, int centred) {
         return;
     }
     if (draw) {
-        unk0->fn_8003DBE8(rc);
+        unk0->Select(rc);
     }
     float width = unk84C.x - (unk86C.x + unk86C.x);
     float left = unk87C.x;
-    float lineHeight = unk0->fn_8003DC1C(0);
+    float lineHeight = unk0->GetLineSpacing(0);
     const unsigned short* text = unkC ? unk14.fn_8023C9EC() : unk10;
     EVec2 size;
     unsigned short zero = 0;
@@ -211,11 +211,11 @@ void Unk80039E78::fn_8003A734(ERC* rc, int draw, int centred) {
                 text++;
                 ended = true;
             } else {
-                size = unk0->fn_8003D550(out, 1, 0);
+                size = unk0->DoGetStringSize(out, 1, 0);
                 if (fn_800430EC(*text)) {
                     lastBreak = length;
                 }
-                bool over = unk0->fn_8003D550(line, 1, 0).x > width;
+                bool over = unk0->DoGetStringSize(line, 1, 0).x > width;
                 if (over) {
                     ended = true;
                     int back = length - lastBreak;
@@ -244,10 +244,10 @@ void Unk80039E78::fn_8003A734(ERC* rc, int draw, int centred) {
             line[length] = zero;
             if (unk824 >= unk820 && draw) {
                 if (centred == 0) {
-                    unk0->fn_8003D740(rc, line, 1, unk87C, 0, 0, (int)&unk87C);
+                    unk0->DoDrawAlign(rc, line, 1, unk87C, 0, 0, &unk87C);
                 } else {
                     EVec2 at(unk84C.x * 0.5f + unk854.x, unk87C.y);
-                    unk0->fn_8003D740(rc, line, 1, at, 2, 0, (int)&unk87C);
+                    unk0->DoDrawAlign(rc, line, 1, at, 2, 0, &unk87C);
                 }
                 unk87C.x = left;
                 unk87C.y += lineHeight;

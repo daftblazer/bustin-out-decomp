@@ -9,8 +9,8 @@ void fn_80169EE8(void* ptr);
 // side, each tinted while its direction is held.
 void CASSelector::Draw(ERC* rc) {
     if (unk18 & 2) {
-        unk78->fn_8003C95C(1, 14.0f, 1.0f);
-        EVec2 extent = unk78->fn_8003D550(unk68 ? *unk68 : 0, 1, 0);
+        unk78->SetSize(1, 14.0f, 1.0f);
+        EVec2 extent = unk78->DoGetStringSize(unk68 ? *unk68 : 0, 1, 0);
         EVec2 position(unk20.x * 0.5f + unk2C.x, extent.y * 0.5f + unk2C.z);
         if (unk18 & 8) {
             unk78->unk64 = lbl_802E69C4;
@@ -33,9 +33,9 @@ void CASSelector::Draw(ERC* rc) {
         } else {
             unk78->unk64 = lbl_802E6964;
         }
-        unk78->fn_8003DBE8(rc);
+        unk78->Select(rc);
         const unsigned short* text = unk68 ? *unk68 : 0;
-        unk78->fn_8003D740(rc, text, 1, position, 2, 2, 0);
+        unk78->DoDrawAlign(rc, text, 1, position, 2, 2, 0);
     }
 }
 

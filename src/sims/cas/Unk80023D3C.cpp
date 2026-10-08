@@ -50,7 +50,7 @@ void Unk80023D3C::vfn3(ERC* rc) {
             }
         }
         if (unk80) {
-            unk80->fn_8003C95C(1, unk90, 1.0f);
+            unk80->SetSize(1, unk90, 1.0f);
             if (unk18 & 4) {
                 if (unk18 & 8) {
                     unk80->unk64 = lbl_802E69C4;
@@ -68,11 +68,11 @@ void Unk80023D3C::vfn3(ERC* rc) {
                     unk80->unk64 = lbl_802E5B0C;
                 }
             }
-            unk80->fn_8003DBE8(rc);
+            unk80->Select(rc);
             if (GetText() != 0) {
                 const unsigned short* text = GetText();
                 EVec2 at(unkB0.x + 0.005f, unkB0.z);
-                unk80->fn_8003D740(rc, text, 1, at, unk88, unk8C, 0);
+                unk80->DoDrawAlign(rc, text, 1, at, unk88, unk8C, 0);
             }
         }
         for (Unk801B4760Node* node = *(Unk801B4760Node**)&unk0; EIsValid(node); node = node->next) {

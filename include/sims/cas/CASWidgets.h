@@ -8,36 +8,14 @@
 
 // Two widgets used by the Create-A-Sim screen. Class names are provisional.
 
+#include "engine/ERFont.h"
+
 struct ERC;
 
-// RGBA colour as four floats; copied as words.
-struct EColorF {
-    EColorF() {}
-    EColorF(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    explicit EColorF(float value) { r = g = b = a = value; }
-    // User-defined (float by float), as for the vector classes; assignment is the compiler's.
-    EColorF(const EColorF& other) : r(other.r), g(other.g), b(other.b), a(other.a) {}
-    float r, g, b, a;
-};
 extern EColorF lbl_802E69C4; // highlighted
 extern EColorF lbl_802E6964; // normal
 extern EColorF lbl_802E6954; // title
 extern EColorF lbl_802E69E4; // disabled
-
-// Text renderer (functions around 0x8003C95C).
-struct Unk8003C95C {
-    void fn_8003C95C(int, float, float);
-    EVec2 fn_8003D550(const unsigned short* text, int, int); // text extent
-    void fn_8003DBE8(ERC* rc);
-    void fn_8003D740(ERC* rc, const unsigned short* text, int, EVec2 position, int, int, int); // position is passed by value
-    void fn_8003D93C(ERC* rc, const unsigned short* text, EVec2* position, int, int, EVec2* cursor, float scaleX, float scaleY);
-    float fn_8003DC1C(int); // line height
-
-    char unk0[0x58];
-    float unk58; // current size
-    char unk5C[0x64 - 0x5C];
-    EColorF unk64;
-};
 
 struct Unk80181824 {
     void fn_80181824(ERC* rc);
@@ -160,7 +138,7 @@ public:
     int unk6C;            // message sent when moving right
     int unk70;            // message sent when moving left
     int unk74;
-    Unk8003C95C* unk78;
+    ERFont* unk78;
     void* unk7C;
     Unk80181824* unk80;   // left arrow sprite
     Unk80181824* unk84;   // right arrow sprite

@@ -930,19 +930,19 @@ void CASTarget::vfn3(ERC* rc) {
     if (unk52E8) {
         fn_80188850(rc);
         if (unk4580 == 6) {
-            Unk8003C95C* font = lbl_802E6700.unkEC;
-            font->fn_8003DBE8(rc);
-            font->fn_8003C95C(1, 16.0f, 1.0f);
+            ERFont* font = lbl_802E6700.unkEC;
+            font->Select(rc);
+            font->SetSize(1, 16.0f, 1.0f);
             lbl_802E6700.unkEC->unk64 = lbl_802E6964;
             EVec2 position(0.5f, 0.142f);
-            lbl_802E6700.unkEC->fn_8003D740(rc, (const unsigned short*)GetText("last"), 1, position, 2, 0, 0);
+            lbl_802E6700.unkEC->DoDrawAlign(rc, (const unsigned short*)GetText("last"), 1, position, 2, 0, 0);
         } else if (unk4580 == 7) {
-            Unk8003C95C* font = lbl_802E6700.unkEC;
-            font->fn_8003DBE8(rc);
-            font->fn_8003C95C(1, 16.0f, 1.0f);
+            ERFont* font = lbl_802E6700.unkEC;
+            font->Select(rc);
+            font->SetSize(1, 16.0f, 1.0f);
             lbl_802E6700.unkEC->unk64 = lbl_802E6964;
             EVec2 position(0.5f, 0.142f);
-            lbl_802E6700.unkEC->fn_8003D740(rc, (const unsigned short*)GetText("first"), 1, position, 2, 0, 0);
+            lbl_802E6700.unkEC->DoDrawAlign(rc, (const unsigned short*)GetText("first"), 1, position, 2, 0, 0);
         }
         fn_80106484(unk52C4, rc);
         if (fn_801082B4(unk52C4)) {
@@ -1024,7 +1024,7 @@ void CASTarget::fn_8000C588() {
 // registers are numbered differently (r25-r29) and one address load is placed one slot
 // earlier, which shifts the rest. Two variants tried.
 void CASTarget::fn_8000C5DC() {
-    unk52E4 = (Unk8003C95C*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
+    unk52E4 = (ERFont*)lbl_8033F964.fn_80177628(lbl_802E6700.fn_800655D8(), 0, 0);
     unk45B8 = 3.0f;
     unk5308 = 1;
     unk52D0 = 1;
@@ -2216,9 +2216,9 @@ void CASTarget::fn_80010520(CASSimDesc* desc, int randomize) {
 #define CAS_MEASURE(size, text)                               \
     {                                                         \
         float oldScale = unk52E4->unk58;                      \
-        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);                 \
-        size = unk52E4->fn_8003D550(text, 1, 0);              \
-        unk52E4->fn_8003C95C(1, oldScale, 1.0f);              \
+        unk52E4->SetSize(1, 16.0f, 1.0f);                 \
+        size = unk52E4->DoGetStringSize(text, 1, 0);              \
+        unk52E4->SetSize(1, oldScale, 1.0f);              \
     }
 
 // 0x80010664
@@ -2235,7 +2235,7 @@ char* CASTarget::vfn9(const char* name) {
     if (fn_80111ECC("title_bar_width", name) == 0) {
         EVec2 size(0.0f, 0.0f);
         float oldScale = unk52E4->unk58;
-        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        unk52E4->SetSize(1, 16.0f, 1.0f);
         if (unk4580 == 9) {
             int* text;
             if (unk52E0) {
@@ -2249,7 +2249,7 @@ char* CASTarget::vfn9(const char* name) {
             } else {
                 text = lbl_802E6700.fn_800667EC("create a sim").ptr;
             }
-            size = unk52E4->fn_8003D550((const unsigned short*)(text ? *text : 0), 1, 0);
+            size = unk52E4->DoGetStringSize((const unsigned short*)(text ? *text : 0), 1, 0);
         } else if (unk4580 == 10) {
             int* text;
             if (unk5314) {
@@ -2257,7 +2257,7 @@ char* CASTarget::vfn9(const char* name) {
             } else {
                 text = global->fn_800667EC("create a family").ptr;
             }
-            size = unk52E4->fn_8003D550((const unsigned short*)(text ? *text : 0), 1, 0);
+            size = unk52E4->DoGetStringSize((const unsigned short*)(text ? *text : 0), 1, 0);
         } else if (unk4580 == 11) {
             int* text;
             if (unk531C) {
@@ -2265,7 +2265,7 @@ char* CASTarget::vfn9(const char* name) {
             } else {
                 text = global->fn_800667EC("button2").ptr;
             }
-            size = unk52E4->fn_8003D550((const unsigned short*)(text ? *text : 0), 1, 0);
+            size = unk52E4->DoGetStringSize((const unsigned short*)(text ? *text : 0), 1, 0);
         } else if (unk4580 == 12) {
             int* text;
             switch (unk45D4) {
@@ -2291,9 +2291,9 @@ char* CASTarget::vfn9(const char* name) {
                 }
                 break;
             }
-            size = unk52E4->fn_8003D550((const unsigned short*)(text ? *text : 0), 1, 0);
+            size = unk52E4->DoGetStringSize((const unsigned short*)(text ? *text : 0), 1, 0);
         }
-        unk52E4->fn_8003C95C(1, oldScale, 1.0f);
+        unk52E4->SetSize(1, oldScale, 1.0f);
         fn_8010F710(out, "%f", size.x);
     } else if (fn_80111ECC("dialog_box_width", name) == 0) {
         fn_8010F710(out, "%f", 0.6f);
@@ -2309,18 +2309,18 @@ char* CASTarget::vfn9(const char* name) {
         fn_8010F710(out, "%d", 0);
     } else if (fn_80111ECC("dialog_title_bar_width", name) == 0) {
         float oldScale = unk52E4->unk58;
-        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        unk52E4->SetSize(1, 16.0f, 1.0f);
         Unk801BA678 title((const unsigned short*)(unk45D8 ? *unk45D8 : 0));
         EVec2 size;
-        size = unk52E4->fn_8003D550(title.unk0, 1, 0);
-        unk52E4->fn_8003C95C(1, oldScale, 1.0f);
+        size = unk52E4->DoGetStringSize(title.unk0, 1, 0);
+        unk52E4->SetSize(1, oldScale, 1.0f);
         fn_8010F710(out, "%f", size.x);
     } else if (fn_80111ECC("UI_button_width", name) == 0) {
-        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        unk52E4->SetSize(1, 16.0f, 1.0f);
         EVec2 yes;
-        yes = unk52E4->fn_8003D550((const unsigned short*)GetTextB("yes"), 1, 0);
+        yes = unk52E4->DoGetStringSize((const unsigned short*)GetTextB("yes"), 1, 0);
         EVec2 no;
-        no = unk52E4->fn_8003D550((const unsigned short*)GetTextB("no"), 1, 0);
+        no = unk52E4->DoGetStringSize((const unsigned short*)GetTextB("no"), 1, 0);
         float width;
         if (yes.x > no.x) {
             width = yes.x + 0.003f;
@@ -2719,7 +2719,7 @@ void CASTarget::vfn8(const char* name, const char* value) {
 #define CAS_CAPTION(text, x, y)                                                              \
     {                                                                                        \
         EVec2 at(x, y);                                                                      \
-        unk52E4->fn_8003D740(rc, (const unsigned short*)(text), 1, at, 2, 2, 0);          \
+        unk52E4->DoDrawAlign(rc, (const unsigned short*)(text), 1, at, 2, 2, 0);          \
     }
 
 // 0x800123A4
@@ -2730,8 +2730,8 @@ void CASTarget::vfn8(const char* name, const char* value) {
 // one shared pair of two-float temporaries (0x8 and 0x10), where this build creates
 // separate temporaries per caption. One variant tried.
 void CASTarget::fn_800123A4(ERC* rc) {
-    unk52E4->fn_8003DBE8(rc);
-    unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+    unk52E4->Select(rc);
+    unk52E4->SetSize(1, 16.0f, 1.0f);
     unk52E4->unk64 = lbl_802E6954;
     float x = 0.512f;
     unk52E4->unk64 = lbl_802E6964;
@@ -2782,7 +2782,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
     if (unk52D8 && unk52FC == 0) {
         // Personality page: name, star sign and the five traits; the selected
         // line is drawn highlighted.
-        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        unk52E4->SetSize(1, 16.0f, 1.0f);
         x = 0.311f;
         y = 0.16f;
         if (unk5304) {
@@ -2792,9 +2792,9 @@ void CASTarget::fn_800123A4(ERC* rc) {
         } else {
             unk52E4->unk64 = lbl_802E6954;
             EVec2 at(x, y);
-            unk52E4->fn_8003D740(rc, unk57A0.unk0, 1, at, 2, 0, 0);
+            unk52E4->DoDrawAlign(rc, unk57A0.unk0, 1, at, 2, 0, 0);
         }
-        unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+        unk52E4->SetSize(1, 16.0f, 1.0f);
         y = 0.52f;
         if (unk5300) {
             unk52E4->unk64 = lbl_802E6964;
@@ -2803,9 +2803,9 @@ void CASTarget::fn_800123A4(ERC* rc) {
         } else {
             unk52E4->unk64 = lbl_802E6954;
             EVec2 at(x, y);
-            unk52E4->fn_8003D740(rc, unk57A4.unk0, 1, at, 2, 0, 0);
+            unk52E4->DoDrawAlign(rc, unk57A4.unk0, 1, at, 2, 0, 0);
         }
-        unk52E4->fn_8003C95C(1, 13.0f, 1.0f);
+        unk52E4->SetSize(1, 13.0f, 1.0f);
         x = 0.3125f;
         y = 0.578f;
         float step = 0.0379f;
@@ -2818,7 +2818,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("neat");
             EVec2 at(x, y);
-            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
+            unk52E4->DoDrawAlign(rc, text, 1, at, 0, 0, 0);
         }
         y += step;
         if (unk52CC == 2) {
@@ -2830,7 +2830,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("outgoing");
             EVec2 at(x, y);
-            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
+            unk52E4->DoDrawAlign(rc, text, 1, at, 0, 0, 0);
         }
         y += step;
         if (unk52CC == 3) {
@@ -2842,7 +2842,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("active");
             EVec2 at(x, y);
-            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
+            unk52E4->DoDrawAlign(rc, text, 1, at, 0, 0, 0);
         }
         y += step;
         if (unk52CC == 4) {
@@ -2854,7 +2854,7 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("playful");
             EVec2 at(x, y);
-            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
+            unk52E4->DoDrawAlign(rc, text, 1, at, 0, 0, 0);
         }
         y += step;
         if (unk52CC == 5) {
@@ -2866,23 +2866,23 @@ void CASTarget::fn_800123A4(ERC* rc) {
             unk52E4->unk64 = lbl_802E6954;
             const unsigned short* text = (const unsigned short*)GetText("nice");
             EVec2 at(x, y);
-            unk52E4->fn_8003D740(rc, text, 1, at, 0, 0, 0);
+            unk52E4->DoDrawAlign(rc, text, 1, at, 0, 0, 0);
         }
     }
     if (unk52FC) {
         unk52FC->vfn3(rc);
     }
 
-    unk52E4->fn_8003C95C(1, 15.0f, 1.0f);
+    unk52E4->SetSize(1, 15.0f, 1.0f);
     unk52E4->unk64 = lbl_802E6964;
     if (unk45D0) {
         // Yes/no prompt, once the script has reported where its buttons are.
         if (unk4600.x != 0.0f && unk4600.y != 0.0f && unk4610.x != 0.0f && unk4610.y != 0.0f) {
             unk52E4->unk64 = lbl_802E6954;
-            unk52E4->fn_8003D740(rc, (const unsigned short*)(unk45D8 ? *unk45D8 : 0), 1, EVec2(unk45E0.x, unk45E0.y), 2, 2, 0);
+            unk52E4->DoDrawAlign(rc, (const unsigned short*)(unk45D8 ? *unk45D8 : 0), 1, EVec2(unk45E0.x, unk45E0.y), 2, 2, 0);
             unk52E4->unk64 = lbl_802E6964;
-            unk52E4->fn_8003D93C(rc, (const unsigned short*)GetTextB("yes"), &unk4600, 2, 2, 0, 2.0f, 1.0f);
-            unk52E4->fn_8003D93C(rc, (const unsigned short*)GetTextB("no"), &unk4610, 2, 2, 0, 2.0f, 1.0f);
+            unk52E4->DrawDs(rc, (const unsigned short*)GetTextB("yes"), &unk4600, 2, 2, 0, 2.0f, 1.0f);
+            unk52E4->DrawDs(rc, (const unsigned short*)GetTextB("no"), &unk4610, 2, 2, 0, 2.0f, 1.0f);
             fn_800133DC(rc, (const unsigned short*)(unk45DC ? *unk45DC : 0), 1);
         }
     } else if (unk52FC == 0 && unk5328) {
@@ -2900,8 +2900,8 @@ void CASTarget::fn_800123A4(ERC* rc) {
             fn_80106164(unk52C4, "resetButton", 0, 0, 1, "accept");
             fn_80106164(unk52C4, "resetButtonContext", 0, 0, 0);
         }
-        unk52E4->fn_8003D93C(rc, (const unsigned short*)(unk4ED8 ? *unk4ED8 : 0), (EVec2*)&unk4ED0, 2, 2, 0, 2.0f, 1.0f);
-        unk52E4->fn_8003D93C(rc, (const unsigned short*)(unk4EE4 ? *unk4EE4 : 0), (EVec2*)&unk4EDC, 2, 2, 0, 2.0f, 1.0f);
+        unk52E4->DrawDs(rc, (const unsigned short*)(unk4ED8 ? *unk4ED8 : 0), (EVec2*)&unk4ED0, 2, 2, 0, 2.0f, 1.0f);
+        unk52E4->DrawDs(rc, (const unsigned short*)(unk4EE4 ? *unk4EE4 : 0), (EVec2*)&unk4EDC, 2, 2, 0, 2.0f, 1.0f);
     }
 }
 
@@ -2915,15 +2915,15 @@ void CASTarget::fn_800133DC(ERC* rc, const unsigned short* text, int centered) {
     EVec2 origin(0.22f, 0.3f);
     EVec2 size(box.x - 32.0f / (float)lbl_8037C198->unk14, 0.0f);
     EVec2 cursor(origin.x + pixel.x, origin.y + pixel.y);
-    unk52E4->fn_8003C95C(1, 16.0f, 1.0f);
+    unk52E4->SetSize(1, 16.0f, 1.0f);
     if (text == 0) {
         return;
     }
-    unk52E4->fn_8003DBE8(rc);
+    unk52E4->Select(rc);
     const unsigned short* in = text;
     float startX = cursor.x;
     float maxWidth = size.x - (pixel.x + pixel.x);
-    float lineHeight = unk52E4->fn_8003DC1C(0);
+    float lineHeight = unk52E4->GetLineSpacing(0);
     int line = 0;
     while (*in) {
         unsigned short buffer[0x100];
@@ -2939,11 +2939,11 @@ void CASTarget::fn_800133DC(ERC* rc, const unsigned short* text, int centered) {
                 done = 1;
             } else {
                 EVec2 charSize;
-                charSize = unk52E4->fn_8003D550(out, 1, 0);
+                charSize = unk52E4->DoGetStringSize(out, 1, 0);
                 if (fn_800430EC(*in)) {
                     lastBreak = count;
                 }
-                bool over = unk52E4->fn_8003D550(buffer, 1, 0).x > maxWidth;
+                bool over = unk52E4->DoGetStringSize(buffer, 1, 0).x > maxWidth;
                 if (over) {
                     done = 1;
                     int back = count - lastBreak;
@@ -2975,12 +2975,12 @@ void CASTarget::fn_800133DC(ERC* rc, const unsigned short* text, int centered) {
             buffer[count] = 0;
             if (line >= 0) {
                 if (centered == 0) {
-                    unk52E4->fn_8003D93C(rc, buffer, &cursor, 0, 0, &cursor, 2.0f, 1.0f);
+                    unk52E4->DrawDs(rc, buffer, &cursor, 0, 0, &cursor, 2.0f, 1.0f);
                 } else {
                     EVec2 position;
                     position.x = size.x * 0.5f + origin.x;
                     position.y = cursor.y;
-                    unk52E4->fn_8003D93C(rc, buffer, &position, 2, 0, &cursor, 2.0f, 1.0f);
+                    unk52E4->DrawDs(rc, buffer, &position, 2, 0, &cursor, 2.0f, 1.0f);
                 }
                 cursor.x = startX;
                 cursor.y += lineHeight;
@@ -3068,7 +3068,7 @@ const unsigned short* CASTarget::fn_80014110() {
 
 // 0x80014188
 void CASTarget::fn_80014188(ERC* rc, const unsigned short* text, EVec2* position, int a, int b) {
-    unk52E4->fn_8003D93C(rc, text, position, a, b, 0, 2.0f, 1.0f);
+    unk52E4->DrawDs(rc, text, position, a, b, 0, 2.0f, 1.0f);
 }
 
 // 0x800141C0

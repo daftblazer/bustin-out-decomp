@@ -86,7 +86,7 @@ public:
     Unk8018643C unkC48;
     Unk8018643C unkCC8;
     Unk8018643C unkD48;
-    Unk8003C95C* unkDC8;  // font
+    ERFont* unkDC8;  // font
     int unkDCC;
 };
 

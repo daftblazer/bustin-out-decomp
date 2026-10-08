@@ -34,7 +34,7 @@ public:
     struct Entry {
         const unsigned short* ptr;
     } unk74[2];           // captions at the two ends
-    Unk8003C95C* unk7C;   // font
+    ERFont* unk7C;   // font
     unsigned int unk80;   // pulse phase
     float unk84[20];      // pulse brightness ramp
     Unk80181824* unkD4;   // bar texture
@@ -54,7 +54,7 @@ public:
 
     unsigned char unk48;
     int unk4C[13];
-    Unk8003C95C* unk80; // font
+    ERFont* unk80; // font
     void* unk84;
     Unk80181824* unk88; // left arrow
     Unk80181824* unk8C; // right arrow
@@ -76,7 +76,7 @@ public:
     float unk4C;                  // caption indent
     const unsigned short* unk50;  // caption
     const unsigned short* unk54;  // value text
-    Unk8003C95C* unk58;           // font
+    ERFont* unk58;           // font
     void* unk5C;
     Unk80181824* unk60;           // left arrow
     Unk80181824* unk64;           // right arrow

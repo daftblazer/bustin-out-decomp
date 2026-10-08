@@ -3,23 +3,11 @@
 
 #include "engine/EStorable.h"
 #include "engine/EVec3.h"
+#include "engine/EColorF.h"
 
 struct ERC;
 struct EWindow;
 struct Unk80181824;
-
-// Four floats with a float-wise copy constructor (see CASWidgets.h, which has the
-// same class; it lives here so the font can hold one).
-#ifndef ECOLORF_DEFINED
-#define ECOLORF_DEFINED
-struct EColorF {
-    EColorF() {}
-    EColorF(float r_, float g_, float b_, float a_) : r(r_), g(g_), b(b_), a(a_) {}
-    EColorF(float value) { r = g = b = a = value; }
-    EColorF(const EColorF& other) : r(other.r), g(other.g), b(other.b), a(other.a) {}
-    float r, g, b, a;
-};
-#endif
 
 // One texture page of a font size. The class name is from the header strings.
 struct EFontPage {

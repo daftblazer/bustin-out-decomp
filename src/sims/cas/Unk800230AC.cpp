@@ -96,13 +96,13 @@ void Unk800230AC::fn_800236E4(ERC* rc) {
         fn_80041180(rc, unk64, 0.0402f, unk5C, 1.0f);
         fn_80041180(rc, 0.5f - unk6C * 0.5f, 0.137f, unk6C, 1.0f);
         unkDC8->unk64 = lbl_802E6964;
-        unkDC8->fn_8003C95C(1, 16.0f, 1.0f);
-        unkDC8->fn_8003DBE8(rc);
+        unkDC8->SetSize(1, 16.0f, 1.0f);
+        unkDC8->Select(rc);
         Unk800669ACResult result = lbl_802E6700.fn_800667EC("title");
         const unsigned short* text = (const unsigned short*)(result.ptr ? *result.ptr : 0);
         {
             EVec2 at(0.52f, 0.046f);
-            unkDC8->fn_8003D740(rc, text, 1, at, 2, 0, 0);
+            unkDC8->DoDrawAlign(rc, text, 1, at, 2, 0, 0);
         }
         {
             EVec2 position(0.5f - (unk5C - 0.04f) * 0.5f, 0.032f);
@@ -113,13 +113,13 @@ void Unk800230AC::fn_800236E4(ERC* rc) {
         fn_80041180(rc, unk60, 0.0358f, unk58, 1.0f);
         fn_80041180(rc, 0.5f - unk68 * 0.5f, 0.135f, unk68, 1.0f);
         unkDC8->unk64 = lbl_802E6964;
-        unkDC8->fn_8003C95C(1, 16.0f, 1.0f);
-        unkDC8->fn_8003DBE8(rc);
+        unkDC8->SetSize(1, 16.0f, 1.0f);
+        unkDC8->Select(rc);
         Unk800669ACResult result = lbl_802E6700.fn_800667EC("create a family");
         const unsigned short* text = (const unsigned short*)(result.ptr ? *result.ptr : 0);
         {
             EVec2 at(0.52f, 0.07f);
-            unkDC8->fn_8003D740(rc, text, 1, at, 2, 2, 0);
+            unkDC8->DoDrawAlign(rc, text, 1, at, 2, 2, 0);
         }
         {
             EVec2 position(0.5f - (unk58 - 0.04f) * 0.5f, 0.032f);

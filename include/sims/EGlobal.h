@@ -69,7 +69,7 @@ public:
     char unkCC[0xE4 - 0xCC];
     struct Unk80181824* unkE4;    // plain white texture
     char unkE8[0xEC - 0xE8];
-    struct Unk8003C95C* unkEC;    // default font
+    struct ERFont* unkEC;    // default font
     char unkF0[0x114 - 0xF0];
     struct EGlobalUnk114* unk114;
     struct EGlobalUnk118* unk118;

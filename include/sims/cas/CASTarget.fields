@@ -98,7 +98,7 @@ END 0x5D30
 0x52D8 4      int                unk52D8
 0x52DC 4      int                unk52DC
 0x52E0 4      int                unk52E0
-0x52E4 4      Unk8003C95C*       unk52E4          # text renderer
+0x52E4 4      ERFont*       unk52E4          # text renderer
 0x52E8 4      int                unk52E8
 0x52EC 4      Unk801B9FEC        unk52EC
 0x52F0 4      int                unk52F0

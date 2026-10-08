@@ -103,7 +103,7 @@
     int unk52D8; // 0x52d8
     int unk52DC; // 0x52dc
     int unk52E0; // 0x52e0
-    Unk8003C95C* unk52E4; // 0x52e4 text renderer
+    ERFont* unk52E4; // 0x52e4 text renderer
     int unk52E8; // 0x52e8
     Unk801B9FEC unk52EC; // 0x52ec
     int unk52F0; // 0x52f0
