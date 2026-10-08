@@ -259,33 +259,108 @@ void Unk80026864::fn_80031B1C(ERC* rc, int remove) {
 }
 
 // 0x80031CF0
-// Draws an upright textured quad between two points on the ground.
-// NON_MATCHING: condensed draft (263 instructions in the original, which sets the
-// render state and fills the vertices in the open). One variant tried.
+// Draws an upright textured strip along a run on the ground: one pair of vertices
+// per tile, from the ground up to `height`. `flag` picks how the texture is mapped
+// (2 along the run, 1 across it, otherwise not at all).
+// NON_MATCHING: 262 instructions vs 263, 22 differ. The original keeps the vertex
+// count in r0 through the loop and the loop counter in r4 (then `mr r4, r0` for the
+// draw call); here the count goes straight to r4 and the counter to r11. The copies
+// of `flag` and `height` at the entry are also exchanged. About fifteen variants
+// tried (loop forms, where the counter and the count are declared).
+struct Unk80031CF0Position {
+    float x, y, z, w;
+};
+struct Unk80031CF0RC {
+    char unk0[0x44];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4(int count, Unk80031CF0Position* positions, EVec2* coords, int, int, int);
+};
 void fn_80031CF0(ERC* rc, Unk80181824* texture, EVec2* a, EVec2* b, int flag, float height, float base) {
     texture->fn_80181824(rc);
-    rc->vfn54(0, 1, 0, 0);
-    rc->vfn44(&lbl_802E5D00);
-    ((Unk8002D2D4RC*)rc)->vfn29();
-    Unk80173D58Vertex* vertices = (Unk80173D58Vertex*)((Unk80173D58Alloc*)rc)->fn_80173D58(0x140, 0x20);
-    for (int i = 0; i < 4; i++) {
-        const EVec2* at = (i & 2) ? b : a;
-        vertices[i].unk0[0] = at->x;
-        vertices[i].unk0[1] = at->y;
-        vertices[i].unk0[2] = (i & 1) ? base : height;
-        vertices[i].unk0[3] = 1.0f;
-        vertices[i].unk10[0] = 0;
-        vertices[i].unk10[1] = 0x7F;
-        vertices[i].unk10[2] = 0;
-        vertices[i].unk1C = 0;
-        vertices[i].unk20[0] = (i & 2) ? 1.0f : 0.0f;
-        vertices[i].unk20[1] = (i & 1) ? 1.0f : 0.0f;
-        vertices[i].unk30[0] = 0x80;
-        vertices[i].unk30[1] = 0x80;
-        vertices[i].unk30[2] = 0x80;
-        vertices[i].unk30[3] = flag ? 0x40 : 0x80;
+    rc->vfn54(1, 2, 1, 0);
+    ELightSet lights;
+    lights.numPoint = 0;
+    lights.numDirectional = 0;
+    lights.ambient = EVec3(1.0f);
+    rc->vfn44(&lights);
+    rc->vfn36(8);
+    rc->vfn29();
+    float deltaX = b->x - a->x;
+    int countX = (int)(EABS(deltaX) + 0.5f);
+    float deltaY = b->y - a->y;
+    int countY = (int)(EABS(deltaY) + 0.5f);
+    int count = countY;
+    if (count < countX) {
+        count = countX;
     }
-    ((Unk8002D2D4RC*)rc)->vfn3(vertices, 4);
+    if (count == 0) {
+        return;
+    }
+    int i;
+    int points = count + 1;
+    int positionBytes = points * 32;
+    Unk80031CF0Position* positions =
+        (Unk80031CF0Position*)((Unk80173D58Alloc*)rc)->fn_80173D58(positionBytes + points * 16, 0x20);
+    if (positions == 0) {
+        return;
+    }
+    EVec2* coords = (EVec2*)((char*)positions + positionBytes);
+    Unk80031CF0Position* position = positions;
+    EVec2* coord = coords;
+    float x = a->x;
+    float y = a->y;
+    EVec2 step = (*b - *a) * (1.0f / (float)count);
+    EVec2 across;
+    EVec2 along;
+    float u;
+    float v;
+    if (flag == 2) {
+        u = 0.0f;
+        across.x = 1.0f;
+        along.y = base;
+        across.y = u;
+        along.x = u;
+        v = (float)(-count / 2);
+    } else if (flag == 1) {
+        v = 0.0f;
+        across.y = 1.0f;
+        along.x = base;
+        across.x = v;
+        along.y = v;
+        u = (float)(-count / 2);
+    } else {
+        across = EVec2(0.0f);
+        along = EVec2(0.0f);
+        v = 0.5f;
+        u = v;
+    }
+    int vertices = points + points;
+    i = points;
+    while (i-- != 0) {
+        position->y = y;
+        position->x = x;
+        position->z = 0.0f;
+        position->w = 0.0f;
+        coord->y = v;
+        coord->x = u;
+        position++;
+        position->x = x;
+        position->y = y;
+        position->z = height;
+        position->w = 0.0f;
+        position++;
+        coord++;
+        coord->x = u + across.x;
+        coord->y = v + across.y;
+        coord++;
+        x += step.x;
+        y += step.y;
+        u += along.x;
+        v += along.y;
+    }
+    ((Unk80031CF0RC*)rc)->vfn4(vertices, positions, coords, 0, 0, 0);
 }
 
 // 0x8003210C
