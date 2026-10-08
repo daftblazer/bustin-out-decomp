@@ -19,11 +19,10 @@ extern EHeap lbl_8033F710;
 
 // 0x8003DE78
 EHeap* Unk802E5E1C::GetHeap() {
-    EHeap* heap = 0;
     if (lbl_802F76EC.unk0 == 0) {
-        heap = &lbl_8033F710;
+        return &lbl_8033F710;
     }
-    return heap;
+    return 0;
 }
 
 // 0x8003DE98

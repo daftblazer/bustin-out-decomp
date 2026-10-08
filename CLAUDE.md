@@ -374,3 +374,44 @@ Switching a unit to `Matching` needs more than matching functions (see `sims/Unk
   - Assigning the same value in both branches of an `if`/`else` (`handle = texture->unk4;` in each) reproduces
     code where a load is duplicated into both arms; it usually stands for an inline accessor used in each arm.
 
+## Storable classes (EStorable / EResource)
+
+`include/engine/EStorable.h` has the base classes and `E_STORABLE_BODY`, the members every storable class
+defines; `sims/ERFont.cpp` is the first unit built on it. What the tail of such a unit looks like and why:
+
+- After the static initialiser come, in this order: the three functions that create an instance, create one
+  in place and destroy one; the inline virtuals (`Delete`, `GetClass`, three record accessors); a local
+  `__builtin_new` (li r4,0x10; bl 0x80169F1C) and a local `__nw__FUiPv`; the `_GLOBAL_.I` thunk.
+- The three creation functions are **friends defined in the class body**. Static members with the same bodies
+  are not emitted at all under `-fno-implement-inlines` when the class has a key function (they stay undefined).
+- `operator new` and placement new are **global inline operators defined after the class**
+  (`include/engine/ENew.h`, included last). Defined later than their first use, they are called out of line and
+  the unit gets local copies named `__builtin_new` and `__nw__FUiPv`; both need `scope:local` in `symbols.txt`.
+- The static initialiser registers the class with `fn_801BBFCC(&record, create, createAt, destroy, 0, "Name",
+  &parentRecord)` and stores the result. The class record is in `.bss` far from the unit's other data.
+- The vtable pointer of a storable class is at offset 0 (`EStorable` has no data members).
+- A resource manager is a class derived from `EResourceManager` (`include/engine/EResourceManager.h`, vtable
+  pointer at 0xA0) that overrides `GetHeap` and `AllocateAndLoadResource`; the resource's `operator new`
+  allocates from its manager and passes `__FILE__`, `__LINE__` and a name, which is where a header's file-name
+  string comes from.
+- A global object of a class with a destructor is constructed by the static initialiser but never destroyed in
+  the original (no destruction branch, no `_GLOBAL_.D`); every compiler version here emits both. Unsolved, in
+  `sims/ECheats.cpp` and `sims/Unk8003DE78.cpp`.
+
+- More source idioms (font and panel units):
+  - Three or more zero stores to members written in natural order come out with the last statement first
+    (again): write them in member order and check, before permuting.
+  - A colour set with alpha stored first and red last is `r = g = b = a = value` on the member itself (through
+    an inline setter), not an assignment from a temporary.
+  - `if (x == 0) return &obj; return 0;` gives `li r3,0; bnelr; lis r3; addi r3`; the conditional expression
+    and the result-variable forms are one instruction longer.
+  - An object reloaded from the stack at every use (`lwz r11, 8(r1)`) with a dead `p = 0` store at the end of
+    its scope is a small handle class with a destructor; a plain pointer stays in a register.
+  - `lbz` passed to a constructor without `extsb` means the parameter is `unsigned char`.
+  - A function returning 0, 1 or 2 as `li r3, 0; li r4, N` returns `long long`.
+  - A header-string run with no functions and no data after it is a source file that contributed nothing but
+    its headers' strings (the second file of unit 0x8003B870).
+  - A callee that returns a reference (`EFile& operator>>(EFile&, int&)`) has its second argument loaded first.
+  - An array indexed with the base register first (`lwzx r11, r9, r8`) is read through an inline accessor
+    (`EFontPage*& Page(int i)`); see the earlier note on `At(i)`.
+

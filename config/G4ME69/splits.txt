@@ -105,6 +105,10 @@ sims/Unk8003AA6C.cpp:
 	.ctors      start:0x80291CC4 end:0x80291CC8
 	.rodata     start:0x80297878 end:0x80297D18
 
+sims/Unk8003B870.cpp:
+	.text       start:0x8003B870 end:0x8003C784
+	.rodata     start:0x80297D18 end:0x80297EB0
+
 sims/ERFont.cpp:
 	.text       start:0x8003C784 end:0x8003DE78
 	.ctors      start:0x80291CC8 end:0x80291CCC
