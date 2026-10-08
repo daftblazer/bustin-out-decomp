@@ -8,6 +8,7 @@
 #include "engine/e_engine.h"
 #include "sims/e_simsapp_title.h"
 #include <string.h>
+#include "engine/EStaticObject.h"
 #include "sims/ECheats.h"
 #include "engine/EController.h"
 #include "engine/ResourceManagers.h"
@@ -55,11 +56,8 @@ public:
     virtual void ButtonPress(int button, float amount) {}
     virtual ~Unk8002657C() {}
 };
-// NON_MATCHING (static initialiser 0x8002657C): 27 instructions vs 22. The original
-// only constructs this object; here the compiler also emits the destruction branch
-// and a _GLOBAL_.D function, because the class has a destructor. How the original
-// has the virtual destructor (0x800265E4) without registering it is not understood.
-Unk8002657C lbl_802E5B1C;
+// Constructed at start-up and never destroyed (see engine/EStaticObject.h).
+EStaticObject<Unk8002657C> lbl_802E5B1C;
 
 // 0x8002436C
 Unk8002436C::Unk8002436C() {
@@ -381,7 +379,7 @@ void ECheats::EnableCheats() {
             lbl_8033F66C.fn_8015E904(item);
         }
     }
-    lbl_8033F66C.fn_8015E904(&lbl_802E5B1C);
+    lbl_8033F66C.fn_8015E904(lbl_802E5B1C);
 }
 
 // 0x80025ED8
@@ -395,7 +393,7 @@ void ECheats::DisableCheats() {
             lookup->dmi = 0;
         }
     }
-    lbl_8033F66C.fn_8015E94C(&lbl_802E5B1C);
+    lbl_8033F66C.fn_8015E94C(lbl_802E5B1C);
 }
 
 // 0x800260E4

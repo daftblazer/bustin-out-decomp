@@ -395,8 +395,13 @@ defines; `sims/ERFont.cpp` is the first unit built on it. What the tail of such 
   allocates from its manager and passes `__FILE__`, `__LINE__` and a name, which is where a header's file-name
   string comes from.
 - A global object of a class with a destructor is constructed by the static initialiser but never destroyed in
-  the original (no destruction branch, no `_GLOBAL_.D`); every compiler version here emits both. Unsolved, in
-  `sims/ECheats.cpp` and `sims/Unk8003DE78.cpp`.
+  the original (no destruction branch, no `_GLOBAL_.D`). A plain `T object;` always gets both: no flag (27
+  tried) and none of the five compiler versions changes that, nor does `const`, an array, a static member,
+  `init_priority` or `#pragma newworld`. Declare such globals as `EStaticObject<T>` (`include/engine/EStaticObject.h`):
+  a wrapper with no destructor that constructs the object in its own storage. That gives the original's bytes
+  and links (`sims/Unk8003DE78.cpp` is Matching this way; `sims/ECheats.cpp`'s initialiser matches). Callers use
+  `object->Method()`, and a bare `object` where they took its address; their code does not change. The wrapper
+  itself is a reconstruction, not something the binary names.
 
 - More source idioms (font and panel units):
   - Three or more zero stores to members written in natural order come out with the last statement first
