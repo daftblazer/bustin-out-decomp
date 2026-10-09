@@ -13,16 +13,60 @@
 struct ERC;
 // The engine's instance class as far as the house uses it: something with a virtual
 // destructor in slot 6 (EInstance in The Sims 2). Lights derive from it.
-class EInstance {
+// The virtuals come from a base without data (the vtable pointer is at offset 0).
+class EInstanceBase {
 public:
     virtual void vfn1();
     virtual void vfn2();
     virtual void vfn3();
     virtual void vfn4();
     virtual void vfn5();
-    virtual ~EInstance();
+    virtual ~EInstanceBase();
+};
+class EInstance : public EInstanceBase {
+public:
+    // Gives the instance its callback (and marks it, unless it is marked already).
+    void SetCallback(int (*callback)()) {
+        unk2C = callback;
+        if (unk8 == 0) {
+            unk8 = 1;
+        }
+    }
+    int unk4;
+    int unk8;
+    char unkC[0x2C - 0xC];
+    int (*unk2C)();
+    char unk30[0x3C - 0x30];
+    int unk3C;
 };
 class EILight : public EInstance {
+};
+// The two lights a house makes for itself (0xC0 and 0xB4 bytes).
+class Unk80163510 : public EILight {
+public:
+    Unk80163510();                                             // 0x80163510
+    char unk40[0xC0 - 0x40];
+};
+class Unk80163BB0 : public EILight {
+public:
+    Unk80163BB0();                                             // 0x80163BB0
+    char unk40[0xB4 - 0x40];
+};
+// Derived from the second one; its vtable is at 0x802C9318, in the engine.
+class Unk802C9318 : public Unk80163BB0 {
+public:
+    Unk802C9318() {}
+    virtual void vfn1();
+};
+// The level's bounds and the sphere around them.
+struct Unk801ADFAC {
+    EVec3 unk0;
+    float unkC;
+};
+struct Unk8017A638 {
+    EVec3 unk0;
+    EVec3 unkC;
+    void fn_801ADFAC(Unk801ADFAC* sphere);                     // 0x801ADFAC
 };
 
 // One entry of the house's object list (next at 0x10, the object at 0x18).
@@ -59,6 +103,8 @@ public:
     void RemoveLight(EILight* light);                          // 0x80179EAC (ERLevel::RemoveLight in The Sims 2)
     void fn_8017B8C0(int a);
     void fn_8017BE20();
+    Unk8017A638 fn_8017A638();                                 // 0x8017A638: bounds
+    void fn_8017B7FC();                                        // 0x8017B7FC
     void fn_80176860();                                        // 0x80176860: takes a reference
 };
 // The house's walls (0xA0 bytes; constructor 0x80055C60).
@@ -68,6 +114,7 @@ public:
     ~Unk80055C60();                                            // 0x80055D54
     int unk0;
     char unk4[0x9C];
+    void fn_80056FFC();                                        // 0x80056FFC
     void fn_80056598(int state);
     void fn_80056914(int a);
     void fn_8005653C(ERC* rc);
@@ -77,6 +124,8 @@ class EHouse;
 class Unk8007F234 {
 public:
     Unk8007F234(EHouse* house);                                // 0x8007F234
+    void fn_8007F278();                                        // 0x8007F278
+    void PostLoad();                                           // 0x8007FE38 (EIObjectMan::PostLoad in The Sims 2)
     ~Unk8007F234();                                            // 0x8007F2F4
     void fn_8007FAB8(ERLevel* level);
     void fn_8007FFE4(ERC* rc);                                 // 0x8007FFE4
@@ -85,6 +134,8 @@ public:
 void fn_8016C9A4(EInstance* object);
 void fn_801767FC(void* resource);                              // releases a resource
 void fn_80075ABC();
+class EHouse;
+void fn_80075B60(EHouse* house);                               // 0x80075B60
 void fn_8002A234(void* a, void* b);
 
 const char* GetHouseNameText(int index);                       // 0x80049ADC
@@ -110,6 +161,7 @@ public:
     void SetNextWallMode();                                    // 0x80049FFC (guess)
     void fn_8004A110();                                        // runs one step of the house
     void fn_8004A91C();
+    void fn_8004B10C();
     void fn_8004AE38();
     void fn_8004AFC0();
     void fn_8004B5AC();

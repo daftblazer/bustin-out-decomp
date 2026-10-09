@@ -54,7 +54,8 @@ public:
         unsigned short codes[8][6]; // 0x02 button sequences, zero-terminated
         unsigned short masks[8];    // 0x62 buttons used by each sequence
     } cheats;
-    char unk72[0x7C - 0x72];
+    char unk72[0x78 - 0x72];
+    float unk78;                  // level radius (at least 128)
     float unk7C;                  // world origin of tile (0, 0)
     float unk80;
     char unk84[0x90 - 0x84];

@@ -586,3 +586,7 @@ is byte-identical, yet cannot be linked from source:
 - A message built in a local byte array with a running index (`message[pos] = 1; pos++; ... *(int*)(message + pos) = a;
   pos += 4;`) in a buffer larger than needed (32 bytes) gives the original's `stbu`/`stbx`/`stwx` and its larger frame.
 
+- A zero store kept in `r0` and reloaded after a call (where `c ? 2 : 1` shares one zero in a saved register across the
+  call) means the value was set by an `if`/`else` with a member store in each arm (the `EHouse` constructor's wall state).
+- A tree walk with the node in a register but `begin()`/`end()` written to one shared stack slot goes through inline
+  helpers that return the node (`FirstRoom(map)`, `LastRoom(map)`); the temporaries written in the loop condition cost a `bool`.

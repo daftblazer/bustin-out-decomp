@@ -38,6 +38,7 @@
 #include "sims/EGlobal.h"
 #include "sims/ESimsCam.h"
 #include "engine/ResourceManagers.h"
+#include <map>
 
 // The level loader (third source file of the unit at 0x80044D84: 0x80049ADC to
 // 0x8004BCBC, build time 21:41:35). It sets up a lot: the level objects, the lights,
@@ -137,6 +138,74 @@ void EHouse::fn_8004A90C() {
 // 0x8004B104
 short fn_8004B104(int value) {
     return value;
+}
+
+// A room as the room table keeps it, and the table (lbl_8037D998).
+struct Unk80235FD0 {
+    char unk0[0x34];
+    int unk34;
+};
+typedef _STL::map<int, Unk80235FD0*> Unk8037D998Map;
+struct Unk8037D998Node : _STL::_Rb_tree_node_base {
+    int key;
+    Unk80235FD0* room;
+};
+extern Unk8037D998Map* lbl_8037D998;
+
+inline Unk8037D998Node* FirstRoom(Unk8037D998Map* rooms) {
+    return (Unk8037D998Node*)rooms->begin()._M_node;
+}
+inline Unk8037D998Node* LastRoom(Unk8037D998Map* rooms) {
+    return (Unk8037D998Node*)rooms->end()._M_node;
+}
+
+#define EMAX(a, b) ((a) > (b) ? (a) : (b))
+
+// 0x80049DE0
+void EHouse::BuildHouse() {
+    lbl_8037C198->vfn8();
+    Unk8017A638 bounds = unk1C->fn_8017A638();
+    Unk801ADFAC sphere;
+    bounds.fn_801ADFAC(&sphere);
+    unk10 = 1;
+    lbl_802E6700.unk78 = sphere.unkC;
+    lbl_802E6700.unk78 = EMAX(lbl_802E6700.unk78, 128.0f);
+    if (unk14) {
+        fn_8004ABB8();
+    }
+    if (unk4) {
+        unk4->fn_8007F278();
+        unk4->PostLoad();
+    }
+    unk8->fn_80056FFC();
+    if (unk0 == 0) {
+        Unk80163510* sun = new Unk80163510;
+        unk24 = sun;
+        sun->unk3C = 0;
+        sun->SetCallback(fn_80049DD8);
+        Unk802C9318* ambient = new Unk802C9318;
+        unk28 = ambient;
+        ambient->unk3C = 0;
+        ambient->SetCallback(fn_80049DD8);
+        unk110 = -1.0f;
+        fn_8004A91C();
+        int count = 0;
+        Unk8037D998Map* rooms = lbl_8037D998;
+        Unk8037D998Node* node = FirstRoom(rooms);
+        while (node != LastRoom(rooms)) {
+            Unk80235FD0* room = node->room;
+            if (room != 0 && room->unk34 != 0) {
+                count++;
+            }
+            node = (Unk8037D998Node*)_STL::_Rb_global<bool>::_M_increment(node);
+        }
+        unk30 = count;
+        unk1C->fn_8017B8C0(count);
+        fn_8004B10C();
+        fn_80075B60(this);
+        unk1C->fn_8017B7FC();
+    }
+    unk18 = 1;
 }
 
 // 0x80049FB4
