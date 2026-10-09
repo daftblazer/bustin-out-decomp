@@ -20,3 +20,20 @@
 8015D220 0x5C EController::PauseMotors_void
 8015D27C 0x48 EController::ResumeMotors_void
 8015D2C4 0x24 EController::ResetControllerData_bool
+
+# EMat4
+801B2888 0x30 EMat4::Mult4x4_EMat4_ref__EMat4_ref
+801B28B8 0x38 EMat4::PreScale_float
+801B28F0 0x98 EMat4::PreScale_EVec3_ref
+801B2988 0x48 EMat4::PreTranslate_EVec3_ref
+801B2AFC 0x58 EMat4::Id_void
+801B2B54 0x50 EMat4::Translate_EVec3_ref
+801B2BA4 0x4C EMat4::Scale_EVec3_ref
+801B3200 0xD4 EMat4::PostRotateY_float
+801B32D4 0xB4 EMat4::PreRotateZ_float
+801B3388 0xD4 EMat4::PostRotateZ_float
+801B345C 0x38 EMat4::PostTranslate_EVec3_ref
+801B3494 0xC8 EMat4::PostScale_EVec3_ref
+801B3638 0x1FC EMat4::LookTo_EVec3_ref__EVec3_ref__EVec3_ref
+801B3834 0xD4 EMat4::Projection_float__float__float__float
+801B3908 0xE4 EMat4::Ortho_float__float__float__float__float__float
