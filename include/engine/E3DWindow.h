@@ -31,6 +31,7 @@ public:
     float Top() const { return *(float*)&mWindowData[0x64]; }
     float Right() const { return *(float*)&mWindowData[0x68]; }
     float Bottom() const { return *(float*)&mWindowData[0x6C]; }
+    void SetBottom(float value) { *(float*)&mWindowData[0x6C] = value; }
     void* operator new(unsigned int size) { return fn_80169F1C(size, 16); }
     void operator delete(void* ptr) { fn_80169EE8(ptr); }
 

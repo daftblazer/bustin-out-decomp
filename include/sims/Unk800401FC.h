@@ -31,19 +31,21 @@ struct Unk800401FC {
     Unk8003B870String unk18;
     Unk8003B870String unk1C;
     int unk20;                        // number of lines
-    float unk24;
-    int unk28;
+    float unk24;                      // where the body starts, y
+    float unk28;                      // gap between lines
     int unk2C;
     int unk30;
-    EVec2 unk34;                      // size of the first button's text
-    char unk3C[0x4C - 0x3C];
+    EVec2 unk34;                      // sizes of the button texts
+    EVec2 unk3C;
+    EVec2 unk44;
     EVec2 unk4C;                      // size of the title
 };
 
 // How a dialog fades and grows (0x44 bytes).
 struct Unk8004024CRange {
     Unk8004024CRange(float lo, float hi) : unk0(lo), unk4(hi) { unk8 = unk0; }
-    void Clamp() {
+    void Add(float amount) {
+        unk8 += amount;
         float value;
         if (unk8 < unk0) {
             value = unk0;
@@ -54,11 +56,19 @@ struct Unk8004024CRange {
         }
         unk8 = value;
     }
-    void Set(float lo, float hi, float value) {
-        unk8 = value;
+    void Set(float lo, float hi, float current) {
+        unk8 = current;
         unk0 = lo;
         unk4 = hi;
-        Clamp();
+        float value;
+        if (unk8 < unk0) {
+            value = unk0;
+        } else if (unk8 > unk4) {
+            value = unk4;
+        } else {
+            value = unk8;
+        }
+        unk8 = value;
     }
     float unk0;
     float unk4;
@@ -71,6 +81,11 @@ struct Unk8004024C {
     }
     void* operator new(unsigned int size) { return fn_80169F1C(size, 16); }
     void operator delete(void* ptr) { fn_80169EE8(ptr); }
+    bool IsStill() const {
+        return unk20.unk0 == unk10.unk0 && unk20.unk4 == unk10.unk4 && unk20.unk8 == unk10.unk8 &&
+               unk20.unkC == unk10.unkC;
+    }
+    bool TimedOut() const { return unk40 >= unk3C; }
     ERectF unk0;
     ERectF unk10;                     // where it is going
     ERectF unk20;                     // where it is
@@ -92,8 +107,8 @@ public:
     virtual void vfn19(Unk8003B870String* text);                 // 0x80042170
     virtual void vfn20(struct Unk800421C0Sim* sim);              // 0x800421C0
     virtual void vfn21(int id);                                  // 0x80042218
-    virtual int vfn22(void* a, unsigned char* b, void* c);       // 0x800424F0
-    virtual int vfn23(void* a, const char* title);               // 0x80042360
+    virtual int vfn22(struct Unk800424F0Source* source, unsigned char* b, void* c);   // 0x800424F0
+    virtual int vfn23(Unk8003B870String* body, const char* title);   // 0x80042360
     virtual int vfn24(void* a, void* b, void* c, void* d);       // 0x80042358
     virtual void vfn25();                                        // 0x800405F4
 
@@ -103,7 +118,7 @@ public:
     void fn_80041CB0(ERC* rc);
     void fn_80041F74(ERC* rc);
     long long fn_80042228();
-    void fn_80043110(void* a, int b);
+    void fn_80043110(Unk8003B870String* body, int flag);
     void fn_800435C4(int flag);
     ERectF fn_80044174();
     float fn_800441C0();

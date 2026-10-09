@@ -41,6 +41,7 @@ public:
     void fn_80068838();
     int fn_80068D9C(void* object);
     int fn_800690B0(int);
+    void fn_80066614(struct ERC* rc);
 
     Unk800053D4Owner* GetUnk9C(int player) { return unk9C[player]; }
     void* GetUnk90() { return unk90; }
@@ -128,6 +129,11 @@ extern EGlobal lbl_802E6700;
 // Looks up a localized string by name; null when it does not exist.
 inline int GetText(const char* name) {
     Unk800669ACResult result = lbl_802E6700.fn_800667EC(name);
+    return result.ptr ? *result.ptr : 0;
+}
+
+// The text a look-up found, or null.
+inline int TextOf(Unk800669ACResult result) {
     return result.ptr ? *result.ptr : 0;
 }
 

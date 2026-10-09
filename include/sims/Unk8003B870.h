@@ -13,6 +13,10 @@ struct Unk8003B870String {
     Unk8003B870String();                             // 0x801C4E90
     Unk8003B870String(unsigned char character, int count);   // 0x801C5024
     Unk8003B870String(const unsigned short* text);   // 0x801C4FDC
+    Unk8003B870String(const Unk8003B870String& other, int start, int count);   // 0x801C4EB0
+    Unk8003B870String(const wchar_t* text);          // 0x801C60F0
+    void fn_801C54EC(const Unk8003B870String& other, int start, int count);   // append
+    int fn_801C6058();                               // non-zero when it has text
     ~Unk8003B870String();                            // 0x801C5074
     Unk8003B870String& operator=(const Unk8003B870String& other);   // 0x801C50B4
     Unk8003B870String& operator=(const unsigned short* text);       // 0x801C5148

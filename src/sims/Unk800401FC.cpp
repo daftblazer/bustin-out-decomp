@@ -19,9 +19,12 @@
 #include "engine/ResourceManagers.h"
 #include "engine/ERFont.h"
 #include "engine/EController.h"
+#include "sims/cas/CASWidgets.h"
+#include "sims/ESimsCam.h"
 
-// The dialog boxes (unit 0x800401FC). IN PROGRESS: 33 of the unit's 51 functions
-// match and more are written with notes. Not written yet, in address order:
+// The dialog boxes (unit 0x800401FC). Every function has source except a
+// two-instruction accessor (see the notes); the list below is what was written last
+// and has had no second pass:
 //   0x80040640 update (488 instructions)
 //   0x800411A8 body text and scroll arrows (402)
 //   0x800424F0 set-up from a dialog description (721)
@@ -30,9 +33,19 @@
 // Its .rodata is not complete either: "Missing String!!!" is a 16-bit string in the
 // original and the motive names at 0x80298CE0 are missing.
 
-struct Unk80181824 {
-    void fn_80181824(ERC* rc);
+// A sprite, as far as this file reads it: its texture and that texture's size.
+struct Unk80181824Image {
+    char unk0[0x10];
+    unsigned short unk10;             // width in pixels
+    unsigned short unk12;             // height in pixels
 };
+struct Unk80181824Texture {
+    char unk0[0x20];
+    Unk80181824Image* unk20;
+};
+inline Unk80181824Texture* SpriteTexture(Unk80181824* sprite) {
+    return *(Unk80181824Texture**)((char*)sprite + 0x24);
+}
 
 // The script viewer (lbl_802E6700.unk90).
 struct Unk80108290 {
@@ -57,7 +70,66 @@ struct Unk80043034Table {
     virtual void vfn4();
     virtual void vfn5();
     virtual Unk800669ACResult vfn6(int key, ...);
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19(int id, int, int);            // selects the string set
 };
+Unk80043034Table* fn_8023CDDC();
+void fn_8023CE04(Unk80043034Table* table);
+// Holds a string table for as long as it is in scope.
+struct Unk8023CDDC {
+    Unk8023CDDC() : table(0) {}
+    ~Unk8023CDDC() {
+        fn_8023CE04(table);
+        table = 0;
+    }
+    Unk80043034Table* table;
+};
+// What a dialog is made from (first argument of slot 22).
+struct Unk800424F0Source {
+    char unk0[4];
+    unsigned short unk4;
+    char unk6[0xC - 6];
+    void* unkC;
+};
+int fn_801C27C8(void* a);
+int fn_802186F4(int id);
+Unk8003B870String* fn_80218174(int id);
+Unk800669ACResult fn_80218044(int id, ...);
+int fn_80217F2C(int id);
+int fn_800D1E94(const unsigned short* text, const unsigned short* tag, const unsigned short* a, Unk8003B870String* out);
+void fn_800D2EFC(const unsigned short* text, Unk8003B870String* out);
+int fn_80106774(void* viewer, int, int, int, int);   // next UI event
+// The text-entry screen (declared as in sims/cas/CASTarget.h).
+class Unk800C6704 : public UnkTargetBase {
+public:
+    Unk800C6704(int, int, int, int, int, int, int, float, float, float, int, int, int, int, int, int, int, int,
+                int, int, int, int, int, int, int, int);
+    int fn_800CAEF0();                  // 0 while open, 1 accepted, 2 cancelled
+    Unk801BA678* fn_800C6FAC();         // the entered text
+    void fn_800C6F08(int text, int);
+    char unk48[0x178 - 0x48];
+};
+extern unsigned short lbl_802E5F9C[0x80];   // one line of body text being measured
+extern float lbl_8037B550;
+extern const float lbl_8037ED4C;
+extern const float lbl_8037ED50;
+extern const float lbl_8037ED54;
+extern EVec2 lbl_8037CB38;
+extern EVec2 lbl_8037CB40;
+void fn_80061A50();
+void fn_80061A7C();
+void fn_80061AA8();
 // What a sim's slot 167 returns: flags per choice.
 struct Unk80042228Record {
     char unk0[0x16];
@@ -67,30 +139,16 @@ extern Unk8003B870String lbl_8037D3B4;
 extern float lbl_8037B500;
 extern float lbl_8037B504;
 extern float lbl_8037B50C;
-extern EColorF lbl_802E6964;           // text colour
 extern EColorF lbl_802E6974;           // shadow colour
 extern EColorF lbl_802E6A34;           // text colour while its button is held
 
-// The display (lbl_8037C198): slot 8 is told when a dialog's texts go away.
-struct Unk8037C198Screen {
-    virtual void vfn1();
-    virtual void vfn2();
-    virtual void vfn3();
-    virtual void vfn4();
-    virtual void vfn5();
-    virtual void vfn6();
-    virtual void vfn7();
-    virtual void vfn8();
-    char unk4[0x14 - 0x4];
-    int unk14;                        // width in pixels
-    int unk18;                        // height in pixels
-};
-extern Unk8037C198Screen* lbl_8037C198;
+// The display is lbl_8037C198 (sims/ESimsCam.h): slot 8 is told when a dialog's
+// texts go away; its size in pixels is at 0x14 and 0x18.
 
 // Callbacks another unit installs while a dialog is up.
+extern void (*lbl_8037C0CC)();
 extern void (*lbl_8037C0D0)();
-extern void (*lbl_8037C0D4)();
-extern void (*lbl_8037C0D8)();
+extern void (*lbl_8037C0D4)();   // called when the body scrolls
 void fn_80061AD4();
 void fn_80061B00();
 void fn_80061B2C();
@@ -202,9 +260,9 @@ Unk80040274::~Unk80040274() {
         delete unk64;
     }
     unk64 = 0;
-    lbl_8037C0D4 = fn_80061B00;
-    lbl_8037C0D0 = fn_80061AD4;
-    lbl_8037C0D8 = fn_80061B2C;
+    lbl_8037C0D0 = fn_80061B00;
+    lbl_8037C0CC = fn_80061AD4;
+    lbl_8037C0D4 = fn_80061B2C;
 }
 
 // 0x80044CBC (emitted at the end: it is defined after the destructor that calls it)
@@ -233,6 +291,197 @@ inline void Unk800401FC::Clear() {
 void Unk80040274::vfn25() {
     if (lbl_802E6700.unkBC) {
         ((UnkTargetBase*)lbl_802E6700.unkBC)->vfn7(0, 0x1E);
+    }
+}
+
+// The controllers that may answer: the first player's and, with two players, the second's.
+inline EController* FirstPad() {
+    return lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(0));
+}
+inline EController* SecondPad() {
+    EController* pad = 0;
+    if (lbl_802E6700.fn_800655C4() && lbl_8037C11C->fn_8015E564(1)) {
+        pad = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(1));
+    }
+    return pad;
+}
+
+// Whether a button is held by whoever may answer: 0 the first player, 1 the second,
+// otherwise either.
+inline int HeldBy(int who, EController* first, EController* second, int button) {
+    int held = 0;
+    if (who != 0 && second != 0) {
+        if (who == 1) {
+            held = second->fn_8015DF98(button);
+        } else if (first->fn_8015DF98(button) || second->fn_8015DF98(button)) {
+            held = 1;
+        }
+    } else {
+        held = first->fn_8015DF98(button);
+    }
+    return held;
+}
+
+// 0x80040640
+// Per frame: fades the dialog in, reads the buttons and scrolls the body.
+// NON_MATCHING: first version, not yet compared in detail.
+void Unk80040274::vfn2() {
+    if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
+        return;
+    }
+    EController* first = FirstPad();
+    EController* second = SecondPad();
+    Unk8004024C* fade = unk4C;
+    float still;
+    if (fade->IsStill()) {
+        still = fade->unk40 + lbl_8037BFC8;
+    } else {
+        still = 0.0f;
+    }
+    fade->unk40 = still;
+    if (fade->unk40 < fade->unk3C) {
+        fade->unk30.Add(lbl_8037BFC8);
+    }
+    if (unk7C == 3) {
+        if (unk58) {
+            fn_80106774(lbl_802E6700.unk90, 0, 0, 0, 1);
+            unk58->vfn2();
+            switch (((Unk800C6704*)unk58)->fn_800CAEF0()) {
+            case 1: {
+                Unk801BA678 text(((Unk800C6704*)unk58)->fn_800C6FAC()->Get());
+                unk5C.fn_801BA860(text.Get());
+                if (unk58) {
+                    delete unk58;
+                }
+                unk58 = 0;
+                unk80 = 2;
+                unk54->unk0 = fn_80042228();
+                break;
+            }
+            case 2:
+                ((Unk800C6704*)unk58)->fn_800C6F08(GetText("default_text_baby"), 9);
+                break;
+            }
+        }
+        if (unk7C == 3) {
+            goto scroll;
+        }
+    }
+    if (unk80 != 1) {
+        unk80 = 1;
+    } else {
+        if (first->fn_8015E204(5) || (second && second->fn_8015E204(5))) {
+            lbl_8037D96C->fn_8006186C(0xCF99DB1E);
+            unk80 = 2;
+            goto answer;
+        }
+        if (unk80 == 2) {
+            return;
+        }
+        if ((unsigned int)(unk7C - 1) <= 1) {
+            if (first->fn_8015E204(5) || (second && second->fn_8015E204(5))) {
+                lbl_8037D96C->fn_8006186C(0xCF99DB1E);
+                unk80 = 2;
+                goto answer;
+            }
+            if (first->fn_8015E204(7) || (second && second->fn_8015E204(7))) {
+                lbl_8037D96C->fn_8006186C(0x867A1F00);
+                unk80 = 4;
+                goto answer;
+            }
+            if (unk7C == 2) {
+                if (first->fn_8015E024(0x10) || (second && second->fn_8015E024(0x10))) {
+                    lbl_8037D96C->fn_8006186C(0x048AE94F);
+                    unk80 = 3;
+                    goto answer;
+                }
+            }
+        }
+    }
+    if (unk58 == 0 && unk4C->TimedOut()) {
+        if (unk7C == 1) {
+            lbl_8037D96C->fn_8006186C(0x048AE94F);
+            unk80 = 3;
+        } else if (unk7C == 2) {
+            lbl_8037D96C->fn_8006186C(0x048AE94F);
+            unk80 = 4;
+        } else {
+            lbl_8037D96C->fn_8006186C(0xCF99DB1E);
+            unk80 = 2;
+        }
+    answer:
+        unk54->unk0 = fn_80042228();
+        return;
+    }
+scroll:
+    if (unk98 != 0) {
+        return;
+    }
+    if (unk7C == 3) {
+        return;
+    }
+    int up = HeldBy(unk70, first, second, 0x33);
+    float held;
+    if (up) {
+        if (unkB4 == 0.0f) {
+            unk9C = 1;
+            unkBC = 0.5f;
+            unkA4 = 0;
+        }
+        held = unkB4 + lbl_8037BFC8;
+    } else {
+        held = 0.0f;
+    }
+    unkB4 = held;
+    int down = HeldBy(unk70, first, second, 0x34);
+    if (down) {
+        if (unkB8 == 0.0f) {
+            unkA0 = 1;
+            unkC0 = 0.5f;
+            unkA8 = 0;
+        }
+        held = unkB8 + lbl_8037BFC8;
+    } else {
+        held = 0.0f;
+    }
+    unkB8 = held;
+    if (unkB4 > unkBC) {
+        int flip = unkA4 ^ 1;
+        unk9C = flip;
+        unkBC = unkBC + 0.025f;
+        unkA4 = flip;
+    }
+    if (unkB8 > unkC0) {
+        int flip = unkA8 ^ 1;
+        unkA0 = flip;
+        unkC0 = unkC0 + 0.025f;
+        unkA8 = flip;
+    }
+    if (unkA0) {
+        unkA0 = 0;
+        if (unk88 < unk50->unk20 - 5) {
+            if (lbl_8037C0D4) {
+                lbl_8037C0D4();
+            }
+            unkF0 = 1;
+            unk88++;
+        } else if (unkF0) {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+            unkF0 = 0;
+        }
+    }
+    if (unk9C) {
+        unk9C = 0;
+        if (unk88 > 0) {
+            if (lbl_8037C0D4) {
+                lbl_8037C0D4();
+            }
+            unkF0 = 1;
+            unk88--;
+        } else if (unkF0) {
+            lbl_8037D96C->fn_8006186C(0x3804219F);
+            unkF0 = 0;
+        }
     }
 }
 
@@ -316,16 +565,71 @@ void fn_800411A0() {
 void fn_800411A4() {
 }
 
-// The controllers that may answer: the first player's and, with two players, the second's.
-inline EController* FirstPad() {
-    return lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(0));
-}
-inline EController* SecondPad() {
-    EController* pad = 0;
-    if (lbl_802E6700.fn_800655C4() && lbl_8037C11C->fn_8015E564(1)) {
-        pad = lbl_8037C11C->fn_8015E5FC(lbl_8037C11C->fn_8015E614(1));
+// 0x800411A8
+// Draws the body text and, when it scrolls, the arrows above and below it.
+// NON_MATCHING: first version, not yet compared in detail.
+void Unk80040274::fn_800411A8(ERC* rc, int flag) {
+    if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
+        return;
     }
-    return pad;
+    lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
+    lbl_802E6700.unkEC->Select(rc);
+    EController* first = FirstPad();
+    EController* second = SecondPad();
+    float spacing = lbl_8037B550 * lbl_802E6700.unkEC->GetLineSpacing(0);
+    bool plain = false;
+    if (flag == 0 || unk98 != 0) {
+        plain = true;
+    }
+    E3DWindow* window = unk64;
+    if (!plain) {
+        if (unk88 > 0) {
+            Unk80181824Image* image = SpriteTexture(lbl_8037B520)->unk20;
+            float height = (float)image->unk12 / (float)lbl_8037C198->unk18 - 0.012f;
+            float width = (float)image->unk10 / (float)lbl_8037C198->unk14;
+            float gap = 3.0f / (float)lbl_8037C198->unk18;
+            float x = window->Left() + (window->Right() - window->Left() - width) * 0.5f;
+            float y = window->Top() - height - gap;
+            if (first->fn_8015DF98(0x33) || (second && second->fn_8015DF98(0x33))) {
+                lbl_8037B528->fn_80181824(rc);
+                rc->vfn49(EVec2(x, y - 0.015f), EVec2(1.0f), EColorF(1.0f), 0.0f);
+            } else {
+                lbl_8037B520->fn_80181824(rc);
+                rc->vfn49(EVec2(x, y - 0.015f), EVec2(1.0f), EColorF(1.0f), 0.0f);
+            }
+        }
+        if (unk88 < unk50->unk20 - 5) {
+            Unk80181824Image* image = SpriteTexture(lbl_8037B520)->unk20;
+            float width = (float)image->unk10 / (float)lbl_8037C198->unk14;
+            float gap = 3.0f / (float)lbl_8037C198->unk18;
+            float y = window->Bottom() + gap;
+            float x = window->Left() + (window->Right() - window->Left() - width) * 0.5f;
+            if (first->fn_8015DF98(0x34) || (second && second->fn_8015DF98(0x34))) {
+                lbl_8037B52C->fn_80181824(rc);
+                rc->vfn49(EVec2(x, y), EVec2(1.0f), EColorF(1.0f), 0.0f);
+            } else {
+                lbl_8037B524->fn_80181824(rc);
+                rc->vfn49(EVec2(x, y), EVec2(1.0f), EColorF(1.0f), 0.0f);
+            }
+        }
+    }
+    unk64->fn_8018B044(rc);
+    lbl_802E6700.unkEC->Select(rc);
+    EVec2 extent(0.0f);
+    float middle = unk64->Left() + (unk64->Right() - unk64->Left()) * 0.5f;
+    float y = unk50->unk24;
+    for (Unk80026864Node* node = unk50->unk0.head; node != 0; node = node->next) {
+        Unk8003B870String* line = (Unk8003B870String*)node->item;
+        if (plain || unk8C >= unk88) {
+            lbl_802E6700.unkEC->unk64 = lbl_802E6964;
+            lbl_802E6700.unkEC->DrawDs(rc, line->fn_801C5B24(), &EVec2(middle, y), 2, 0, &extent, 2.0f, 1.0f);
+            y = extent.y + spacing;
+        } else {
+            unk8C++;
+        }
+    }
+    unk8C = 0;
+    lbl_802E6700.fn_80066614(rc);
 }
 
 // 0x800417F0
@@ -516,7 +820,7 @@ int Unk80040274::vfn24(void* a, void* b, void* c, void* d) {
 // NON_MATCHING: 101 instructions against 100. The frame is 8 bytes larger and the
 // address of the size temporary is kept in a saved register; the original passes
 // sp+0x10 directly and copies x before y.
-int Unk80040274::vfn23(void* a, const char* title) {
+int Unk80040274::vfn23(Unk8003B870String* body, const char* title) {
     Unk8003B870String text((const unsigned short*)GetTextB(title));
     unk70 = 2;
     unk7C = 0;
@@ -530,7 +834,161 @@ int Unk80040274::vfn23(void* a, const char* title) {
     texts->unk34 = size;
     unk50->unk18.fn_801C5704(0, -1);
     unk50->unk14.fn_801C5704(0, -1);
-    fn_80043110(a, 0);
+    fn_80043110(body, 0);
+    return 1;
+}
+
+void fn_80043034(Unk80043034Table* table, Unk8003B870String* out, int key, const unsigned short* fallback, int);
+
+inline EVec2 TextSize(Unk8003B870String& text) {
+    return lbl_802E6700.unkEC->DoGetStringSize(text.fn_801C5B24(), true, 0);
+}
+
+// 0x800424F0
+// Sets a dialog up from its description: who may answer, the kind, the title, the
+// body and the button texts. Kind 3 shows the text-entry screen instead.
+// NON_MATCHING: first version, not yet compared in detail.
+int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
+    int who = b[5] & 0xF;
+    if (who == 1) {
+        unk70 = 0;
+    } else if (who == 2) {
+        unk70 = 1;
+    } else {
+        unk70 = 2;
+    }
+    Unk8003B870String title = fn_802186F4(unk6C) ? Unk8003B870String(*fn_80218174(unk6C), 0, -1)
+                                                  : Unk8003B870String((const unsigned short*)TextOf(fn_80218044(unk6C)));
+    unk50->unk10 = title;
+    unk7C = b[5] >> 4;
+    unk78 = (b[7] >> 4) & 7;
+    if (source) {
+        unk84 = source->unk4;
+    } else {
+        unk84 = 0;
+    }
+    Unk8023CDDC strings;
+    fn_8023CE04(strings.table);
+    strings.table = 0;
+    strings.table = fn_8023CDDC();
+    if (source) {
+        unk84 = source->unk4;
+    } else {
+        unk84 = 0;
+    }
+    int set;
+    if (source) {
+        set = fn_801C27C8(source->unkC);
+    } else {
+        set = *(int*)unk6C;
+        if (set == 0) {
+            set = fn_80217F2C(unk6C);
+        }
+    }
+    strings.table->vfn19(set, 0x12D, 0);
+    Unk8003B870String body;
+    if (unk7C != 3) {
+        fn_80043034(strings.table, &unk50->unk10, b[6], unk50->unk10.fn_801C5B24(), 1);
+    } else {
+        fn_80043034(strings.table, &unk50->unk10, b[2], unk50->unk10.fn_801C5B24(), 1);
+    }
+    lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
+    if (unk7C != 3) {
+        fn_80043034(strings.table, &body, b[2], 0, 1);
+        unk50->unkC = (const unsigned short*)TextOf(strings.table->vfn6(b[2]));
+    }
+    switch (unk7C) {
+    case 2:
+        fn_80043034(strings.table, &unk50->unk14, b[0], (const unsigned short*)GetTextB("cancel"), 1);
+        unk50->unk44 = TextSize(unk50->unk14);
+        fn_80043034(strings.table, &unk50->unk18, b[4], (const unsigned short*)GetTextB("no"), 1);
+        unk50->unk3C = TextSize(unk50->unk18);
+        fn_80043034(strings.table, &unk50->unk1C, b[3], (const unsigned short*)GetTextB("yes"), 1);
+        unk50->unk34 = TextSize(unk50->unk1C);
+        break;
+    case 1:
+        fn_80043034(strings.table, &unk50->unk18, b[4], (const unsigned short*)GetTextB("no"), 1);
+        unk50->unk3C = TextSize(unk50->unk18);
+        fn_80043034(strings.table, &unk50->unk1C, b[3], (const unsigned short*)GetTextB("yes"), 1);
+        unk50->unk34 = TextSize(unk50->unk1C);
+        unk50->unk14.fn_801C5704(0, -1);
+        break;
+    case 0:
+    case 3:
+    case 4:
+    case 10:
+        fn_80043034(strings.table, &unk50->unk1C, b[3], (const unsigned short*)GetTextB("ok"), 1);
+        unk50->unk34 = TextSize(unk50->unk1C);
+        unk50->unk18.fn_801C5704(0, -1);
+        unk50->unk14.fn_801C5704(0, -1);
+        break;
+    }
+    if (unk68) {
+        int state = 0;
+        unk68->vfn44(&unk50->unk1C, source, 0, &state, c);
+        unk68->vfn44(&unk50->unk10, source, 0, &state, c);
+        if (unk50->unk18.fn_801C6058()) {
+            unk68->vfn44(&unk50->unk18, source, 0, &state, c);
+        }
+        if (unk50->unk18.fn_801C6058()) {
+            unk68->vfn44(&unk50->unk14, source, 0, &state, c);
+        }
+        unk94 = 0;
+        unk90 = 8;
+        // A motive named in the body picks the icon and is taken out of the text.
+        for (int i = 0; i <= 7; i++) {
+            Unk8003B870String tag;
+            switch (i) {
+            case 0:
+                tag.fn_801C54EC(Unk8003B870String(L"Hunger"), 0, -1);
+                break;
+            case 1:
+                tag.fn_801C54EC(Unk8003B870String(L"Comfort"), 0, -1);
+                break;
+            case 2:
+                tag.fn_801C54EC(Unk8003B870String(L"Hygiene"), 0, -1);
+                break;
+            case 3:
+                tag.fn_801C54EC(Unk8003B870String(L"Bladder"), 0, -1);
+                break;
+            case 4:
+                tag.fn_801C54EC(Unk8003B870String(L"Energy"), 0, -1);
+                break;
+            case 5:
+                tag.fn_801C54EC(Unk8003B870String(L"Fun"), 0, -1);
+                break;
+            case 6:
+                tag.fn_801C54EC(Unk8003B870String(L"Room"), 0, -1);
+                break;
+            case 7:
+                tag.fn_801C54EC(Unk8003B870String(L"Social"), 0, -1);
+                break;
+            }
+            Unk8003B870String separator;
+            separator.fn_801C54EC(Unk8003B870String(L""), 0, -1);
+            Unk8003B870String rest;
+            unk94 = fn_800D1E94(body.fn_801C5B24(), tag.fn_801C5B24(), separator.fn_801C5B24(), &rest);
+            if (unk94 != 0) {
+                body = rest;
+                unk90 = i;
+                break;
+            }
+        }
+        fn_800D2EFC(body.fn_801C5B24(), &body);
+        unk68->vfn44(&body, source, 0, &state, c);
+    }
+    if (unk7C != 3) {
+        fn_80043110(&body, 0);
+    } else {
+        Unk801BA678 wide(unk50->unk10.fn_801C5B24());
+        unk58 = new Unk800C6704(GetText("default_text_baby"), 9, 0, (int)wide.Get(), 0, 0, 0, 0.5f, 100.0f, 100.0f,
+                                0x26, 0, 0x10, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0);
+        unk5C.fn_801BA958(0x40, 0);
+        unk80 = 1;
+        lbl_8037C0D0 = fn_80061A7C;
+        lbl_8037C0CC = fn_80061A50;
+        lbl_8037C0D4 = fn_80061AA8;
+    }
     return 1;
 }
 
@@ -539,7 +997,7 @@ int Unk80040274::vfn23(void* a, const char* title) {
 // NON_MATCHING: 42 instructions against 46. The original tests the looked-up text
 // through two separate null checks (cr7 kept across them) and loads the virtual's
 // address before its this-offset.
-void fn_80043034(Unk80043034Table* table, Unk8003B870String* out, int key, const unsigned short* fallback) {
+void fn_80043034(Unk80043034Table* table, Unk8003B870String* out, int key, const unsigned short* fallback, int) {
     Unk800669ACResult result = table->vfn6(key);
     if ((result.ptr ? *result.ptr : 0) != 0 && fn_801BA640((const unsigned short*)(result.ptr ? *result.ptr : 0)) != 0) {
         out->fn_801C55CC((const unsigned short*)(result.ptr ? *result.ptr : 0));
@@ -554,6 +1012,86 @@ bool fn_800430EC(int character) {
         return true;
     }
     return (unsigned int)(character - 9) <= 4;
+}
+
+// 0x80043110
+// Places the dialog's window and breaks the body into lines that fit it.
+// NON_MATCHING: first version, not yet compared in detail.
+void Unk80040274::fn_80043110(Unk8003B870String* body, int flag) {
+    unk98 = 0;
+    EVec2 from(lbl_8037CAC0);
+    EVec2 to(from + lbl_8037CAD8);
+    if (flag != 0) {
+        float bottom = 0.32f - lbl_8037ED50;
+        if (unk70 == 0) {
+            unk64->fn_8018B584(ERectF(0.28f, lbl_8037ED50, lbl_8037ED54 - 0.025f, bottom));
+        } else if (unk70 == 1) {
+            unk64->fn_8018B584(ERectF(lbl_8037ED4C + 0.05f, 0.77f, 0.725f, bottom + 0.77f));
+        } else {
+            unk64->fn_8018B584(ERectF(from.x, from.y, to.x, to.y));
+        }
+    } else {
+        unk64->fn_8018B584(ERectF(from.x, from.y, to.x, to.y));
+    }
+    unk50->Clear();
+    unk50->unk20 = 0;
+    float width = unk64->Right() - unk64->Left() - 0.1f;
+    lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
+    const unsigned short* in = body->fn_801C5B24();
+    while (*in != 0) {
+        fn_80111C78(lbl_802E5F9C, 0, 0x100);
+        int length = 0;
+        unsigned short* out = lbl_802E5F9C;
+        bool done = false;
+        int lastSpace = 0;
+        while (*in != 0 && !done) {
+            *out = *in;
+            if (*in == '\n') {
+                in++;
+                done = true;
+                continue;
+            }
+            if (fn_800430EC(*in)) {
+                lastSpace = length;
+            }
+            EVec2 size = lbl_802E6700.unkEC->DoGetStringSize(lbl_802E5F9C, true, 0);
+            if (size.x > width) {
+                done = true;
+                int back = length - lastSpace;
+                if (back != 0) {
+                    if (length == back) {
+                        back = 0;
+                        in--;
+                    }
+                    in -= back;
+                    length -= back;
+                    body->fn_801C5B24();
+                    lbl_802E5F9C[length] = 0;
+                } else {
+                    lbl_802E5F9C[length] = back;
+                }
+                length--;
+            }
+            out++;
+            in++;
+            length++;
+        }
+        if (done || lbl_802E5F9C[0] != 0) {
+            lbl_802E5F9C[length] = 0;
+            Unk8003B870String line(lbl_802E5F9C);
+            unk50->unk0.fn_801B4600(new Unk8003B870String(line, 0, -1));
+            unk50->unk20++;
+        }
+    }
+    EVec2 size = lbl_802E6700.unkEC->DoGetStringSize("A!Wyj^?}|", false, 0);
+    float height = size.y;
+    unk50->unk28 = lbl_8037B550 * lbl_802E6700.unkEC->GetLineSpacing(0);
+    float needed = unk50->unk28 * (float)(unk50->unk20 - 1) + height * (float)unk50->unk20;
+    if (unk64->Bottom() - unk64->Top() > needed) {
+        unk64->SetBottom(unk64->Top() + needed + 0.005f);
+        unk98 = 1;
+    }
+    fn_800435C4(flag);
 }
 
 // 0x800435C4
@@ -682,7 +1220,7 @@ int Unk80043820::vfn2(void* a, unsigned char* b, Unk800421C0Sim* sim, int id, vo
         dialog->vfn21(id);
     }
     dialog->unk60 = b;
-    dialog->vfn22(a, b, c);
+    dialog->vfn22((Unk800424F0Source*)a, b, c);
     dialog->unk54 = this;
     if (unk14 == 0) {
         unk14 = dialog;
@@ -701,7 +1239,7 @@ int Unk80043820::vfn3(void* a, void* b, Unk800421C0Sim* sim) {
     if (sim) {
         dialog->vfn20(sim);
     }
-    dialog->vfn23(a, (const char*)b);
+    dialog->vfn23((Unk8003B870String*)a, (const char*)b);
     dialog->unk54 = this;
     if (unk14 == 0) {
         unk14 = dialog;
@@ -928,4 +1466,60 @@ void Unk80040274::fn_800448F4() {
         fn_80106164(lbl_802E6700.unk90, "showDialog", 0, 0, 0);
         unkB0 = 1;
     }
+}
+
+// 0x80044974
+// Draws the motive icon under the body.
+// NON_MATCHING: first version, not yet compared in detail.
+void Unk80040274::fn_80044974(ERC* rc) {
+    EVec2 position(0.45f, unk64->Bottom() + 0.02f);
+    Unk80181824* icon;
+    Unk80181824Texture* texture;
+    switch (unk90) {
+    case 0:
+        icon = lbl_8037B530;
+        texture = SpriteTexture(icon);
+        icon->fn_80181824(rc);
+        break;
+    case 1:
+        icon = lbl_8037B534;
+        texture = SpriteTexture(icon);
+        icon->fn_80181824(rc);
+        break;
+    case 2:
+        icon = lbl_8037B538;
+        texture = SpriteTexture(icon);
+        icon->fn_80181824(rc);
+        break;
+    case 3:
+        icon = lbl_8037B53C;
+        texture = SpriteTexture(icon);
+        icon->fn_80181824(rc);
+        break;
+    case 4:
+        icon = lbl_8037B540;
+        texture = SpriteTexture(icon);
+        icon->fn_80181824(rc);
+        break;
+    case 5:
+        icon = lbl_8037B544;
+        texture = SpriteTexture(icon);
+        icon->fn_80181824(rc);
+        break;
+    case 6:
+        icon = lbl_8037B548;
+        texture = SpriteTexture(icon);
+        icon->fn_80181824(rc);
+        break;
+    case 7:
+        icon = lbl_8037B54C;
+        texture = SpriteTexture(icon);
+        icon->fn_80181824(rc);
+        break;
+    }
+    Unk80181824Image* image = texture->unk20;
+    float height = (float)image->unk12 / (float)lbl_8037C198->unk18;
+    float width = (float)image->unk10 / (float)lbl_8037C198->unk14;
+    rc->vfn47(EVec2(position.x, position.y + 0.01f), EVec2(position.x + width, position.y + height), lbl_8037CB38,
+              lbl_8037CB40, EColorF(lbl_802E6964), 0.0f);
 }
