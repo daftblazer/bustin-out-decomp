@@ -39,12 +39,121 @@
 #include "sims/ESimsCam.h"
 #include "engine/ResourceManagers.h"
 #include <map>
+#include "sims/Unk8037D944.h"
 
 // The level loader (third source file of the unit at 0x80044D84: 0x80049ADC to
 // 0x8004BCBC, build time 21:41:35). It sets up a lot: the level objects, the lights,
 // the particle effects and the house to load. IN PROGRESS: only the small functions are
 // written. The names are unknown (The Sims 2's ERLevel is the engine's level class, not
 // this one); the object is called after its constructor.
+// A room as the room table keeps it, and the table (lbl_8037D998).
+struct Unk80235FD0 {
+    unsigned short unk0;
+    char unk2[0x34 - 2];
+    int unk34;
+    EVec3 unk38;
+    int unk44;
+};
+typedef _STL::map<int, Unk80235FD0*> Unk8037D998Map;
+struct Unk8037D998Node : _STL::_Rb_tree_node_base {
+    int key;
+    Unk80235FD0* room;
+};
+extern Unk8037D998Map* lbl_8037D998;
+
+inline Unk8037D998Node* FirstRoom(Unk8037D998Map* rooms) {
+    return (Unk8037D998Node*)rooms->begin()._M_node;
+}
+inline Unk8037D998Node* LastRoom(Unk8037D998Map* rooms) {
+    return (Unk8037D998Node*)rooms->end()._M_node;
+}
+
+#define EMAX(a, b) ((a) > (b) ? (a) : (b))
+
+struct HouseRoomTable {
+    int unk0;
+    _STL::_Rb_tree_node_base* header;
+};
+inline bool NotAtEnd(const _STL::_Rb_tree_node_base* node, const _STL::_Rb_tree_node_base* end) {
+    return !(node == end);
+}
+
+inline bool Differs(const EVec3& a, const EVec3& b) {
+    return a.x != b.x || a.y != b.y || a.z != b.z;
+}
+
+// The two lights as the house uses them: a room light (0xB4 bytes) and the sun (0xC0 bytes),
+// which has the same fields up to 0xA4.
+struct HouseRoomLight : public EILight {
+    char unk40[0x88 - 0x40];
+    int unk88;
+    char unk8C[0x94 - 0x8C];
+    float unk94;
+    EVec3 unk98;
+    bool PositionDiffers(int id);
+    void SetPosition(const EVec3& target);
+    void SetBrightness(float value);
+};
+struct HouseSun : public HouseRoomLight {
+    EVec3 unkA4;
+    int unkB0;
+    EVec3 unkB4;
+    void SetAim(const EVec3& v);
+    void SetDirection(const EVec3& v) {
+        unk88 = Differs(v, unkB4);
+        unkB4 = v;
+    }
+};
+struct Unk80340D5CEntry {
+    float a;
+    float b;
+};
+extern EVec3 lbl_80340C60[17];
+struct HouseValue {
+    int value;
+    char pad[12];
+};
+extern HouseValue lbl_80341454;
+extern float lbl_8037BFC8;
+extern Unk80340D5CEntry lbl_80340D5C[];
+void* fn_80234390(void* table, unsigned short key);
+float fn_80236270(void* room);
+
+inline void HouseSun::SetAim(const EVec3& v) {
+    if (unkB0 != 0) {
+        if (Differs(v, unkA4)) {
+            unk88 = 1;
+        }
+    }
+    unkA4 = v;
+}
+
+inline bool HouseRoomLight::PositionDiffers(int id) {
+    return Differs(unk98, lbl_80340C60[id]);
+}
+inline void HouseRoomLight::SetPosition(const EVec3& target) {
+    EVec3 diff = unk98 - target;
+    float d = diff.LengthSquared();
+    if (d > 0.0f) {
+        if (d > 0.25f) {
+            unk88 = 1;
+        }
+        unk98 = target;
+    }
+}
+
+inline void HouseRoomLight::SetBrightness(float value) {
+    float diff = unk94 - value;
+    float d = diff * diff;
+    if (d > 0.0f) {
+        if (d > 0.1f) {
+            unk88 = 1;
+        }
+        unk94 = value;
+    }
+}
+
+void fn_8004A1F4(HouseSun* sun, EILight* ambient, int hour, int minute, int second, int flag, float* out);
 
 // 0x80049ADC
 // The name of one of the sixteen houses (1 to 16; anything else gives the nearest).
@@ -129,37 +238,6 @@ void EHouse::Init() {
 int fn_80049DD8() {
     return 0;
 }
-
-// 0x8004A90C
-void EHouse::fn_8004A90C() {
-    unk110 = 0.0f;
-}
-
-// 0x8004B104
-short fn_8004B104(int value) {
-    return value;
-}
-
-// A room as the room table keeps it, and the table (lbl_8037D998).
-struct Unk80235FD0 {
-    char unk0[0x34];
-    int unk34;
-};
-typedef _STL::map<int, Unk80235FD0*> Unk8037D998Map;
-struct Unk8037D998Node : _STL::_Rb_tree_node_base {
-    int key;
-    Unk80235FD0* room;
-};
-extern Unk8037D998Map* lbl_8037D998;
-
-inline Unk8037D998Node* FirstRoom(Unk8037D998Map* rooms) {
-    return (Unk8037D998Node*)rooms->begin()._M_node;
-}
-inline Unk8037D998Node* LastRoom(Unk8037D998Map* rooms) {
-    return (Unk8037D998Node*)rooms->end()._M_node;
-}
-
-#define EMAX(a, b) ((a) > (b) ? (a) : (b))
 
 // 0x80049DE0
 void EHouse::BuildHouse() {
@@ -253,64 +331,6 @@ void EHouse::fn_8004A0B4(ERC* rc) {
     }
 }
 
-// 0x8004ACBC
-// Takes the walls away (the Sims 2's DestroyWalls has the same size).
-void EHouse::DestroyWalls() {
-    if (unk8) {
-        delete unk8;
-        unk8 = 0;
-    }
-    unk1C->fn_8017BE44();
-}
-
-// 0x8004B578
-void EHouse::fn_8004B578(int a, int b) {
-    unk4C.fn_801B5704(b, a, 0);
-}
-
-// 0x8004B634
-void EHouse::fn_8004B634() {
-    Unk801B5358Node* next;
-    for (Unk801B5358Node* node = unk4C.unk0; node != 0; node = next) {
-        EInstance* object = node->unk18;
-        next = node->unk10;
-        fn_8016C9A4(object);
-    }
-}
-
-// 0x8004B678
-struct Unk8004B678Arg {
-    char unk0[0x18];
-    void* unk18;
-};
-void fn_8004B678(void* a, Unk8004B678Arg* b) {
-    fn_8002A234(b->unk18, a);
-}
-
-// 0x8004B740
-void EHouse::fn_8004B740(Unk8002EF48* descriptor) {
-    if (unk1C != 0 && descriptor != 0) {
-        descriptor->unk24 = (int)&unk58;
-        unk1C->fn_8017BF6C(descriptor);
-    }
-}
-
-// 0x8004B6A4
-// Describes an object to the level: where it is, what it is and who draws it.
-void EHouse::fn_8004B6A4(Unk80026864* object) {
-    if (unk1C != 0 && object != 0) {
-        unk104 = *object->fn_8002D2C8();
-        unkD0.unk18 = (int)object;
-        unkD0.unk24 = (int)&unk58;
-        unkD0.unkC = 0;
-        unkD0.unk10 = 0;
-        unkD0.unk1C = 0;
-        unkD0.unk8 = (int)&unk104;
-        unkD0.unk14 = (int)fn_8004B678;
-        unk1C->fn_8017BF6C(&unkD0);
-    }
-}
-
 // 0x8004A110
 void EHouse::fn_8004A110() {
     unkC = 1;
@@ -352,50 +372,43 @@ int fn_8004A194(int time) {
     return 9;
 }
 
-// 0x8004B4A0
-// Takes the lights off the level and deletes them (a guess at the Sims 2's CleanUpRoomLights,
-// the same place in its method order).
-void EHouse::CleanUpRoomLights() {
-    if (unk2C) {
-        for (int i = 1; i < unk30; i++) {
-            unk1C->RemoveLight(unk2C[i]);
-            if (unk2C[i]) {
-                delete unk2C[i];
-            }
-        }
-        if (unk2C) {
-            fn_801B8AA4(unk2C);
-        }
-        unk2C = 0;
-    }
-    if (unk24) {
-        unk1C->RemoveLight(unk24);
-    }
-    if (unk28) {
-        unk1C->RemoveLight(unk28);
-    }
+// 0x8004A90C
+void EHouse::fn_8004A90C() {
+    unk110 = 0.0f;
 }
 
-// 0x8004B5AC
-// Deletes everything on the object list and empties it.
-// NON_MATCHING: same 34 instructions; the original keeps the entry in r30 and the resource in
-// r31, here they are the other way round (three declaration orders tried).
-void EHouse::fn_8004B5AC() {
-    Unk801B5358Node* node = unk4C.unk0;
-    if (node != 0) {
-        do {
-            EInstance* object = node->unk18;
-            Unk801B5358Node* next = node->unk10;
-            void* resource = node->unk1C;
-            if (object) {
-                delete object;
+// 0x8004A91C
+// NON_MATCHING: 167 instructions, 2 differ (0x8004AB58): the sun's brightness update computes
+// `(unk94 - 1.0f)` into f0 where the original keeps it in f12 (0.0 is loaded before the
+// subtraction there). Inline method, hand-written block and a separate `diff` local all give f0.
+void EHouse::fn_8004A91C() {
+    if (unk24) {
+        int hour = lbl_8037D944->vfn6(0);
+        int minute = lbl_8037D944->vfn6(5);
+        int second = lbl_8037D944->vfn6(6);
+        float result;
+        fn_8004A1F4((HouseSun*)unk24, unk28, hour, minute, second, unk10, &result);
+        if (unk110 >= 0.0f) {
+            int step = (int)(unk110 * 15.0f);
+            if (step > 7) {
+                unk110 = -1.0f;
+            } else {
+                unk110 = unk110 + lbl_8037BFC8;
+                if (step & 1) {
+                    EVec3 direction;
+                    direction.Set(2.0f, 2.0f, -1.0f);
+                    direction.Normalize();
+                    HouseSun* sun = (HouseSun*)unk24;
+                    sun->SetDirection(direction);
+                    EVec3 position(4.0f);
+                    ((HouseSun*)unk24)->SetPosition(position);
+                    ((HouseSun*)unk24)->SetBrightness(1.0f);
+                    result = 0.4f;
+                }
             }
-            if (resource) {
-                fn_801767FC(resource);
-            }
-            unk4C.fn_801B5B08(node);
-            node = next;
-        } while (node != 0);
+        }
+        unk1C->unk20 = result;
+        unk10 = 0;
     }
 }
 
@@ -430,4 +443,236 @@ void EHouse::fn_8004ABB8() {
     }
     unk18 = zero;
     unk10 = 1;
+}
+
+// 0x8004ACBC
+// Takes the walls away (the Sims 2's DestroyWalls has the same size).
+void EHouse::DestroyWalls() {
+    if (unk8) {
+        delete unk8;
+        unk8 = 0;
+    }
+    unk1C->fn_8017BE44();
+}
+
+// 0x8004AD08
+void EHouse::fn_8004AD08() {
+    if (unk1C != 0 && unk18 != 0) {
+        int count = 0;
+        lbl_8037C198->vfn8();
+        CleanUpRoomLights();
+        DestroyWalls();
+        fn_80075ABC();
+        Unk8037D998Map* rooms = lbl_8037D998;
+        Unk8037D998Node* node = FirstRoom(rooms);
+        while (node != LastRoom(rooms)) {
+            Unk80235FD0* room = node->room;
+            if (room != 0 && room->unk34 != 0) {
+                count++;
+            }
+            node = (Unk8037D998Node*)_STL::_Rb_global<bool>::_M_increment(node);
+        }
+        unk30 = count;
+        unk8 = new Unk80055C60;
+        unk8->fn_80056FFC();
+        if (unk0 == 0) {
+            unk1C->fn_8017BE44();
+            unk1C->fn_8017B5B0(unk30);
+            fn_8004B10C();
+            fn_80075B60(this);
+            unk1C->fn_8017B7FC();
+        }
+        if (unk4) {
+            unk4->fn_8007FFE8(0);
+        }
+    }
+}
+
+// 0x8004AE38
+void EHouse::fn_8004AE38() {
+    for (int i = 1; i < unk30; i++) {
+        HouseRoomLight* light = (HouseRoomLight*)unk2C[i];
+        if (light != 0) {
+            float value = fn_8004B300(i);
+            if (value != light->unk94) {
+                float d = (light->unk94 - value) * (light->unk94 - value);
+                if (d > 0.0f) {
+                    if (d > 0.1f) {
+                        light->unk88 = 1;
+                    }
+                    light->unk94 = value;
+                }
+            }
+            if (light->PositionDiffers(unk3C)) {
+                light->SetPosition(lbl_80340C60[unk3C]);
+            }
+        }
+    }
+}
+
+// 0x8004AFC0
+void EHouse::fn_8004AFC0() {
+    HouseRoomTable* table = (HouseRoomTable*)lbl_8037D998;
+    Unk8037D998Node* node = (Unk8037D998Node*)table->header->_M_left;
+    while (NotAtEnd(node, table->header)) {
+        Unk80235FD0* room = node->room;
+        if (room != 0 && room->unk34 != 0 && room->unk44 != 0) {
+            if (room->unk0 == 0) {
+                ((HouseSun*)unk24)->SetAim(room->unk38);
+            }
+            EVec3 position(room->unk38);
+            unk1C->fn_8017BCF0(room->unk0, position);
+            room->unk44 = 0;
+        }
+        node = (Unk8037D998Node*)_STL::_Rb_global<bool>::_M_increment(node);
+    }
+}
+
+// 0x8004B104
+short fn_8004B104(int value) {
+    return value;
+}
+
+// 0x8004B10C
+// Makes the room lights: one per room that has walls.
+void EHouse::fn_8004B10C() {
+    lbl_80341454.value = unk3C;
+    CleanUpRoomLights();
+    unk10 = 1;
+    unk110 = -1.0f;
+    unk2C = new EILight*[unk30];
+    unk2C[0] = 0;
+    for (int i = 1; i < unk30; i++) {
+        Unk802C9318* light = new Unk802C9318;
+        HouseRoomLight* room = (HouseRoomLight*)light;
+        room->SetBrightness(fn_8004B300(i));
+        room->SetPosition(lbl_80340C60[unk3C]);
+        light->vfn9();
+        unk2C[i] = light;
+        light->unk3C = i;
+        light->SetCallback((int (*)())fn_8004B104);
+        unk1C->fn_80179E68(light);
+    }
+    unk1C->fn_80179E68(unk24);
+    unk1C->fn_80179E68(unk28);
+    unk1C->fn_8017BE44();
+    unk1C->fn_8017BE20();
+}
+
+// 0x8004B300
+float EHouse::fn_8004B300(int room) {
+    void* object = fn_80234390(lbl_8037D998, (unsigned short)room);
+    int hour = lbl_8037D944->vfn6(0);
+    int minute = lbl_8037D944->vfn6(5);
+    int second = lbl_8037D944->vfn6(6);
+    float a = lbl_80340D5C[unk3C - 1].a;
+    float b = lbl_80340D5C[unk3C - 1].b;
+    float level;
+    if ((unsigned short)(hour - 6) > 12) {
+        level = b;
+    } else if (hour == 6) {
+        float t = (float)(minute * 60 + second) / 3600.0f;
+        level = b * (1.0f - t) + a * t;
+    } else if (hour == 18) {
+        float t = (float)(minute * 60 + second) / 3600.0f;
+        level = a * (1.0f - t) + b * t;
+    } else {
+        level = a;
+    }
+    return level * fn_80236270(object);
+}
+
+// 0x8004B4A0
+// Takes the lights off the level and deletes them (a guess at the Sims 2's CleanUpRoomLights,
+// the same place in its method order).
+void EHouse::CleanUpRoomLights() {
+    if (unk2C) {
+        for (int i = 1; i < unk30; i++) {
+            unk1C->RemoveLight(unk2C[i]);
+            if (unk2C[i]) {
+                delete unk2C[i];
+            }
+        }
+        if (unk2C) {
+            fn_801B8AA4(unk2C);
+        }
+        unk2C = 0;
+    }
+    if (unk24) {
+        unk1C->RemoveLight(unk24);
+    }
+    if (unk28) {
+        unk1C->RemoveLight(unk28);
+    }
+}
+
+// 0x8004B578
+void EHouse::fn_8004B578(int a, int b) {
+    unk4C.fn_801B5704(b, a, 0);
+}
+
+// 0x8004B5AC
+// Deletes everything on the object list and empties it.
+// NON_MATCHING: same 34 instructions; the original keeps the entry in r30 and the resource in
+// r31, here they are the other way round (three declaration orders tried).
+void EHouse::fn_8004B5AC() {
+    Unk801B5358Node* node = unk4C.unk0;
+    if (node != 0) {
+        do {
+            EInstance* object = node->unk18;
+            Unk801B5358Node* next = node->unk10;
+            void* resource = node->unk1C;
+            if (object) {
+                delete object;
+            }
+            if (resource) {
+                fn_801767FC(resource);
+            }
+            unk4C.fn_801B5B08(node);
+            node = next;
+        } while (node != 0);
+    }
+}
+
+// 0x8004B634
+void EHouse::fn_8004B634() {
+    Unk801B5358Node* next;
+    for (Unk801B5358Node* node = unk4C.unk0; node != 0; node = next) {
+        EInstance* object = node->unk18;
+        next = node->unk10;
+        fn_8016C9A4(object);
+    }
+}
+
+// 0x8004B678
+struct Unk8004B678Arg {
+    char unk0[0x18];
+    void* unk18;
+};
+void fn_8004B678(void* a, Unk8004B678Arg* b) {
+    fn_8002A234(b->unk18, a);
+}
+
+// 0x8004B6A4
+// Describes an object to the level: where it is, what it is and who draws it.
+void EHouse::fn_8004B6A4(Unk80026864* object) {
+    if (unk1C != 0 && object != 0) {
+        unk104 = *object->fn_8002D2C8();
+        unkD0.unk18 = (int)object;
+        unkD0.unk24 = (int)&unk58;
+        unkD0.unkC = 0;
+        unkD0.unk10 = 0;
+        unkD0.unk1C = 0;
+        unkD0.unk8 = (int)&unk104;
+        unkD0.unk14 = (int)fn_8004B678;
+        unk1C->fn_8017BF6C(&unkD0);
+    }
+}
+
+// 0x8004B740
+void EHouse::fn_8004B740(Unk8002EF48* descriptor) {
+    if (unk1C != 0 && descriptor != 0) {
+        descriptor->unk24 = (int)&unk58;
+        unk1C->fn_8017BF6C(descriptor);
+    }
 }

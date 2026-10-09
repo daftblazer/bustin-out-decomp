@@ -129,20 +129,18 @@ Unk80040274::~Unk80040274() {
 inline bool IsNode(Unk80026864Node* node) {
     return node != 0 ? true : false;
 }
-// NON_MATCHING (this copy, the one inlined in fn_80040DE0, and DeleteDialogs in
-// fn_8004406C): the original keeps the node in r9 and frees r3 for the item; this
-// keeps the node in r3. Same instructions otherwise. An iterator object (tried) puts
-// the node in memory instead.
 inline void Unk800401FC::Clear() {
     unk20 = 0;
     lbl_8037C198->vfn8();
-    Unk80026864Node* next;
-    for (Unk80026864Node* node = unk0.tail; IsNode(node); node = next) {
+    Unk80026864Node* node;
+    node = unk0.tail;
+    while (IsNode(node)) {
+        Unk80026864Node* next = node->prev;
         BString2* text = (BString2*)node->item;
-        next = node->prev;
         if (unk0.owns && text) {
             delete text;
         }
+        node = next;
     }
     unk0.fn_801B4760();
 }
@@ -348,7 +346,6 @@ inline const unsigned short* Unk801BA678::Text() const {
 }
 
 // 0x80040DE0
-// NON_MATCHING: the inlined Clear() (see there): node in r3 instead of r9.
 void Unk80040274::fn_80040DE0() {
     unk50->Clear();
     if (lbl_802E6700.unkBC) {
@@ -902,12 +899,10 @@ int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
 
 // 0x80043034
 // Looks a string up in a table; uses the fallback when there is none or it is empty.
-// NON_MATCHING: 42 instructions against 46. The original tests the looked-up text
-// through two separate null checks (cr7 kept across them) and loads the virtual's
-// address before its this-offset.
 void fn_80043034(Unk80043034Table* table, BString2* out, int key, const unsigned short* fallback, int) {
     Unk800669ACResult result = table->vfn6(key);
-    if ((result.ptr ? *result.ptr : 0) != 0 && fn_801BA640((const unsigned short*)(result.ptr ? *result.ptr : 0)) != 0) {
+    int first = result.ptr ? *result.ptr : 0;
+    if (first != 0 && fn_801BA640((const unsigned short*)(result.ptr ? *result.ptr : 0)) != 0) {
         out->assign((const unsigned short*)(result.ptr ? *result.ptr : 0));
     } else if (fallback) {
         out->assign(fallback);
@@ -1190,19 +1185,19 @@ long long Unk80043820::vfn7() {
 }
 
 inline void DeleteDialogs(Unk80026864List& list) {
-    Unk80026864Node* next;
-    for (Unk80026864Node* node = list.tail; IsNode(node); node = next) {
+    Unk80026864Node* node = list.tail;
+    while (IsNode(node)) {
+        Unk80026864Node* next = node->prev;
         Unk80040274* dialog = (Unk80040274*)node->item;
-        next = node->prev;
         if (list.owns && dialog) {
             delete dialog;
         }
+        node = next;
     }
     list.fn_801B4760();
 }
 
 // 0x8004406C
-// NON_MATCHING: the delete loop keeps the node in r3 instead of r9 (see Clear()).
 // Deletes the dialogs waiting and the one showing.
 void Unk80043820::fn_8004406C() {
     DeleteDialogs(unk8);

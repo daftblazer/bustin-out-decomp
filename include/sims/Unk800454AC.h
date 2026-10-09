@@ -6,6 +6,7 @@
 #include "sims/Unk80026864List.h"
 #include "sims/Unk800401FC.h"
 #include "sims/CTilePt.h"
+#include "engine/EVec3.h"
 
 // The action queue display (unit 0x800454AC, "Action Queue Manager"): the icons of
 // the actions a sim has queued. The Sims 2 has ActionQueue and ActionQueueHUD; its
@@ -26,6 +27,7 @@ public:
     void fn_80049400(unsigned int id);
     void fn_80049498(void* icon);
     void fn_8004950C();
+    void fn_800484E0();
 
     void* unk48[13];                  // sprites; unk48[11] (0x74) is the action's icon
     int unk7C;                        // 1: being taken off the queue
@@ -93,6 +95,8 @@ public:
     int fn_800495C4(unsigned char* data);                    // reads a packed command stream
     Unk80047840* fn_80045C50(int id);                        // the child icon with this id
     Unk80047840* fn_80049550(char slot);                     // the pooled icon in this slot
+    void fn_80045DD0(int a, const EVec3& at);
+    void fn_800499D8(int a);                                 // virtual (vtable 0x80299B98)
 
     char unk48[0x11C - 0x48];
     Unk80045650* unk11C;                                     // the pool of icons

@@ -22,6 +22,9 @@ public:
     virtual void vfn4();
     virtual void vfn5();
     virtual ~EInstanceBase();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
 };
 class EInstance : public EInstanceBase {
 public:
@@ -96,12 +99,17 @@ public:
 // The loaded level resource (the engine's ERLevel in The Sims 2).
 class ERLevel {
 public:
+    char unk0[0x20];
+    float unk20;
     void Update();                                             // 0x8017A778 (ERLevel::Update in The Sims 2)
     void fn_8017AA14(ERC* rc);                                 // 0x8017AA14
     void fn_8017BE44();                                        // 0x8017BE44
     void fn_8017BF6C(Unk8002EF48* descriptor);                 // 0x8017BF6C: puts an object into the level
     void RemoveLight(EILight* light);                          // 0x80179EAC (ERLevel::RemoveLight in The Sims 2)
     void fn_8017B8C0(int a);
+    void fn_8017B5B0(int a);
+    void fn_80179E68(EILight* light);                         // 0x80179E68: adds a light
+    void fn_8017BCF0(int room, const EVec3& position);        // 0x8017BCF0
     void fn_8017BE20();
     Unk8017A638 fn_8017A638();                                 // 0x8017A638: bounds
     void fn_8017B7FC();                                        // 0x8017B7FC
@@ -130,6 +138,7 @@ public:
     void PostLoad();                                           // 0x8007FE38 (EIObjectMan::PostLoad in The Sims 2)
     ~EIObjectMan();                                            // 0x8007F2F4
     void RemoveObjectsFromHouse(ERLevel* level);
+    void fn_8007FFE8(int a);                                   // 0x8007FFE8
     void fn_8007FFE4(ERC* rc);                                 // 0x8007FFE4
     char unk0[0x14];
 };
@@ -163,9 +172,11 @@ public:
     void SetNextWallMode();                                    // 0x80049FFC (guess)
     void fn_8004A110();                                        // runs one step of the house
     void fn_8004A91C();
+    void fn_8004AD08();
     void fn_8004B10C();
     void fn_8004AE38();
     void fn_8004AFC0();
+    float fn_8004B300(int room);
     void fn_8004B5AC();
 
     int unk0;                                                  // who made it

@@ -146,6 +146,9 @@ Unk80047840::~Unk80047840() {
     E_RELEASE_RESOURCE(unk48[12]);
 }
 
+// 0x800484E0
+void Unk80047840::fn_800484E0() {}
+
 // 0x80049400
 // Shows the icon with this resource id (unless it already does).
 void Unk80047840::fn_80049400(unsigned int id) {
@@ -403,3 +406,12 @@ void fn_80047788(int object, int item) {
         holder->vfn19(item, 0);
     }
 }
+
+// 0x800499D8
+void Unk8004578C::fn_800499D8(int a) {
+    EVec3 at(0.0f);
+    fn_80045DD0(a, at);
+}
+
+// 0x80049A14
+void fn_80049A14() {}
