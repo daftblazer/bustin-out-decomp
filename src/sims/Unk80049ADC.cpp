@@ -356,7 +356,19 @@ void EHouse::fn_8004A110() {
 // time, or the one before the first later entry (wrapping), or the last.
 struct Unk802E60C4Entry {
     int unk0;                         // time
-    char unk4[0x28 - 4];
+    EVec3 unk4;
+    float unk10;
+    EVec3 unk14;
+    float unk20;
+    float unk24;
+    Unk802E60C4Entry(int time, const EVec3& a, float b, const EVec3& c, float d, float e) {
+        unk0 = time;
+        unk14 = c;
+        unk20 = d;
+        unk4 = a;
+        unk10 = b;
+        unk24 = e;
+    }
 };
 extern Unk802E60C4Entry lbl_802E60C4[10];
 int fn_8004A194(int time) {
@@ -676,3 +688,22 @@ void EHouse::fn_8004B740(Unk8002EF48* descriptor) {
         unk1C->fn_8017BF6C(descriptor);
     }
 }
+
+// 0x8004B784
+// NON_MATCHING: same 323 instructions, 118 differ (float register numbers: the original keeps 0.7 in f9
+// and 1.0 in f0, here f10; and the scratch EVec3 slots/loads are scheduled differently). All 120 orders of
+// the entry constructor's member stores were compiled; assigning the second vector, then unk20, first is the
+// closest. The table's values and the pool order of the constants are right.
+// The lighting table: for ten times of day the sun and ambient colours and their strengths.
+Unk802E60C4Entry lbl_802E60C4[10] = {
+    Unk802E60C4Entry(0, EVec3(0.7f, 0.7f, 1.0f), 0.35f, EVec3(0.3f, 0.3f, 1.0f), 0.25f, 0.35f),
+    Unk802E60C4Entry(4, EVec3(0.7f, 0.7f, 1.0f), 0.4f, EVec3(0.5f, 0.5f, 1.0f), 0.35f, 0.2f),
+    Unk802E60C4Entry(5, EVec3(1.0f, 0.4f, 0.8f), 1.25f, EVec3(0.6f, 0.5f, 1.0f), 0.4f, 0.01f),
+    Unk802E60C4Entry(6, EVec3(1.0f, 0.5f, 0.6f), 1.55f, EVec3(0.5f, 0.5f, 1.0f), 0.6f, 0.35f),
+    Unk802E60C4Entry(7, EVec3(1.0f, 1.0f, 0.7f), 1.3f, EVec3(0.8f, 0.8f, 1.0f), 0.4f, 0.5f),
+    Unk802E60C4Entry(12, EVec3(1.0f, 1.0f, 0.7f), 1.3f, EVec3(0.8f, 0.8f, 1.0f), 0.4f, 0.65f),
+    Unk802E60C4Entry(17, EVec3(1.0f, 0.7f, 0.25f), 1.3f, EVec3(0.6f, 0.6f, 0.8f), 0.4f, 0.5f),
+    Unk802E60C4Entry(18, EVec3(1.0f, 0.7f, 0.25f), 1.55f, EVec3(0.6f, 0.6f, 0.8f), 0.5f, 0.5f),
+    Unk802E60C4Entry(19, EVec3(0.7f, 0.7f, 1.0f), 1.1f, EVec3(0.5f, 0.5f, 1.0f), 0.6f, 0.01f),
+    Unk802E60C4Entry(20, EVec3(0.7f, 0.7f, 1.0f), 0.4f, EVec3(0.5f, 0.5f, 1.0f), 0.35f, 0.2f),
+};
