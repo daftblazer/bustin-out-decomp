@@ -14,6 +14,7 @@ struct Unk801BA678 {
     void fn_801BA958(int capacity, int);
     Unk801BA678(const char* text);                       // 0x801BA6D4
     Unk801BA678(const unsigned short* text);             // 0x801BA7CC
+    Unk801BA678(const Unk801BA678& other);               // declared: a user copy constructor gives locals an 8-byte-aligned slot
     int fn_801BA934() const;                             // length
     void fn_801BA860(const unsigned short* text);        // assign
     void fn_801BAF74(unsigned short character);          // strip leading

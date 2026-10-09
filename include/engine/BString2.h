@@ -13,14 +13,16 @@
 class BString2 {
 public:
     BString2();                                                         // 0x801C4E90
-    BString2(const BString2& str, int pos, int n);                      // 0x801C4EB0
+    // With its default arguments this is the copy constructor. A user-declared copy
+    // constructor matters: it gives every BString2 local an 8-byte-aligned stack slot.
+    BString2(const BString2& str, int pos = 0, int n = -1);             // 0x801C4EB0
     BString2(const unsigned short* s);                                  // 0x801C4FDC
     BString2(unsigned char c, int n);                                   // 0x801C5024
     BString2(const wchar_t* s);                                         // 0x801C60F0 (32-bit characters)
     ~BString2();                                                        // 0x801C5074
     BString2& operator=(const BString2& str);                           // 0x801C50B4
     BString2& operator=(const unsigned short* s);                       // 0x801C5148
-    void assign(const BString2& str, int pos, int n);                   // 0x801C54EC
+    BString2& assign(const BString2& str, int pos, int n);              // 0x801C54EC
     void assign(const unsigned short* s);                               // 0x801C55CC
     void erase(int pos, int n);                                         // 0x801C5704
     const unsigned short* c_str();                                      // 0x801C5B24

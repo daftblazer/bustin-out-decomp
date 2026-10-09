@@ -14,145 +14,7 @@
 #include "sims/Unk80297B74.h"
 #include "engine/e_instance.h"
 #include "sims/Unk800401FC.h"
-#include "sims/Unk800421C0Sim.h"
-#include "sims/EGlobal.h"
-#include "engine/ResourceManagers.h"
-#include "engine/ERFont.h"
-#include "engine/EController.h"
-#include "sims/cas/CASWidgets.h"
-#include "sims/ESimsCam.h"
-
-// The dialog boxes (unit 0x800401FC): the dialog screen, its texts, and the object
-// that queues dialogs. Every function has source.
-// 37 of 51 functions match; the rest carry notes. The unit's .rodata is byte-identical
-// to the original, which also fixes the order constants are first used in.
-
-// A sprite, as far as this file reads it: its texture and that texture's size.
-struct Unk80181824Image {
-    char unk0[0x10];
-    unsigned short unk10;             // width in pixels
-    unsigned short unk12;             // height in pixels
-};
-struct Unk80181824Texture {
-    char unk0[0x20];
-    Unk80181824Image* unk20;
-};
-inline Unk80181824Texture* SpriteTexture(Unk80181824* sprite) {
-    return *(Unk80181824Texture**)((char*)sprite + 0x24);
-}
-
-// The script viewer (lbl_802E6700.unk90).
-struct Unk80108290 {
-    void fn_80108290(void* owner);
-    int fn_8010826C(void* owner);
-    void fn_801082BC(int);
-    int fn_801082CC();
-};
-extern "C" void fn_80106164(void* viewer, const char* command, ...);
-extern "C" int fn_80111ECC(const char* a, const char* b);              // strcmp
-extern "C" int fn_8010F7F0(const char* text, const char* format, ...); // sscanf
-extern "C" int fn_8010F710(char* out, const char* format, ...);        // sprintf
-extern "C" int fn_80110874(const char* text);                          // atoi
-int fn_801BA640(const unsigned short* text);                           // length
-void fn_800B772C();
-
-// A table of localized strings (vtable pointer at 0): slot 6 looks one up.
-struct Unk80043034Table {
-    virtual void vfn1();
-    virtual void vfn2();
-    virtual void vfn3();
-    virtual void vfn4();
-    virtual void vfn5();
-    virtual Unk800669ACResult vfn6(int key, ...);
-    virtual void vfn7();
-    virtual void vfn8();
-    virtual void vfn9();
-    virtual void vfn10();
-    virtual void vfn11();
-    virtual void vfn12();
-    virtual void vfn13();
-    virtual void vfn14();
-    virtual void vfn15();
-    virtual void vfn16();
-    virtual void vfn17();
-    virtual void vfn18();
-    virtual void vfn19(int id, int, int);            // selects the string set
-};
-Unk80043034Table* fn_8023CDDC();
-void fn_8023CE04(Unk80043034Table* table);
-// Holds a string table for as long as it is in scope.
-struct Unk8023CDDC {
-    Unk8023CDDC() : table(0) {}
-    ~Unk8023CDDC() {
-        fn_8023CE04(table);
-        table = 0;
-    }
-    Unk80043034Table* table;
-};
-// What a dialog is made from (first argument of slot 22).
-struct Unk800424F0Source {
-    char unk0[4];
-    unsigned short unk4;
-    char unk6[0xC - 6];
-    void* unkC;
-};
-int fn_801C27C8(void* a);
-int fn_802186F4(int id);
-BString2* fn_80218174(int id);
-Unk800669ACResult fn_80218044(int id, ...);
-int fn_80217F2C(int id);
-int fn_800D1E94(const unsigned short* text, const unsigned short* tag, const unsigned short* a, BString2* out);
-void fn_800D2EFC(const unsigned short* text, BString2* out);
-int fn_80106774(void* viewer, int, int, int, int);   // next UI event
-// The text-entry screen (declared as in sims/cas/CASTarget.h).
-class Unk800C6704 : public UnkTargetBase {
-public:
-    Unk800C6704(int, int, int, int, int, int, int, float, float, float, int, int, int, int, int, int, int, int,
-                int, int, int, int, int, int, int, int);
-    int fn_800CAEF0();                  // 0 while open, 1 accepted, 2 cancelled
-    Unk801BA678* fn_800C6FAC();         // the entered text
-    void fn_800C6F08(int text, int);
-    char unk48[0x178 - 0x48];
-};
-extern unsigned short lbl_802E5F9C[0x80];   // one line of body text being measured
-extern float lbl_8037B550;
-extern const float lbl_8037ED4C;
-extern const float lbl_8037ED50;
-extern const float lbl_8037ED54;
-extern EVec2 lbl_8037CB38;
-extern EVec2 lbl_8037CB40;
-void fn_80061A50();
-void fn_80061A7C();
-void fn_80061AA8();
-// What a sim's slot 167 returns: flags per choice.
-struct Unk80042228Record {
-    char unk0[0x16];
-    short unk16[1];
-};
-extern BString2 lbl_8037D3B4;
-extern float lbl_8037B500;
-extern float lbl_8037B504;
-extern float lbl_8037B50C;
-extern EColorF lbl_802E6974;           // shadow colour
-extern EColorF lbl_802E6A34;           // text colour while its button is held
-
-// The display is lbl_8037C198 (sims/ESimsCam.h): slot 8 is told when a dialog's
-// texts go away; its size in pixels is at 0x14 and 0x18.
-
-// Callbacks another unit installs while a dialog is up.
-extern void (*lbl_8037C0CC)();
-extern void (*lbl_8037C0D0)();
-extern void (*lbl_8037C0D4)();   // called when the body scrolls
-void fn_80061AD4();
-void fn_80061B00();
-void fn_80061B2C();
-
-// The dialog class of another unit (0xE28 bytes, constructor 0x800CBF40).
-class Unk800CBF40 : public Unk80040274 {
-public:
-    Unk800CBF40();
-    char unkF4[0xE28 - 0xF4];
-};
+#include "sims/Unk800401FCPrivate.h"
 
 // Shown when a text is missing (16-bit characters).
 static const unsigned short lbl_8029918C[] = {'M', 'i', 's', 's', 'i', 'n', 'g', ' ', 'S', 't',
@@ -322,10 +184,9 @@ inline int HeldBy(int who, EController* first, EController* second, int button) 
 
 // 0x80040640
 // Per frame: fades the dialog in, reads the buttons and scrolls the body.
-// NON_MATCHING: 20 of 488 instructions. Two things: the frame is 8 bytes smaller (the
-// original has an unused slot between the text temporary at sp+8 and the look-up
-// result at sp+0x10), and the first controller and the address of lbl_802E6700 are in
-// each other's saved registers (r29/r28).
+// NON_MATCHING: 13 of 488 instructions. The first controller and the address of
+// lbl_802E6700 are in each other's saved registers (r29/r28), and the text temporary's
+// address is recomputed where the original keeps it in r30.
 void Unk80040274::vfn2() {
     if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
         return;
@@ -559,7 +420,8 @@ void fn_80041180() {
 }
 
 // 0x800411A0
-void fn_800411A0() {
+// Would draw the dialog's frame; empty in this build.
+void fn_800411A0(ERC* rc, float left, float top, float right, float bottom, float alpha) {
 }
 
 // 0x800411A4
@@ -872,10 +734,10 @@ inline BString2 Unk80040274::Title() {
 // 0x800424F0
 // Sets a dialog up from its description: who may answer, the kind, the title, the
 // body and the button texts. Kind 3 shows the text-entry screen instead.
-// NON_MATCHING: same length (721), 252 instructions differ, all of two kinds: the
-// original gives each string and the table handle an 8-byte stack slot (title 0x48,
-// handle 0x50, body 0x58) where this packs them 4 apart, and `this` is in r31 there
-// and r27 here, which shifts the other saved registers.
+// NON_MATCHING: 722 instructions against 721, 91 differ. Left: in each look-up of a
+// button text the original loads the address of lbl_802E6700 before the name's; in
+// the text-entry branch it does the look-up and builds the wide title after
+// `operator new` with the title's slot addressed directly.
 int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
     int who = b[5] & 0xF;
     if (who == 1) {
@@ -1026,8 +888,8 @@ int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
     if (unk7C != 3) {
         fn_80043110(&body, 0);
     } else {
-        Unk801BA678 wide(unk50->unk10.c_str());
-        unk58 = new Unk800C6704(GetText("default_text_baby"), 9, 0, (int)wide.Get(), 0, 0, 0, 0.5f, 100.0f, 100.0f,
+        unk58 = new Unk800C6704(GetText("default_text_baby"), 9, 0, (int)Unk801BA678(unk50->unk10.c_str()).Get(), 0,
+                                0, 0, 0.5f, 100.0f, 100.0f,
                                 0x26, 0, 0x10, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0);
         unk5C.fn_801BA958(0x40, 0);
         unk80 = 1;

@@ -560,10 +560,18 @@ is byte-identical, yet cannot be linked from source:
   same order with mostly equal sizes, though the hint file does not reach that address range: for engine
   classes, search `reference/sims2_symbols.txt` by class and compare method sizes by hand.
   0x801C54EC is `assign(str, pos, n)`, not an append.
-- Open: in two functions of the dialog unit (`0x80040640`, `0x800424F0`) every local with a destructor has an
-  8-byte stack slot in the original (title 0x48, table handle 0x50, body 0x58, then 0x60, 0x68, 0x70) where ours
-  are packed 4 apart; the 4-byte results of inlined look-ups after them are 4 apart in both. Ruled out with
-  scratch files (`build/try/cm/s.cpp`, `s2.cpp`): plain locals, nested blocks, a loop body, initialisation from
-  a call or from an inline function, binding to a `const` reference, and all five compiler versions all pack
-  4 apart. It is not the string type either (three different classes show it). The 0x60 slot is shared with an
-  8-byte `EVec2` from an earlier closed block, which suggests slots sized by what shared them before; untested.
+- **A class with a user-declared copy constructor gets 8-byte-aligned stack slots.** The compiler forces such a
+  class into memory (block mode), and block-mode locals are aligned to 8, so consecutive 4-byte objects sit 8
+  apart (title 0x48, handle 0x50, body 0x58) and whatever follows one starts on an 8-byte boundary. Without the
+  declaration they pack 4 apart. Declaring it is enough; it need not be defined or used. `BString2`'s
+  `BString2(const BString2&, pos = 0, n = npos)` is its copy constructor; `Unk801BA678` and the string-table
+  handle have one too. When a frame is 8 bytes too small or a slot is 4 too low, look for a local class
+  missing its copy constructor (this is the same rule as the `EVec2`/`EVec3` note, seen from the frame).
+- A destructor and an 8-instruction `operator delete` right after it, before the unit's inline virtuals, are
+  both ordinary (non-inline) definitions at the end of the source file: `X::~X() {}` then
+  `void X::operator delete(void* p) { fn_80169EE8(p); }`. Declared inline in any form, the operator is called
+  but never emitted under `-fno-implement-inlines`.
+- A member object's fields read through its address register except the first (`lfs f9, 0x20(r8)` then
+  `lfs f0, 4(r6)`) come from an inline member of that object (`ERectF::SumSq()`).
+- When checking a unit's undefined symbols against `symbols.txt`, list only that unit's object. A glob over
+  `build/G4ME69/src/` also picks up every object that is not linked and prints hundreds of irrelevant names.

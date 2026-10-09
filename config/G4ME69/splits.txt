@@ -137,3 +137,7 @@ sims/Unk800401FC.cpp:
 	.text       start:0x800401FC end:0x80044D84
 	.ctors      start:0x80291CD8 end:0x80291CDC
 	.rodata     start:0x802988D8 end:0x802991B0
+
+sims/Unk80044D84.cpp:
+	.text       start:0x80044D84 end:0x800454AC
+	.rodata     start:0x802991B0 end:0x802995B8

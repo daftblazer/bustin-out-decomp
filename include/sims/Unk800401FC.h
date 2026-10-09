@@ -44,6 +44,7 @@ struct Unk800401FC {
 // How a dialog fades and grows (0x44 bytes).
 struct Unk8004024CRange {
     Unk8004024CRange(float lo, float hi) : unk0(lo), unk4(hi) { unk8 = unk0; }
+    float Fraction() const { return unk8 / unk4; }
     void Add(float amount) {
         unk8 += amount;
         float value;
