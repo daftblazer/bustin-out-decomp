@@ -31,6 +31,6 @@ byte comparison. Nothing here was fixed; this is a snapshot of the state at the 
 ## Reading the table
 
 - **identical** (5 files): the data is complete and in the right order. These files could be linked from source once their functions all match (`ESimsDataManager` still cannot, because of the shared inline virtuals problem in `CLAUDE.md`).
-- **N bytes differ** with equal sizes (2 files: `sims/ECheats.cpp`, `sims/ERFont.cpp`): the right amount of data in the wrong order or with a wrong constant. The first differing offset is where to start; the order of float constants is the order they are first used in the source.
+- **N bytes differ** with equal sizes (no file at the moment): the right amount of data in the wrong order or with a wrong constant. The first differing offset is where to start; the order of float constants is the order they are first used in the source. (`ECheats` and `ERFont` were of this kind; the cause was an empty string first in one and the header-string order in the other.)
 - **sizes differ** (16 files): mostly files with functions still unwritten, whose strings and constants are therefore missing, so a smaller size on our side is expected. A larger size on our side (`Unk80023D3C`) means data the original puts elsewhere or an include that adds strings the original lacks.
 - A first offset of `0x0` means the data differs from the very start, usually because the run of header strings differs (a stand-in header missing or included in a different order).

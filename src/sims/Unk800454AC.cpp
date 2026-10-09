@@ -180,3 +180,23 @@ extern float lbl_8037B578;
 void Unk80047840::fn_8004950C() {
     unkE0.Set(0.0f, lbl_8037B578, 0.0f);
 }
+
+// The registration object (lbl_8037BFA8): slot 0x340 holds the input manager.
+struct Unk8015C620 {
+    void fn_8015C620(int id, void* listener);
+};
+extern Unk8015C620* lbl_8037BFA8;
+extern Unk800455D4* lbl_8037B558;
+
+// 0x800455A8
+void fn_800455A8() {
+    lbl_8037B558 = new Unk800455D4;
+}
+
+// 0x800455D4
+Unk800455D4::Unk800455D4() : Unk801E58D4(-1, 0) {
+    unk24 = 0;
+    unk0 = (int (*)(void*, char*))fn_800498A8;
+    lbl_8037BFA8->fn_8015C620(0xF, (Unk80049AA8*)this);
+    unkC = 6;
+}

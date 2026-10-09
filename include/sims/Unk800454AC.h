@@ -53,4 +53,70 @@ struct Unk80045650 {
     Unk80026864ListBase unk8;         // the free ones (never initialised: the pool is in zeroed memory)
 };
 
+// The action queue's input listener (unit 0x800454AC). It is built from three classes:
+//  - Unk80049AA8: a listener interface, only a vtable pointer (vtable 0x80299CD8);
+//  - Unk801E58D4: a large engine base class (constructor 0x801E58D4, destructor 0x801E59A4),
+//    0x20 bytes with its vtable pointer at 0x1C; only the slots overridden here are named;
+//  - Unk800455D4: the 0x28-byte object made at 0x800455A8, derived from both.
+// The real manager (constructor 0x800495C4, vtable 0x80299A20) is built on this and is not
+// written yet.
+
+class Unk80049AA8 {
+public:
+    virtual int vfn1() = 0;                                  // __pure_virtual
+    virtual ~Unk80049AA8() {}                                // 0x80049AA8
+};
+
+class Unk801E58D4 {
+public:
+    Unk801E58D4(int a, int b);                               // 0x801E58D4
+    virtual ~Unk801E58D4();                                  // 0x801E59A4
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual int vfn8();                                      // 0x80049590 in the listener
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual const char* vfn11();                             // 0x800498C4 in the listener
+    virtual void vfn12();
+
+    int (*unk0)(void* self, char* out);                      // called back with the input
+    int unk4;
+    int unk8;
+    short unkC;
+    int unk10;
+    int unk14;
+    int unk18;
+};
+
+struct Unk8037B554Owner;
+int fn_800495C4(Unk8037B554Owner* owner);                    // the manager's constructor (not written yet)
+extern Unk8037B554Owner* lbl_8037B554;                       // the manager, once made
+
+class Unk800455D4 : public Unk801E58D4, public Unk80049AA8 {
+public:
+    Unk800455D4();                                           // 0x800455D4
+    virtual ~Unk800455D4() {}                                // 0x80049A1C
+    virtual int vfn8() {                                     // 0x80049590
+        if (lbl_8037B554) {
+            return fn_800495C4(lbl_8037B554);
+        }
+        return 0;
+    }
+    virtual const char* vfn11() { return "Action Queue Manager"; }   // 0x800498C4
+    virtual int vfn1() { return vfn8(); }                    // 0x800499A4
+    static int fn_800498A8(Unk800455D4* self, char* out) {   // the callback
+        *out = self->unk24;
+        self->unk24 = 0;
+        return 0;
+    }
+
+    char unk24;
+};
+
+void fn_800455A8();                                          // makes the listener
+
 #endif
