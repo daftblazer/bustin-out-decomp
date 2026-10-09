@@ -52,3 +52,10 @@
 8017A638 0x108 ERLevel::CalcBounds_void
 8017A740 0x38 ERLevel::UpdateLightGrid_void
 8017A778 0x98 ERLevel::Update_void
+
+# EApp
+8015C2F4 0xC EApp::StopMovie_void
+8015C300 0x18 EApp::IsMovieStarting_void
+8015C318 0x18 EApp::IsMoviePlaying_void
+8015C330 0xE4 EApp::SetArgs_int__char_ptrp
+8015C414 0xC0 EApp::GetArg_char_ptr__const
