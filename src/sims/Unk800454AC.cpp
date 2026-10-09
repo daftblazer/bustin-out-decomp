@@ -14,6 +14,7 @@
 #include "sims/Unk80297B74.h"
 #include "sims/Unk800454AC.h"
 #include "engine/ResourceManagers.h"
+#include "sims/Unk800421C0Sim.h"
 
 // The action queue display, second source file of the unit at 0x80044D84 (0x800454AC
 // to 0x80049ADC, about 55 functions). IN PROGRESS: this is the first stage, the icon
@@ -199,4 +200,162 @@ Unk800455D4::Unk800455D4() : Unk801E58D4(-1, 0) {
     unk0 = (int (*)(void*, char*))fn_800498A8;
     lbl_8037BFA8->fn_8015C620(0xF, (Unk80049AA8*)this);
     unkC = 6;
+}
+
+// The object an action's icon comes from (found by id; vtable pointer at 0x1C): slot 5
+// gives the holder of the sim it is about.
+struct Unk801E5A50Holder {
+    Unk800421C0Sim* sim;
+};
+class Unk801E5A50Object {
+public:
+    char unk0[0x1C];
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual Unk801E5A50Holder* vfn5();
+};
+Unk801E5A50Object* fn_801E5A50(int id);
+void fn_802182EC(int id, void** out);
+
+// 0x800498D8
+inline int Unk800498D0::vfn3(Unk80047840* icon) {
+    if (unk5B != 0) {
+        if (unk5B == 1) {
+            Unk801E5A50Object* object = fn_801E5A50(unk5C);
+            if (object) {
+                void* image = 0;
+                fn_802182EC(object->vfn5()->sim->vfn119(), &image);
+                icon->fn_80049498(image);
+            }
+        }
+    } else {
+        if (unk5C == 0) {
+            icon->fn_80049400(0xD59C7BB5);
+        } else {
+            icon->fn_80049400(unk5C);
+        }
+    }
+    return 1;
+}
+
+extern "C" void* fn_80111AE8(void* dst, const void* src, ...);   // memcpy (called without a prototype)
+void fn_80047788(int object, int item);
+
+// 0x80045C50
+Unk80047840* Unk8004578C::fn_80045C50(int id) {
+    for (Unk80026864Node* node = *(Unk80026864Node**)this; node != 0; node = node->next) {
+        Unk80047840* icon = (Unk80047840*)node->item;
+        if (icon->unkCC == id) {
+            return icon;
+        }
+    }
+    return 0;
+}
+
+// 0x80049550
+Unk80047840* Unk8004578C::fn_80049550(char slot) {
+    Unk80047840* icon = unk11C->unk0;
+    while (icon != 0 && icon->unkF4 != slot) {
+        icon = icon->unkF8;
+    }
+    return icon;
+}
+
+// 0x800495C4
+// Reads a packed stream of commands and returns how many bytes it used. Command 0 puts the
+// icon with a resource id on a pooled widget, 1 the icon of an object, 2 replaces the
+// queued actions, 3 takes one off.
+// NON_MATCHING: 175 instructions against 185, 156 differ. Three attempts (case order, a
+// varargs memcpy, switch against if chain). Left: the original keeps the byte count in r30
+// loaded straight from data[0] and builds the CTilePt temporary at sp+0x10 beside a char
+// spilled at sp+0x18; here the count lands in r29/r9 and the temporary at sp+8.
+int Unk8004578C::fn_800495C4(unsigned char* data) {
+    int pos = 1;
+    unsigned char left = data[0] - 1;
+    while (left != 0xFF) {
+        int command = data[pos];
+        pos++;
+        switch (command) {
+        case 3: {
+            int object = *(int*)(data + pos);
+            pos += 4;
+            int item = *(int*)(data + pos);
+            pos += 4;
+            Unk80047840* icon = fn_80045C50(item);
+            if (icon) {
+                icon->unk7C = 1;
+            }
+            fn_80047788(object, item);
+            break;
+        }
+        case 2: {
+            unsigned short length = *(unsigned short*)(data + pos);
+            pos += 2;
+            unk12C = length;
+            fn_80111AE8(unk130, data + pos, length);
+            pos += unk12C;
+            if (unk124 == 0) {
+                unk124 = new Unk800498D0[9];
+            }
+            int first = *(int*)unk130;
+            unk120 = 0;
+            if (first != 0) {
+                char* p = unk130 + 4;
+                do {
+                    Unk800498D0* record = unk124 + unk120;
+                    record->unk40 = first;
+                    record->unk28 = *(int*)p;
+                    p += 4;
+                    record->unk44 = *(int*)p;
+                    p += 4;
+                    CTilePt tile;
+                    *(unsigned short*)&tile = *(unsigned short*)p;
+                    tile.unk2 = p[2];
+                    p += 3;
+                    record->tile = tile;
+                    record->unk5B = *(unsigned char*)p;
+                    p += 1;
+                    record->unk5C = *(int*)p;
+                    p += 4;
+                    int a = *(int*)p;
+                    p += 4;
+                    int b = *(int*)p;
+                    p += 4;
+                    record->fn_801CFAB8(a, b);
+                    unk120++;
+                    first = *(int*)p;
+                    p += 4;
+                } while (first != 0);
+            }
+            break;
+        }
+        case 0:
+        case 1: {
+            char slot = data[pos];
+            pos++;
+            int id = *(int*)(data + pos);
+            pos += 4;
+            Unk80047840* icon = fn_80049550(slot);
+            icon->unk104 = id;
+            if (command == 0) {
+                if (id == 0) {
+                    id = 0xD59C7BB5;
+                }
+                icon->fn_80049400(id);
+            } else if (command == 1) {
+                Unk801E5A50Object* object = fn_801E5A50(id);
+                if (object) {
+                    void* image = 0;
+                    fn_802182EC(object->vfn5()->sim->vfn119(), &image);
+                    icon->fn_80049498(image);
+                }
+            }
+            break;
+        }
+        }
+        left--;
+    }
+    return pos;
 }

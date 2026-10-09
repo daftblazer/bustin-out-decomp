@@ -5,6 +5,7 @@
 #include "engine/BString2.h"
 #include "sims/Unk80026864List.h"
 #include "sims/Unk800401FC.h"
+#include "sims/CTilePt.h"
 
 // The action queue display (unit 0x800454AC, "Action Queue Manager"): the icons of
 // the actions a sim has queued. The Sims 2 has ActionQueue and ActionQueueHUD; its
@@ -27,9 +28,11 @@ public:
     void fn_8004950C();
 
     void* unk48[13];                  // sprites; unk48[11] (0x74) is the action's icon
-    char unk7C[0x84 - 0x7C];
+    int unk7C;                        // 1: being taken off the queue
+    char unk80[0x84 - 0x80];
     int unk84;
-    char unk88[0xD0 - 0x88];
+    char unk88[0xCC - 0x88];
+    int unkCC;                        // the action's id
     BString2 unkD0;
     Unk8004024CRange unkD4;
     Unk8004024CRange unkE0;           // how far it has faded in
@@ -53,6 +56,54 @@ struct Unk80045650 {
     Unk80026864ListBase unk8;         // the free ones (never initialised: the pool is in zeroed memory)
 };
 
+// One queued action (0x60 bytes; the queue display keeps nine in an array). The base is an
+// engine class with a pooled allocator (constructor 0x801CF330, destructor 0x801CF838,
+// operator delete 0x801CF214); this adds where the action is and what it is called.
+class Unk801CF330 {
+public:
+    Unk801CF330();                                           // 0x801CF330
+    virtual ~Unk801CF330();                                  // 0x801CF838
+    void operator delete(void* ptr);                         // 0x801CF214
+
+    char unk0[0x28];
+    int unk28;
+    char unk2C[0x40 - 0x2C];
+    int unk40;
+    int unk44;
+    char unk48[0x50 - 0x48];
+    int unk50;
+    void fn_801CFAB8(int a, int b);                          // 0x801CFAB8
+};
+
+class Unk800498D0 : public Unk801CF330 {
+public:
+                                                             // (the destructor, 0x80049A54, is the implicit one)
+    virtual CTilePt* vfn2() { return &tile; }                // 0x800498D0
+    virtual int vfn3(Unk80047840* icon);                     // 0x800498D8: puts the action's icon on the widget
+
+    CTilePt tile;                                            // 0x58
+    unsigned char unk5B;                                     // 0: icon from a resource id, 1: from an object
+    int unk5C;                                               // the resource id or object id
+};
+
+// The queue display (constructor 0x8004578C, destructor 0x80045938, 0x330 bytes or more; the
+// icons are its children). Only what the command reader uses is declared.
+class Unk8004578C : public UnkTargetBase {
+public:
+    int fn_800495C4(unsigned char* data);                    // reads a packed command stream
+    Unk80047840* fn_80045C50(int id);                        // the child icon with this id
+    Unk80047840* fn_80049550(char slot);                     // the pooled icon in this slot
+
+    char unk48[0x11C - 0x48];
+    Unk80045650* unk11C;                                     // the pool of icons
+    int unk120;                                              // how many actions
+    Unk800498D0* unk124;                                     // the nine action records
+    char unk128[4];
+    int unk12C;                                              // length of the buffer
+    char unk130[0x200];                                      // the last command stream's data
+};
+extern Unk8004578C* lbl_8037B554;                            // the queue display, once made
+
 // The action queue's input listener (unit 0x800454AC). It is built from three classes:
 //  - Unk80049AA8: a listener interface, only a vtable pointer (vtable 0x80299CD8);
 //  - Unk801E58D4: a large engine base class (constructor 0x801E58D4, destructor 0x801E59A4),
@@ -63,7 +114,7 @@ struct Unk80045650 {
 
 class Unk80049AA8 {
 public:
-    virtual int vfn1() = 0;                                  // __pure_virtual
+    virtual int vfn1(unsigned char* data) = 0;               // __pure_virtual
     virtual ~Unk80049AA8() {}                                // 0x80049AA8
 };
 
@@ -77,7 +128,7 @@ public:
     virtual void vfn5();
     virtual void vfn6();
     virtual void vfn7();
-    virtual int vfn8();                                      // 0x80049590 in the listener
+    virtual int vfn8(unsigned char* data);                   // 0x80049590 in the listener
     virtual void vfn9();
     virtual void vfn10();
     virtual const char* vfn11();                             // 0x800498C4 in the listener
@@ -92,22 +143,18 @@ public:
     int unk18;
 };
 
-struct Unk8037B554Owner;
-int fn_800495C4(Unk8037B554Owner* owner);                    // the manager's constructor (not written yet)
-extern Unk8037B554Owner* lbl_8037B554;                       // the manager, once made
-
 class Unk800455D4 : public Unk801E58D4, public Unk80049AA8 {
 public:
     Unk800455D4();                                           // 0x800455D4
     virtual ~Unk800455D4() {}                                // 0x80049A1C
-    virtual int vfn8() {                                     // 0x80049590
+    virtual int vfn8(unsigned char* data) {                  // 0x80049590
         if (lbl_8037B554) {
-            return fn_800495C4(lbl_8037B554);
+            return lbl_8037B554->fn_800495C4(data);
         }
         return 0;
     }
     virtual const char* vfn11() { return "Action Queue Manager"; }   // 0x800498C4
-    virtual int vfn1() { return vfn8(); }                    // 0x800499A4
+    virtual int vfn1(unsigned char* data) { return vfn8(data); }   // 0x800499A4
     static int fn_800498A8(Unk800455D4* self, char* out) {   // the callback
         *out = self->unk24;
         self->unk24 = 0;
