@@ -536,4 +536,27 @@ is byte-identical, yet cannot be linked from source:
   its other locals (lowest slot), `Set` before each call; text fetched before the `Set`.
 - `width *= 0.3f; x = middle - width * half;` in two `switch` cases gives two constant loads and one shared
   multiply chain with the variable's register reused; `x = middle - width * 0.3f * half` picks a new register.
+- **Identical blocks that the original keeps separate were written out, not shared through a label.** In the
+  dialog's update, four places play a sound, set the answer and return. With `goto answer` the compiler merges
+  the identical ones completely (26 instructions short). Written out at each place (`...; return;`), cross-jumping
+  merges each only with the first other return it finds, so they share just the tail, as in the original. Try
+  this whenever a function is short by a multiple of one repeated block.
+- A function that is called out of line although it is a one-line accessor (`lwz r3, 0(r3); blr` at the unit's
+  tail) is an inline defined *after* its first use: declare the member in the class, define it `inline` further
+  down the file (`Unk801BA678::Text`, `Unk800401FC::Clear`).
+- A temporary that must be destroyed before the next statement and whose address sits in a saved register is an
+  implicit conversion at a call: `unk5C.Set(screen->GetText()->Text())` with `Set(const Unk801BA678&)`.
+- `if (c) member = member + d; else member = 0.0f;` (two stores, merged by the compiler) and a local result
+  variable assigned in both arms differ in which float register holds the value; the original uses the first.
+- An object built one of two ways and then used as one local (`ctor A` in one arm, `ctor B` in the other, same
+  stack slot) is returned by an inline function with two `return` statements (`Unk80040274::Title`); a
+  conditional expression builds a temporary and copies it.
+- Temporaries reuse a stack slot only across closed blocks of *named* locals: `{ String name(L"Hunger");
+  tag.append(name, 0, -1); }` lets the next local take the slot; `tag.append(String(L"Hunger"), 0, -1)` does not.
+- The engine string (`Unk8003B870String`, 4 bytes, constructor 0x801C4E90) has the interface of GCC 2.95's own
+  `basic_string` (`bastring.h`): `string(str, pos = 0, n = npos)` at 0x801C4EB0, `append(str, pos, n)` at
+  0x801C54EC, `erase(pos, n)` at 0x801C5704, `c_str()` at 0x801C5B24, always called with `0, -1`. Worth testing
+  whether it is `basic_string<unsigned short>` from that header.
+- Open: in two functions of the dialog unit every local with a destructor has an 8-byte stack slot in the
+  original where ours are packed 4 apart (and a look-up result lands at sp+0x10 instead of sp+0xC).
 

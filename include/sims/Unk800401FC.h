@@ -81,10 +81,7 @@ struct Unk8004024C {
     }
     void* operator new(unsigned int size) { return fn_80169F1C(size, 16); }
     void operator delete(void* ptr) { fn_80169EE8(ptr); }
-    bool IsStill() const {
-        return unk20.unk0 == unk10.unk0 && unk20.unk4 == unk10.unk4 && unk20.unk8 == unk10.unk8 &&
-               unk20.unkC == unk10.unkC;
-    }
+    bool IsStill() const { return unk20 == unk10; }
     bool TimedOut() const { return unk40 >= unk3C; }
     ERectF unk0;
     ERectF unk10;                     // where it is going
@@ -112,6 +109,7 @@ public:
     virtual int vfn24(void* a, void* b, void* c, void* d);       // 0x80042358
     virtual void vfn25();                                        // 0x800405F4
 
+    Unk8003B870String Title();        // inline, defined in the source file
     void fn_80040DE0();
     void fn_800411A8(ERC* rc, int flag);
     void fn_800417F0(ERC* rc);

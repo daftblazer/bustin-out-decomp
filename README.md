@@ -26,19 +26,19 @@ No game assets or code from the disc are included. You need your own copy.
 <!-- progress:start -->
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Code_matched-3.61%25-3828f7" alt="Code matched: 3.61%">
-  <img src="https://img.shields.io/badge/Functions_matched-513_%2F_10,848-3828f7" alt="Functions matched: 513 / 10,848">
+  <img src="https://img.shields.io/badge/Code_matched-3.62%25-3828f7" alt="Code matched: 3.62%">
+  <img src="https://img.shields.io/badge/Functions_matched-514_%2F_10,848-3828f7" alt="Functions matched: 514 / 10,848">
   <img src="https://img.shields.io/badge/Linked_from_source-4_files-3828f7" alt="Linked from source: 4 files">
 </p>
 
 | Part of the binary | Functions | Code matched | |
 |---|---:|---:|---|
-| Game code (`sims/`) | 513 / 3,289 | 9.01% | `██░░░░░░░░░░░░░░░░░░` |
+| Game code (`sims/`) | 514 / 3,289 | 9.01% | `██░░░░░░░░░░░░░░░░░░` |
 | EOR engine (`engine/`) | 0 / 5,855 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | C/C++ runtime and libraries | 0 / 780 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | Dolphin SDK (Metrowerks) | 0 / 830 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | SN debugger stub (`libsn`) | 0 / 86 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
-| **Whole executable** | **513 / 10,848** | **3.61%** | `█░░░░░░░░░░░░░░░░░░░` |
+| **Whole executable** | **514 / 10,848** | **3.62%** | `█░░░░░░░░░░░░░░░░░░░` |
 
 A function counts as matched only when its C++ source compiles to the original bytes.
 The Dolphin SDK parts were built with a different compiler and are not decompiled by hand here.
@@ -63,7 +63,7 @@ The Dolphin SDK parts were built with a different compiler and are not decompile
 | `src/sims/Unk8003AA6C.cpp` | 14 / 16 | 41.2% | `████░░░░░░` |  |
 | `src/sims/Unk8003B870.cpp` | 4 / 6 | 21.9% | `██░░░░░░░░` |  |
 | `src/sims/Unk8003DE78.cpp` | 5 / 5 | 100.0% | `██████████` | yes |
-| `src/sims/Unk800401FC.cpp` | 36 / 51 | 36.3% | `████░░░░░░` |  |
+| `src/sims/Unk800401FC.cpp` | 37 / 51 | 36.4% | `████░░░░░░` |  |
 | `src/sims/cas/CASSelectors.cpp` | 22 / 27 | 43.0% | `████░░░░░░` |  |
 | `src/sims/cas/CASSim.cpp` | 21 / 38 | 27.1% | `███░░░░░░░` |  |
 | `src/sims/cas/CASSkin.cpp` | 20 / 26 | 28.1% | `███░░░░░░░` |  |

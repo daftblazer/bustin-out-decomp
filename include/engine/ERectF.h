@@ -8,6 +8,9 @@ struct ERectF {
     ERectF(float a, float b, float c, float d) : unk0(a), unk4(b), unk8(c), unkC(d) {}
     ERectF(const ERectF& other) : unk0(other.unk0), unk4(other.unk4), unk8(other.unk8), unkC(other.unkC) {}
     ERectF() {}
+    bool operator==(const ERectF& other) const {
+        return unk0 == other.unk0 && unk4 == other.unk4 && unk8 == other.unk8 && unkC == other.unkC;
+    }
 };
 
 #endif

@@ -24,7 +24,11 @@ struct Unk801BA678 {
         return *this;
     }
     unsigned short* Get() const { return unk0; }
+    // The same accessor under another name: the dialog unit calls an out-of-line copy
+    // (0x80044C5C), so there it is defined after its use (see sims/Unk800401FC.cpp).
+    const unsigned short* Text() const;
     void Assign(const Unk801BA678& other) { fn_8024254C(unk0, other.unk0); }
+    void Set(const Unk801BA678& other) { fn_801BA860(other.unk0); }
 
     unsigned short* unk0; // text buffer
 };

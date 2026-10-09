@@ -23,9 +23,8 @@
 #include "sims/ESimsCam.h"
 
 // The dialog boxes (unit 0x800401FC): the dialog screen, its texts, and the object
-// that queues dialogs. Every function has source except a two-instruction accessor
-// at 0x80044C5C (an inline `Get()` the original emits out of line; ours is inlined).
-// 36 of 51 functions match; the rest carry notes. The unit's .rodata is byte-identical
+// that queues dialogs. Every function has source.
+// 37 of 51 functions match; the rest carry notes. The unit's .rodata is byte-identical
 // to the original, which also fixes the order constants are first used in.
 
 // A sprite, as far as this file reads it: its texture and that texture's size.
@@ -323,8 +322,10 @@ inline int HeldBy(int who, EController* first, EController* second, int button) 
 
 // 0x80040640
 // Per frame: fades the dialog in, reads the buttons and scrolls the body.
-// NON_MATCHING: 462 instructions against 488. The original keeps a separate copy of
-// the sound-and-answer code for each button test; here some of them merge.
+// NON_MATCHING: 20 of 488 instructions. Two things: the frame is 8 bytes smaller (the
+// original has an unused slot between the text temporary at sp+8 and the look-up
+// result at sp+0x10), and the first controller and the address of lbl_802E6700 are in
+// each other's saved registers (r29/r28).
 void Unk80040274::vfn2() {
     if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
         return;
@@ -332,14 +333,12 @@ void Unk80040274::vfn2() {
     EController* first = FirstPad();
     EController* second = SecondPad();
     Unk8004024C* fade = unk4C;
-    float still;
     if (fade->IsStill()) {
-        still = fade->unk40 + lbl_8037BFC8;
+        fade->unk40 = fade->unk40 + lbl_8037BFC8;
     } else {
-        still = 0.0f;
+        fade->unk40 = 0.0f;
     }
-    fade->unk40 = still;
-    if (fade->unk40 < fade->unk3C) {
+    if (!fade->TimedOut()) {
         fade->unk30.Add(lbl_8037BFC8);
     }
     if (unk7C == 3) {
@@ -348,8 +347,7 @@ void Unk80040274::vfn2() {
             unk58->vfn2();
             switch (((Unk800C6704*)unk58)->fn_800CAEF0()) {
             case 1: {
-                Unk801BA678 text(((Unk800C6704*)unk58)->fn_800C6FAC()->Get());
-                unk5C.fn_801BA860(text.Get());
+                unk5C.Set(((Unk800C6704*)unk58)->fn_800C6FAC()->Text());
                 if (unk58) {
                     delete unk58;
                 }
@@ -373,7 +371,8 @@ void Unk80040274::vfn2() {
         if (first->fn_8015E204(5) || (second && second->fn_8015E204(5))) {
             lbl_8037D96C->fn_8006186C(0xCF99DB1E);
             unk80 = 2;
-            goto answer;
+            unk54->unk0 = fn_80042228();
+            return;
         }
         if (unk80 == 2) {
             return;
@@ -382,18 +381,21 @@ void Unk80040274::vfn2() {
             if (first->fn_8015E204(5) || (second && second->fn_8015E204(5))) {
                 lbl_8037D96C->fn_8006186C(0xCF99DB1E);
                 unk80 = 2;
-                goto answer;
+                unk54->unk0 = fn_80042228();
+            return;
             }
             if (first->fn_8015E204(7) || (second && second->fn_8015E204(7))) {
                 lbl_8037D96C->fn_8006186C(0x867A1F00);
                 unk80 = 4;
-                goto answer;
+                unk54->unk0 = fn_80042228();
+            return;
             }
             if (unk7C == 2) {
                 if (first->fn_8015E024(0x10) || (second && second->fn_8015E024(0x10))) {
                     lbl_8037D96C->fn_8006186C(0x048AE94F);
                     unk80 = 3;
-                    goto answer;
+                    unk54->unk0 = fn_80042228();
+            return;
                 }
             }
         }
@@ -409,7 +411,6 @@ void Unk80040274::vfn2() {
             lbl_8037D96C->fn_8006186C(0xCF99DB1E);
             unk80 = 2;
         }
-    answer:
         unk54->unk0 = fn_80042228();
         return;
     }
@@ -421,18 +422,16 @@ scroll:
         return;
     }
     int up = HeldBy(unk70, first, second, 0x33);
-    float held;
     if (up) {
         if (unkB4 == 0.0f) {
             unk9C = 1;
             unkBC = 0.5f;
             unkA4 = 0;
         }
-        held = unkB4 + lbl_8037BFC8;
+        unkB4 = unkB4 + lbl_8037BFC8;
     } else {
-        held = 0.0f;
+        unkB4 = 0.0f;
     }
-    unkB4 = held;
     int down = HeldBy(unk70, first, second, 0x34);
     if (down) {
         if (unkB8 == 0.0f) {
@@ -440,22 +439,19 @@ scroll:
             unkC0 = 0.5f;
             unkA8 = 0;
         }
-        held = unkB8 + lbl_8037BFC8;
+        unkB8 = unkB8 + lbl_8037BFC8;
     } else {
-        held = 0.0f;
+        unkB8 = 0.0f;
     }
-    unkB8 = held;
     if (unkB4 > unkBC) {
-        int flip = unkA4 ^ 1;
-        unk9C = flip;
+        unkA4 ^= 1;
         unkBC = unkBC + 0.025f;
-        unkA4 = flip;
+        unk9C = unkA4;
     }
     if (unkB8 > unkC0) {
-        int flip = unkA8 ^ 1;
-        unkA0 = flip;
+        unkA8 ^= 1;
         unkC0 = unkC0 + 0.025f;
-        unkA8 = flip;
+        unkA0 = unkA8;
     }
     if (unkA0) {
         unkA0 = 0;
@@ -483,6 +479,11 @@ scroll:
             unkF0 = 0;
         }
     }
+}
+
+// 0x80044C5C (emitted at the end: defined after the function that calls it)
+inline const unsigned short* Unk801BA678::Text() const {
+    return unk0;
 }
 
 // 0x80040DE0
@@ -860,12 +861,21 @@ inline EVec2 TextSize(Unk8003B870String& text) {
     return lbl_802E6700.unkEC->GetStringSize(text.fn_801C5B24());
 }
 
+// The dialog's title: the name the object gives itself, or its catalogue text.
+inline Unk8003B870String Unk80040274::Title() {
+    if (fn_802186F4(unk6C)) {
+        return Unk8003B870String(*fn_80218174(unk6C), 0, -1);
+    }
+    return Unk8003B870String((const unsigned short*)TextOf(fn_80218044(unk6C)));
+}
+
 // 0x800424F0
 // Sets a dialog up from its description: who may answer, the kind, the title, the
 // body and the button texts. Kind 3 shows the text-entry screen instead.
-// NON_MATCHING: 772 instructions against 721 and a frame of 0x108 against 0xD8: the
-// original reuses three stack slots for the strings in the motive loop and one slot
-// for the three text sizes; here each temporary gets its own.
+// NON_MATCHING: same length (721), 252 instructions differ, all of two kinds: the
+// original gives each string and the table handle an 8-byte stack slot (title 0x48,
+// handle 0x50, body 0x58) where this packs them 4 apart, and `this` is in r31 there
+// and r27 here, which shifts the other saved registers.
 int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
     int who = b[5] & 0xF;
     if (who == 1) {
@@ -875,8 +885,7 @@ int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
     } else {
         unk70 = 2;
     }
-    Unk8003B870String title = fn_802186F4(unk6C) ? Unk8003B870String(*fn_80218174(unk6C), 0, -1)
-                                                  : Unk8003B870String((const unsigned short*)TextOf(fn_80218044(unk6C)));
+    Unk8003B870String title = Title();
     unk50->unk10 = title;
     unk7C = b[5] >> 4;
     unk78 = (b[7] >> 4) & 7;
@@ -957,33 +966,52 @@ int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
         for (int i = 0; i <= 7; i++) {
             Unk8003B870String tag;
             switch (i) {
-            case 0:
-                tag.fn_801C54EC(Unk8003B870String(L"Hunger"), 0, -1);
-                break;
-            case 1:
-                tag.fn_801C54EC(Unk8003B870String(L"Comfort"), 0, -1);
-                break;
-            case 2:
-                tag.fn_801C54EC(Unk8003B870String(L"Hygiene"), 0, -1);
-                break;
-            case 3:
-                tag.fn_801C54EC(Unk8003B870String(L"Bladder"), 0, -1);
-                break;
-            case 4:
-                tag.fn_801C54EC(Unk8003B870String(L"Energy"), 0, -1);
-                break;
-            case 5:
-                tag.fn_801C54EC(Unk8003B870String(L"Fun"), 0, -1);
-                break;
-            case 6:
-                tag.fn_801C54EC(Unk8003B870String(L"Room"), 0, -1);
-                break;
-            case 7:
-                tag.fn_801C54EC(Unk8003B870String(L"Social"), 0, -1);
+            case 0: {
+                Unk8003B870String name(L"Hunger");
+                tag.fn_801C54EC(name, 0, -1);
                 break;
             }
+            case 1: {
+                Unk8003B870String name(L"Comfort");
+                tag.fn_801C54EC(name, 0, -1);
+                break;
+            }
+            case 2: {
+                Unk8003B870String name(L"Hygiene");
+                tag.fn_801C54EC(name, 0, -1);
+                break;
+            }
+            case 3: {
+                Unk8003B870String name(L"Bladder");
+                tag.fn_801C54EC(name, 0, -1);
+                break;
+            }
+            case 4: {
+                Unk8003B870String name(L"Energy");
+                tag.fn_801C54EC(name, 0, -1);
+                break;
+            }
+            case 5: {
+                Unk8003B870String name(L"Fun");
+                tag.fn_801C54EC(name, 0, -1);
+                break;
+            }
+            case 6: {
+                Unk8003B870String name(L"Room");
+                tag.fn_801C54EC(name, 0, -1);
+                break;
+            }
+            case 7: {
+                Unk8003B870String name(L"Social");
+                tag.fn_801C54EC(name, 0, -1);
+                break;
+            }
+            }
             Unk8003B870String separator;
-            separator.fn_801C54EC(Unk8003B870String(L""), 0, -1);
+            {
+                Unk8003B870String empty(L"");
+                separator.fn_801C54EC(empty, 0, -1);
+            }
             Unk8003B870String rest;
             unk94 = fn_800D1E94(body.fn_801C5B24(), tag.fn_801C5B24(), separator.fn_801C5B24(), &rest);
             if (unk94 != 0) {
