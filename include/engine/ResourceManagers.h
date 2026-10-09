@@ -23,6 +23,7 @@ struct Unk80340AB8 {
 
 struct Unk8033F5C4 {
     void* fn_80177628(unsigned int id, int, int); // look up / load a resource by id
+    void fn_801778B4(unsigned int id);            // drop a reference by id
     char unk0[0xA4];
 };
 

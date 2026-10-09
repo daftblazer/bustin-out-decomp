@@ -59,6 +59,7 @@ public:
     void RemoveLight(EILight* light);                          // 0x80179EAC (ERLevel::RemoveLight in The Sims 2)
     void fn_8017B8C0(int a);
     void fn_8017BE20();
+    void fn_80176860();                                        // 0x80176860: takes a reference
 };
 // The house's walls (0xA0 bytes; constructor 0x80055C60).
 class Unk80055C60 {
@@ -72,11 +73,14 @@ public:
     void fn_8005653C(ERC* rc);
 };
 // The house's objects (0x14 bytes; constructor 0x8007F234).
+class EHouse;
 class Unk8007F234 {
 public:
+    Unk8007F234(EHouse* house);                                // 0x8007F234
     ~Unk8007F234();                                            // 0x8007F2F4
     void fn_8007FAB8(ERLevel* level);
     void fn_8007FFE4(ERC* rc);                                 // 0x8007FFE4
+    char unk0[0x14];
 };
 void fn_8016C9A4(EInstance* object);
 void fn_801767FC(void* resource);                              // releases a resource
@@ -87,6 +91,8 @@ const char* GetHouseNameText(int index);                       // 0x80049ADC
 
 class EHouse {
 public:
+    EHouse(EVec2& position, int id, ERLevel* level, bool makeObjects, bool makeWalls, bool unused,
+           bool owner);                                        // 0x80049BA0
     ~EHouse();                                                 // 0x80049D50
     const char* GetHouseName();                                // 0x80049B7C
     void Init();                                               // 0x80049DA4

@@ -37,6 +37,7 @@
 #include "sims/EHouse.h"
 #include "sims/EGlobal.h"
 #include "sims/ESimsCam.h"
+#include "engine/ResourceManagers.h"
 
 // The level loader (third source file of the unit at 0x80044D84: 0x80049ADC to
 // 0x8004BCBC, build time 21:41:35). It sets up a lot: the level objects, the lights,
@@ -65,6 +66,50 @@ void fn_801B8AA4(void* block);                                 // frees an array
 // 0x80049B7C
 const char* EHouse::GetHouseName() {
     return GetHouseNameText(unk3C);
+}
+
+// 0x80049BA0
+EHouse::EHouse(EVec2& position, int id, ERLevel* level, bool makeObjects, bool makeWalls, bool unused,
+               bool owner) {
+    unk0 = owner;
+    unk3C = id;
+    unk1C = 0;
+    unk30 = 0;
+    unk2C = 0;
+    if (lbl_802E6700.fn_800655C4()) {
+        unk20 = 2;
+    } else {
+        unk20 = 1;
+    }
+    unk34 = position.y;
+    unk38 = position.x;
+    unk14 = 0;
+    unk24 = 0;
+    unk28 = 0;
+    unk10 = 1;
+    if (makeWalls) {
+        unk8 = new Unk80055C60;
+    } else {
+        unk8 = 0;
+    }
+    if (makeObjects) {
+        unk4 = new Unk8007F234(this);
+    } else {
+        unk4 = 0;
+    }
+    if (level == 0) {
+        unsigned int id = lbl_802E6700.fn_80066CE4(GetHouseName());
+        Unk8033F5C4* manager = &lbl_8033F5C4;
+        manager->fn_80177628(id, 0, 0);
+        unk1C = (ERLevel*)lbl_8033FA38.fn_80177628(id, 0, 0);
+        manager->fn_801778B4(id);
+    } else {
+        unk1C = level;
+        level->fn_80176860();
+    }
+    unkC = 0;
+    unk18 = 0;
+    unkD0.Clear();
 }
 
 // 0x80049D50

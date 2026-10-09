@@ -26,6 +26,7 @@ public:
     void Begin();                 // 0x8006887C
     void End();                   // 0x800661E0
     int fn_800655C4();
+    unsigned int fn_80066CE4(const char* name);   // resource id of a name
     unsigned int fn_800655D8();
     void fn_800656D8();
     Unk800669ACResult fn_800669AC(const char* format, ...);

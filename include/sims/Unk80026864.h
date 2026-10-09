@@ -29,6 +29,7 @@ public:
 struct Unk8002EF48 {
     Unk8002EF48() { fn_8002EF48(); }
     void fn_8002EF48(); // zero everything
+    void Clear() { unk0 = 0; unk4 = 0; unk8 = 0; unkC = 0; unk10 = 0; unk14 = 0; unk18 = 0; unk1C = 0; unk20 = 0; unk24 = 0; }
     int unk0, unk4, unk8, unkC, unk10, unk14, unk18, unk1C, unk20, unk24;   // unk1C: texture
 };
 
