@@ -13,6 +13,7 @@ tools/trycc.sh [-v VERSION] file.cpp [flags]            # compile a scratch snip
 .venv/bin/python tools/sort_functions.py src/x/File.cpp # put a file's functions in address order
 .venv/bin/python tools/ppcdis.py ADDR [COUNT]           # disassemble the original
 .venv/bin/python tools/findref.py ADDR                  # who references an address
+.venv/bin/python tools/readme_progress.py                # refresh the progress section of README.md after a build
 ```
 
 - Always use `.venv/bin/python` (it has `ninja` and `capstone`).
