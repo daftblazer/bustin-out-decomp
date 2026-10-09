@@ -7,6 +7,7 @@
 #include "engine/e_rdataset.h"
 #include "engine/e_instance.h"
 #include "engine/e_ilight.h"
+#include "engine/e_ipointlight.h"
 #include "engine/e_rlevel.h"
 #include "engine/e_shader.h"
 #include "engine/e_rshader.h"

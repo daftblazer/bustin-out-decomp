@@ -2,6 +2,7 @@
 #include "engine/e_resource.h"
 #include "engine/e_instance.h"
 #include "engine/e_ilight.h"
+#include "engine/e_ipointlight.h"
 #include "engine/e_rlevel.h"
 #include "engine/e_engine.h"
 #include "engine/e_particle.h"
