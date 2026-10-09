@@ -1,3 +1,7 @@
+// The empty string is the first thing in this file's .rodata: something used it before the
+// engine headers (as in sims/ESimsDataManager.cpp).
+inline const char* HeaderString_ECheats_0() { return ""; }
+
 #include "engine/e_storable.h"
 #include "engine/e_resource.h"
 #include "engine/e_rfont.h"

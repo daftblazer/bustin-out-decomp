@@ -15,7 +15,7 @@ byte comparison. Nothing here was fixed; this is a snapshot of the state at the 
 | `src/sims/cas/CASSkin.cpp` | sizes differ | 1184 | 1344 | 0x0 |
 | `src/sims/cas/Unk800230AC.cpp` | sizes differ | 848 | 1216 | 0x0 |
 | `src/sims/cas/Unk80023D3C.cpp` | sizes differ | 752 | 592 | 0x0 |
-| `src/sims/ECheats.cpp` | 348 bytes differ | 1200 | 1200 | 0x0 |
+| `src/sims/ECheats.cpp` | identical | 1200 | 1200 | - |
 | `src/sims/Unk80026864.cpp` | sizes differ | 560 | 1656 | 0x0 |
 | `src/sims/Unk8002EFAC.cpp` | sizes differ | 464 | 592 | 0x16C |
 | `src/sims/Unk800315FC.cpp` | sizes differ | 504 | 520 | 0x1AC |
@@ -23,14 +23,14 @@ byte comparison. Nothing here was fixed; this is a snapshot of the state at the 
 | `src/sims/Unk80039E78.cpp` | sizes differ | 504 | 520 | 0x1C8 |
 | `src/sims/Unk8003AA6C.cpp` | sizes differ | 1152 | 1184 | 0x458 |
 | `src/sims/Unk8003B870.cpp` | sizes differ | 328 | 408 | 0x110 |
-| `src/sims/ERFont.cpp` | 125 bytes differ | 520 | 520 | 0x66 |
+| `src/sims/ERFont.cpp` | identical | 520 | 520 | - |
 | `src/sims/ESimsDataManager.cpp` | identical | 1320 | 1320 | - |
 | `src/sims/Unk800401FC.cpp` | identical | 2264 | 2264 | - |
 | `src/sims/Unk800454AC.cpp` | sizes differ | 920 | 1848 | 0x2EC |
 
 ## Reading the table
 
-- **identical** (3 files): the data is complete and in the right order. These files could be linked from source once their functions all match (`ESimsDataManager` still cannot, because of the shared inline virtuals problem in `CLAUDE.md`).
+- **identical** (5 files): the data is complete and in the right order. These files could be linked from source once their functions all match (`ESimsDataManager` still cannot, because of the shared inline virtuals problem in `CLAUDE.md`).
 - **N bytes differ** with equal sizes (2 files: `sims/ECheats.cpp`, `sims/ERFont.cpp`): the right amount of data in the wrong order or with a wrong constant. The first differing offset is where to start; the order of float constants is the order they are first used in the source.
 - **sizes differ** (16 files): mostly files with functions still unwritten, whose strings and constants are therefore missing, so a smaller size on our side is expected. A larger size on our side (`Unk80023D3C`) means data the original puts elsewhere or an include that adds strings the original lacks.
 - A first offset of `0x0` means the data differs from the very start, usually because the run of header strings differs (a stand-in header missing or included in a different order).
