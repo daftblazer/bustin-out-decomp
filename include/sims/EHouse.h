@@ -55,7 +55,7 @@ public:
     void Update();                                             // 0x8017A778 (ERLevel::Update in The Sims 2)
     void fn_8017AA14(ERC* rc);                                 // 0x8017AA14
     void fn_8017BE44();                                        // 0x8017BE44
-    void fn_8017BF6C(void* object);                            // 0x8017BF6C
+    void fn_8017BF6C(Unk8002EF48* descriptor);                 // 0x8017BF6C: puts an object into the level
     void RemoveLight(EILight* light);                          // 0x80179EAC (ERLevel::RemoveLight in The Sims 2)
     void fn_8017B8C0(int a);
     void fn_8017BE20();
@@ -98,7 +98,8 @@ public:
     void DestroyWalls();                                       // 0x8004ACBC
     void fn_8004B578(int a, int b);                            // 0x8004B578
     void fn_8004B634();                                        // 0x8004B634
-    void fn_8004B740(Unk8007F234* object);                     // 0x8004B740
+    void fn_8004B740(Unk8002EF48* descriptor);                 // 0x8004B740
+    void fn_8004B6A4(Unk80026864* object);                     // 0x8004B6A4
     void CleanUpRoomLights();                                  // 0x8004B4A0 (guess)
     void SetNextWallMode();                                    // 0x80049FFC (guess)
     void fn_8004A110();                                        // runs one step of the house
@@ -127,7 +128,8 @@ public:
     Unk801B5358 unk4C;
     Unk801641A4 unk58;
     Unk8002EF48 unkD0;
-    char unkF8[0x110 - 0xF8];
+    char unkF8[0x104 - 0xF8];
+    EVec3 unk104;                                              // where the object was put
     float unk110;
 };
 

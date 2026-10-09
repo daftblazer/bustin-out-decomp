@@ -174,10 +174,26 @@ void fn_8004B678(void* a, Unk8004B678Arg* b) {
 }
 
 // 0x8004B740
-void EHouse::fn_8004B740(Unk8007F234* object) {
+void EHouse::fn_8004B740(Unk8002EF48* descriptor) {
+    if (unk1C != 0 && descriptor != 0) {
+        descriptor->unk24 = (int)&unk58;
+        unk1C->fn_8017BF6C(descriptor);
+    }
+}
+
+// 0x8004B6A4
+// Describes an object to the level: where it is, what it is and who draws it.
+void EHouse::fn_8004B6A4(Unk80026864* object) {
     if (unk1C != 0 && object != 0) {
-        *(void**)((char*)object + 0x24) = &unk58;
-        unk1C->fn_8017BF6C(object);
+        unk104 = *object->fn_8002D2C8();
+        unkD0.unk18 = (int)object;
+        unkD0.unk24 = (int)&unk58;
+        unkD0.unkC = 0;
+        unkD0.unk10 = 0;
+        unkD0.unk1C = 0;
+        unkD0.unk8 = (int)&unk104;
+        unkD0.unk14 = (int)fn_8004B678;
+        unk1C->fn_8017BF6C(&unkD0);
     }
 }
 
