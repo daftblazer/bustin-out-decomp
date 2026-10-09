@@ -511,4 +511,18 @@ is byte-identical, yet cannot be linked from source:
   first written with placeholder names although twenty of its functions had `=` hints (`ESimsDataManager`,
   `ObjSelector`, `ReconBuffer`, `ObjectSaveTypeTable2::DoStream`). The hinted signatures also correct guesses:
   which functions are static members, which take a `bool`, which object is an `ESim`.
+- **Compare a unit's `.rodata` early, not last.** `objcopy -O binary -j .rodata` on `build/try/<unit>.o` and on
+  `build/G4ME69/obj/<unit>.o`, then `cmp -l`. Besides catching wrong constants (a gap read as 0.005 was 0.08)
+  and wrong string widths, the order of the float constants is the order they are first used in the *source*,
+  so a swapped pair says which of two statements came first (`position.x = 0.45f` before the y that uses 0.02).
+- Relocated addresses are masked by `tools/tu.sh`, so a global with the wrong name still "matches". In the
+  dialog unit three were off (`-0x7248(r13)` is `lbl_8037C198`, not `lbl_8037D998`; the callbacks at
+  `-0x7314..-0x730c(r13)` start at `lbl_8037C0CC`). Work the address out: `_SDA_BASE_` is 0x803833E0.
+- `L"..."` is a 32-bit string with this compiler (the motive names at 0x80298CE0). A 16-bit string in `.rodata`
+  is an array of `unsigned short` (`static const unsigned short text[] = {'M', 'i', ...}`), emitted at the end of
+  the unit's `.rodata`, after the vtables.
+- A position passed to the font's `DrawDs` matches when it is built as a temporary in the call
+  (`&EVec2(x, y)`), not as a named local.
+- A header's strings can sit in the middle of a unit's `.rodata` (the ERTexture strings in the dialog unit sit
+  between two functions' constants). An `#include` at that point in the file reproduces it.
 

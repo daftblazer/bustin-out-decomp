@@ -22,16 +22,11 @@
 #include "sims/cas/CASWidgets.h"
 #include "sims/ESimsCam.h"
 
-// The dialog boxes (unit 0x800401FC). Every function has source except a
-// two-instruction accessor (see the notes); the list below is what was written last
-// and has had no second pass:
-//   0x80040640 update (488 instructions)
-//   0x800411A8 body text and scroll arrows (402)
-//   0x800424F0 set-up from a dialog description (721)
-//   0x80043110 word wrapping (301)
-//   0x80044974 icon (132)                     0x80044C5C a two-instruction accessor
-// Its .rodata is not complete either: "Missing String!!!" is a 16-bit string in the
-// original and the motive names at 0x80298CE0 are missing.
+// The dialog boxes (unit 0x800401FC): the dialog screen, its texts, and the object
+// that queues dialogs. Every function has source except a two-instruction accessor
+// at 0x80044C5C (an inline `Get()` the original emits out of line; ours is inlined).
+// 33 of 51 functions match; the rest carry notes. The unit's .rodata is byte-identical
+// to the original, which also fixes the order constants are first used in.
 
 // A sprite, as far as this file reads it: its texture and that texture's size.
 struct Unk80181824Image {
@@ -160,6 +155,10 @@ public:
     char unkF4[0xE28 - 0xF4];
 };
 
+// Shown when a text is missing (16-bit characters).
+static const unsigned short lbl_8029918C[] = {'M', 'i', 's', 's', 'i', 'n', 'g', ' ', 'S', 't',
+                                              'r', 'i', 'n', 'g', '!', '!', '!', 0};
+
 // The sprites of the dialog frame and its icons, shared by all dialogs.
 Unk80181824* lbl_8037B520 = 0;
 Unk80181824* lbl_8037B524 = 0;
@@ -186,7 +185,7 @@ int lbl_8037CAF0;                     // the kind of the dialog being made
 
 // 0x800401FC
 Unk800401FC::Unk800401FC() {
-    unkC = (const unsigned short*)L"Missing String!!!";
+    unkC = lbl_8029918C;
     unk20 = 0;
     unk2C = 0;
     unk30 = 0;
@@ -324,7 +323,8 @@ inline int HeldBy(int who, EController* first, EController* second, int button) 
 
 // 0x80040640
 // Per frame: fades the dialog in, reads the buttons and scrolls the body.
-// NON_MATCHING: first version, not yet compared in detail.
+// NON_MATCHING: 462 instructions against 488. The original keeps a separate copy of
+// the sound-and-answer code for each button test; here some of them merge.
 void Unk80040274::vfn2() {
     if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
         return;
@@ -565,9 +565,16 @@ void fn_800411A0() {
 void fn_800411A4() {
 }
 
+// The ERTexture header strings sit here in the original's .rodata, between the
+// constants of the function above and the one below, not with the other header
+// strings at the top. Why is not known (an include this late is unusual); this
+// reproduces the bytes.
+#include "engine/e_rtexture.h"
+
 // 0x800411A8
 // Draws the body text and, when it scrolls, the arrows above and below it.
-// NON_MATCHING: first version, not yet compared in detail.
+// NON_MATCHING: 401 instructions against 402; the arrow positions are computed in a
+// different register order. Constants are in the original's order.
 void Unk80040274::fn_800411A8(ERC* rc, int flag) {
     if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
         return;
@@ -585,10 +592,10 @@ void Unk80040274::fn_800411A8(ERC* rc, int flag) {
     if (!plain) {
         if (unk88 > 0) {
             Unk80181824Image* image = SpriteTexture(lbl_8037B520)->unk20;
-            float height = (float)image->unk12 / (float)lbl_8037C198->unk18 - 0.012f;
             float width = (float)image->unk10 / (float)lbl_8037C198->unk14;
-            float gap = 3.0f / (float)lbl_8037C198->unk18;
             float x = window->Left() + (window->Right() - window->Left() - width) * 0.5f;
+            float height = (float)image->unk12 / (float)lbl_8037C198->unk18 - 0.012f;
+            float gap = 3.0f / (float)lbl_8037C198->unk18;
             float y = window->Top() - height - gap;
             if (first->fn_8015DF98(0x33) || (second && second->fn_8015DF98(0x33))) {
                 lbl_8037B528->fn_80181824(rc);
@@ -847,7 +854,9 @@ inline EVec2 TextSize(Unk8003B870String& text) {
 // 0x800424F0
 // Sets a dialog up from its description: who may answer, the kind, the title, the
 // body and the button texts. Kind 3 shows the text-entry screen instead.
-// NON_MATCHING: first version, not yet compared in detail.
+// NON_MATCHING: 772 instructions against 721 and a frame of 0x108 against 0xD8: the
+// original reuses three stack slots for the strings in the motive loop and one slot
+// for the three text sizes; here each temporary gets its own.
 int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
     int who = b[5] & 0xF;
     if (who == 1) {
@@ -1016,7 +1025,8 @@ bool fn_800430EC(int character) {
 
 // 0x80043110
 // Places the dialog's window and breaks the body into lines that fit it.
-// NON_MATCHING: first version, not yet compared in detail.
+// NON_MATCHING: 295 instructions against 301; the four window rectangles are built
+// differently (the original stores the default corners first and reloads them).
 void Unk80040274::fn_80043110(Unk8003B870String* body, int flag) {
     unk98 = 0;
     EVec2 from(lbl_8037CAC0);
@@ -1096,8 +1106,8 @@ void Unk80040274::fn_80043110(Unk8003B870String* body, int flag) {
 
 // 0x800435C4
 // Works out where the dialog goes and starts it fading in.
-// NON_MATCHING: 144 instructions against 151; the two rectangle computations are
-// folded differently (the original keeps the height sum separate in both branches).
+// NON_MATCHING: 144 instructions against 151; the original adds the height terms one
+// at a time in source order, here they are regrouped. Constants are in its order.
 void Unk80040274::fn_800435C4(int flag) {
     unkF0 = 1;
     unk50->unk24 = unk64->Top();
@@ -1105,10 +1115,11 @@ void Unk80040274::fn_800435C4(int flag) {
     unk4C->unk3C = 120.0f;
     float line = 32.0f / (float)lbl_8037C198->unk18;
     lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
+    float start = 0.0f;
     EVec2 size = lbl_802E6700.unkEC->DoGetStringSize("A!Wyj^?}|", false, 0);
     ERectF rect;
     if (flag == 0) {
-        float gap = 0.005f;
+        float gap = 0.08f;
         float height = unk64->Bottom() - unk64->Top() + 0.01f + size.y + gap + gap + line;
         rect.unk4 = unk64->Top() - gap - size.y;
         rect.unk0 = unk64->Left() - 0.05f;
@@ -1122,7 +1133,7 @@ void Unk80040274::fn_800435C4(int flag) {
         rect.unkC = rect.unk4 + height;
     }
     unk4C->unk10 = rect;
-    unk4C->unk30.Set(0.0f, lbl_8037B500, 0.0f);
+    unk4C->unk30.Set(start, lbl_8037B500, start);
     fn_800448F4();
     unk4C->unk20 = unk4C->unk10;
 }
@@ -1470,9 +1481,12 @@ void Unk80040274::fn_800448F4() {
 
 // 0x80044974
 // Draws the motive icon under the body.
-// NON_MATCHING: first version, not yet compared in detail.
+// NON_MATCHING: 132 instructions, 52 differ. The original's frame is 8 bytes larger
+// (an unused 8-byte local after the colour) and it loads the texture size later.
 void Unk80040274::fn_80044974(ERC* rc) {
-    EVec2 position(0.45f, unk64->Bottom() + 0.02f);
+    EVec2 position;
+    position.x = 0.45f;
+    position.y = unk64->Bottom() + 0.02f;
     Unk80181824* icon;
     Unk80181824Texture* texture;
     switch (unk90) {
