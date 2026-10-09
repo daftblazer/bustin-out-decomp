@@ -89,3 +89,65 @@ void EHouse::fn_8004A90C() {
 short fn_8004B104(int value) {
     return value;
 }
+
+// 0x80049FB4
+void EHouse::fn_80049FB4(int state) {
+    unk20 = state;
+    if (unk8) {
+        unk8->fn_80056598();
+        unk8->fn_80056914(0);
+    }
+}
+
+// 0x8004A0B4
+void EHouse::fn_8004A0B4(ERC* rc) {
+    if (unk1C) {
+        unk1C->fn_8017AA14(rc);
+    }
+    unk4->fn_8007FFE4(rc);
+    if (unk8) {
+        unk8->fn_8005653C(rc);
+    }
+}
+
+// 0x8004ACBC
+// Takes the walls away (the Sims 2's DestroyWalls has the same size).
+void EHouse::DestroyWalls() {
+    if (unk8) {
+        delete unk8;
+        unk8 = 0;
+    }
+    unk1C->fn_8017BE44();
+}
+
+// 0x8004B578
+void EHouse::fn_8004B578(int a, int b) {
+    unk4C.fn_801B5704(b, a, 0);
+}
+
+// 0x8004B634
+void EHouse::fn_8004B634() {
+    Unk801B5358Node* next;
+    for (Unk801B5358Node* node = unk4C.unk0; node != 0; node = next) {
+        void* object = node->unk18;
+        next = node->unk10;
+        fn_8016C9A4(object);
+    }
+}
+
+// 0x8004B678
+struct Unk8004B678Arg {
+    char unk0[0x18];
+    void* unk18;
+};
+void fn_8004B678(void* a, Unk8004B678Arg* b) {
+    fn_8002A234(b->unk18, a);
+}
+
+// 0x8004B740
+void EHouse::fn_8004B740(Unk8007F234* object) {
+    if (unk1C != 0 && object != 0) {
+        *(void**)((char*)object + 0x24) = &unk58;
+        unk1C->fn_8017BF6C(object);
+    }
+}

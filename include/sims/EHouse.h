@@ -11,11 +11,20 @@
 // and shape and are marked in the source. Member names keep their offsets.
 
 struct ERC;
+// One entry of the house's object list (next at 0x10, the object at 0x18).
+struct Unk801B5358Node {
+    char unk0[0x10];
+    Unk801B5358Node* unk10;
+    int unk14;
+    void* unk18;
+};
 struct Unk801B5358 {
     Unk801B5358();                                             // 0x801B5358
     ~Unk801B5358() { fn_801B5D40(); }
     void fn_801B5D40();                                        // 0x801B5D40
-    char unk0[0xC];
+    void fn_801B5704(int a, int b, int c);                     // 0x801B5704
+    Unk801B5358Node* unk0;                                     // first entry
+    char unk4[8];
 };
 class Unk801641A4 {
 public:
@@ -23,6 +32,30 @@ public:
     virtual ~Unk801641A4();                                    // 0x80164248
     char unk4[0x74];                                           // (the vtable pointer follows, at 0x74)
 };
+
+// The loaded level resource (the engine's ERLevel in The Sims 2).
+class ERLevel {
+public:
+    void fn_8017AA14(ERC* rc);                                 // 0x8017AA14
+    void fn_8017BE44();                                        // 0x8017BE44
+    void fn_8017BF6C(void* object);                            // 0x8017BF6C
+};
+// The house's walls (0xA0 bytes; constructor 0x80055C60).
+class Unk80055C60 {
+public:
+    Unk80055C60();                                             // 0x80055C60
+    ~Unk80055C60();                                            // 0x80055D54
+    void fn_80056598();
+    void fn_80056914(int a);
+    void fn_8005653C(ERC* rc);
+};
+// The house's objects (0x14 bytes; constructor 0x8007F234).
+class Unk8007F234 {
+public:
+    void fn_8007FFE4(ERC* rc);                                 // 0x8007FFE4
+};
+void fn_8016C9A4(void* object);
+void fn_8002A234(void* a, void* b);
 
 const char* GetHouseNameText(int index);                       // 0x80049ADC
 
@@ -34,15 +67,21 @@ public:
     void BuildHouse();                                         // 0x80049DE0 (guess)
     void fn_8004A90C();                                        // sets the room light scale
     void fn_8004ABB8();                                        // cleans up (called by the destructor)
+    void fn_80049FB4(int state);                               // sets the wall state
+    void fn_8004A0B4(ERC* rc);                                 // draws (guess: Draw)
+    void DestroyWalls();                                       // 0x8004ACBC
+    void fn_8004B578(int a, int b);                            // 0x8004B578
+    void fn_8004B634();                                        // 0x8004B634
+    void fn_8004B740(Unk8007F234* object);                     // 0x8004B740
 
     int unk0;                                                  // who made it
-    void* unk4;
-    void* unk8;
+    Unk8007F234* unk4;
+    Unk80055C60* unk8;
     int unkC;
     int unk10;
     int unk14;                                                 // 1 once built
     int unk18;
-    void* unk1C;                                               // the level (ERLevel)
+    ERLevel* unk1C;                                            // the level
     int unk20;                                                 // wall state
     int unk24;
     int unk28;
