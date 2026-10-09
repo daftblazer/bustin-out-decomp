@@ -11,18 +11,34 @@
 // and shape and are marked in the source. Member names keep their offsets.
 
 struct ERC;
+// The engine's instance class as far as the house uses it: something with a virtual
+// destructor in slot 6 (EInstance in The Sims 2). Lights derive from it.
+class EInstance {
+public:
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual ~EInstance();
+};
+class EILight : public EInstance {
+};
+
 // One entry of the house's object list (next at 0x10, the object at 0x18).
 struct Unk801B5358Node {
     char unk0[0x10];
     Unk801B5358Node* unk10;
     int unk14;
-    void* unk18;
+    EInstance* unk18;
+    void* unk1C;                                               // a resource held for it
 };
 struct Unk801B5358 {
     Unk801B5358();                                             // 0x801B5358
     ~Unk801B5358() { fn_801B5D40(); }
     void fn_801B5D40();                                        // 0x801B5D40
     void fn_801B5704(int a, int b, int c);                     // 0x801B5704
+    void fn_801B5B08(Unk801B5358Node* node);                   // takes one entry out
     Unk801B5358Node* unk0;                                     // first entry
     char unk4[8];
 };
@@ -40,6 +56,9 @@ public:
     void fn_8017AA14(ERC* rc);                                 // 0x8017AA14
     void fn_8017BE44();                                        // 0x8017BE44
     void fn_8017BF6C(void* object);                            // 0x8017BF6C
+    void RemoveLight(EILight* light);                          // 0x80179EAC (ERLevel::RemoveLight in The Sims 2)
+    void fn_8017B8C0(int a);
+    void fn_8017BE20();
 };
 // The house's walls (0xA0 bytes; constructor 0x80055C60).
 class Unk80055C60 {
@@ -55,9 +74,13 @@ public:
 // The house's objects (0x14 bytes; constructor 0x8007F234).
 class Unk8007F234 {
 public:
+    ~Unk8007F234();                                            // 0x8007F2F4
+    void fn_8007FAB8(ERLevel* level);
     void fn_8007FFE4(ERC* rc);                                 // 0x8007FFE4
 };
-void fn_8016C9A4(void* object);
+void fn_8016C9A4(EInstance* object);
+void fn_801767FC(void* resource);                              // releases a resource
+void fn_80075ABC();
 void fn_8002A234(void* a, void* b);
 
 const char* GetHouseNameText(int index);                       // 0x80049ADC
@@ -76,6 +99,7 @@ public:
     void fn_8004B578(int a, int b);                            // 0x8004B578
     void fn_8004B634();                                        // 0x8004B634
     void fn_8004B740(Unk8007F234* object);                     // 0x8004B740
+    void CleanUpRoomLights();                                  // 0x8004B4A0 (guess)
     void SetNextWallMode();                                    // 0x80049FFC (guess)
     void fn_8004A110();                                        // runs one step of the house
     void fn_8004A91C();
@@ -92,10 +116,10 @@ public:
     int unk18;
     ERLevel* unk1C;                                            // the level
     int unk20;                                                 // wall state
-    int unk24;
-    int unk28;
-    int unk2C;
-    int unk30;
+    EILight* unk24;                                            // the sun / ambient light
+    EILight* unk28;
+    EILight** unk2C;                                           // one light per room
+    int unk30;                                                 // how many
     float unk34;
     float unk38;
     int unk3C;                                                 // which house (1 to 16)

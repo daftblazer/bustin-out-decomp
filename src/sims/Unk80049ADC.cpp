@@ -60,6 +60,8 @@ const char* GetHouseNameText(int index) {
     return names[i];
 }
 
+void fn_801B8AA4(void* block);                                 // frees an array
+
 // 0x80049B7C
 const char* EHouse::GetHouseName() {
     return GetHouseNameText(unk3C);
@@ -156,7 +158,7 @@ void EHouse::fn_8004B578(int a, int b) {
 void EHouse::fn_8004B634() {
     Unk801B5358Node* next;
     for (Unk801B5358Node* node = unk4C.unk0; node != 0; node = next) {
-        void* object = node->unk18;
+        EInstance* object = node->unk18;
         next = node->unk10;
         fn_8016C9A4(object);
     }
@@ -218,4 +220,84 @@ int fn_8004A194(int time) {
         }
     }
     return 9;
+}
+
+// 0x8004B4A0
+// Takes the lights off the level and deletes them (a guess at the Sims 2's CleanUpRoomLights,
+// the same place in its method order).
+void EHouse::CleanUpRoomLights() {
+    if (unk2C) {
+        for (int i = 1; i < unk30; i++) {
+            unk1C->RemoveLight(unk2C[i]);
+            if (unk2C[i]) {
+                delete unk2C[i];
+            }
+        }
+        if (unk2C) {
+            fn_801B8AA4(unk2C);
+        }
+        unk2C = 0;
+    }
+    if (unk24) {
+        unk1C->RemoveLight(unk24);
+    }
+    if (unk28) {
+        unk1C->RemoveLight(unk28);
+    }
+}
+
+// 0x8004B5AC
+// Deletes everything on the object list and empties it.
+// NON_MATCHING: same 34 instructions; the original keeps the entry in r30 and the resource in
+// r31, here they are the other way round (three declaration orders tried).
+void EHouse::fn_8004B5AC() {
+    Unk801B5358Node* node = unk4C.unk0;
+    if (node != 0) {
+        do {
+            EInstance* object = node->unk18;
+            Unk801B5358Node* next = node->unk10;
+            void* resource = node->unk1C;
+            if (object) {
+                delete object;
+            }
+            if (resource) {
+                fn_801767FC(resource);
+            }
+            unk4C.fn_801B5B08(node);
+            node = next;
+        } while (node != 0);
+    }
+}
+
+// 0x8004ABB8
+// Takes the whole house down (called by the destructor).
+void EHouse::fn_8004ABB8() {
+    if (unk4) {
+        unk4->fn_8007FAB8(unk1C);
+    }
+    CleanUpRoomLights();
+    if (unk24) {
+        delete unk24;
+    }
+    int zero = 0;
+    unk24 = (EILight*)zero;
+    if (unk28) {
+        delete unk28;
+    }
+    unk28 = (EILight*)zero;
+    unk1C->fn_8017B8C0(0);
+    DestroyWalls();
+    fn_80075ABC();
+    if (unk4) {
+        delete unk4;
+    }
+    unk1C->fn_8017BE20();
+    fn_8004B634();
+    fn_8004B5AC();
+    if (unk1C) {
+        fn_801767FC(unk1C);
+        unk1C = (ERLevel*)zero;
+    }
+    unk18 = zero;
+    unk10 = 1;
 }
