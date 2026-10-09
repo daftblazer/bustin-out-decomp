@@ -145,7 +145,7 @@ public:
     int unk70;                        // which players may answer
     int unk74;
     int unk78;
-    int unk7C;                        // kind: 0 one button, 1 two, 2 three, 3 a screen
+    unsigned int unk7C;               // kind: 0 one button, 1 two, 2 three, 3 a screen (unsigned: its switches compare with cmplwi)
     int unk80;                        // 1 waiting, 2 to 4 the button pressed
     short unk84;
     int unk88;                        // first line shown

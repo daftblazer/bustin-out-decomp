@@ -65,6 +65,10 @@ public:
     void DoDraw(const void* text, bool wide, bool snapX, bool snapY, const EVec2& position, ERC* rc,
                 EVec2* size, EWindow* window);
     EVec2 DoGetStringSize(const void* text, bool wide, EWindow* window);
+    // The public forms (inferred: the Sims 2 names carry "Do", and callers that take
+    // the size through these compile like the original, which calls with the flag set).
+    EVec2 GetStringSize(const unsigned short* text, EWindow* window = 0) { return DoGetStringSize(text, true, window); }
+    EVec2 GetStringSize(const char* text, EWindow* window = 0) { return DoGetStringSize(text, false, window); }
     void SnapPosToPixel(EVec2& position, bool snapX, bool snapY, EWindow* window);
     void DoDrawAlign(ERC* rc, const void* text, bool wide, EVec2 position, int alignX, int alignY, EVec2* size);
     void DrawDs(ERC* rc, const void* text, EVec2* position, int alignX, int alignY, EVec2* size, float offsetX,

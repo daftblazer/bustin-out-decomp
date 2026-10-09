@@ -25,7 +25,7 @@
 // The dialog boxes (unit 0x800401FC): the dialog screen, its texts, and the object
 // that queues dialogs. Every function has source except a two-instruction accessor
 // at 0x80044C5C (an inline `Get()` the original emits out of line; ours is inlined).
-// 33 of 51 functions match; the rest carry notes. The unit's .rodata is byte-identical
+// 36 of 51 functions match; the rest carry notes. The unit's .rodata is byte-identical
 // to the original, which also fixes the order constants are first used in.
 
 // A sprite, as far as this file reads it: its texture and that texture's size.
@@ -496,8 +496,6 @@ void Unk80040274::fn_80040DE0() {
 
 // 0x80040EAC
 // Draws the dialog: its title, body, icon and buttons.
-// NON_MATCHING: 182 instructions against 181; same calls in the same order, the
-// unused title size and position are computed in a different order.
 void Unk80040274::vfn3(ERC* rc) {
     if (unk7C == 3) {
         if (unk58) {
@@ -508,7 +506,7 @@ void Unk80040274::vfn3(ERC* rc) {
     lbl_802E6700.unkE4->fn_80181824(rc);
     float half = 0.5f;
     float middle = unk64->Left() + (unk64->Right() - unk64->Left()) * half;
-    EVec2 size = lbl_802E6700.unkEC->DoGetStringSize(unk50->unk10.fn_801C5B24(), true, 0);
+    EVec2 size = lbl_802E6700.unkEC->GetStringSize(unk50->unk10.fn_801C5B24());
     size.x += 0.1f;
     lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
     lbl_802E6700.unkEC->unk64 = lbl_802E6964;
@@ -519,10 +517,12 @@ void Unk80040274::vfn3(ERC* rc) {
     switch (unk7C) {
     case 0:
     case 10:
-        position.x = middle - width * 0.3f * half;
+        width *= 0.3f;
+        position.x = middle - width * half;
         break;
     case 1:
-        position.x = middle - width * 0.6f * half;
+        width *= 0.6f;
+        position.x = middle - width * half;
         break;
     case 2:
         break;
@@ -641,8 +641,9 @@ void Unk80040274::fn_800411A8(ERC* rc, int flag) {
 
 // 0x800417F0
 // Draws the buttons of a three-button dialog; the first has a shadow.
-// NON_MATCHING: 305 instructions against 304; the shadow's position temporaries are
-// laid out differently (not yet worked through).
+// NON_MATCHING: 2 of 304 instructions, the same swap as in fn_80041CB0: in the
+// SetSize call after the second button's position is read, the original loads the
+// size (fmr f1) before `li r4, 1`.
 void Unk80040274::fn_800417F0(ERC* rc) {
     if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
         return;
@@ -654,6 +655,7 @@ void Unk80040274::fn_800417F0(ERC* rc) {
     EController* first = FirstPad();
     EController* second = SecondPad();
     ERFont* font = lbl_802E6700.unkEC;
+    EVec2 at;
     float size = 13.0f;
     float x = unkD4[0];
     float y = unkC8[0];
@@ -664,17 +666,20 @@ void Unk80040274::fn_800417F0(ERC* rc) {
         const void* text = unk50->unk1C.fn_801C5B24();
         EVec2 position(x, y);
         EVec2 offset(0.0025f);
-        EVec2 shadow(position + offset);
-        font->DoDrawAlign(rc, text, true, shadow, 2, 2, 0);
+        at.x = position.x + offset.x;
+        at.y = position.y + offset.y;
+        font->DoDrawAlign(rc, text, true, at, 2, 2, 0);
     }
     if (first->fn_8015E204(5) || (second && second->fn_8015E204(5))) {
         font->unk64 = lbl_802E6A34;
-        EVec2 at(x, y);
-        font->DoDrawAlign(rc, unk50->unk1C.fn_801C5B24(), true, at, 2, 2, 0);
+        const void* text = unk50->unk1C.fn_801C5B24();
+        at.Set(x, y);
+        font->DoDrawAlign(rc, text, true, at, 2, 2, 0);
     } else {
         font->unk64 = lbl_802E6964;
-        EVec2 at(x, y);
-        font->DoDrawAlign(rc, unk50->unk1C.fn_801C5B24(), true, at, 2, 2, 0);
+        const void* text = unk50->unk1C.fn_801C5B24();
+        at.Set(x, y);
+        font->DoDrawAlign(rc, text, true, at, 2, 2, 0);
     }
     x = unkD4[1];
     y = unkC8[1];
@@ -685,7 +690,11 @@ void Unk80040274::fn_800417F0(ERC* rc) {
     } else {
         font->unk64 = lbl_802E6964;
     }
-    font->DrawDs(rc, unk50->unk18.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
+    {
+        const void* text = unk50->unk18.fn_801C5B24();
+        at.Set(x, y);
+        font->DrawDs(rc, text, &at, 2, 2, 0, 2.0f, 1.0f);
+    }
     x = unkD4[2];
     y = unkC8[2];
     font->Select(rc);
@@ -695,14 +704,19 @@ void Unk80040274::fn_800417F0(ERC* rc) {
     } else {
         font->unk64 = lbl_802E6964;
     }
-    font->DrawDs(rc, unk50->unk14.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
+    {
+        const void* text = unk50->unk14.fn_801C5B24();
+        at.Set(x, y);
+        font->DrawDs(rc, text, &at, 2, 2, 0, 2.0f, 1.0f);
+    }
 }
 
 // 0x80041CB0
 // Draws the buttons of a two-button dialog.
 // NON_MATCHING: 2 of 177 instructions. In the first SetSize call the original loads
-// the size (fmr f1) before `li r4, 1`; here they are the other way round. The second
-// call, written the same way, matches.
+// the size (fmr f1) before `li r4, 1`; here they are the other way round. Sixty
+// orderings of the declarations before it and six other forms of the call give the
+// same two. fn_800417F0 has the same swap in its second SetSize call.
 void Unk80040274::fn_80041CB0(ERC* rc) {
     if (((Unk80108290*)lbl_802E6700.unk90)->fn_801082CC() == 0) {
         return;
@@ -824,9 +838,6 @@ int Unk80040274::vfn24(void* a, void* b, void* c, void* d) {
 
 // 0x80042360
 // Sets up a dialog with a title and one button.
-// NON_MATCHING: 101 instructions against 100. The frame is 8 bytes larger and the
-// address of the size temporary is kept in a saved register; the original passes
-// sp+0x10 directly and copies x before y.
 int Unk80040274::vfn23(Unk8003B870String* body, const char* title) {
     Unk8003B870String text((const unsigned short*)GetTextB(title));
     unk70 = 2;
@@ -836,9 +847,7 @@ int Unk80040274::vfn23(Unk8003B870String* body, const char* title) {
     unk50->unk10 = text;
     lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
     unk50->unk1C = (const unsigned short*)GetTextB("ok");
-    Unk800401FC* texts = unk50;
-    EVec2 size = lbl_802E6700.unkEC->DoGetStringSize(texts->unk1C.fn_801C5B24(), true, 0);
-    texts->unk34 = size;
+    unk50->unk34 = lbl_802E6700.unkEC->GetStringSize(unk50->unk1C.fn_801C5B24());
     unk50->unk18.fn_801C5704(0, -1);
     unk50->unk14.fn_801C5704(0, -1);
     fn_80043110(body, 0);
@@ -848,7 +857,7 @@ int Unk80040274::vfn23(Unk8003B870String* body, const char* title) {
 void fn_80043034(Unk80043034Table* table, Unk8003B870String* out, int key, const unsigned short* fallback, int);
 
 inline EVec2 TextSize(Unk8003B870String& text) {
-    return lbl_802E6700.unkEC->DoGetStringSize(text.fn_801C5B24(), true, 0);
+    return lbl_802E6700.unkEC->GetStringSize(text.fn_801C5B24());
 }
 
 // 0x800424F0
@@ -1064,7 +1073,7 @@ void Unk80040274::fn_80043110(Unk8003B870String* body, int flag) {
             if (fn_800430EC(*in)) {
                 lastSpace = length;
             }
-            EVec2 size = lbl_802E6700.unkEC->DoGetStringSize(lbl_802E5F9C, true, 0);
+            EVec2 size = lbl_802E6700.unkEC->GetStringSize(lbl_802E5F9C);
             if (size.x > width) {
                 done = true;
                 int back = length - lastSpace;
@@ -1093,7 +1102,7 @@ void Unk80040274::fn_80043110(Unk8003B870String* body, int flag) {
             unk50->unk20++;
         }
     }
-    EVec2 size = lbl_802E6700.unkEC->DoGetStringSize("A!Wyj^?}|", false, 0);
+    EVec2 size = lbl_802E6700.unkEC->GetStringSize("A!Wyj^?}|");
     float height = size.y;
     unk50->unk28 = lbl_8037B550 * lbl_802E6700.unkEC->GetLineSpacing(0);
     float needed = unk50->unk28 * (float)(unk50->unk20 - 1) + height * (float)unk50->unk20;
@@ -1116,7 +1125,7 @@ void Unk80040274::fn_800435C4(int flag) {
     float line = 32.0f / (float)lbl_8037C198->unk18;
     lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
     float start = 0.0f;
-    EVec2 size = lbl_802E6700.unkEC->DoGetStringSize("A!Wyj^?}|", false, 0);
+    EVec2 size = lbl_802E6700.unkEC->GetStringSize("A!Wyj^?}|");
     ERectF rect;
     if (flag == 0) {
         float gap = 0.08f;
@@ -1326,30 +1335,35 @@ ERectF Unk80040274::fn_80044174() {
 }
 
 inline float TextWidth(ERFont* font, Unk8003B870String& text) {
-    EVec2 size = font->DoGetStringSize(text.fn_801C5B24(), true, 0);
+    EVec2 size = font->GetStringSize(text.fn_801C5B24());
     return size.x;
 }
 
 // 0x800441C0
 // The width of the widest button text.
 // NON_MATCHING: 98 instructions against 100. The original keeps one size slot at
-// sp+8 with its address in r30 for the second and third calls and a 0x30 frame; an
-// inline helper, named locals and `.x` on the call result all give other frames.
+// sp+8 with its address in r30 for the second and third calls; named locals, const
+// references, `.x` on the call and an inline helper all give a different frame.
 float Unk80040274::fn_800441C0() {
     ERFont* font = lbl_802E6700.unkEC;
     font->SetSize(true, 14.0f, 1.0f);
     float width;
     if (unk7C == 1) {
-        float first = TextWidth(font, unk50->unk1C);
-        float second = TextWidth(font, unk50->unk18);
+        EVec2 size = font->GetStringSize(unk50->unk1C.fn_801C5B24());
+        float first = size.x;
+        EVec2 size2 = font->GetStringSize(unk50->unk18.fn_801C5B24());
+        float second = size2.x;
         width = first;
         if (width < second) {
             width = second;
         }
     } else if (unk7C == 2) {
-        float first = TextWidth(font, unk50->unk1C);
-        float second = TextWidth(font, unk50->unk18);
-        float third = TextWidth(font, unk50->unk14);
+        EVec2 size = font->GetStringSize(unk50->unk1C.fn_801C5B24());
+        float first = size.x;
+        EVec2 size2 = font->GetStringSize(unk50->unk18.fn_801C5B24());
+        float second = size2.x;
+        EVec2 size3 = font->GetStringSize(unk50->unk14.fn_801C5B24());
+        float third = size3.x;
         width = first;
         if (width < second) {
             width = second;
@@ -1358,7 +1372,8 @@ float Unk80040274::fn_800441C0() {
             width = third;
         }
     } else {
-        width = TextWidth(font, unk50->unk1C);
+        EVec2 size = font->GetStringSize(unk50->unk1C.fn_801C5B24());
+        width = size.x;
     }
     return width;
 }
@@ -1408,8 +1423,6 @@ void Unk80040274::vfn8(const char* name, const char* value) {
 
 // 0x800445EC
 // A variable read by the UI script; the caller frees the text.
-// NON_MATCHING: 197 instructions against 194; not yet compared in detail (the
-// branches share one sprintf tail in the original).
 char* Unk80040274::vfn9(const char* name) {
     char* text = (char*)fn_80169F1C(0x20, 4);
     ERectF rect = fn_80044174();
@@ -1461,7 +1474,7 @@ char* Unk80040274::vfn9(const char* name) {
         return 0;
     } else {
         lbl_802E6700.unkEC->SetSize(true, 20.0f, 1.0f);
-        unk50->unk4C = lbl_802E6700.unkEC->DoGetStringSize(unk50->unk10.fn_801C5B24(), true, 0);
+        unk50->unk4C = lbl_802E6700.unkEC->GetStringSize(unk50->unk10.fn_801C5B24());
         unkE0 = unk50->unk4C.x;
         fn_8010F710(text, "%f", unkE0);
     }

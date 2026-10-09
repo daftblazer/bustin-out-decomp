@@ -525,4 +525,15 @@ is byte-identical, yet cannot be linked from source:
   (`&EVec2(x, y)`), not as a named local.
 - A header's strings can sit in the middle of a unit's `.rodata` (the ERTexture strings in the dialog unit sit
   between two functions' constants). An `#include` at that point in the file reproduces it.
+- `ERFont` has inline public wrappers `GetStringSize(text)` (16-bit and `char` forms) around
+  `DoGetStringSize(text, wide, window)`. A caller that assigns the result (`texts->unk34 = font->GetStringSize(t)`)
+  only matches through the wrapper: the return slot is passed as `addi r3, r1, N` at the call and copied x then
+  y. Calling `DoGetStringSize` directly keeps the slot's address in a saved register and copies y first.
+- A `switch` whose dispatch uses `cmplwi`/`blt` between `cmpwi` tests means the member itself is `unsigned`
+  (the dialog's kind); fixing the type fixed two functions at once.
+- `EVec2::Set(x, y)` exists (x through the stack pointer, y through the object's address register:
+  `stfs f31, 8(r1); stfs f30, 4(r25)`). A function with several draw calls can reuse one `EVec2` declared before
+  its other locals (lowest slot), `Set` before each call; text fetched before the `Set`.
+- `width *= 0.3f; x = middle - width * half;` in two `switch` cases gives two constant loads and one shared
+  multiply chain with the variable's register reused; `x = middle - width * 0.3f * half` picks a new register.
 

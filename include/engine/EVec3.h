@@ -14,6 +14,11 @@ public:
     // Scales to unit length (a zero vector is left alone). The name follows
     // EVec3::Normalize; the function is inferred from its inlined copies.
     EVec2& Normalize();
+    void Set(float x_, float y_) {
+        x = x_;
+        y = y_;
+    }
+    void Set(float value) { x = y = value; }
     void operator+=(const EVec2& other) {
         x += other.x;
         y += other.y;
