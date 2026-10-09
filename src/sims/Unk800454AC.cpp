@@ -185,7 +185,9 @@ void Unk80047840::fn_8004950C() {
 // The registration object (lbl_8037BFA8): slot 0x340 holds the input manager.
 struct Unk8015C620 {
     void fn_8015C620(int id, void* listener);
+    void fn_8015C644(int id, void* data, int size);   // sends a message
 };
+extern int lbl_8037C3DC;                                   // non-zero when the game is networked
 extern Unk8015C620* lbl_8037BFA8;
 extern Unk800455D4* lbl_8037B558;
 
@@ -204,8 +206,28 @@ Unk800455D4::Unk800455D4() : Unk801E58D4(-1, 0) {
 
 // The object an action's icon comes from (found by id; vtable pointer at 0x1C): slot 5
 // gives the holder of the sim it is about.
-struct Unk801E5A50Holder {
+class Unk801E5A50Holder {
+public:
     Unk800421C0Sim* sim;
+    virtual void vfn1();
+    virtual void vfn2();
+    virtual void vfn3();
+    virtual void vfn4();
+    virtual void vfn5();
+    virtual void vfn6();
+    virtual void vfn7();
+    virtual void vfn8();
+    virtual void vfn9();
+    virtual void vfn10();
+    virtual void vfn11();
+    virtual void vfn12();
+    virtual void vfn13();
+    virtual void vfn14();
+    virtual void vfn15();
+    virtual void vfn16();
+    virtual void vfn17();
+    virtual void vfn18();
+    virtual void vfn19(int item, int);     // takes the item off the queue
 };
 class Unk801E5A50Object {
 public:
@@ -241,7 +263,7 @@ inline int Unk800498D0::vfn3(Unk80047840* icon) {
 }
 
 extern "C" void* fn_80111AE8(void* dst, const void* src, ...);   // memcpy (called without a prototype)
-void fn_80047788(int object, int item);
+void fn_80047788(int object, int item);   // defined below
 
 // 0x80045C50
 Unk80047840* Unk8004578C::fn_80045C50(int id) {
@@ -358,4 +380,26 @@ int Unk8004578C::fn_800495C4(unsigned char* data) {
         left--;
     }
     return pos;
+}
+
+// 0x80047788
+// Takes an item off the queue: sends the request to the other machine when networked,
+// otherwise tells the object's holder directly.
+void fn_80047788(int object, int item) {
+    Unk801E5A50Holder* holder = fn_801E5A50(object)->vfn5();
+    if (lbl_8037C3DC) {
+        unsigned char message[32];
+        int pos = 0;
+        message[pos] = 1;
+        pos++;
+        message[pos] = 3;
+        pos++;
+        *(int*)(message + pos) = object;
+        pos += 4;
+        *(int*)(message + pos) = item;
+        pos += 4;
+        lbl_8037BFA8->fn_8015C644(0xF, message, 10);
+    } else {
+        holder->vfn19(item, 0);
+    }
 }
