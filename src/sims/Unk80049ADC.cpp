@@ -35,6 +35,8 @@
 #include "engine/e_rparticletype.h"
 #include "engine/e_ispotlight.h"
 #include "sims/EHouse.h"
+#include "sims/EGlobal.h"
+#include "sims/ESimsCam.h"
 
 // The level loader (third source file of the unit at 0x80044D84: 0x80049ADC to
 // 0x8004BCBC, build time 21:41:35). It sets up a lot: the level objects, the lights,
@@ -94,9 +96,34 @@ short fn_8004B104(int value) {
 void EHouse::fn_80049FB4(int state) {
     unk20 = state;
     if (unk8) {
-        unk8->fn_80056598();
+        unk8->fn_80056598(state);
         unk8->fn_80056914(0);
     }
+}
+
+// 0x80049FFC
+// Goes to the next way of showing the walls (a guess at the Sims 2's SetNextWallMode, the next
+// method in its order): none, then all down or cut away, then up.
+void EHouse::SetNextWallMode() {
+    switch (unk20) {
+    case 0:
+        unk20 = lbl_802E6700.fn_800655C4() == 0 ? 1 : 2;
+        break;
+    case 1:
+        unk20 = 2;
+        break;
+    case 2:
+        unk20 = 0;
+        break;
+    default:
+        unk20 = 0;
+        break;
+    }
+    if (unk8) {
+        unk8->fn_80056598(unk20);
+        unk8->fn_80056914(0);
+    }
+    lbl_8037C198->vfn8();
 }
 
 // 0x8004A0B4
@@ -150,4 +177,45 @@ void EHouse::fn_8004B740(Unk8007F234* object) {
         *(void**)((char*)object + 0x24) = &unk58;
         unk1C->fn_8017BF6C(object);
     }
+}
+
+// 0x8004A110
+void EHouse::fn_8004A110() {
+    unkC = 1;
+    fn_8004A91C();
+    fn_8004AFC0();
+    fn_8004AE38();
+    if (unk1C) {
+        unk1C->Update();
+    }
+    fn_8004B5AC();
+    if (unk8 != 0 && unk8->unk0 == 0) {
+        unk8->fn_80056914(0);
+    }
+    unkC = 0;
+}
+
+// 0x8004A194
+// NON_MATCHING: 25 instructions against 24. The original multiplies the index by 0x28 in
+// the loop (mulli) and compares `i <= 9` with cmpwi/ble; here the compiler turns the loop
+// into a counter loop (mtctr/bdnz) and walks a pointer. A for, a while and an inline
+// accessor all give the same.
+// Which of the ten entries of the lighting table a time falls in: the entry with that
+// time, or the one before the first later entry (wrapping), or the last.
+struct Unk802E60C4Entry {
+    int unk0;                         // time
+    char unk4[0x28 - 4];
+};
+extern Unk802E60C4Entry lbl_802E60C4[10];
+int fn_8004A194(int time) {
+    for (int i = 0; i <= 9; i++) {
+        int value = lbl_802E60C4[i].unk0;
+        if (time == value) {
+            return i;
+        }
+        if (time < value) {
+            return (i + 9) % 10;
+        }
+    }
+    return 9;
 }

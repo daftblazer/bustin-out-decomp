@@ -36,6 +36,7 @@ public:
 // The loaded level resource (the engine's ERLevel in The Sims 2).
 class ERLevel {
 public:
+    void Update();                                             // 0x8017A778 (ERLevel::Update in The Sims 2)
     void fn_8017AA14(ERC* rc);                                 // 0x8017AA14
     void fn_8017BE44();                                        // 0x8017BE44
     void fn_8017BF6C(void* object);                            // 0x8017BF6C
@@ -45,7 +46,9 @@ class Unk80055C60 {
 public:
     Unk80055C60();                                             // 0x80055C60
     ~Unk80055C60();                                            // 0x80055D54
-    void fn_80056598();
+    int unk0;
+    char unk4[0x9C];
+    void fn_80056598(int state);
     void fn_80056914(int a);
     void fn_8005653C(ERC* rc);
 };
@@ -73,6 +76,12 @@ public:
     void fn_8004B578(int a, int b);                            // 0x8004B578
     void fn_8004B634();                                        // 0x8004B634
     void fn_8004B740(Unk8007F234* object);                     // 0x8004B740
+    void SetNextWallMode();                                    // 0x80049FFC (guess)
+    void fn_8004A110();                                        // runs one step of the house
+    void fn_8004A91C();
+    void fn_8004AE38();
+    void fn_8004AFC0();
+    void fn_8004B5AC();
 
     int unk0;                                                  // who made it
     Unk8007F234* unk4;
