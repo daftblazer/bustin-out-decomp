@@ -80,7 +80,7 @@ struct Unk8003BAB8Sim {
     virtual void vfn41();
     virtual void vfn42();
     virtual void vfn43();
-    virtual void vfn44(Unk8003B870String* text, Unk8003BAB8A* a, int, int* flag, int);
+    virtual void vfn44(BString2* text, Unk8003BAB8A* a, int, int* flag, int);
     virtual void vfn45();
     virtual void vfn46();
     virtual void vfn47();
@@ -308,9 +308,9 @@ void Unk8003B870::fn_8003B9E0() {
 
 // Looks up the text for one line and hands it to the sim, when the line changed.
 #define UNK8003B870_LINE(member, index) \
-    if (member != Unk8003B870String(b[index], 1)) { \
+    if (member != BString2(b[index], 1)) { \
         Unk8023CDDCResult found = table->vfn6(b[index]); \
-        member.fn_801C55CC(found.unk0 ? *found.unk0 : 0); \
+        member.assign(found.unk0 ? *found.unk0 : 0); \
         sim->vfn44(&member, a, 0, &flag, 0); \
     }
 
@@ -426,7 +426,7 @@ void Unk8003B870::fn_8003C0F0(ERC* rc) {
         centre = 0.75f;
     }
     EVec2 extent;
-    extent = lbl_802E6700.unkEC->DoGetStringSize(unk18.fn_801C5B24(), true, 0);
+    extent = lbl_802E6700.unkEC->DoGetStringSize(unk18.c_str(), true, 0);
     EVec2 at(centre - extent.x * 0.5f, 0.7f);
-    lbl_802E6700.unkEC->DoDrawAlign(rc, unk18.fn_801C5B24(), true, at, 0, 0, 0);
+    lbl_802E6700.unkEC->DoDrawAlign(rc, unk18.c_str(), true, at, 0, 0, 0);
 }

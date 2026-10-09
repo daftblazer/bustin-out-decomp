@@ -553,10 +553,17 @@ is byte-identical, yet cannot be linked from source:
   conditional expression builds a temporary and copies it.
 - Temporaries reuse a stack slot only across closed blocks of *named* locals: `{ String name(L"Hunger");
   tag.append(name, 0, -1); }` lets the next local take the slot; `tag.append(String(L"Hunger"), 0, -1)` does not.
-- The engine string (`Unk8003B870String`, 4 bytes, constructor 0x801C4E90) has the interface of GCC 2.95's own
-  `basic_string` (`bastring.h`): `string(str, pos = 0, n = npos)` at 0x801C4EB0, `append(str, pos, n)` at
-  0x801C54EC, `erase(pos, n)` at 0x801C5704, `c_str()` at 0x801C5B24, always called with `0, -1`. Worth testing
-  whether it is `basic_string<unsigned short>` from that header.
-- Open: in two functions of the dialog unit every local with a destructor has an 8-byte stack slot in the
-  original where ours are packed 4 apart (and a look-up result lands at sp+0x10 instead of sp+0xC).
-
+- The engine string is **`BString2`** (`include/engine/BString2.h`; 4 bytes, one pointer to a shared
+  reference-counted record). It is the engine's own class with `basic_string`'s interface, not the compiler's
+  template: the default constructor points at a shared empty record and bumps its count at 0xC, and the
+  compiler package ships no string header. The Sims 2 names its methods (`BString2`, `basic_string_ref2`) in the
+  same order with mostly equal sizes, though the hint file does not reach that address range: for engine
+  classes, search `reference/sims2_symbols.txt` by class and compare method sizes by hand.
+  0x801C54EC is `assign(str, pos, n)`, not an append.
+- Open: in two functions of the dialog unit (`0x80040640`, `0x800424F0`) every local with a destructor has an
+  8-byte stack slot in the original (title 0x48, table handle 0x50, body 0x58, then 0x60, 0x68, 0x70) where ours
+  are packed 4 apart; the 4-byte results of inlined look-ups after them are 4 apart in both. Ruled out with
+  scratch files (`build/try/cm/s.cpp`, `s2.cpp`): plain locals, nested blocks, a loop body, initialisation from
+  a call or from an inline function, binding to a `const` reference, and all five compiler versions all pack
+  4 apart. It is not the string type either (three different classes show it). The 0x60 slot is shared with an
+  8-byte `EVec2` from an earlier closed block, which suggests slots sized by what shared them before; untested.

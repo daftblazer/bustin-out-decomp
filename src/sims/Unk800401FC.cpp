@@ -98,11 +98,11 @@ struct Unk800424F0Source {
 };
 int fn_801C27C8(void* a);
 int fn_802186F4(int id);
-Unk8003B870String* fn_80218174(int id);
+BString2* fn_80218174(int id);
 Unk800669ACResult fn_80218044(int id, ...);
 int fn_80217F2C(int id);
-int fn_800D1E94(const unsigned short* text, const unsigned short* tag, const unsigned short* a, Unk8003B870String* out);
-void fn_800D2EFC(const unsigned short* text, Unk8003B870String* out);
+int fn_800D1E94(const unsigned short* text, const unsigned short* tag, const unsigned short* a, BString2* out);
+void fn_800D2EFC(const unsigned short* text, BString2* out);
 int fn_80106774(void* viewer, int, int, int, int);   // next UI event
 // The text-entry screen (declared as in sims/cas/CASTarget.h).
 class Unk800C6704 : public UnkTargetBase {
@@ -129,7 +129,7 @@ struct Unk80042228Record {
     char unk0[0x16];
     short unk16[1];
 };
-extern Unk8003B870String lbl_8037D3B4;
+extern BString2 lbl_8037D3B4;
 extern float lbl_8037B500;
 extern float lbl_8037B504;
 extern float lbl_8037B50C;
@@ -276,7 +276,7 @@ inline void Unk800401FC::Clear() {
     lbl_8037C198->vfn8();
     Unk80026864Node* next;
     for (Unk80026864Node* node = unk0.tail; IsNode(node); node = next) {
-        Unk8003B870String* text = (Unk8003B870String*)node->item;
+        BString2* text = (BString2*)node->item;
         next = node->prev;
         if (unk0.owns && text) {
             delete text;
@@ -507,7 +507,7 @@ void Unk80040274::vfn3(ERC* rc) {
     lbl_802E6700.unkE4->fn_80181824(rc);
     float half = 0.5f;
     float middle = unk64->Left() + (unk64->Right() - unk64->Left()) * half;
-    EVec2 size = lbl_802E6700.unkEC->GetStringSize(unk50->unk10.fn_801C5B24());
+    EVec2 size = lbl_802E6700.unkEC->GetStringSize(unk50->unk10.c_str());
     size.x += 0.1f;
     lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
     lbl_802E6700.unkEC->unk64 = lbl_802E6964;
@@ -531,7 +531,7 @@ void Unk80040274::vfn3(ERC* rc) {
     if (unk48 == 1) {
         lbl_802E6700.unkEC->SetSize(true, 18.0f, 1.0f);
         lbl_802E6700.unkEC->unk64 = lbl_802E6964;
-        lbl_802E6700.unkEC->DrawDs(rc, unk50->unk10.fn_801C5B24(), &unkE4, 2, 2, 0, 2.0f, 1.0f);
+        lbl_802E6700.unkEC->DrawDs(rc, unk50->unk10.c_str(), &unkE4, 2, 2, 0, 2.0f, 1.0f);
         fn_800411A8(rc, 1);
         if (unk94) {
             fn_80044974(rc);
@@ -627,10 +627,10 @@ void Unk80040274::fn_800411A8(ERC* rc, int flag) {
     float middle = unk64->Left() + (unk64->Right() - unk64->Left()) * 0.5f;
     float y = unk50->unk24;
     for (Unk80026864Node* node = unk50->unk0.head; node != 0; node = node->next) {
-        Unk8003B870String* line = (Unk8003B870String*)node->item;
+        BString2* line = (BString2*)node->item;
         if (plain || unk8C >= unk88) {
             lbl_802E6700.unkEC->unk64 = lbl_802E6964;
-            lbl_802E6700.unkEC->DrawDs(rc, line->fn_801C5B24(), &EVec2(middle, y), 2, 0, &extent, 2.0f, 1.0f);
+            lbl_802E6700.unkEC->DrawDs(rc, line->c_str(), &EVec2(middle, y), 2, 0, &extent, 2.0f, 1.0f);
             y = extent.y + spacing;
         } else {
             unk8C++;
@@ -664,7 +664,7 @@ void Unk80040274::fn_800417F0(ERC* rc) {
     font->SetSize(true, size, 1.0f);
     font->unk64 = lbl_802E6974;
     {
-        const void* text = unk50->unk1C.fn_801C5B24();
+        const void* text = unk50->unk1C.c_str();
         EVec2 position(x, y);
         EVec2 offset(0.0025f);
         at.x = position.x + offset.x;
@@ -673,12 +673,12 @@ void Unk80040274::fn_800417F0(ERC* rc) {
     }
     if (first->fn_8015E204(5) || (second && second->fn_8015E204(5))) {
         font->unk64 = lbl_802E6A34;
-        const void* text = unk50->unk1C.fn_801C5B24();
+        const void* text = unk50->unk1C.c_str();
         at.Set(x, y);
         font->DoDrawAlign(rc, text, true, at, 2, 2, 0);
     } else {
         font->unk64 = lbl_802E6964;
-        const void* text = unk50->unk1C.fn_801C5B24();
+        const void* text = unk50->unk1C.c_str();
         at.Set(x, y);
         font->DoDrawAlign(rc, text, true, at, 2, 2, 0);
     }
@@ -692,7 +692,7 @@ void Unk80040274::fn_800417F0(ERC* rc) {
         font->unk64 = lbl_802E6964;
     }
     {
-        const void* text = unk50->unk18.fn_801C5B24();
+        const void* text = unk50->unk18.c_str();
         at.Set(x, y);
         font->DrawDs(rc, text, &at, 2, 2, 0, 2.0f, 1.0f);
     }
@@ -706,7 +706,7 @@ void Unk80040274::fn_800417F0(ERC* rc) {
         font->unk64 = lbl_802E6964;
     }
     {
-        const void* text = unk50->unk14.fn_801C5B24();
+        const void* text = unk50->unk14.c_str();
         at.Set(x, y);
         font->DrawDs(rc, text, &at, 2, 2, 0, 2.0f, 1.0f);
     }
@@ -738,7 +738,7 @@ void Unk80040274::fn_80041CB0(ERC* rc) {
     } else {
         font->unk64 = lbl_802E6964;
     }
-    font->DrawDs(rc, unk50->unk1C.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
+    font->DrawDs(rc, unk50->unk1C.c_str(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
     x = unkD4[2];
     y = unkC8[2];
     font->SetSize(true, size, 1.0f);
@@ -747,7 +747,7 @@ void Unk80040274::fn_80041CB0(ERC* rc) {
     } else {
         font->unk64 = lbl_802E6964;
     }
-    font->DrawDs(rc, unk50->unk18.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
+    font->DrawDs(rc, unk50->unk18.c_str(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
 }
 
 // 0x80041F74
@@ -777,12 +777,12 @@ void Unk80040274::fn_80041F74(ERC* rc) {
     } else {
         font->unk64 = lbl_802E6964;
     }
-    font->DrawDs(rc, unk50->unk1C.fn_801C5B24(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
+    font->DrawDs(rc, unk50->unk1C.c_str(), &EVec2(x, y), 2, 2, 0, 2.0f, 1.0f);
 }
 
 // 0x80042170
-void Unk80040274::vfn19(Unk8003B870String* text) {
-    Unk8003B870String typed(unk5C.Get());
+void Unk80040274::vfn19(BString2* text) {
+    BString2 typed(unk5C.Get());
     *text = typed;
 }
 
@@ -839,8 +839,8 @@ int Unk80040274::vfn24(void* a, void* b, void* c, void* d) {
 
 // 0x80042360
 // Sets up a dialog with a title and one button.
-int Unk80040274::vfn23(Unk8003B870String* body, const char* title) {
-    Unk8003B870String text((const unsigned short*)GetTextB(title));
+int Unk80040274::vfn23(BString2* body, const char* title) {
+    BString2 text((const unsigned short*)GetTextB(title));
     unk70 = 2;
     unk7C = 0;
     unk78 = 0;
@@ -848,25 +848,25 @@ int Unk80040274::vfn23(Unk8003B870String* body, const char* title) {
     unk50->unk10 = text;
     lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
     unk50->unk1C = (const unsigned short*)GetTextB("ok");
-    unk50->unk34 = lbl_802E6700.unkEC->GetStringSize(unk50->unk1C.fn_801C5B24());
-    unk50->unk18.fn_801C5704(0, -1);
-    unk50->unk14.fn_801C5704(0, -1);
+    unk50->unk34 = lbl_802E6700.unkEC->GetStringSize(unk50->unk1C.c_str());
+    unk50->unk18.erase(0, -1);
+    unk50->unk14.erase(0, -1);
     fn_80043110(body, 0);
     return 1;
 }
 
-void fn_80043034(Unk80043034Table* table, Unk8003B870String* out, int key, const unsigned short* fallback, int);
+void fn_80043034(Unk80043034Table* table, BString2* out, int key, const unsigned short* fallback, int);
 
-inline EVec2 TextSize(Unk8003B870String& text) {
-    return lbl_802E6700.unkEC->GetStringSize(text.fn_801C5B24());
+inline EVec2 TextSize(BString2& text) {
+    return lbl_802E6700.unkEC->GetStringSize(text.c_str());
 }
 
 // The dialog's title: the name the object gives itself, or its catalogue text.
-inline Unk8003B870String Unk80040274::Title() {
+inline BString2 Unk80040274::Title() {
     if (fn_802186F4(unk6C)) {
-        return Unk8003B870String(*fn_80218174(unk6C), 0, -1);
+        return BString2(*fn_80218174(unk6C), 0, -1);
     }
-    return Unk8003B870String((const unsigned short*)TextOf(fn_80218044(unk6C)));
+    return BString2((const unsigned short*)TextOf(fn_80218044(unk6C)));
 }
 
 // 0x800424F0
@@ -885,7 +885,7 @@ int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
     } else {
         unk70 = 2;
     }
-    Unk8003B870String title = Title();
+    BString2 title = Title();
     unk50->unk10 = title;
     unk7C = b[5] >> 4;
     unk78 = (b[7] >> 4) & 7;
@@ -913,11 +913,11 @@ int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
         }
     }
     strings.table->vfn19(set, 0x12D, 0);
-    Unk8003B870String body;
+    BString2 body;
     if (unk7C != 3) {
-        fn_80043034(strings.table, &unk50->unk10, b[6], unk50->unk10.fn_801C5B24(), 1);
+        fn_80043034(strings.table, &unk50->unk10, b[6], unk50->unk10.c_str(), 1);
     } else {
-        fn_80043034(strings.table, &unk50->unk10, b[2], unk50->unk10.fn_801C5B24(), 1);
+        fn_80043034(strings.table, &unk50->unk10, b[2], unk50->unk10.c_str(), 1);
     }
     lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
     if (unk7C != 3) {
@@ -938,7 +938,7 @@ int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
         unk50->unk3C = TextSize(unk50->unk18);
         fn_80043034(strings.table, &unk50->unk1C, b[3], (const unsigned short*)GetTextB("yes"), 1);
         unk50->unk34 = TextSize(unk50->unk1C);
-        unk50->unk14.fn_801C5704(0, -1);
+        unk50->unk14.erase(0, -1);
         break;
     case 0:
     case 3:
@@ -946,87 +946,87 @@ int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
     case 10:
         fn_80043034(strings.table, &unk50->unk1C, b[3], (const unsigned short*)GetTextB("ok"), 1);
         unk50->unk34 = TextSize(unk50->unk1C);
-        unk50->unk18.fn_801C5704(0, -1);
-        unk50->unk14.fn_801C5704(0, -1);
+        unk50->unk18.erase(0, -1);
+        unk50->unk14.erase(0, -1);
         break;
     }
     if (unk68) {
         int state = 0;
         unk68->vfn44(&unk50->unk1C, source, 0, &state, c);
         unk68->vfn44(&unk50->unk10, source, 0, &state, c);
-        if (unk50->unk18.fn_801C6058()) {
+        if (unk50->unk18.length()) {
             unk68->vfn44(&unk50->unk18, source, 0, &state, c);
         }
-        if (unk50->unk18.fn_801C6058()) {
+        if (unk50->unk18.length()) {
             unk68->vfn44(&unk50->unk14, source, 0, &state, c);
         }
         unk94 = 0;
         unk90 = 8;
         // A motive named in the body picks the icon and is taken out of the text.
         for (int i = 0; i <= 7; i++) {
-            Unk8003B870String tag;
+            BString2 tag;
             switch (i) {
             case 0: {
-                Unk8003B870String name(L"Hunger");
-                tag.fn_801C54EC(name, 0, -1);
+                BString2 name(L"Hunger");
+                tag.assign(name, 0, -1);
                 break;
             }
             case 1: {
-                Unk8003B870String name(L"Comfort");
-                tag.fn_801C54EC(name, 0, -1);
+                BString2 name(L"Comfort");
+                tag.assign(name, 0, -1);
                 break;
             }
             case 2: {
-                Unk8003B870String name(L"Hygiene");
-                tag.fn_801C54EC(name, 0, -1);
+                BString2 name(L"Hygiene");
+                tag.assign(name, 0, -1);
                 break;
             }
             case 3: {
-                Unk8003B870String name(L"Bladder");
-                tag.fn_801C54EC(name, 0, -1);
+                BString2 name(L"Bladder");
+                tag.assign(name, 0, -1);
                 break;
             }
             case 4: {
-                Unk8003B870String name(L"Energy");
-                tag.fn_801C54EC(name, 0, -1);
+                BString2 name(L"Energy");
+                tag.assign(name, 0, -1);
                 break;
             }
             case 5: {
-                Unk8003B870String name(L"Fun");
-                tag.fn_801C54EC(name, 0, -1);
+                BString2 name(L"Fun");
+                tag.assign(name, 0, -1);
                 break;
             }
             case 6: {
-                Unk8003B870String name(L"Room");
-                tag.fn_801C54EC(name, 0, -1);
+                BString2 name(L"Room");
+                tag.assign(name, 0, -1);
                 break;
             }
             case 7: {
-                Unk8003B870String name(L"Social");
-                tag.fn_801C54EC(name, 0, -1);
+                BString2 name(L"Social");
+                tag.assign(name, 0, -1);
                 break;
             }
             }
-            Unk8003B870String separator;
+            BString2 separator;
             {
-                Unk8003B870String empty(L"");
-                separator.fn_801C54EC(empty, 0, -1);
+                BString2 empty(L"");
+                separator.assign(empty, 0, -1);
             }
-            Unk8003B870String rest;
-            unk94 = fn_800D1E94(body.fn_801C5B24(), tag.fn_801C5B24(), separator.fn_801C5B24(), &rest);
+            BString2 rest;
+            unk94 = fn_800D1E94(body.c_str(), tag.c_str(), separator.c_str(), &rest);
             if (unk94 != 0) {
                 body = rest;
                 unk90 = i;
                 break;
             }
         }
-        fn_800D2EFC(body.fn_801C5B24(), &body);
+        fn_800D2EFC(body.c_str(), &body);
         unk68->vfn44(&body, source, 0, &state, c);
     }
     if (unk7C != 3) {
         fn_80043110(&body, 0);
     } else {
-        Unk801BA678 wide(unk50->unk10.fn_801C5B24());
+        Unk801BA678 wide(unk50->unk10.c_str());
         unk58 = new Unk800C6704(GetText("default_text_baby"), 9, 0, (int)wide.Get(), 0, 0, 0, 0.5f, 100.0f, 100.0f,
                                 0x26, 0, 0x10, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0);
         unk5C.fn_801BA958(0x40, 0);
@@ -1043,12 +1043,12 @@ int Unk80040274::vfn22(Unk800424F0Source* source, unsigned char* b, void* c) {
 // NON_MATCHING: 42 instructions against 46. The original tests the looked-up text
 // through two separate null checks (cr7 kept across them) and loads the virtual's
 // address before its this-offset.
-void fn_80043034(Unk80043034Table* table, Unk8003B870String* out, int key, const unsigned short* fallback, int) {
+void fn_80043034(Unk80043034Table* table, BString2* out, int key, const unsigned short* fallback, int) {
     Unk800669ACResult result = table->vfn6(key);
     if ((result.ptr ? *result.ptr : 0) != 0 && fn_801BA640((const unsigned short*)(result.ptr ? *result.ptr : 0)) != 0) {
-        out->fn_801C55CC((const unsigned short*)(result.ptr ? *result.ptr : 0));
+        out->assign((const unsigned short*)(result.ptr ? *result.ptr : 0));
     } else if (fallback) {
-        out->fn_801C55CC(fallback);
+        out->assign(fallback);
     }
 }
 
@@ -1064,7 +1064,7 @@ bool fn_800430EC(int character) {
 // Places the dialog's window and breaks the body into lines that fit it.
 // NON_MATCHING: 295 instructions against 301; the four window rectangles are built
 // differently (the original stores the default corners first and reloads them).
-void Unk80040274::fn_80043110(Unk8003B870String* body, int flag) {
+void Unk80040274::fn_80043110(BString2* body, int flag) {
     unk98 = 0;
     EVec2 from(lbl_8037CAC0);
     EVec2 to(from + lbl_8037CAD8);
@@ -1084,7 +1084,7 @@ void Unk80040274::fn_80043110(Unk8003B870String* body, int flag) {
     unk50->unk20 = 0;
     float width = unk64->Right() - unk64->Left() - 0.1f;
     lbl_802E6700.unkEC->SetSize(true, lbl_8037B504, 1.0f);
-    const unsigned short* in = body->fn_801C5B24();
+    const unsigned short* in = body->c_str();
     while (*in != 0) {
         fn_80111C78(lbl_802E5F9C, 0, 0x100);
         int length = 0;
@@ -1112,7 +1112,7 @@ void Unk80040274::fn_80043110(Unk8003B870String* body, int flag) {
                     }
                     in -= back;
                     length -= back;
-                    body->fn_801C5B24();
+                    body->c_str();
                     lbl_802E5F9C[length] = 0;
                 } else {
                     lbl_802E5F9C[length] = back;
@@ -1125,8 +1125,8 @@ void Unk80040274::fn_80043110(Unk8003B870String* body, int flag) {
         }
         if (done || lbl_802E5F9C[0] != 0) {
             lbl_802E5F9C[length] = 0;
-            Unk8003B870String line(lbl_802E5F9C);
-            unk50->unk0.fn_801B4600(new Unk8003B870String(line, 0, -1));
+            BString2 line(lbl_802E5F9C);
+            unk50->unk0.fn_801B4600(new BString2(line, 0, -1));
             unk50->unk20++;
         }
     }
@@ -1287,7 +1287,7 @@ int Unk80043820::vfn3(void* a, void* b, Unk800421C0Sim* sim) {
     if (sim) {
         dialog->vfn20(sim);
     }
-    dialog->vfn23((Unk8003B870String*)a, (const char*)b);
+    dialog->vfn23((BString2*)a, (const char*)b);
     dialog->unk54 = this;
     if (unk14 == 0) {
         unk14 = dialog;
@@ -1362,8 +1362,8 @@ ERectF Unk80040274::fn_80044174() {
     return rect;
 }
 
-inline float TextWidth(ERFont* font, Unk8003B870String& text) {
-    EVec2 size = font->GetStringSize(text.fn_801C5B24());
+inline float TextWidth(ERFont* font, BString2& text) {
+    EVec2 size = font->GetStringSize(text.c_str());
     return size.x;
 }
 
@@ -1377,20 +1377,20 @@ float Unk80040274::fn_800441C0() {
     font->SetSize(true, 14.0f, 1.0f);
     float width;
     if (unk7C == 1) {
-        EVec2 size = font->GetStringSize(unk50->unk1C.fn_801C5B24());
+        EVec2 size = font->GetStringSize(unk50->unk1C.c_str());
         float first = size.x;
-        EVec2 size2 = font->GetStringSize(unk50->unk18.fn_801C5B24());
+        EVec2 size2 = font->GetStringSize(unk50->unk18.c_str());
         float second = size2.x;
         width = first;
         if (width < second) {
             width = second;
         }
     } else if (unk7C == 2) {
-        EVec2 size = font->GetStringSize(unk50->unk1C.fn_801C5B24());
+        EVec2 size = font->GetStringSize(unk50->unk1C.c_str());
         float first = size.x;
-        EVec2 size2 = font->GetStringSize(unk50->unk18.fn_801C5B24());
+        EVec2 size2 = font->GetStringSize(unk50->unk18.c_str());
         float second = size2.x;
-        EVec2 size3 = font->GetStringSize(unk50->unk14.fn_801C5B24());
+        EVec2 size3 = font->GetStringSize(unk50->unk14.c_str());
         float third = size3.x;
         width = first;
         if (width < second) {
@@ -1400,7 +1400,7 @@ float Unk80040274::fn_800441C0() {
             width = third;
         }
     } else {
-        EVec2 size = font->GetStringSize(unk50->unk1C.fn_801C5B24());
+        EVec2 size = font->GetStringSize(unk50->unk1C.c_str());
         width = size.x;
     }
     return width;
@@ -1502,7 +1502,7 @@ char* Unk80040274::vfn9(const char* name) {
         return 0;
     } else {
         lbl_802E6700.unkEC->SetSize(true, 20.0f, 1.0f);
-        unk50->unk4C = lbl_802E6700.unkEC->GetStringSize(unk50->unk10.fn_801C5B24());
+        unk50->unk4C = lbl_802E6700.unkEC->GetStringSize(unk50->unk10.c_str());
         unkE0 = unk50->unk4C.x;
         fn_8010F710(text, "%f", unkE0);
     }

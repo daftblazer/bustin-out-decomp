@@ -48,7 +48,7 @@ struct Unk800421C0Sim {
     virtual void vfn41();
     virtual void vfn42();
     virtual void vfn43();
-    virtual void vfn44(struct Unk8003B870String* text, void* source, int, int* state, void* c);   // fills in names
+    virtual void vfn44(class BString2* text, void* source, int, int* state, void* c);   // fills in names
     virtual void vfn45();
     virtual void vfn46();
     virtual void vfn47();

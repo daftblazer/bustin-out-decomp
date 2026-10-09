@@ -26,10 +26,10 @@ struct Unk800401FC {
 
     Unk80026864List unk0;             // the body, one string per line
     const unsigned short* unkC;       // shown when a text is missing
-    Unk8003B870String unk10;          // title
-    Unk8003B870String unk14;          // button texts
-    Unk8003B870String unk18;
-    Unk8003B870String unk1C;
+    BString2 unk10;          // title
+    BString2 unk14;          // button texts
+    BString2 unk18;
+    BString2 unk1C;
     int unk20;                        // number of lines
     float unk24;                      // where the body starts, y
     float unk28;                      // gap between lines
@@ -101,22 +101,22 @@ public:
     virtual void vfn8(const char* name, const char* value);
     virtual char* vfn9(const char* name);
     virtual void vfn18() { delete this; }                       // 0x80044C64
-    virtual void vfn19(Unk8003B870String* text);                 // 0x80042170
+    virtual void vfn19(BString2* text);                 // 0x80042170
     virtual void vfn20(struct Unk800421C0Sim* sim);              // 0x800421C0
     virtual void vfn21(int id);                                  // 0x80042218
     virtual int vfn22(struct Unk800424F0Source* source, unsigned char* b, void* c);   // 0x800424F0
-    virtual int vfn23(Unk8003B870String* body, const char* title);   // 0x80042360
+    virtual int vfn23(BString2* body, const char* title);   // 0x80042360
     virtual int vfn24(void* a, void* b, void* c, void* d);       // 0x80042358
     virtual void vfn25();                                        // 0x800405F4
 
-    Unk8003B870String Title();        // inline, defined in the source file
+    BString2 Title();        // inline, defined in the source file
     void fn_80040DE0();
     void fn_800411A8(ERC* rc, int flag);
     void fn_800417F0(ERC* rc);
     void fn_80041CB0(ERC* rc);
     void fn_80041F74(ERC* rc);
     long long fn_80042228();
-    void fn_80043110(Unk8003B870String* body, int flag);
+    void fn_80043110(BString2* body, int flag);
     void fn_800435C4(int flag);
     ERectF fn_80044174();
     float fn_800441C0();
