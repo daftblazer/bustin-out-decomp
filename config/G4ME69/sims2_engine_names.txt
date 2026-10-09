@@ -1,0 +1,22 @@
+# Names from The Sims 2 for engine functions, paired by identical size and order
+# (tools/engine_names.py CLASS). Format: ADDR SIZE Class::Method_arguments.
+# These are hints, not renames. A run is only listed when its size sequence occurs once
+# in the binary and has three distinct sizes (two over 0x10).
+#
+# Classes with no usable run: EResourceManager, ERFont, EFile, EStream, E3DWindow, EHeap,
+# ETexture, EShader (no sizes match, or the Sims 2 list has no such class); EVec3 (3 pairs,
+# under the 5 needed); ERModel, ERAnim, EInstance (only the storable boilerplate matches,
+# whose sizes repeat in 26 places, so they cannot be assigned to a class by size).
+
+# EController
+8015CEF4 0x84 EController::VibrateAll_float__float
+8015CF78 0x98 EController::VibrateAll_float__float__float__float
+8015D010 0x64 EController::StopMotorOne_void
+8015D074 0xC EController::StopMotorOne_float
+8015D080 0x64 EController::StopMotorTwo_void
+8015D0E4 0xC EController::StopMotorTwo_float
+8015D0F0 0x74 EController::StopVibration_void
+8015D164 0xBC EController::UpdateVibration_void
+8015D220 0x5C EController::PauseMotors_void
+8015D27C 0x48 EController::ResumeMotors_void
+8015D2C4 0x24 EController::ResetControllerData_bool
