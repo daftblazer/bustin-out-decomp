@@ -37,3 +37,18 @@
 801B3638 0x1FC EMat4::LookTo_EVec3_ref__EVec3_ref__EVec3_ref
 801B3834 0xD4 EMat4::Projection_float__float__float__float
 801B3908 0xE4 EMat4::Ortho_float__float__float__float__float__float
+
+# ERLevel
+80179D60 0x3C ERLevel::InsertInstance_EInstance_ptr__EInstance_ptr
+80179D9C 0x18 ERLevel::IsInstanceListKindaFull_void
+80179DB4 0x5C ERLevel::InsertWall_EInstance_ptr__bool
+80179E10 0x58 ERLevel::RemoveWall_EInstance_ptr
+80179E68 0x44 ERLevel::InsertLight_EILight_ptr
+80179EAC 0x5C ERLevel::RemoveLight_EILight_ptr
+80179F08 0x4 ERLevel::ValidateInstanceInLevel_EInstance_ptr
+80179F0C 0xEC ERLevel::InsertSkydomeInstance_EInstance_ptr
+8017A468 0x120 ERLevel::SetBounds_EInstance_ptr__EBound3_ref
+8017A588 0xB0 ERLevel::AddBounds_EBound3_ref__EBound3_ref__bool_ref
+8017A638 0x108 ERLevel::CalcBounds_void
+8017A740 0x38 ERLevel::UpdateLightGrid_void
+8017A778 0x98 ERLevel::Update_void
