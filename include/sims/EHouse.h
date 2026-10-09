@@ -119,15 +119,17 @@ public:
     void fn_80056914(int a);
     void fn_8005653C(ERC* rc);
 };
-// The house's objects (0x14 bytes; constructor 0x8007F234).
+// The house's objects (0x14 bytes). The name is from The Sims 2: its constructor, destructor,
+// RemoveObjectsFromHouse and PostLoad have the same sizes here (`=` hints at 0x8007F234,
+// 0x8007F2F4, 0x8007FAB8 and 0x8007FE38).
 class EHouse;
-class Unk8007F234 {
+class EIObjectMan {
 public:
-    Unk8007F234(EHouse* house);                                // 0x8007F234
+    EIObjectMan(EHouse* house);                                // 0x8007F234
     void fn_8007F278();                                        // 0x8007F278
     void PostLoad();                                           // 0x8007FE38 (EIObjectMan::PostLoad in The Sims 2)
-    ~Unk8007F234();                                            // 0x8007F2F4
-    void fn_8007FAB8(ERLevel* level);
+    ~EIObjectMan();                                            // 0x8007F2F4
+    void RemoveObjectsFromHouse(ERLevel* level);
     void fn_8007FFE4(ERC* rc);                                 // 0x8007FFE4
     char unk0[0x14];
 };
@@ -167,7 +169,7 @@ public:
     void fn_8004B5AC();
 
     int unk0;                                                  // who made it
-    Unk8007F234* unk4;
+    EIObjectMan* unk4;
     Unk80055C60* unk8;
     int unkC;
     int unk10;

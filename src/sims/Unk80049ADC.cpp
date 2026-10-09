@@ -94,7 +94,7 @@ EHouse::EHouse(EVec2& position, int id, ERLevel* level, bool makeObjects, bool m
         unk8 = 0;
     }
     if (makeObjects) {
-        unk4 = new Unk8007F234(this);
+        unk4 = new EIObjectMan(this);
     } else {
         unk4 = 0;
     }
@@ -403,7 +403,7 @@ void EHouse::fn_8004B5AC() {
 // Takes the whole house down (called by the destructor).
 void EHouse::fn_8004ABB8() {
     if (unk4) {
-        unk4->fn_8007FAB8(unk1C);
+        unk4->RemoveObjectsFromHouse(unk1C);
     }
     CleanUpRoomLights();
     if (unk24) {
