@@ -575,3 +575,14 @@ is byte-identical, yet cannot be linked from source:
   `lfs f0, 4(r6)`) come from an inline member of that object (`ERectF::SumSq()`).
 - When checking a unit's undefined symbols against `symbols.txt`, list only that unit's object. A glob over
   `build/G4ME69/src/` also picks up every object that is not linked and prints hundreds of irrelevant names.
+- **A `.rodata` that is the right size but in the wrong order has a cause you can name.** `ECheats` started with the
+  empty string `""` (an inline function returning it above the includes, as in the data manager) and `ERFont`'s header
+  strings run shader, rshader, texture. Compare with `objcopy -O binary -j .rodata` and a sequence matcher over strings
+  and floats, not word by word: a single shifted word makes every later word differ.
+- A derived class whose destructor is the compiler's implicit one stores **no vtable pointer** in it (explicit
+  `virtual ~X() {}` adds the store): write nothing, and the action record's destructor matches (`Unk800498D0`).
+- `if (flag != 0) { if (flag == 1) {...} } else {...}` lays the `flag == 0` block out *after* the `flag == 1` block,
+  as the original does; `if (flag == 0) ... else if (flag == 1)` and a `switch` both put it first.
+- A message built in a local byte array with a running index (`message[pos] = 1; pos++; ... *(int*)(message + pos) = a;
+  pos += 4;`) in a buffer larger than needed (32 bytes) gives the original's `stbu`/`stbx`/`stwx` and its larger frame.
+
