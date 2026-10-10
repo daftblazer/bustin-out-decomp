@@ -414,3 +414,43 @@ Unk8014FD8C_Obj* Unk8014FD8C::fn_80150F20(Unk8014FD8C_Obj* obj, const char* name
     NATIVE_MEMBER("toUpperCase", lbl_8037BFA0, fn_80150E28)
     return lbl_8037D110;
 }
+
+void Unk8014FD8C::operator delete(register void* p, register unsigned size)
+{
+    ((void (*)(void*, unsigned))lbl_8033D1E0[2])(p, size);
+}
+
+// ---- Mersenne Twister (MT19937) behind Math.random ----
+extern "C" {
+extern int lbl_8037BFA4;                    // words left in the state
+extern unsigned long* lbl_8037D134;         // next state word
+unsigned long fn_80151500();                // regenerate the state
+
+unsigned long fn_801517C0()
+{
+    unsigned long y;
+
+    if (--lbl_8037BFA4 < 0)
+        return fn_80151500();
+    y = *lbl_8037D134++;
+    y ^= (y >> 11);
+    y ^= (y << 7) & 0x9D2C5680;
+    y ^= (y << 15) & 0xEFC60000;
+    return y ^ (y >> 18);
+}
+
+extern unsigned long lbl_8033E0D8[624];     // MT state
+
+void fn_80151894(unsigned long seed)
+{
+    unsigned long s = seed | 1;
+    unsigned long* p = lbl_8033E0D8;
+    int j;
+
+    lbl_8037BFA4 = 0;
+    *p++ = s;
+    j = 624;
+    while (--j != 0)
+        *p++ = (s = s * 69069);
+}
+}
