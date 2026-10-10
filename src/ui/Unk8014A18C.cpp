@@ -236,3 +236,60 @@ void* Unk8014F93C::Unk8014F9F0(register void* a, register const char* name)
     }
     return 0;
 }
+
+// Operand stack of object pointers: count at +0, entries from +4
+extern "C" int fn_8012C7C8(void* obj);                    // type tag
+extern "C" int lbl_802D67B4[32];             // per-type release
+
+class Unk8014FAE4 {
+public:
+    void* fn_8014FAE4(register int i);       // i-th entry from the top
+    int fn_8014FB34();                       // count
+    void* fn_8014FCB0();                     // top
+    void fn_8014FBB8(register void* obj);    // push
+    void fn_8014FC14();                      // pop
+    int count;
+    void* items[0x100];
+};
+
+void Unk8014FAE4::fn_8014FBB8(register void* obj)
+{
+    items[count++] = obj;
+    fn_8012C800(obj);
+}
+
+void Unk8014FAE4::fn_8014FC14()
+{
+    (*(void (**)(void*))((char*)lbl_802D67B4 + fn_8012C7C8(items[count - 1]) * 4))(items[count - 1]);
+    count--;
+}
+
+inline void* Unk8014FAE4::fn_8014FAE4(register int i) { do { return items[count - i - 1]; } while (0); }
+inline int Unk8014FAE4::fn_8014FB34() { do { return count; } while (0); }
+inline void* Unk8014FAE4::fn_8014FCB0() { do { return fn_8014FAE4(0); } while (0); }
+
+class Unk8014FA8C {
+public:
+    static void* operator new(register unsigned size);
+};
+
+void* Unk8014FA8C::operator new(register unsigned size) { return lbl_8033D1E0[0](size); }
+
+class Unk8014FB68 {
+public:
+    void* fn_8014FD00(register int i);
+    void* fn_8014FB68();
+    int count;
+    void* items[0x100];
+};
+
+inline void* Unk8014FB68::fn_8014FD00(register int i) { do { return items[count - i - 1]; } while (0); }
+inline void* Unk8014FB68::fn_8014FB68() { do { return fn_8014FD00(0); } while (0); }
+
+// (the original emits these inline members because other units call them; take their
+// addresses so this scratch unit does as well)
+void* (Unk8014FAE4::*keep0)(int) = &Unk8014FAE4::fn_8014FAE4;
+int (Unk8014FAE4::*keep1)() = &Unk8014FAE4::fn_8014FB34;
+void* (Unk8014FB68::*keep3)() = &Unk8014FB68::fn_8014FB68;
+void* (Unk8014FAE4::*keep2)() = &Unk8014FAE4::fn_8014FCB0;
+void* (Unk8014FB68::*keep4)(int) = &Unk8014FB68::fn_8014FD00;
