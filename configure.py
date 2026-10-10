@@ -290,6 +290,8 @@ config.libs = [
     GameLib(
         "ui",
         [
+            Object(NonMatching, "ui/Unk8012AD10.cpp"),
+            Object(NonMatching, "ui/Unk8012BFC4.cpp"),
             Object(NonMatching, "ui/Unk801352FC.c"),
             Object(NonMatching, "ui/Unk8013C054.cpp"),
             Object(NonMatching, "ui/Unk801440C4.c"),
