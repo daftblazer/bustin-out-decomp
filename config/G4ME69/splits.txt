@@ -151,9 +151,17 @@ sims/Unk80049ADC.cpp:
 	.ctors      start:0x80291CDC end:0x80291CE0
 	.rodata     start:0x80299CF8 end:0x8029A310
 
+sims/Unk80087A5C.cpp:
+	.text       start:0x80087A5C end:0x800B3AA4
+	.ctors      start:0x80291D14 end:0x80291D18
+
 sims/Unk800D53D4.cpp:
 	.text       start:0x800D53D4 end:0x800EF228
 	.ctors      start:0x80291D30 end:0x80291D34
+
+sims/Unk800F8F20.cpp:
+	.text       start:0x800F8F20 end:0x80105FBC
+	.ctors      start:0x80291D3C end:0x80291D40
 
 ui/Unk8012AD10.cpp:
 	.text       start:0x8012AD10 end:0x8012BFC4
@@ -183,6 +191,45 @@ ui/Unk8014A18C.cpp:
 ui/Unk8014FD8C.cpp:
 	.text       start:0x8014FD8C end:0x80152020
 
+sims/Unk8019479C.cpp:
+	.text       start:0x8019479C end:0x801A6F04
+	.ctors      start:0x80291E54 end:0x80291E58
+
+sims/Unk801AFC44.cpp:
+	.text       start:0x801AFC44 end:0x801B8ECC
+	.ctors      start:0x80291E68 end:0x80291E6C
+
+sims/Unk801C0FCC.cpp:
+	.text       start:0x801C0FCC end:0x801C41D8
+	.ctors      start:0x80291E8C end:0x80291E90
+
+sims/Unk801C7420.cpp:
+	.text       start:0x801C7420 end:0x801CDADC
+	.ctors      start:0x80291E9C end:0x80291EA0
+
+sims/Unk801E58D4.cpp:
+	.text       start:0x801E58D4 end:0x801F6614
+	.ctors      start:0x80291EB4 end:0x80291EB8
+
+sims/Unk801F6614.cpp:
+	.text       start:0x801F6614 end:0x8021A398
+	.ctors      start:0x80291EB8 end:0x80291EBC
+
+sims/Unk8021A398.cpp:
+	.text       start:0x8021A398 end:0x8022A578
+	.ctors      start:0x80291EBC end:0x80291EC0
+
+sims/Unk8022A578.cpp:
+	.text       start:0x8022A578 end:0x80231A18
+	.ctors      start:0x80291EC0 end:0x80291EC4
+
 sims/Unk802372E4.cpp:
 	.text       start:0x802372E4 end:0x80252B4C
+	.ctors      start:0x80291ECC end:0x80291ED0
 
+sims/Unk80252B4C.cpp:
+	.text       start:0x80252B4C end:0x8025F394
+	.ctors      start:0x80291ED0 end:0x80291ED4
+
+sims/Unk8026CB70.cpp:
+	.text       start:0x8026CB70 end:0x8026FE50

@@ -30,7 +30,7 @@ def functions(lo, hi, maxsize):
         m = re.match(r"(\S+) = \.text:0x(\w+); // type:function size:0x(\w+)", l)
         if m:
             a = int(m.group(2), 16)
-            if lo <= a < hi and int(m.group(3), 16) <= maxsize:
+            if lo <= a < hi and int(m.group(3), 16) <= maxsize and re.fullmatch(r"[A-Za-z_]\w*", m.group(1)):
                 rows.append((a, int(m.group(3), 16), m.group(1)))
     return rows
 
@@ -138,7 +138,7 @@ def render(a, name, sig, body):
 
 def assemble(header, decls, chunks):
     chunks = sorted(chunks, key=lambda c: c[0])
-    return header + "".join(sorted(decls)) + "\n" + "".join(c[1] for c in chunks)
+    return header + "".join(d + "\n" for d in sorted(decls)) + "\n" + "".join(c[1] for c in chunks)
 
 
 def run_tu(srcname):
@@ -198,7 +198,7 @@ def main():
     path.write_text(assemble(header, decls, chunks))
     res, _ = run_tu(name)
     # drop what does not match
-    keep = [c for c in chunks if res.get(re.search(r'asm\("(\w+)"\)', c[1]).group(1))]
+    keep = [c for c in chunks if res.get(re.search(r'asm\("([^"]+)"\)', c[1]).group(1))]
     dropped = len(chunks) - len(keep)
     chunks = keep
     path.write_text(assemble(header, decls, chunks))

@@ -1,7 +1,15 @@
 // Game code at 0x802372E4-0x80252B4C: trivial functions (empty virtuals, getters, setters, destructors). Compiled at -O2.
 // Each is named by address with an asm label so it keeps the symbol of the original.
 
-extern "C" void fn_801B8A60(void*);extern char lbl_80299CD8[];extern char lbl_802C9648[];extern char lbl_802CEEB0[];extern char lbl_802CF2A8[];extern char lbl_802CF470[];extern char lbl_802CF7D8[];extern int lbl_8037D530;extern int lbl_8037D560;
+extern "C" void fn_801B8A60(void*);
+extern char lbl_80299CD8[];
+extern char lbl_802C9648[];
+extern char lbl_802CEEB0[];
+extern char lbl_802CF2A8[];
+extern char lbl_802CF470[];
+extern char lbl_802CF7D8[];
+extern int lbl_8037D530;
+extern int lbl_8037D560;
 // 0x80238570
 int fn_80238570(char* self) asm("fn_80238570");
 int fn_80238570(char* self)
