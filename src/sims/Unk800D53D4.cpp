@@ -4,6 +4,8 @@
 extern int lbl_8037CD78;
 extern int lbl_8037D950;
 extern int lbl_8037D958;
+extern char lbl_802A3900[];
+extern "C" void fn_801B8A60(void*);
 
 // 0x800D59D0
 char* fn_800D59D0(char* self) asm("fn_800D59D0");
@@ -173,6 +175,16 @@ void fn_800DFDD8(void)
     lbl_8037D950 = 0;
 }
 
+// 0x800DFF48: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800DFF48(char* self, int flag) asm("fn_800DFF48");
+void fn_800DFF48(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800DFF7C
 void fn_800DFF7C(void* self) asm("fn_800DFF7C");
 void fn_800DFF7C(void* self)
@@ -197,6 +209,16 @@ void fn_800DFF88(void* self)
 {
 }
 
+// 0x800DFF8C: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800DFF8C(char* self, int flag) asm("fn_800DFF8C");
+void fn_800DFF8C(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800DFFC0
 void fn_800DFFC0(void* self) asm("fn_800DFFC0");
 void fn_800DFFC0(void* self)
@@ -215,6 +237,16 @@ void fn_800DFFC8(void* self)
 {
 }
 
+// 0x800DFFCC: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800DFFCC(char* self, int flag) asm("fn_800DFFCC");
+void fn_800DFFCC(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E0000
 void fn_800E0000(void* self) asm("fn_800E0000");
 void fn_800E0000(void* self)
@@ -225,6 +257,16 @@ void fn_800E0000(void* self)
 void fn_800E0004(void* self) asm("fn_800E0004");
 void fn_800E0004(void* self)
 {
+}
+
+// 0x800E0008: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0008(char* self, int flag) asm("fn_800E0008");
+void fn_800E0008(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E003C
@@ -243,6 +285,16 @@ void fn_800E0040(void* self)
 void fn_800E0044(void* self) asm("fn_800E0044");
 void fn_800E0044(void* self)
 {
+}
+
+// 0x800E0048: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0048(char* self, int flag) asm("fn_800E0048");
+void fn_800E0048(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E007C
@@ -269,6 +321,16 @@ void fn_800E0088(void* self)
 {
 }
 
+// 0x800E008C: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E008C(char* self, int flag) asm("fn_800E008C");
+void fn_800E008C(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E00C0
 void fn_800E00C0(void* self) asm("fn_800E00C0");
 void fn_800E00C0(void* self)
@@ -279,6 +341,16 @@ void fn_800E00C0(void* self)
 void fn_800E00C4(void* self) asm("fn_800E00C4");
 void fn_800E00C4(void* self)
 {
+}
+
+// 0x800E00C8: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E00C8(char* self, int flag) asm("fn_800E00C8");
+void fn_800E00C8(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E00FC
@@ -299,6 +371,16 @@ void fn_800E0104(void* self)
 {
 }
 
+// 0x800E0108: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0108(char* self, int flag) asm("fn_800E0108");
+void fn_800E0108(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E013C
 void fn_800E013C(void* self) asm("fn_800E013C");
 void fn_800E013C(void* self)
@@ -315,6 +397,16 @@ void fn_800E0140(void* self)
 void fn_800E0144(void* self) asm("fn_800E0144");
 void fn_800E0144(void* self)
 {
+}
+
+// 0x800E0148: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0148(char* self, int flag) asm("fn_800E0148");
+void fn_800E0148(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E017C
@@ -335,6 +427,16 @@ void fn_800E0184(void* self)
 {
 }
 
+// 0x800E0188: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0188(char* self, int flag) asm("fn_800E0188");
+void fn_800E0188(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E01BC
 void fn_800E01BC(void* self) asm("fn_800E01BC");
 void fn_800E01BC(void* self)
@@ -345,6 +447,16 @@ void fn_800E01BC(void* self)
 void fn_800E01C0(void* self) asm("fn_800E01C0");
 void fn_800E01C0(void* self)
 {
+}
+
+// 0x800E01C4: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E01C4(char* self, int flag) asm("fn_800E01C4");
+void fn_800E01C4(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E01F8
@@ -365,6 +477,16 @@ void fn_800E0200(void* self)
 {
 }
 
+// 0x800E0204: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0204(char* self, int flag) asm("fn_800E0204");
+void fn_800E0204(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E0238
 void fn_800E0238(void* self) asm("fn_800E0238");
 void fn_800E0238(void* self)
@@ -381,6 +503,16 @@ void fn_800E023C(void* self)
 void fn_800E0240(void* self) asm("fn_800E0240");
 void fn_800E0240(void* self)
 {
+}
+
+// 0x800E0244: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0244(char* self, int flag) asm("fn_800E0244");
+void fn_800E0244(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E0278
@@ -407,6 +539,16 @@ void fn_800E0284(void* self)
 {
 }
 
+// 0x800E0288: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0288(char* self, int flag) asm("fn_800E0288");
+void fn_800E0288(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E02BC
 void fn_800E02BC(void* self) asm("fn_800E02BC");
 void fn_800E02BC(void* self)
@@ -431,6 +573,16 @@ void fn_800E02C8(void* self)
 {
 }
 
+// 0x800E02CC: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E02CC(char* self, int flag) asm("fn_800E02CC");
+void fn_800E02CC(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E0300
 void fn_800E0300(void* self) asm("fn_800E0300");
 void fn_800E0300(void* self)
@@ -449,6 +601,16 @@ void fn_800E0308(void* self)
 {
 }
 
+// 0x800E030C: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E030C(char* self, int flag) asm("fn_800E030C");
+void fn_800E030C(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E0340
 void fn_800E0340(void* self) asm("fn_800E0340");
 void fn_800E0340(void* self)
@@ -459,6 +621,16 @@ void fn_800E0340(void* self)
 void fn_800E0344(void* self) asm("fn_800E0344");
 void fn_800E0344(void* self)
 {
+}
+
+// 0x800E0348: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0348(char* self, int flag) asm("fn_800E0348");
+void fn_800E0348(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E037C
@@ -485,6 +657,16 @@ void fn_800E0388(void* self)
 {
 }
 
+// 0x800E038C: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E038C(char* self, int flag) asm("fn_800E038C");
+void fn_800E038C(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E03C0
 void fn_800E03C0(void* self) asm("fn_800E03C0");
 void fn_800E03C0(void* self)
@@ -509,6 +691,16 @@ void fn_800E03CC(void* self)
 {
 }
 
+// 0x800E03D0: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E03D0(char* self, int flag) asm("fn_800E03D0");
+void fn_800E03D0(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E0404
 void fn_800E0404(void* self) asm("fn_800E0404");
 void fn_800E0404(void* self)
@@ -521,6 +713,16 @@ void fn_800E0408(void* self)
 {
 }
 
+// 0x800E040C: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E040C(char* self, int flag) asm("fn_800E040C");
+void fn_800E040C(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E0440
 void fn_800E0440(void* self) asm("fn_800E0440");
 void fn_800E0440(void* self)
@@ -531,6 +733,16 @@ void fn_800E0440(void* self)
 void fn_800E0444(void* self) asm("fn_800E0444");
 void fn_800E0444(void* self)
 {
+}
+
+// 0x800E0448: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0448(char* self, int flag) asm("fn_800E0448");
+void fn_800E0448(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E047C
@@ -557,6 +769,16 @@ void fn_800E0488(void* self)
 {
 }
 
+// 0x800E048C: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E048C(char* self, int flag) asm("fn_800E048C");
+void fn_800E048C(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E04C0
 void fn_800E04C0(void* self) asm("fn_800E04C0");
 void fn_800E04C0(void* self)
@@ -567,6 +789,16 @@ void fn_800E04C0(void* self)
 void fn_800E04C4(void* self) asm("fn_800E04C4");
 void fn_800E04C4(void* self)
 {
+}
+
+// 0x800E04C8: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E04C8(char* self, int flag) asm("fn_800E04C8");
+void fn_800E04C8(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E04FC
@@ -587,6 +819,16 @@ void fn_800E0504(void* self)
 {
 }
 
+// 0x800E0508: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0508(char* self, int flag) asm("fn_800E0508");
+void fn_800E0508(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E053C
 void fn_800E053C(void* self) asm("fn_800E053C");
 void fn_800E053C(void* self)
@@ -597,6 +839,16 @@ void fn_800E053C(void* self)
 void fn_800E0540(void* self) asm("fn_800E0540");
 void fn_800E0540(void* self)
 {
+}
+
+// 0x800E0544: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0544(char* self, int flag) asm("fn_800E0544");
+void fn_800E0544(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E0578
@@ -617,6 +869,16 @@ void fn_800E0580(void* self)
 {
 }
 
+// 0x800E0584: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0584(char* self, int flag) asm("fn_800E0584");
+void fn_800E0584(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E05B8
 void fn_800E05B8(void* self) asm("fn_800E05B8");
 void fn_800E05B8(void* self)
@@ -627,6 +889,16 @@ void fn_800E05B8(void* self)
 void fn_800E05BC(void* self) asm("fn_800E05BC");
 void fn_800E05BC(void* self)
 {
+}
+
+// 0x800E05C0: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E05C0(char* self, int flag) asm("fn_800E05C0");
+void fn_800E05C0(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E05F4
@@ -647,6 +919,16 @@ void fn_800E05FC(void* self)
 {
 }
 
+// 0x800E0600: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0600(char* self, int flag) asm("fn_800E0600");
+void fn_800E0600(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E0634
 void fn_800E0634(void* self) asm("fn_800E0634");
 void fn_800E0634(void* self)
@@ -657,6 +939,16 @@ void fn_800E0634(void* self)
 void fn_800E0638(void* self) asm("fn_800E0638");
 void fn_800E0638(void* self)
 {
+}
+
+// 0x800E063C: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E063C(char* self, int flag) asm("fn_800E063C");
+void fn_800E063C(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E0670
@@ -671,6 +963,16 @@ void fn_800E0674(void* self)
 {
 }
 
+// 0x800E0678: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0678(char* self, int flag) asm("fn_800E0678");
+void fn_800E0678(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E06AC
 void fn_800E06AC(void* self) asm("fn_800E06AC");
 void fn_800E06AC(void* self)
@@ -681,6 +983,16 @@ void fn_800E06AC(void* self)
 void fn_800E06B0(void* self) asm("fn_800E06B0");
 void fn_800E06B0(void* self)
 {
+}
+
+// 0x800E06B4: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E06B4(char* self, int flag) asm("fn_800E06B4");
+void fn_800E06B4(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E06E8
@@ -707,6 +1019,16 @@ void fn_800E06F4(void* self)
 {
 }
 
+// 0x800E06F8: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E06F8(char* self, int flag) asm("fn_800E06F8");
+void fn_800E06F8(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E072C
 void fn_800E072C(void* self) asm("fn_800E072C");
 void fn_800E072C(void* self)
@@ -719,6 +1041,16 @@ void fn_800E0730(void* self)
 {
 }
 
+// 0x800E0734: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0734(char* self, int flag) asm("fn_800E0734");
+void fn_800E0734(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E0768
 void fn_800E0768(void* self) asm("fn_800E0768");
 void fn_800E0768(void* self)
@@ -729,6 +1061,16 @@ void fn_800E0768(void* self)
 void fn_800E076C(void* self) asm("fn_800E076C");
 void fn_800E076C(void* self)
 {
+}
+
+// 0x800E0770: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0770(char* self, int flag) asm("fn_800E0770");
+void fn_800E0770(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E07A4
@@ -755,6 +1097,16 @@ void fn_800E07B0(void* self)
 {
 }
 
+// 0x800E07B4: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E07B4(char* self, int flag) asm("fn_800E07B4");
+void fn_800E07B4(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E07E8
 void fn_800E07E8(void* self) asm("fn_800E07E8");
 void fn_800E07E8(void* self)
@@ -765,6 +1117,16 @@ void fn_800E07E8(void* self)
 void fn_800E07EC(void* self) asm("fn_800E07EC");
 void fn_800E07EC(void* self)
 {
+}
+
+// 0x800E07F0: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E07F0(char* self, int flag) asm("fn_800E07F0");
+void fn_800E07F0(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E0824
@@ -779,6 +1141,16 @@ void fn_800E0828(void* self)
 {
 }
 
+// 0x800E082C: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E082C(char* self, int flag) asm("fn_800E082C");
+void fn_800E082C(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E0860
 void fn_800E0860(void* self) asm("fn_800E0860");
 void fn_800E0860(void* self)
@@ -789,6 +1161,16 @@ void fn_800E0860(void* self)
 void fn_800E0864(void* self) asm("fn_800E0864");
 void fn_800E0864(void* self)
 {
+}
+
+// 0x800E0868: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E0868(char* self, int flag) asm("fn_800E0868");
+void fn_800E0868(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800E089C
@@ -803,6 +1185,16 @@ void fn_800E08A0(void* self)
 {
 }
 
+// 0x800E08A4: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E08A4(char* self, int flag) asm("fn_800E08A4");
+void fn_800E08A4(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
 // 0x800E08D8
 void fn_800E08D8(void* self) asm("fn_800E08D8");
 void fn_800E08D8(void* self)
@@ -813,6 +1205,25 @@ void fn_800E08D8(void* self)
 void fn_800E08DC(void* self) asm("fn_800E08DC");
 void fn_800E08DC(void* self)
 {
+}
+
+// 0x800E08E0: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E08E0(char* self, int flag) asm("fn_800E08E0");
+void fn_800E08E0(char* self, int flag)
+{
+    *(char**)(self + 0x10) = lbl_802A3900;
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
+}
+
+// 0x800E5FA4: virtual destructor (stores its vtable, deletes with flag bit 0)
+void fn_800E5FA4(char* self, int flag) asm("fn_800E5FA4");
+void fn_800E5FA4(char* self, int flag)
+{
+    if (flag & 1) {
+        fn_801B8A60(self);
+    }
 }
 
 // 0x800ECB0C
@@ -971,4 +1382,3 @@ void fn_800EF1F8(void* self) asm("fn_800EF1F8");
 void fn_800EF1F8(void* self)
 {
 }
-
