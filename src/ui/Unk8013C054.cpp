@@ -74,7 +74,9 @@ struct UiAllocTable {
     void (*free)(void*, unsigned);   // 0x08
     char pad0C[0x10 - 0x0C];
     void (*slot10)(int);             // 0x10
-    char pad14[0x44 - 0x14];
+    char pad14[0x24 - 0x14];
+    void (*slot24)(void*);           // 0x24
+    char pad28[0x44 - 0x28];
     void (*drawText)(void*);         // 0x44
     char pad48[0x50 - 0x48];
     void (*slot50)(void*);           // 0x50
@@ -387,6 +389,43 @@ extern "C" void* fn_8014FD8C(void* mem, const char* text);
 extern "C" void fn_8012CEF0(void* set, void* key, UiObj* o);
 extern "C" int fn_80111ECC(const char* a, const char* b);
 extern "C" void fn_8013CF5C(UiDisplayList* list, UiObj* o);
+
+// The object at 0x8037D0F8 (0x6708 bytes): a pool of 64 reference-counted entries (0x114 bytes each, count at +0x4500)
+// and, after it, a table of named entries (0x110 bytes each from +0x4508, name at +0 and a key at +0x100, count at +0x4504).
+struct UiPoolEntry {
+    int used;                // 0x000
+    char pad4[0x100 - 4];
+    char* ptr100;            // 0x100
+    void* ptr104;            // 0x104
+    int unk108;              // 0x108
+    int refs;                // 0x10C
+    int unk110;
+};
+struct UiNameEntry {
+    char name[0x100];        // 0x000
+    int key;                 // 0x100
+    char pad104[0x110 - 0x104];
+};
+struct UiNamedPool {
+    UiPoolEntry pool[64];    // 0x0000
+    int active;              // 0x4500
+    int nameCount;           // 0x4504
+    UiNameEntry names[1];    // 0x4508
+    UiNameEntry* Unk801435F0(int key);
+    UiNameEntry* Unk8014351C(const char* name);
+    UiPoolEntry* Unk80143694(UiPoolEntry* e);
+    UiPoolEntry* Unk8014373C(UiPoolEntry* e);
+    UiPoolEntry* Unk801436DC(const char* name);
+    void Unk801437F8(int key);
+    int Unk8014384C(const char* name);
+    void Unk801438A8(UiPoolEntry* e);
+    UiPoolEntry* Unk80143B74();
+    void Unk80143400(UiPoolEntry* e);
+    void Unk80143E30(int a, int b, int c, int d);
+};
+extern UiNamedPool* lbl_8037D0F8;     // -0x62e8(r13)
+extern "C" void fn_80142ED8(const char* name, char* out);
+extern "C" void fn_801375F8(void* a, int b);
 
 // 0x8013C054: remove from the sibling list
 extern "C" UiObj* fn_8013C054(UiObj* self) {
@@ -1227,6 +1266,94 @@ UI_TYPE_TEST(IsType10, 0x10)
 // 0x80142DC8: allocate through host slot 0
 void* UiProps::operator new(register unsigned n) {
     return lbl_8033D1E0.alloc(n);
+}
+
+// 0x8014351C: find the named entry with this name (the name is normalised into a local buffer first)
+UiNameEntry* UiNamedPool::Unk8014351C(const char* name) {
+    char buf[0x100];
+    int i;
+    fn_80142ED8(name, buf);
+    i = 0;
+    while (i < nameCount) {
+        if (fn_80111ECC(buf, names[i].name) == 0) {
+            return &names[i];
+        }
+        i++;
+    }
+    return 0;
+}
+
+// 0x801435F0: find the named entry with this key
+UiNameEntry* UiNamedPool::Unk801435F0(int key) {
+    int i = 0;
+    while (i < nameCount) {
+        if (key == names[i].key) {
+            return &names[i];
+        }
+        i++;
+    }
+    return 0;
+}
+
+// 0x80143694: take a reference
+UiPoolEntry* UiNamedPool::Unk80143694(UiPoolEntry* e) {
+    ++e->refs;
+    return e;
+}
+
+// 0x801436DC: take a reference to the entry of this name
+UiPoolEntry* UiNamedPool::Unk801436DC(const char* name) {
+    UiNameEntry* e = Unk8014351C(name);
+    return Unk80143694((UiPoolEntry*)e);
+}
+
+// 0x8014373C: drop a reference; the last one frees the entry
+UiPoolEntry* UiNamedPool::Unk8014373C(UiPoolEntry* e) {
+    --e->refs;
+    if (e->refs == 0) {
+        fn_801375F8(e->ptr100 + 8, e->unk108);
+        lbl_8033D1E0.slot24(e->ptr104);
+        Unk80143400(e);
+        return 0;
+    }
+    return e;
+}
+
+// 0x801437F8: drop a reference to the entry with this key
+void UiNamedPool::Unk801437F8(int key) {
+    UiNameEntry* e = Unk801435F0(key);
+    Unk8014373C((UiPoolEntry*)e);
+}
+
+// 0x8014384C
+int UiNamedPool::Unk8014384C(const char* name) {
+    return Unk8014351C(name) != 0;
+}
+
+// 0x801438A8: return an entry to the pool
+void UiNamedPool::Unk801438A8(UiPoolEntry* e) {
+    e->used = 0;
+    active = active - 1;
+}
+
+// 0x80143B74: take a free entry from the pool
+UiPoolEntry* UiNamedPool::Unk80143B74() {
+    int i = 0;
+    while (!(i > 63)) {
+        UiPoolEntry* e = &pool[i];
+        if (e->used == 0) {
+            e->used = 1;
+            active = active + 1;
+            return e;
+        }
+        i++;
+    }
+    return 0;
+}
+
+// 0x80143DDC
+void fn_80143DDC(int a, int b, int c, int d) {
+    lbl_8037D0F8->Unk80143E30(a, b, c, d);
 }
 
 // 0x801462CC: bring a movie clip to a frame; forwards by running each frame's commands, backwards by rebuilding from frame 0
