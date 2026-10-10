@@ -48,7 +48,10 @@ extern "C" void fn_80139E1C(void* self);
 struct UiHead {
     UiObj* first;            // 0x00
     static void* operator new(unsigned n);
+    static void Delete(void* p, unsigned n);
     UiHead();
+    void Destroy(int flag);
+    static void Free(UiHead* p);
 };
 
 // base of the per-character data blocks (0x8012C544)
@@ -57,9 +60,35 @@ struct UiBase {
     UiBase();
 };
 
+extern "C" void fn_8012C800(UiObj* o);
+
+// open-addressed set of instances, 256 slots (0x8013E24C-0x8013E2C4) and 128 slots (0x8013E370-0x8013E3E8)
+struct UiObjSet256 {
+    int count;               // 0x00
+    UiObj* items[256];       // 0x04
+    int Contains(UiObj* o);
+    void Add(UiObj* o);
+};
+struct UiObjSet128 {
+    int count;               // 0x00
+    UiObj* items[128];       // 0x04
+    int Contains(UiObj* o);
+    void Add(UiObj* o);
+};
+
 struct UiDisplayList {
     UiHead* head;            // 0x00
     UiDisplayList();
+    ~UiDisplayList();
+    void Clear();
+    void Update();
+    void DrawUnmasked(void* ctx, int flag);
+    UiHead* GetHead();
+    void SetHead(UiHead* h);
+    void Release(UiObj* o);
+    void Remove(int id);
+    void RemoveDynamic(UiObj* id);
+    void RemoveHandle(int* id);
     void DrawOne(void* ctx, UiObj* o, int flag);
     void Draw(void* ctx, int flag);
 };
@@ -93,20 +122,12 @@ struct UiDataF : UiBase {
     static void* operator new(unsigned n);
 };
 
-extern "C" void fn_8013BCEC(void* owner, int id, int zero, void* outA, UiObj** outB);
+extern "C" void fn_8013BCEC(UiHead* head, int id, int zero, void* outA, UiObj** outB);
 extern "C" void* fn_80151A24(void* parent);
 extern "C" UiObj* fn_8012D820(void* dict, int name);
 extern "C" void fn_8012D480(void* dict, int name);
 extern "C" void fn_80132F5C(UiObj* o);
 
-// owner of the instances that scripts attach by id (0x8013CF5C-0x8013D104)
-struct UiResolver {
-    void* owner;             // 0x00
-    void Release(UiObj* o);
-    void Remove(int id);
-    void RemoveDynamic(UiObj* id);
-    void RemoveHandle(int* id);
-};
 
 // 0x8013C054: remove from the sibling list
 extern "C" UiObj* fn_8013C054(UiObj* self) {
@@ -215,7 +236,7 @@ void UiDisplayList::Draw(void* ctx, int flag) {
 }
 
 // 0x8013CF5C: drop an instance from its parent's name table and free it
-void UiResolver::Release(UiObj* o) {
+void UiDisplayList::Release(UiObj* o) {
     if (o && !fn_8012C8A4(o)) {
         void* par = o->parent;
         void* dict;
@@ -232,25 +253,25 @@ void UiResolver::Release(UiObj* o) {
 }
 
 // 0x8013D020
-void UiResolver::Remove(int id) {
+void UiDisplayList::Remove(int id) {
     int a;
     UiObj* b;
-    fn_8013BCEC(owner, id, 0, &a, &b);
+    fn_8013BCEC(head, id, 0, &a, &b);
     Release(b);
 }
 
 // 0x8013D080: release an instance only when it was made at run time (depth above 0x3FFF)
-void UiResolver::RemoveDynamic(UiObj* id) {
+void UiDisplayList::RemoveDynamic(UiObj* id) {
     int a = 0;
     UiObj* b = 0;
-    fn_8013BCEC(owner, id->depth, 0, &a, &b);
+    fn_8013BCEC(head, id->depth, 0, &a, &b);
     if (b->depth > 0x3FFF) {
         Release(b);
     }
 }
 
 // 0x8013D104
-void UiResolver::RemoveHandle(int* id) {
+void UiDisplayList::RemoveHandle(int* id) {
     Remove(*id);
 }
 
@@ -330,4 +351,137 @@ UiDataF::UiDataF() {
 // 0x8013E1F4
 void* UiDataF::operator new(register unsigned n) {
     return lbl_8033D1E0.alloc(n);
+}
+
+extern "C" void fn_80133A14(UiObj* o);
+
+// 0x8013E70C
+void UiHead::Destroy(register int flag) {
+    fn_80133A14(first);
+    if (flag & 1) {
+        Delete(this, 4);
+    }
+}
+
+// 0x8013E760
+void UiHead::Delete(register void* p, register unsigned n) {
+    lbl_8033D1E0.free(p, n);
+}
+
+extern "C" int fn_80132114(UiObj* o, int flag);
+extern "C" int fn_8013209C(UiObj* o, int flag);
+extern "C" void fn_80140BBC(UiObj* o, void* ctx, int flag);
+extern "C" void fn_80146B8C(UiObj* o);
+
+// 0x8013E494
+void UiHead::Free(register UiHead* p) {
+    if (p) {
+        p->Destroy(3);
+        return;
+    }
+}
+
+// 0x8013D198
+UiDisplayList::~UiDisplayList() {
+    Clear();
+    UiHead::Free(head);
+}
+
+// 0x8013D4AC: draw the children that are not clip layers
+void UiDisplayList::DrawUnmasked(void* ctx, int flag) {
+    UiObj* cur = head->first->next;
+    while (cur) {
+        if (cur->clip->clipDepth < 0) {
+            fn_80140BBC(cur, ctx, flag);
+        }
+        cur = cur->next;
+    }
+}
+
+// 0x8013D538
+void UiDisplayList::Update() {
+    UiObj* cur = head->first->next;
+    while (cur) {
+        if (fn_80132114(cur, 0) || fn_8013209C(cur, 0)) {
+            fn_80146B8C(cur);
+        }
+        cur = cur->next;
+    }
+}
+
+// 0x8013D5D4: release every child
+void UiDisplayList::Clear() {
+    UiObj* cur = head->first->next;
+    UiObj* nx;
+    while (cur) {
+        nx = cur->next;
+        Release(cur);
+        cur = nx;
+    }
+}
+
+// 0x8013D648
+UiHead* UiDisplayList::GetHead() {
+    return head;
+}
+
+// 0x8013D674
+void UiDisplayList::SetHead(UiHead* h) {
+    head = h;
+}
+
+// 0x8013E24C
+int UiObjSet256::Contains(register UiObj* o) {
+    int i = 0;
+    while (i <= 255) {
+        if (items[i] == o) {
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
+
+// 0x8013E2C4
+void UiObjSet256::Add(register UiObj* o) {
+    int i;
+    count++;
+    i = count;
+    while (items[i] != 0) {
+        if (i <= 254) {
+            i++;
+        } else {
+            i = 0;
+        }
+    }
+    items[i] = o;
+    fn_8012C800(o);
+}
+
+// 0x8013E370
+int UiObjSet128::Contains(register UiObj* o) {
+    int i = 0;
+    while (i <= 127) {
+        if (items[i] == o) {
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
+
+// 0x8013E3E8
+void UiObjSet128::Add(register UiObj* o) {
+    int i;
+    count++;
+    i = count;
+    while (items[i] != 0) {
+        if (i <= 126) {
+            i++;
+        } else {
+            i = 0;
+        }
+    }
+    items[i] = o;
+    fn_8012C800(o);
 }
