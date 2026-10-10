@@ -1,7 +1,18 @@
 // UI library (Flash-style display list), 0x8013C054-0x801440C4. Compiled at -O0.
 
+struct UiShape;
+// per-character data block (first word is the clip depth)
 struct UiClip {
     int clipDepth;           // 0x00
+    int unk4;
+    UiShape* shape;          // 0x08
+    int unkC;
+    int unk10;
+    void* text;              // 0x14
+};
+
+struct UiRect {
+    float xmin, ymin, xmax, ymax;
 };
 
 struct UiObj {
@@ -18,6 +29,11 @@ struct UiObj {
     UiObj(int type, unsigned fill, int zero);   // 0x8012C21C
     static void* operator new(unsigned n);       // 0x8012C3F4
     UiClip* GetClip();
+    void GetBounds(UiRect* out);
+    void DrawForBounds(void* ctx, void* out);
+    UiClip* GetDataE();       // 0x80131FCC
+    UiClip* GetTextData();    // 0x8013356C
+    UiClip* GetShapeData();   // 0x80131FF8
     int IsType11();
     int IsType7();
     int IsType6();
@@ -46,6 +62,7 @@ struct UiAllocTable {
     void* slot78;                    // 0x78
 };
 extern UiAllocTable lbl_8033D1E0;
+extern void* lbl_8037D124;     // -0x62bc(r13): context that collects bounds instead of drawing
 
 extern "C" UiObj* fn_8012C21C(void* mem, int type, unsigned fill, int zero);
 extern "C" void* fn_8012C3F4(unsigned n);
@@ -571,4 +588,44 @@ void UiShape::DrawMask(void* ctx, void* flag, void* matrix) {
     if (matrix) {
         fn_801477DC(ctx);
     }
+}
+
+// 0x80140D38: bounds {xmin, ymin, xmax, ymax} of an object, gathered by a draw pass with a collecting context
+void UiObj::GetBounds(UiRect* out) {
+    out->xmin = 1000000000.0f;
+    out->xmax = -1000000000.0f;
+    out->ymax = -1000000000.0f;
+    out->ymin = 1000000000.0f;
+    DrawForBounds(lbl_8037D124, out);
+}
+
+extern "C" void* fn_80131FCC(UiObj* o);
+extern "C" void* fn_80131FF8(UiObj* o);
+extern "C" void* fn_8013356C(UiObj* o);
+
+
+// 0x80140BBC: the mask/bounds pass; the same walk as the draw but nothing is rendered
+void UiObj::DrawForBounds(void* ctx, void* out) {
+    UiClip* data = GetShapeData();
+    UiClip* td;
+    fn_80147764(ctx);
+    fn_80147A00(ctx, (char*)this + 0xC);
+    if (fn_80132114(this, 0)) {
+        td = GetClip();
+        ((UiDisplayList*)((char*)td + 0x1C))->DrawUnmasked(ctx, (int)out);
+    } else if (fn_8013209C(this, 0)) {
+        td = GetDataE();
+        ((UiDisplayList*)((char*)td + 0x18))->DrawUnmasked(ctx, (int)out);
+    } else if (IsTypeF()) {
+        td = GetTextData();
+        if (td->text) {
+            fn_80147A70(ctx, out, (char*)td->shape + 8);
+        }
+    } else {
+        if (IsType11()) {
+        } else {
+            data->shape->DrawMask(ctx, out, 0);
+        }
+    }
+    fn_801477DC(ctx);
 }
