@@ -936,8 +936,37 @@ void* UiProps::operator new(register unsigned n) {
     return lbl_8033D1E0.alloc(n);
 }
 
-extern "C" void fn_8013CD18(UiDisplayList* list, void* place, UiObj* o);
 extern "C" void fn_8013D104(UiDisplayList* list, void* remove);
+
+// PlaceObject command (an UiAction body): flags, depth, character, optional matrix / colour transform / ratio / name / clip actions
+struct UiPlace {
+    unsigned flags;          // 0x00: 1 move, 2 create, 4 matrix, 8 colour transform, 0x20 ratio-style int at 0x30, 0x40/0x80 name, clip actions
+    int depth;               // 0x04
+    int character;           // 0x08
+    float matrix[6];         // 0x0C
+    float cxform[2];         // 0x24 colour transform words
+    float ratio;             // 0x2C
+    int unk30;
+    int unk34;
+    int unk38;
+};
+extern "C" void fn_8013C8CC(UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g);
+
+// 0x8013CD18: run one PlaceObject command
+// NON_MATCHING: two stray trailing branches (147 instructions against 145); everything else matches
+extern "C" void fn_8013CD18(register UiDisplayList* list, UiPlace* rec, UiObj* parent) {
+    if (rec->flags & 2) {
+        int ch = (int)((UiMovieRes*)parent->clip->shape)->fonts->items[rec->character];
+        fn_8013C8CC(list, 0, rec->depth, ch, rec->flags & 0x20 ? rec->unk30 : 0, parent, 0, rec->unk34, rec->ratio,
+                    rec->flags & 8 ? &rec->cxform : 0, rec->flags & 4 ? &rec->matrix : 0, rec->flags & 0x80 ? rec->unk38 : 0);
+    } else if (rec->flags & 1) {
+        int found;
+        UiObj* where;
+        fn_8013BCEC(list->head, rec->depth, 0, &found, &where);
+        fn_8013C8CC(list, (int)where, 0, 0, 0, parent, 0, -1, rec->ratio,
+                    rec->flags & 8 ? &rec->cxform : 0, rec->flags & 4 ? &rec->matrix : 0, rec->flags & 0x80 ? rec->unk38 : 0);
+    }
+}
 
 // 0x8013F62C: run the commands of one frame of a timeline (type 3 place object, 4 remove object, 5 and 6 host calls)
 extern "C" void fn_8013F62C(register UiTimeline* tl, UiDisplayList* list, UiObj* o, int frame) {
@@ -950,7 +979,7 @@ extern "C" void fn_8013F62C(register UiTimeline* tl, UiDisplayList* list, UiObj*
             lbl_8033D1E0.slot10(act->arg);
             break;
         case 3:
-            fn_8013CD18(list, &act->arg, o);
+            fn_8013CD18(list, (UiPlace*)&act->arg, o);
             break;
         case 1:
         case 2:
