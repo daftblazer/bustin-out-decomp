@@ -17,6 +17,7 @@ struct UiRect {
 
 struct UiProps {
     float f[12];             // f[11] (0x2C) is _visible
+    static void* operator new(unsigned n);   // 0x80142DC8
 };
 
 struct UiObj {
@@ -37,6 +38,7 @@ struct UiObj {
     void GetBounds(UiRect* out);
     void DrawForBounds(void* ctx, void* out);
     void Draw(void* ctx, int flag);
+    void Unk80140DC4();
     void Unk80141040(int idx, float v);
     UiClip* GetDataE();       // 0x80131FCC
     UiClip* GetTextData();    // 0x8013356C
@@ -360,7 +362,8 @@ UiHead::UiHead() {
 
 // 0x8013DE30
 void* UiHead::operator new(register unsigned n) {
-    return lbl_8033D1E0.alloc(n);
+    void* (*f)(unsigned) = lbl_8033D1E0.alloc;
+    return f(n);
 }
 
 // 0x8013D148
@@ -854,14 +857,47 @@ void UiObj::DrawForBounds(void* ctx, void* out) {
     fn_801477DC(ctx);
 }
 
-extern "C" void fn_80140DC4(UiObj* o);
 extern "C" float fn_8010E288(float a);
 extern "C" float fn_8010E450(float a);
+
+extern "C" float fn_8010DD60(float y, float x);
+
+// 0x80140DC4: make the property block when there is none, from the object's matrix and colour transform
+void UiObj::Unk80140DC4() {
+    float a1, a2, angle, cs, sn, eps;
+    if (!props) {
+        props = new UiProps;
+        props->f[0] = *(float*)((char*)this + 0x1C);
+        props->f[1] = *(float*)((char*)this + 0x20);
+        a1 = fn_8010DD60(*(float*)((char*)this + 0x10), *(float*)((char*)this + 0xC));
+        a2 = fn_8010DD60(-*(float*)((char*)this + 0x14), *(float*)((char*)this + 0x18));
+        angle = (a1 + a2) * 0.5f;
+        props->f[6] = angle * 57.29578f;
+        cs = fn_8010E288(angle);
+        sn = fn_8010E450(angle);
+        eps = 0.0001f;
+        if (cs <= -0.0001f || cs >= 0.0001f) {
+            props->f[2] = *(float*)((char*)this + 0xC) / cs * 100.0f;
+            props->f[3] = *(float*)((char*)this + 0x18) / cs * 100.0f;
+        } else if (sn <= -0.0001f || sn >= 0.0001f) {
+            props->f[2] = *(float*)((char*)this + 0x10) / sn * 100.0f;
+            props->f[3] = -*(float*)((char*)this + 0x14) / sn * 100.0f;
+        } else {
+            props->f[2] = 100.0f;
+            props->f[3] = 100.0f;
+        }
+        props->f[7] = *(float*)((char*)this + 0x24) * 100.0f;
+        props->f[8] = *(float*)((char*)this + 0x38) * 255.0f;
+        props->f[9] = *(float*)((char*)this + 0x3C) * 255.0f;
+        props->f[10] = *(float*)((char*)this + 0x40) * 255.0f;
+        props->f[11] = 1.0f;
+    }
+}
 
 // 0x80141040: set property idx of the object's property block, then rebuild its matrix and colour transform from it
 void UiObj::Unk80141040(int idx, float v) {
     float angle, cs, sn, sx, sy;
-    fn_80140DC4(this);
+    Unk80140DC4();
     idx[props->f] = v;
     angle = props->f[6] * 0.017453294f;
     cs = fn_8010E288(angle);
@@ -878,6 +914,12 @@ void UiObj::Unk80141040(int idx, float v) {
     *(float*)((char*)this + 0x38) = props->f[8] * 0.003921569f;
     *(float*)((char*)this + 0x3C) = props->f[9] * 0.003921569f;
     *(float*)((char*)this + 0x40) = props->f[10] * 0.003921569f;
+}
+
+// 0x80142DC8: allocate through host slot 0
+// NON_MATCHING: two extra trailing branches (the UiData operator new matches with the same body)
+void* UiProps::operator new(register unsigned n) {
+    return lbl_8033D1E0.alloc(n);
 }
 
 // 0x8013F7E4
