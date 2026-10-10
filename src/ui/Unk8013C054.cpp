@@ -650,7 +650,8 @@ struct UiMovieData {
     int unk8;
     void* dict;              // 0x0C member dictionary
     int unk10;
-    unsigned pad14 : 26;     // 0x14
+    unsigned pad14 : 25;     // 0x14
+    unsigned stopped : 1;    // set by 0x801411C4 from its third argument
     unsigned mode : 2;       // 1 = drawn by the host, 2 = drawn here
     unsigned rest14 : 4;
     int unk18;
@@ -957,3 +958,44 @@ int UiTimeline::Lookup(int name) {
         return -1;
     }
 }
+
+extern "C" UiObj* fn_8012C154(void* h, int zero);
+extern "C" void* fn_801489D4(void* gfx, int zero);
+extern "C" int fn_80131EEC(void* v);
+extern "C" void fn_801462CC(UiObj* o, int frame);
+extern int lbl_8037D110;      // -0x62d0(r13): returned by the script natives
+
+// 0x801411C4: gotoAndPlay/gotoAndStop(frame or label): jump the clip to a frame, then set its stopped bit
+// NON_MATCHING: two trailing branches short (the original ends in three branches to the epilogue; do { return } while (0) gives four)
+extern "C" int fn_801411C4(void* h, int arg, int stop) {
+    void* v;
+    int frame;
+    register UiTimeline* tl;
+    if (arg <= 0) {
+        return lbl_8037D110;
+    }
+    v = fn_801489D4(lbl_8033D2A8, 0);
+    if (fn_80139D88(fn_8012C154(h, 0))) {
+        return lbl_8037D110;
+    }
+    if (fn_80131EEC(v)) {
+        tl = (UiTimeline*)((char*)((UiClip*)fn_8013DD0C(fn_8012C154(h, 0)))->shape + 8);
+        frame = tl->Lookup((int)fn_8012D9C4(fn_80131E8C(v))) + 1;
+    } else {
+        frame = fn_801321E4(v);
+    }
+    fn_801462CC(fn_8012C154(h, 0), frame - 1);
+    {
+        fn_8013DD0C(fn_8012C154(h, 0))->stopped = stop != 0 ? 1 : 0;
+    }
+    return lbl_8037D110;
+}
+
+// 0x80141350, 0x801413A8: the two entry points (play / stop)
+extern "C" int fn_80141350(void* h, int arg) {
+    do { return fn_801411C4(h, arg, 0); } while (0);
+}
+extern "C" int fn_801413A8(void* h, int arg) {
+    do { return fn_801411C4(h, arg, 1); } while (0);
+}
+
