@@ -6,6 +6,7 @@ extern int lbl_8037D950;
 extern int lbl_8037D958;
 extern char lbl_802A3900[];
 extern "C" void fn_801B8A60(void*);
+extern int lbl_8037CD74;
 
 // 0x800D59D0
 char* fn_800D59D0(char* self) asm("fn_800D59D0");
@@ -21,11 +22,44 @@ int fn_800D5B78(char* self)
     return *(int*)(self + 0x1320);
 }
 
+// 0x800D60EC
+void fn_800D60EC(char* self) asm("fn_800D60EC");
+void fn_800D60EC(char* self)
+{
+    *(int*)(self + 0x264C) = 1;
+    *(char*)(self + 0x2650) = 2;
+}
+
 // 0x800D734C
 void fn_800D734C(char* self) asm("fn_800D734C");
 void fn_800D734C(char* self)
 {
     *(int*)(self + 0x1C) = 1;
+}
+
+// 0x800D7440
+void fn_800D7440(char* self) asm("fn_800D7440");
+void fn_800D7440(char* self)
+{
+    *(int*)(self + 0x14) = 0;
+    *(int*)(self + 0x18) = 0;
+}
+
+// 0x800D7E4C
+void fn_800D7E4C(char* self) asm("fn_800D7E4C");
+void fn_800D7E4C(char* self)
+{
+    *(int*)(self + 0x18) = 1;
+    *(int*)(self + 0x1C) = 0;
+    *(int*)(self + 0x14) = 0;
+}
+
+// 0x800D80A8
+void fn_800D80A8(char* self) asm("fn_800D80A8");
+void fn_800D80A8(char* self)
+{
+    *(int*)(self + 0x14) = 0;
+    *(int*)(self + 0x18) = 0;
 }
 
 // 0x800D815C
@@ -47,6 +81,14 @@ void fn_800D878C(char* self) asm("fn_800D878C");
 void fn_800D878C(char* self)
 {
     *(int*)(self + 0x14) = 0;
+}
+
+// 0x800D8DE4
+void fn_800D8DE4(char* self) asm("fn_800D8DE4");
+void fn_800D8DE4(char* self)
+{
+    *(int*)(self + 0x14) = 0;
+    *(int*)(self + 0x20) = 1;
 }
 
 // 0x800D9010
@@ -91,6 +133,23 @@ void fn_800DA79C(void)
     lbl_8037CD78 = 1;
 }
 
+// 0x800DA9DC
+void fn_800DA9DC(char* self) asm("fn_800DA9DC");
+void fn_800DA9DC(char* self)
+{
+    *(int*)(self + 0x14) = 0;
+    *(int*)(self + 0x18) = 0;
+    *(int*)(self + 0x20) = 0;
+}
+
+// 0x800DB0CC
+void fn_800DB0CC(char* self) asm("fn_800DB0CC");
+void fn_800DB0CC(char* self)
+{
+    lbl_8037CD74 = 0;
+    *(int*)(self + 0x18) = 0;
+}
+
 // 0x800DB254
 void fn_800DB254(char* self) asm("fn_800DB254");
 void fn_800DB254(char* self)
@@ -98,11 +157,27 @@ void fn_800DB254(char* self)
     *(int*)(self + 0x14) = 0;
 }
 
+// 0x800DB70C
+void fn_800DB70C(char* self) asm("fn_800DB70C");
+void fn_800DB70C(char* self)
+{
+    lbl_8037CD74 = 0;
+    *(int*)(self + 0x18) = 0;
+}
+
 // 0x800DB888
 void fn_800DB888(char* self) asm("fn_800DB888");
 void fn_800DB888(char* self)
 {
     *(int*)(self + 0x14) = 0;
+}
+
+// 0x800DBE14
+void fn_800DBE14(char* self) asm("fn_800DBE14");
+void fn_800DBE14(char* self)
+{
+    lbl_8037CD74 = 0;
+    *(int*)(self + 0x18) = 0;
 }
 
 // 0x800DBF14
@@ -124,6 +199,15 @@ void fn_800DCC48(char* self) asm("fn_800DCC48");
 void fn_800DCC48(char* self)
 {
     *(int*)(self + 0x14) = 0;
+}
+
+// 0x800DD540
+void fn_800DD540(char* self) asm("fn_800DD540");
+void fn_800DD540(char* self)
+{
+    *(int*)(self + 0x14) = 0;
+    lbl_8037CD74 = 0;
+    *(int*)(self + 0x1C) = 0;
 }
 
 // 0x800DDA4C
@@ -1217,6 +1301,33 @@ void fn_800E08E0(char* self, int flag)
     }
 }
 
+// 0x800E4258
+void fn_800E4258(char* self, int a) asm("fn_800E4258");
+void fn_800E4258(char* self, int a)
+{
+    *(int*)(self + 0x78) = a;
+    *(int*)(self + 0x7C) = 0;
+    *(int*)(self + 0x80) = 0;
+}
+
+// 0x800E426C
+void fn_800E426C(char* self, int a) asm("fn_800E426C");
+void fn_800E426C(char* self, int a)
+{
+    *(int*)(self + 0x7C) = a;
+    *(int*)(self + 0x78) = 0;
+    *(int*)(self + 0x80) = 0;
+}
+
+// 0x800E4280
+void fn_800E4280(char* self, int a) asm("fn_800E4280");
+void fn_800E4280(char* self, int a)
+{
+    *(int*)(self + 0x80) = a;
+    *(int*)(self + 0x78) = 0;
+    *(int*)(self + 0x7C) = 0;
+}
+
 // 0x800E5FA4: virtual destructor (stores its vtable, deletes with flag bit 0)
 void fn_800E5FA4(char* self, int flag) asm("fn_800E5FA4");
 void fn_800E5FA4(char* self, int flag)
@@ -1231,6 +1342,13 @@ void fn_800ECB0C(char* self) asm("fn_800ECB0C");
 void fn_800ECB0C(char* self)
 {
     *(int*)(self + 0x30) = 0;
+}
+
+// 0x800EE45C
+void fn_800EE45C(char* self, int a) asm("fn_800EE45C");
+void fn_800EE45C(char* self, int a)
+{
+    *(int*)(self + 0x4C) = a;
 }
 
 // 0x800EEBE0
