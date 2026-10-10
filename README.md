@@ -26,8 +26,8 @@ No game assets or code from the disc are included. You need your own copy.
 <!-- progress:start -->
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Code_matched-5.39%25-3828f7" alt="Code matched: 5.39%">
-  <img src="https://img.shields.io/badge/Functions_matched-803_%2F_10,848-3828f7" alt="Functions matched: 803 / 10,848">
+  <img src="https://img.shields.io/badge/Code_matched-5.58%25-3828f7" alt="Code matched: 5.58%">
+  <img src="https://img.shields.io/badge/Functions_matched-861_%2F_10,848-3828f7" alt="Functions matched: 861 / 10,848">
   <img src="https://img.shields.io/badge/Linked_from_source-5_files-3828f7" alt="Linked from source: 5 files">
 </p>
 
@@ -38,13 +38,13 @@ No game assets or code from the disc are included. You need your own copy.
 | C/C++ runtime and libraries | 0 / 780 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | Dolphin SDK (Metrowerks) | 0 / 830 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | SN debugger stub (`libsn`) | 0 / 86 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
-| **Whole executable** | **803 / 10,848** | **5.39%** | `█░░░░░░░░░░░░░░░░░░░` |
+| **Whole executable** | **861 / 10,848** | **5.58%** | `█░░░░░░░░░░░░░░░░░░░` |
 
 A function counts as matched only when its C++ source compiles to the original bytes.
 The Dolphin SDK parts were built with a different compiler and are not decompiled by hand here.
 
 <details>
-<summary>Source files (34)</summary>
+<summary>Source files (35)</summary>
 
 | File | Functions | Code matched | | Linked from source |
 |---|---:|---:|---|:---:|
@@ -77,8 +77,9 @@ The Dolphin SDK parts were built with a different compiler and are not decompile
 | `src/sims/cas/Unk80023D3C.cpp` | 4 / 5 | 27.8% | `███░░░░░░░` |  |
 | `src/ui/Unk8012BFC4.cpp` | 2 / 18 | 13.1% | `█░░░░░░░░░` |  |
 | `src/ui/Unk8012C7C8.cpp` | 8 / 42 | 9.2% | `█░░░░░░░░░` |  |
+| `src/ui/Unk8012F420.cpp` | 52 / 136 | 17.3% | `██░░░░░░░░` |  |
 | `src/ui/Unk801352FC.c` | 68 / 105 | 44.9% | `████░░░░░░` |  |
-| `src/ui/Unk8013C054.cpp` | 70 / 105 | 32.5% | `███░░░░░░░` |  |
+| `src/ui/Unk8013C054.cpp` | 76 / 105 | 35.1% | `████░░░░░░` |  |
 | `src/ui/Unk801440C4.c` | 32 / 78 | 17.9% | `██░░░░░░░░` |  |
 | `src/ui/Unk8014A18C.cpp` | 27 / 53 | 11.0% | `█░░░░░░░░░` |  |
 | `src/ui/Unk8014FD8C.cpp` | 18 / 26 | 71.1% | `███████░░░` |  |
