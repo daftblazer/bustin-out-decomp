@@ -332,13 +332,13 @@ int fn_80137568(register AptIdList* self, int id) {
 
 /* Apt VM context (0x3F3C bytes). */
 typedef struct { int count; int items[2049]; } AptList;       /* 0x180C: count, then item pointers */
-typedef struct { int used; void* obj; int pad[2]; } AptSlot;  /* 0x10 bytes */
+typedef struct { int used; void* obj; float interval; float remaining; } AptSlot;  /* 0x10 bytes: a setInterval timer */
 typedef struct AptCtx {
     char pad0[0x1400];
-    struct AptCtx* f1400;
-    struct AptCtx* f1404;
-    char pad1[0x1808 - 0x1408];
-    int f1808;
+    char* f1400;                 /* message queue read pointer */
+    char* f1404;                 /* message queue write pointer */
+    void* roots[256];            /* 0x1408: root objects */
+    int rootCount;               /* 0x1808 */
     AptList list;                /* 0x180C */
     char f3814[0x3a18 - 0x3814]; /* 0x3814 */
     int f3a18;
@@ -380,8 +380,8 @@ AptCtx* fn_80138A50(register AptCtx* self) {
     fn_8013A160(self->f3814);
     fn_8013D148(&self->f3a18);
     fn_8013D148(&self->f3a1c);
-    self->f1400 = self->f1404 = self;
-    self->f1808 = 0;
+    self->f1400 = self->f1404 = (char*)self;
+    self->rootCount = 0;
     fn_8013954C(self);
     self->f3e24 = 0;
     self->f3f28 = 0;
@@ -430,4 +430,105 @@ void fn_80138B28(register AptCtx* self, int flag) {
     fn_8013A1A0(self->f3814, 2);
     fn_8013A054(&self->list, 2);
     if (flag & 1) fn_80139ECC(self, 0x3f3c);
+}
+
+typedef struct { char pad[0x61c]; int curId; char pad2[0x100]; } AptMachine;
+extern AptMachine lbl_8033D2A8;
+typedef struct { char pad[0x18]; int f18; } AptClip;
+extern AptClip* fn_80131EBC(void* obj);
+extern int fn_80139DF0(AptClip* c);
+extern void fn_8014A254(void* g, int a, AptClip* c, int b);
+extern void fn_80148994(void* g);
+
+/* Advance the setInterval timers by dt. */
+void fn_80138D30(register AptCtx* self, int dt) {
+    int i;
+    int n = 0;
+    for (i = 0; i <= 0x3f; i++) {
+        AptClip* clip;
+        int ok;
+        if (n == self->f3e20) break;
+        if (self->slots[i].used == 0) continue;
+        n++;
+        self->slots[i].remaining = self->slots[i].remaining - (float)dt;
+        if (!(self->slots[i].remaining >= 0.0f)) {
+        clip = fn_80131EBC(self->slots[i].obj);
+        ok = fn_80139DF0(clip);
+        if (ok) {
+            fn_8014A254(&lbl_8033D2A8, clip->f18, clip, -1);
+            fn_80148994(&lbl_8033D2A8);
+            self->slots[i].remaining = self->slots[i].remaining + self->slots[i].interval;
+        } else {
+            (*(ReleaseFn*)((char*)lbl_802D67B4 + fn_8012C7C8(self->slots[i].obj) * 4))(self->slots[i].obj);
+            self->slots[i].used = 0;
+        }
+        }
+    }
+}
+
+typedef struct { char pad[0x10]; int f10; int f14; } AptInfo;
+extern int fn_8013209C(void* o, int a);
+extern AptInfo* fn_80131FCC(void* o);
+extern void fn_80145F9C(void* o, int a);
+extern int fn_80132024(void* o, int a);
+extern AptInfo* fn_80133540(void* o);
+extern void fn_80146B8C(void* o);
+
+/* Release every root object (the display roots at 0x1408), then empty the list. */
+void fn_80138F68(register AptCtx* self) {
+    int i = 0;
+    while (i < self->rootCount) {
+        if (fn_8013209C(self->roots[i], 0)) {
+            AptInfo* info = fn_80131FCC(self->roots[i]);
+            if (info->f14 == 0) fn_80145F9C(self->roots[i], 1);
+        } else if (fn_80132024(self->roots[i], 0)) {
+            AptInfo* info = fn_80133540(self->roots[i]);
+            if (info->f10 == -1) fn_80146B8C(self->roots[i]);
+        }
+        (*(ReleaseFn*)((char*)lbl_802D67B4 + fn_8012C7C8(self->roots[i]) * 4))(self->roots[i]);
+        i++;
+    }
+    self->rootCount = 0;
+}
+
+typedef struct { int type; int id; int* a; int b; int c; } AptMsg;
+extern int fn_8012C8A4(int v);
+extern int fn_80139D88(int v);
+extern void fn_8014ADB4(void* g, int a, int b, int c);
+extern void fn_8013A2AC(void* p, int a);
+extern void fn_8013A308(void* p);
+extern void fn_8013A3A4(void* p);
+extern char* fn_80139F24(void* self, char* p);
+extern char lbl_8033D838[0x40];
+
+#define MSG ((AptMsg*)msg)
+
+/* Run the queued messages from the read pointer to the write pointer. */
+void fn_80139110(register AptCtx* self) {
+    char* msg;
+    char* end;
+    msg = self->f1400;
+    while (msg != self->f1404) {
+        end = self->f1404;
+        if (MSG->type == 0) {
+            lbl_8033D2A8.curId = MSG->id;
+            if (!fn_8012C8A4(MSG->b) && !fn_80139D88(MSG->b)) {
+                fn_8014ADB4(&lbl_8033D2A8, *MSG->a, MSG->b, -1);
+                fn_80138F68(self);
+            }
+        } else if (MSG->type == 1) {
+            lbl_8033D2A8.curId = MSG->id;
+            fn_8013A2AC(lbl_8033D838, (int)MSG->a);
+            fn_8014A254(&lbl_8033D2A8, (int)MSG->a, (AptClip*)MSG->b, MSG->c);
+            fn_8013A308(lbl_8033D838);
+            fn_8013A3A4(&lbl_8033D2A8);
+        } else {
+        }
+        if ((unsigned)end > (unsigned)self->f1404) {
+            msg = msg - (end - self->f1404);
+        }
+        msg = fn_80139F24(self, msg);
+    }
+    fn_80138F68(self);
+    fn_8013954C(self);
 }
