@@ -73,6 +73,18 @@ extern void fn_80133ED8(void* p);
 extern void fn_8013D198(void* p, int flag);
 extern void fn_801B8A60(void* p);           /* operator delete */
 
+typedef struct { int count; int items[256]; } AptList;        /* count, then item pointers */
+typedef struct { int count; int items[128]; } AptList128;
+extern AptList* fn_8013A014(AptList* self);
+extern void fn_8013A054(AptList* self, int flag);
+extern AptList128* fn_8013A160(AptList128* self);
+extern void fn_8013A1A0(AptList128* self, int flag);
+extern void fn_8013A2AC(AptList* self, int obj);
+extern void fn_8013A308(AptList* self);
+extern void fn_8013A3A4(AptList128* self);
+extern void fn_8013A440(AptList* self);
+extern void fn_8013A494(AptList128* self);
+
 #define RELEASE(p) if (p) { (*(ReleaseFn*)((char*)lbl_802D67B4 + fn_8012C7C8(p) * 4))(p); p = 0; }
 #define MEMBER(T, off) (*(T*)((char*)self + (off)))
 
@@ -333,7 +345,6 @@ int fn_80137568(register AptIdList* self, int id) {
 }
 
 /* Apt VM context (0x3F3C bytes). */
-typedef struct { int count; int items[256]; } AptList;        /* 0x180C: count, then item pointers */
 typedef struct { int w[6]; } AptFrameData;
 typedef struct { void* obj; AptFrameData data; } AptFrame;   /* 0x1C bytes */
 typedef struct { int used; void* obj; float interval; float remaining; } AptSlot;  /* 0x10 bytes: a setInterval timer */
@@ -346,7 +357,7 @@ typedef struct AptCtx {
     AptList list;                /* 0x180C */
     int frameCount;              /* 0x1C10 */
     AptFrame frames[256];        /* 0x1C14 */
-    char f3814[0x3a18 - 0x3814]; /* 0x3814 */
+    AptList128 list2;            /* 0x3814 */
     int f3a18;
     int f3a1c;
     AptSlot slots[64];           /* 0x3A20 */
@@ -374,8 +385,6 @@ void fn_8013853C(register char* self, int flag) {
     if (flag & 1) fn_80139FBC(self, 0x24);
 }
 
-extern void fn_8013A014(void* p);
-extern void fn_8013A160(void* p);
 extern void fn_8013D148(void* p);
 extern void fn_8013954C(register struct AptCtx* self);
 extern void* fn_80111C78(void* p, int c, unsigned n);   /* memset */
@@ -383,7 +392,7 @@ extern void* fn_80111C78(void* p, int c, unsigned n);   /* memset */
 /* Apt VM context constructor (object is at least 0x3F3C bytes). */
 AptCtx* fn_80138A50(register AptCtx* self) {
     fn_8013A014(&self->list);
-    fn_8013A160(self->f3814);
+    fn_8013A160(&self->list2);
     fn_8013D148(&self->f3a18);
     fn_8013D148(&self->f3a1c);
     self->f1400 = self->f1404 = (char*)self;
@@ -404,8 +413,6 @@ AptCtx* fn_80138A50(register AptCtx* self) {
 extern int fn_8013218C(void* list);
 extern void fn_80134210(void* list, int item);
 extern void fn_80139AA4(register struct AptCtx* self);
-extern void fn_8013A1A0(void* p, int flag);
-extern void fn_8013A054(void* p, int flag);
 extern void fn_80139ECC(register void* p, register unsigned n);
 
 /* Apt VM context destructor. */
@@ -433,12 +440,12 @@ void fn_80138B28(register AptCtx* self, int flag) {
     fn_80139AA4(self);
     fn_8013D198(&self->f3a1c, 2);
     fn_8013D198(&self->f3a18, 2);
-    fn_8013A1A0(self->f3814, 2);
+    fn_8013A1A0(&self->list2, 2);
     fn_8013A054(&self->list, 2);
     if (flag & 1) fn_80139ECC(self, 0x3f3c);
 }
 
-typedef struct { char pad[0x61c]; int curId; char pad2[0x100]; } AptMachine;
+typedef struct { AptList128 stack; char pad[0x61c - sizeof(AptList128)]; int curId; char pad2[0x100]; } AptMachine;
 extern AptMachine lbl_8033D2A8;
 typedef struct { char pad[0x18]; int f18; } AptClip;
 extern AptClip* fn_80131EBC(void* obj);
@@ -501,11 +508,9 @@ typedef struct { int type; int id; int* a; int b; int c; } AptMsg;
 extern int fn_8012C8A4(int v);
 extern int fn_80139D88(int v);
 extern void fn_8014ADB4(void* g, int a, int b, int c);
-extern void fn_8013A2AC(void* p, int a);
-extern void fn_8013A308(void* p);
-extern void fn_8013A3A4(void* p);
-extern char* fn_80139F24(void* self, char* p);
-extern char lbl_8033D838[0x40];
+struct AptCtx;
+extern char* fn_80139F24(struct AptCtx* self, char* p);
+extern AptList lbl_8033D838;
 
 #define MSG ((AptMsg*)msg)
 
@@ -524,10 +529,10 @@ void fn_80139110(register AptCtx* self) {
             }
         } else if (MSG->type == 1) {
             lbl_8033D2A8.curId = MSG->id;
-            fn_8013A2AC(lbl_8033D838, (int)MSG->a);
+            fn_8013A2AC(&lbl_8033D838, (int)MSG->a);
             fn_8014A254(&lbl_8033D2A8, (int)MSG->a, (AptClip*)MSG->b, MSG->c);
-            fn_8013A308(lbl_8033D838);
-            fn_8013A3A4(&lbl_8033D2A8);
+            fn_8013A308(&lbl_8033D838);
+            fn_8013A3A4(&lbl_8033D2A8.stack);
         } else {
         }
         if ((unsigned)end > (unsigned)self->f1404) {
@@ -604,7 +609,7 @@ void fn_8013954C(register AptCtx* self) {
 }
 
 extern void fn_8012C800(void* o);                /* add a reference */
-extern char* fn_80139F70(void* self, char* p);   /* previous queue slot */
+extern char* fn_80139F70(struct AptCtx* self, char* p);   /* previous queue slot */
 
 #define TAIL ((AptMsg*)self->f1404)
 #define HEAD ((AptMsg*)self->f1400)
@@ -701,4 +706,136 @@ void fn_80139B58(register AptCtx* self, void* obj, AptFrameData* data) {
     fn_8012C800(obj);
     *(&self->frames[self->frameCount].data) = *data;
     self->frameCount++;
+}
+
+/* Remove the call frames that hold `obj`. */
+void fn_80139C00(register AptCtx* self, void* obj) {
+    int j = 0;
+    while (j <= self->frameCount - 1) {
+        if (obj == self->frames[j].obj) {
+            RELEASE_OBJ(obj);
+            fn_80111B8C((char*)self + (j * 0x1c + 0x1c14), (char*)self + (j * 0x1c + 0x1c30), (self->frameCount - j) * 0x1c);
+            self->frameCount--;
+        }
+        j++;
+    }
+}
+
+/* Nonzero when `p` is outside the locked root (self->f3f38): 0 if there is none or p is under it. */
+typedef struct AptNode { char pad[0x48]; struct AptNode* parent; } AptNode;
+
+int fn_80139D04(register AptCtx* self, AptNode* p) {
+    AptNode* cur;
+    if (self->f3f38 == 0) return 0;
+    cur = p;
+    while (cur) {
+        if (cur == (AptNode*)self->f3f38) {
+            return 0;
+        } else {
+            cur = cur->parent;
+        }
+    }
+    return 1;
+}
+
+int fn_80139D88(register int obj) {
+    register int r = 0;
+    if (fn_8012C7C8((void*)obj) == 0x13) {
+        if (fn_8012C8A4(obj) == 0) r = 1;
+    }
+    return r;
+}
+
+int fn_80139DF0(register AptClip* p) {
+    return ((AptInfo*)p)->f10;
+}
+
+
+AptList* fn_8013A014(register AptList* self) {
+    fn_8013A440(self);
+    return self;
+}
+
+/* Object list destructor: release every item. */
+void fn_8013A054(register AptList* self, register int flag) {
+    int n = self->count;
+    int j = 0;
+    while (j <= 0xff) {
+        if (self->items[j]) {
+            RELEASE_OBJ((void*)self->items[j]);
+            n--;
+            if (n == 0) break;
+        }
+        j++;
+    }
+    if (flag & 1) {
+        fn_801B8A60(self);
+    } else {
+    }
+}
+
+AptList128* fn_8013A160(register AptList128* self) {
+    fn_8013A494(self);
+    return self;
+}
+
+void fn_8013A1A0(register AptList128* self, register int flag) {
+    int n = self->count;
+    int j = 0;
+    while (j <= 0x7f) {
+        if (self->items[j]) {
+            RELEASE_OBJ((void*)self->items[j]);
+            n--;
+            if (n == 0) break;
+        }
+        j++;
+    }
+    if (flag & 1) {
+        fn_801B8A60(self);
+    } else {
+    }
+}
+
+/* Push an object (takes a reference).
+   NON_MATCHING: the original keeps the pre-increment count in an extra saved register (r28). */
+void fn_8013A2AC(register AptList* self, register int obj) {
+    self->items[self->count++] = obj;
+    fn_8012C800((void*)obj);
+}
+
+/* Pop and release the last item. */
+void fn_8013A308(register AptList* self) {
+    RELEASE_OBJ((void*)self->items[self->count - 1]);
+    self->count--;
+}
+
+void fn_8013A3A4(register AptList128* self) {
+    RELEASE_OBJ((void*)self->items[self->count - 1]);
+    self->count--;
+}
+
+void fn_8013A440(register AptList* self) {
+    self->count = 0;
+    fn_80111C78(self->items, 0, 0x400);
+    return;
+    return;
+}
+
+void fn_8013A494(register AptList128* self) {
+    self->count = 0;
+    fn_80111C78(self->items, 0, 0x200);
+}
+
+/* Next slot of the message ring (0x14-byte slots, the ring is the first 0x1400 bytes of the context). */
+char* fn_80139F24(register AptCtx* self, register char* p) {
+    char* next = p + 0x14;
+    if (next == (char*)self + 0x1400) next = (char*)self;
+    return next;
+}
+
+/* Previous slot of the message ring. */
+char* fn_80139F70(register AptCtx* self, register char* p) {
+    char* prev = p - 0x14;
+    if ((unsigned)prev < (unsigned)self) prev = (char*)self + 0x13ec;
+    return prev;
 }
