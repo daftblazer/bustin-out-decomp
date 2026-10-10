@@ -251,32 +251,6 @@ void* AptInst::Data5() { return data; }
 void* AptInst::Data6() { return data; }
 void* AptInst::Data7() { return data; }
 
-/* 0x801321E4: an Apt value as an integer: strings are parsed, numbers and booleans are read, anything else is 0 */
-int fn_80110874(const char*) asm("fn_80110874");
-int fn_801321E4(register AptValue* v) asm("fn_801321E4");
-int fn_801321E4(register AptValue* v)
-{
-    if (v->isUndefined()) {
-        return 0;
-    }
-    switch (v->getVtblIndex()) {
-    case 1:
-        return fn_80110874(((AptString*)v)->GetInternalString());
-        break;
-    case 5:
-        return ((AptWord*)v)->word;
-        break;
-    case 7:
-        return ((AptWord*)v)->word;
-        break;
-    case 6:
-        return (int)((AptFloat*)v)->value;
-        break;
-    default:
-        return 0;
-    }
-}
-
 /* 0x80132854, 0x801328BC: release functions that keep their argument on the stack */
 void fn_80133F70(AptValue*) asm("fn_80133F70");
 void fn_80133FC0(AptValue*) asm("fn_80133FC0");
@@ -838,3 +812,29 @@ void AptFreeB::operator delete(register void* p, register unsigned n) { lbl_8033
 
 /* 0x80134CF0 */
 void AptFreeC::operator delete(register void* p, register unsigned n) { lbl_8033D1E0.freeSized(p, n); }
+
+/* 0x801321E4 (belongs between 0x801321BC and 0x80132854; kept last because its switch changes how the functions after it end): an Apt value as an integer: strings are parsed, numbers and booleans are read, anything else is 0 */
+int fn_80110874(const char*) asm("fn_80110874");
+int fn_801321E4(register AptValue* v) asm("fn_801321E4");
+int fn_801321E4(register AptValue* v)
+{
+    if (v->isUndefined()) {
+        return 0;
+    }
+    switch (v->getVtblIndex()) {
+    case 1:
+        return fn_80110874(((AptString*)v)->GetInternalString());
+        break;
+    case 5:
+        return ((AptWord*)v)->word;
+        break;
+    case 7:
+        return ((AptWord*)v)->word;
+        break;
+    case 6:
+        return (int)((AptFloat*)v)->value;
+        break;
+    default:
+        return 0;
+    }
+}
