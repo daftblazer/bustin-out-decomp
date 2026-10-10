@@ -355,3 +355,103 @@ void* fn_80145730(void* self, int nargs) {
 void* fn_801455B8(void* self, int nargs) {
     return lbl_8037D110;
 }
+
+/* A display-list node (movie clip / button / ...) as far as the path builders see it. */
+typedef struct DNode {
+    int unk0;
+    int level;              /* 0x04 _level number, for a root node */
+    int name;               /* 0x08 instance name value, or 0 */
+    char pad[0x48 - 0xC];
+    struct DNode* parent;   /* 0x48 */
+} DNode;
+
+extern void fn_801498B0(DNode*, char*);
+extern void fn_8014973C(DNode*, char*);
+
+/* target path with slashes; the root is "/" */
+void fn_80149A14(DNode* node, char* buf) {
+    buf[0] = 0;
+    fn_8014973C(node, buf);
+    if (buf[0] == 0) {
+        buf[0] = '/';
+        buf[1] = 0;
+    }
+}
+
+/* target path with dots */
+void fn_80149A90(DNode* node, char* buf) {
+    buf[0] = 0;
+    fn_801498B0(node, buf);
+}
+
+extern int sprintf(char*, const char*, ...);
+extern char* strcat(char*, const char*);
+extern unsigned strlen(const char*);
+extern char* fn_8012D9C4(void*);
+extern void* fn_8012C44C(int);
+extern int fn_8014FD8C(void*, char*);
+extern void fn_8012C800(void*);
+extern char* fn_80131FF8(DNode*);
+extern void fn_8012D400(void*, char*, DNode*);
+
+/* build the slash-separated target path of a node into buf; unnamed nodes get "instanceN" */
+/* NON_MATCHING: the original keeps the post-incremented store pointer in r30 and stores the name from r3 */
+void fn_8014973C(DNode* node, char* buf) {
+    DNode* parent;
+    int level;
+    char* end;
+    if (node->parent == 0) {
+        if (node->level != 0) {
+            sprintf(buf, "_level%d", node->level);
+            return;
+        }
+        return;
+    }
+    parent = node->parent;
+    fn_8014973C(parent, buf);
+    if (node->name != 0) {
+        strcat(buf, "/");
+        strcat(buf, fn_8012D9C4((void*)node->name));
+        return;
+    }
+    level = node->level;
+    end = buf + strlen(buf);
+    *end++ = '/';
+    sprintf(end, "instance%d", level);
+    {
+        register void* ctx;
+        register DNode* n = node;
+        n->name = fn_8014FD8C(fn_8012C44C(8), end);
+        fn_8012C800((void*)node->name);
+        ctx = *(void**)(fn_80131FF8(parent) + 0xC);
+        fn_8012D400(ctx, end, node);
+    }
+}
+
+extern void fn_80147D08(void*, void*, int, void*);
+extern void fn_8013A3A4(void*);
+extern int fn_8014FAE4(void*, void*);
+
+void fn_8014881C(void* a, void* b, void* c) {
+    fn_80147D08(a, b, 0, c);
+    return;
+    return;
+}
+
+void fn_80148870(void* a, void* b, int c, void* d) {
+    fn_80147D08(a, b, c, d);
+    return;
+    return;
+}
+
+void fn_80148994(register void* a) {
+    fn_8013A3A4(a);
+    return;
+    return;
+}
+
+void* fn_801489D4(register void* a, int b) {
+    return (void*)fn_8014FAE4(a, (void*)b);
+    return;
+    return;
+}
