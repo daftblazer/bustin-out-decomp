@@ -455,3 +455,68 @@ void* fn_801489D4(register void* a, int b) {
     return;
     return;
 }
+
+typedef struct NamedValue {
+    char name[0x100];
+    void* value;            /* 0x100 */
+    int unk104;             /* 0x104 */
+    int unk108;             /* 0x108 */
+} NamedValue;
+
+/* name -> value table: count, entries (stride 0x10C), then a list of pointers that were added */
+typedef struct NamedList {
+    int count;              /* 0x0000 */
+    NamedValue entries[64]; /* 0x0004 */
+    char pad[0x4304 - 4 - 64 * 0x10C];
+    int nvals;              /* 0x4304 */
+    void* vals[1];          /* 0x4308 */
+} NamedList;
+
+extern int strcmp(const char*, const char*);
+extern char* strcpy(char*, const char*);
+
+void fn_801443F8(register NamedList* l, char* name, void* value, int arg) {
+    int i;
+    register int idx;
+    if (value == 0) {
+        i = 0;
+        while (i < l->count) {
+            if (strcmp(l->entries[i].name, name) == 0)
+                return;
+            i++;
+        }
+    }
+    if (value != 0)
+        /* NON_MATCHING: one register copy (mr r10,r29 vs mr r10,r11) */
+        l->vals[idx = l->nvals++] = value;
+    strcpy(l->entries[l->count].name, name);
+    l->entries[l->count].value = value;
+    l->entries[l->count].unk104 = 0;
+    l->entries[l->count].unk108 = arg;
+    if (value != 0)
+        fn_8012C800(value);
+    l->count++;
+}
+
+extern unsigned lbl_802D67B4[];   /* per-type release handlers */
+extern void* memmove(void*, const void*, unsigned);
+
+/* remove entry e from the table, releasing its value.
+   NON_MATCHING: the original builds the handler-table address after the type call; here it is hoisted into r29 */
+void fn_801445D0(register NamedList* l, NamedValue* e) {
+    int i;
+    void (*h)(void*);
+    i = 0;
+    while (i < l->count) {
+        if (&l->entries[i] == e) {
+            if (l->entries[i].value != 0) {
+                h = (void (*)(void*))lbl_802D67B4[fn_8012C7C8(l->entries[i].value)];
+                h(l->entries[i].value);
+            }
+            memmove(&l->entries[i], &l->entries[i + 1], (l->count - i - 1) * 0x10C);
+            l->count--;
+            return;
+        }
+        i++;
+    }
+}
