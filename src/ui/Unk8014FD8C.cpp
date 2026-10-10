@@ -454,3 +454,53 @@ void fn_80151894(unsigned long seed)
         *p++ = (s = s * 69069);
 }
 }
+
+// ---- gperf keyword table for target-path names (_root, _parent, _level0..9, this, ...) ----
+extern "C" {
+extern const unsigned char lbl_802D6E68[];      // gperf association values
+struct Unk8014FD8C_Keyword {                    // 8 bytes, table at 0x802D6F68
+    const char* name;
+    int id;
+};
+extern Unk8014FD8C_Keyword lbl_802D6F68[0x26];
+int fn_80111ECC(const char* a, const char* b);  // strcmp
+
+// NON_MATCHING: original has the switch's break jump then `mr r3,r11` and three trailing branches (one more branch in mine)
+inline int fn_80151EC8(const char* str, unsigned int len)
+{
+    register int hval = len;
+    do {
+    switch (hval) {
+    default:
+    case 7:
+        hval += lbl_802D6E68[(unsigned char)str[6]];
+    case 6:
+    case 5:
+        hval += lbl_802D6E68[(unsigned char)str[4]];
+    case 4:
+    case 3:
+    case 2:
+    case 1:
+        hval += lbl_802D6E68[(unsigned char)str[0]];
+    }
+    return hval;
+    } while (0);
+}
+
+// NON_MATCHING: two extra trailing branches versus the original
+Unk8014FD8C_Keyword* fn_80151948(register const char* str, register unsigned int len)
+{
+    do {
+    if (len <= 7 && len > 1) {
+        register int key = fn_80151EC8(str, len);
+        if (key <= 0x25 && key >= 0) {
+            register const char* s = lbl_802D6F68[key].name;
+            if (*str == *s && !fn_80111ECC(str + 1, s + 1))
+                return &lbl_802D6F68[key];
+        }
+    }
+    return 0;
+    } while (0);
+}
+}
+
