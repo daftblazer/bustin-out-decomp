@@ -42,6 +42,7 @@ class Unk8014FD8C : public Unk8012C8FC {
 public:
     Unk8014FD8C(const char* text);
     ~Unk8014FD8C();
+    Unk8014FD8C_Obj* fn_80150F20(Unk8014FD8C_Obj* obj, const char* name);   // member look-up
     static void* operator new(unsigned size);       // 0x8012C44C, defined elsewhere
     static void operator delete(void* p, unsigned size);
     char* text;
@@ -363,4 +364,53 @@ Unk8014FD8C_Obj* fn_80150574(Unk8014FD8C_Obj* self, int nargs)     // lastIndexO
 {
     return lbl_8037D110;
 }
+}
+
+class Unk8012F5C0 : public Unk8012C8FC {   // base of the object-like values
+public:
+    Unk8012F5C0(int type, int n);
+    int members[2];
+};
+
+// Function object for a native method (0x8012F61C, allocator 0x8012F66C), defined elsewhere
+class Unk8012F61C : public Unk8012F5C0 {
+public:
+    Unk8012F61C(void* fn);
+    static void* operator new(unsigned size);
+    void* fn;
+};
+
+extern "C" int fn_8012BFC4(void* a, const char* b);
+extern "C" void fn_8012C800(void* obj);
+
+#define NATIVE_MEMBER(str, slot, native)                    \
+    else if (fn_8012BFC4((void*)name, str) == 0) {          \
+        if (slot == 0) {                                    \
+            slot = new Unk8012F61C((void*)native);          \
+            fn_8012C800(slot);                              \
+        }                                                   \
+        return (Unk8014FD8C_Obj*)slot;                      \
+    }
+
+Unk8014FD8C_Obj* Unk8014FD8C::fn_80150F20(Unk8014FD8C_Obj* obj, const char* name)
+{
+    char buf[0x100];
+
+    if (fn_8012BFC4((void*)name, "length") == 0) {
+        fn_80132420(obj, buf);
+        return (Unk8014FD8C_Obj*)new Unk8012F4C0(fn_80111FF8(buf));
+    }
+    NATIVE_MEMBER("charAt", lbl_8037BF74, fn_80150228)
+    NATIVE_MEMBER("charCodeAt", lbl_8037BF78, fn_80150338)
+    NATIVE_MEMBER("concat", lbl_8037BF7C, fn_80150368)
+    NATIVE_MEMBER("fromCharCode", lbl_8037BF80, fn_80150440)
+    NATIVE_MEMBER("indexOf", lbl_8037BF84, fn_80150470)
+    NATIVE_MEMBER("lastIndexOf", lbl_8037BF88, fn_80150574)
+    NATIVE_MEMBER("slice", lbl_8037BF8C, fn_801505A4)
+    NATIVE_MEMBER("split", lbl_8037BF90, fn_80150780)
+    NATIVE_MEMBER("substr", lbl_8037BF94, fn_801509D0)
+    NATIVE_MEMBER("substring", lbl_8037BF98, fn_80150B64)
+    NATIVE_MEMBER("toLowerCase", lbl_8037BF9C, fn_80150D30)
+    NATIVE_MEMBER("toUpperCase", lbl_8037BFA0, fn_80150E28)
+    return lbl_8037D110;
 }
