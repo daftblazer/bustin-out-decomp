@@ -113,6 +113,32 @@ struct UiShape {
 };
 extern "C" void fn_80147A70(void* ctx, void* flag, void* bounds);
 
+struct UiAction {
+    int type;                // 0x00
+    int arg;                 // 0x04
+};
+struct UiFrame {
+    int count;               // 0x00
+    UiAction** items;        // 0x04
+};
+// timeline of a movie clip: one UiFrame per frame (8 bytes each)
+extern "C" void* fn_8012D6E0(void* dict, int name);
+extern "C" int fn_801321E4(void* v);
+
+struct UiTimeline {
+    int unk0;
+    UiFrame* frames;         // 0x04
+    void* names;             // 0x08
+    void RunFrameA(int a, int frame);
+    void RunFrameB(int a, int frame);
+    int Lookup(int name);
+};
+extern char lbl_8033D2A8[];          // graphics state
+extern void* lbl_8037D0F4;           // -0x62ec(r13): the player context
+extern void* lbl_8037BE84;           // -0x755c(r13)
+extern "C" void fn_8014ADB4(void* gfx, int arg, int a, int b);
+extern "C" void fn_801396A4(void* player, void* arg, int a, void* b);
+
 struct UiDisplayList {
     UiHead* head;            // 0x00
     UiDisplayList();
@@ -628,4 +654,40 @@ void UiObj::DrawForBounds(void* ctx, void* out) {
         }
     }
     fn_801477DC(ctx);
+}
+
+// 0x8013F7E4
+void UiTimeline::RunFrameA(int a, int frame) {
+    int i = 0;
+    UiAction* act;
+    while (i < frames[frame].count) {
+        act = frames[frame].items[i];
+        if (act->type == 1) {
+            fn_8014ADB4(lbl_8033D2A8, act->arg, a, -1);
+        }
+        i++;
+    }
+}
+
+// 0x8013F8C0
+void UiTimeline::RunFrameB(int a, int frame) {
+    int i = 0;
+    UiAction* act;
+    while (i < frames[frame].count) {
+        act = frames[frame].items[i];
+        if (act->type == 1) {
+            fn_801396A4(lbl_8037D0F4, &act->arg, a, lbl_8037BE84);
+        }
+        i++;
+    }
+}
+
+// 0x8013F99C: frame number of a named label, -1 when missing
+int UiTimeline::Lookup(int name) {
+    void* v = fn_8012D6E0(names, name);
+    if (v) {
+        return fn_801321E4(v);
+    } else {
+        return -1;
+    }
 }
