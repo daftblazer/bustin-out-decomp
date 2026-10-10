@@ -950,7 +950,23 @@ struct UiPlace {
     int unk34;
     int unk38;
 };
-extern "C" void fn_8013C8CC(UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g);
+extern "C" void fn_8013C8CC(register UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g);
+extern "C" void fn_8013CB40(UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g);
+extern "C" void fn_8013C690(void* dst, void* src);
+
+// 0x8013C8CC: PlaceObject helper: copy the colour transform record into a local object, then create or update the instance
+// NON_MATCHING: two stray trailing branches (64 instructions against 62); everything else matches
+extern "C" void fn_8013C8CC(register UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g) {
+    char copy[0x20];
+    void* p;
+    if (cx) {
+        fn_8013C690(copy, cx);
+        fn_8013CB40(list, a, b, c, d, parent, e, f, ratio, copy, mat, g);
+    } else {
+        p = 0;
+        fn_8013CB40(list, a, b, c, d, parent, e, f, ratio, p, mat, g);
+    }
+}
 
 // 0x8013CD18: run one PlaceObject command
 // NON_MATCHING: two stray trailing branches (147 instructions against 145); everything else matches
