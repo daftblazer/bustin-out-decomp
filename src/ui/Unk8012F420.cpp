@@ -239,6 +239,14 @@ struct AptFreeA { static void operator delete(register void* p, register unsigne
 struct AptFreeB { static void operator delete(register void* p, register unsigned n) asm("fn_80134C98"); };
 struct AptFreeC { static void operator delete(register void* p, register unsigned n) asm("fn_80134CF0"); };
 
+/* empty functions that take only `this` */
+struct AptNop {
+    void Nop1() asm("fn_80133BDC");
+    void Nop2() asm("fn_80133CA8");
+    void Nop3() asm("fn_80133D84");
+    void Nop4() asm("fn_80133E60");
+};
+
 /* ---- per-type boilerplate: delete wrappers, releases and allocators (0x80133914-) ---- */
 
 #define APT_PROTO_DESTROY(fn) void fn(AptValue*, int) asm(#fn);
@@ -349,6 +357,9 @@ AptV3::AptV3() : AptValue(3)
     setRefCount(0 | 0x8000);
 }
 
+/* 0x80133BDC */
+void AptNop::Nop1() {}
+
 /* 0x80133BFC */
 struct AptAlloc80133BFC {
     static void* operator new(register unsigned n) asm("fn_80133BFC");
@@ -363,6 +374,9 @@ AptV0B::AptV0B() : AptValue(0xB)
 {
     setRefCount(0 | 0x8000);
 }
+
+/* 0x80133CA8 */
+void AptNop::Nop2() {}
 
 /* 0x80133CC8 */
 struct AptAlloc80133CC8 {
@@ -379,11 +393,17 @@ AptV17::AptV17() : AptValue(0x17), AptNativeHash(4)
     setRefCount(0 | 0x8000);
 }
 
+/* 0x80133D84 */
+void AptNop::Nop3() {}
+
 /* 0x80133DA4 */
 struct AptAlloc80133DA4 {
     static void* operator new(register unsigned n) asm("fn_80133DA4");
 };
 void* AptAlloc80133DA4::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n); }
+
+/* 0x80133E60 */
+void AptNop::Nop4() {}
 
 /* 0x80133E80 */
 struct AptAlloc80133E80 {
