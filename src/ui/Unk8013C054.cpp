@@ -76,7 +76,8 @@ struct UiAllocTable {
     void (*slot10)(int);             // 0x10
     char pad14[0x24 - 0x14];
     void (*slot24)(void*);           // 0x24
-    char pad28[0x44 - 0x28];
+    void (*slot28)(int);             // 0x28
+    char pad2C[0x44 - 0x2C];
     void (*drawText)(void*);         // 0x44
     char pad48[0x50 - 0x48];
     void (*slot50)(void*);           // 0x50
@@ -394,7 +395,9 @@ extern "C" void fn_8013CF5C(UiDisplayList* list, UiObj* o);
 // and, after it, a table of named entries (0x110 bytes each from +0x4508, name at +0 and a key at +0x100, count at +0x4504).
 struct UiPoolEntry {
     int used;                // 0x000
-    char pad4[0x100 - 4];
+    int state;               // 0x004
+    int sub;                 // 0x008
+    char padC[0x100 - 0xC];  // 0x00C
     char* ptr100;            // 0x100
     void* ptr104;            // 0x104
     int unk108;              // 0x108
@@ -405,6 +408,13 @@ struct UiNameEntry {
     char name[0x100];        // 0x000
     int key;                 // 0x100
     char pad104[0x110 - 0x104];
+};
+struct UiOffset {
+    int v;
+};
+struct UiLoadHdr {
+    char pad[0x14];
+    UiOffset off;            // 0x14: an offset that is made absolute while the entry is built
 };
 struct UiNamedPool {
     UiPoolEntry pool[64];    // 0x0000
@@ -421,11 +431,14 @@ struct UiNamedPool {
     void Unk801438A8(UiPoolEntry* e);
     UiPoolEntry* Unk80143B74();
     void Unk80143400(UiNameEntry* e);
-    void Unk80143E30(int a, int b, int c, int d);
+    void Unk80143E30(UiPoolEntry* e, int base, UiLoadHdr* hdr, int refs);
+    void Unk8014330C(void* a, int b, int c, int d);
 };
 extern UiNamedPool* lbl_8037D0F8;     // -0x62e8(r13)
 extern "C" void fn_80142ED8(const char* name, char* out);
 extern "C" void fn_801375F8(void* a, int b);
+extern "C" void fn_801374A8(int a, int b, UiLoadHdr* c, int d);
+extern int lbl_8033D25C[4];
 
 // 0x8013C054: remove from the sibling list
 extern "C" UiObj* fn_8013C054(UiObj* self) {
@@ -1364,8 +1377,37 @@ UiPoolEntry* UiNamedPool::Unk80143B74() {
 }
 
 // 0x80143DDC
-void fn_80143DDC(int a, int b, int c, int d) {
+void fn_80143DDC(UiPoolEntry* a, int b, UiLoadHdr* c, int d) {
     lbl_8037D0F8->Unk80143E30(a, b, c, d);
+}
+
+// 0x80143E30: an entry's data has arrived: make its internal offset absolute, build it, hand it to the host, and record it
+void UiNamedPool::Unk80143E30(UiPoolEntry* e, int base, UiLoadHdr* hdr, int refs) {
+    int p;
+    UiLoadHdr* h;
+    if (lbl_8033D25C[0]) {
+        if (e->sub == 0) {
+            e->sub = 2;
+        } else if (e->sub == 1) {
+            e->sub = 3;
+        }
+    }
+    if (e->state == 2) {
+        p = base;
+        h = hdr;
+        if (h->off.v) {
+            *&h->off.v = p + h->off.v;
+        }
+        fn_801374A8(h->off.v + 8, base, h, refs);
+        e->unk110 = h->off.v;
+        if (h->off.v) {
+            *&h->off.v = h->off.v - p;
+        }
+        lbl_8033D1E0.slot28((int)hdr);
+        e->state = 3;
+        e->refs = refs;
+        Unk8014330C(&e->padC[0], e->unk110, e->refs, base);
+    }
 }
 
 // 0x801462CC: bring a movie clip to a frame; forwards by running each frame's commands, backwards by rebuilding from frame 0
