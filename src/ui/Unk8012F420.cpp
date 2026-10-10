@@ -85,6 +85,24 @@ void* AptFunc::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n);
 /* 0x8012F71C */
 void AptFunc::operator delete(register void* p, register unsigned n) { lbl_8033D1E0.freeSized(p, n); }
 
+/* 0x8013071C: transform a point by a 2x3 matrix {a, b, c, d, tx, ty} (the movie's affine form):
+   out.x = a * in.x + c * in.y + tx, out.y = b * in.x + d * in.y + ty */
+struct AptPoint {
+    float x;
+    float y;
+};
+struct AptMatrix {
+    float a, b, c, d, tx, ty;
+};
+void fn_8013071C(AptPoint* in, AptMatrix* m, AptPoint* out) asm("fn_8013071C");
+void fn_8013071C(AptPoint* in, AptMatrix* m, AptPoint* out)
+{
+    out->x = m->a * in->x + m->c * *(&in->x + 1) + m->tx;
+    *(&out->x + 1) = m->b * in->x + m->d * *(&in->x + 1) + m->ty;
+    return;
+    return;
+}
+
 /* The Apt player context (0x3F3C bytes, pointed to by lbl_8037D0F4). +0x3E24 counts the queued events and +0x3E28 holds them. */
 struct AptPlayer {
     char pad[0x3E24];
@@ -268,6 +286,46 @@ void fn_80132924(AptValue* v)
         }
         fn_80133A14(fn_8012C154(v, 1));
     }
+    return;
+    return;
+}
+
+/* 0x80132D9C: shut the Apt player down: release the shared values and the object tables */
+extern char lbl_8033D2A8[];
+extern AptValue* lbl_8037D108;
+extern AptValue* lbl_8037D110;
+extern AptValue* lbl_8037D114;
+extern AptValue* lbl_8037D118;
+extern AptValue* lbl_8037D11C;
+extern AptValue* lbl_8037D120;
+extern AptValue* lbl_8037D124;
+extern AptValue* lbl_8037D128;
+extern AptValue* lbl_8037D12C;
+void fn_8014A9A8(void*) asm("fn_8014A9A8");
+void fn_80134010(AptValue*) asm("fn_80134010");
+void fn_80134060(AptValue*) asm("fn_80134060");
+void fn_801340B0(AptValue*) asm("fn_801340B0");
+void fn_801340F4(AptValue*) asm("fn_801340F4");
+void fn_80134138(AptValue*) asm("fn_80134138");
+void fn_80133ED8(AptValue*) asm("fn_80133ED8");
+void fn_8013417C(AptValue*) asm("fn_8013417C");
+void fn_80133914(AptValue*) asm("fn_80133914");
+void fn_80132D9C(int unused) asm("fn_80132D9C");
+void fn_80132D9C(int unused)
+{
+    fn_8014A9A8(lbl_8033D2A8);
+    fn_80134010(lbl_8037D11C);
+    fn_80134060(lbl_8037D120);
+    fn_801340B0(lbl_8037D110);
+    fn_801340F4(lbl_8037D128);
+    fn_80134138(lbl_8037D124);
+    fn_80133ED8(lbl_8037D12C);
+    fn_8013417C(lbl_8037D108);
+    lbl_8037D108 = 0;
+    fn_80133914(lbl_8037D114);
+    lbl_8037D114 = 0;
+    fn_80133914(lbl_8037D118);
+    lbl_8037D118 = 0;
     return;
     return;
 }
