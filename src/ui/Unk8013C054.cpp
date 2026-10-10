@@ -501,7 +501,7 @@ UiClip* UiObj::GetClip() {
 
 #define UI_TYPE_TEST(name, t) \
     int UiObj::name() { \
-        int r = 0; \
+        register int r = 0; \
         if (fn_8012C7C8(this) == t && !fn_8012C8A4(this)) { \
             r = 1; \
         } \
@@ -511,9 +511,25 @@ UiClip* UiObj::GetClip() {
 // 0x8013DD38
 UI_TYPE_TEST(IsType11, 0x11)
 // 0x80142BB0
-UI_TYPE_TEST(IsType7, 7)
+int UiObj::IsType7() {
+    register int r = 0;
+    if (fn_8012C7C8(this) == 7 && !fn_8012C8A4(this)) {
+        r = 1;
+    }
+    return r;
+    return r;
+    return r;
+}
 // 0x80142C20
-UI_TYPE_TEST(IsType6, 6)
+int UiObj::IsType6() {
+    register int r = 0;
+    if (fn_8012C7C8(this) == 6 && !fn_8012C8A4(this)) {
+        r = 1;
+    }
+    return r;
+    return r;
+    return r;
+}
 // 0x80142C90
 UI_TYPE_TEST(IsTypeC, 0xC)
 // 0x80142CF8
