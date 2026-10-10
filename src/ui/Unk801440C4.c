@@ -151,3 +151,207 @@ void fn_80147A70(register RState* s, RectF* acc, RectF* r) {
         i++;
     }
 }
+
+typedef struct Entry10C {
+    char data[0x100];
+    int id;                 /* 0x100 */
+    char pad[8];
+} Entry10C;
+
+typedef struct EntryList {
+    int count;              /* 0x00 */
+    Entry10C entries[1];    /* 0x04, stride 0x10C */
+} EntryList;
+
+typedef struct PlayerA {
+    int unk0;               /* 0x0000 */
+    char pad4[0x4304 - 4];
+    int unk4304;
+    char pad4308[0x4488 - 0x4308];
+    int unk4488;
+} PlayerA;
+
+PlayerA* fn_80144320(register PlayerA* p) {
+    p->unk0 = 0;
+    p->unk4488 = 0;
+    p->unk4304 = 0;
+    return p;
+}
+
+Entry10C* fn_80144544(register EntryList* l, int id) {
+    int i;
+    i = 0;
+    while (i < l->count) {
+        if (l->entries[i].id == id)
+            return &l->entries[i];
+        i++;
+    }
+    return 0;
+}
+
+extern int fn_8012C7C8(void*);
+extern void fn_8014373C(void*, void*);
+extern void (*lbl_8033D1E0[])(void*);
+
+int fn_80144D28(register void* v) {
+    return fn_8012C7C8(v) == 3;
+    return;
+    return;
+}
+
+/* callback slot 0 of the renderer table */
+int fn_80144D80(register void* a) {
+    return ((int (*)(void*))lbl_8033D1E0[0])(a);
+}
+
+/* callback slot 2 */
+void fn_80144DD8(register void* a, register void* b) {
+    ((void (*)(void*, void*))lbl_8033D1E0[2])(a, b);
+}
+
+/* callback slot 2 */
+void fn_80144E30(register void* a, register void* b) {
+    ((void (*)(void*, void*))lbl_8033D1E0[2])(a, b);
+}
+
+typedef struct NamePool {
+    char names[8][0x100];   /* interned names, 256 bytes each */
+    int count;              /* 0x800 */
+} NamePool;
+
+NamePool* fn_80144E88(register NamePool* p) {
+    p->count = 0;
+    return p;
+}
+
+/* ActionScript Date getters. 80133510 returns the broken-down time of a Date
+   object: seconds at 0x0C, minutes 0x10, hours 0x14, day of month 0x18,
+   month 0x1C, year-1900 0x20, weekday 0x24. */
+extern void* fn_8012F50C(int);
+extern void* fn_8012F4C0(void*, int);
+extern int* fn_80133510(void*);
+
+
+void* fn_80144FD0(void* self, int nargs) {
+    register void* res;
+    res = fn_8012F50C(8);
+    return fn_8012F4C0(res, fn_80133510(self)[6]);
+}
+
+void* fn_80145034(void* self, int nargs) {
+    register void* res;
+    res = fn_8012F50C(8);
+    return fn_8012F4C0(res, fn_80133510(self)[9]);
+}
+
+void* fn_80145098(void* self, int nargs) {
+    register void* res;
+    res = fn_8012F50C(8);
+    return fn_8012F4C0(res, fn_80133510(self)[8] + 0x76c);
+}
+
+void* fn_80145104(void* self, int nargs) {
+    register void* res;
+    res = fn_8012F50C(8);
+    return fn_8012F4C0(res, fn_80133510(self)[5]);
+}
+
+void* fn_801451C0(void* self, int nargs) {
+    register void* res;
+    res = fn_8012F50C(8);
+    return fn_8012F4C0(res, fn_80133510(self)[4]);
+}
+
+void* fn_80145224(void* self, int nargs) {
+    register void* res;
+    res = fn_8012F50C(8);
+    return fn_8012F4C0(res, fn_80133510(self)[7]);
+}
+
+void* fn_80145288(void* self, int nargs) {
+    register void* res;
+    res = fn_8012F50C(8);
+    return fn_8012F4C0(res, fn_80133510(self)[3]);
+}
+
+void* fn_801452EC(void* self, int nargs) {
+    register void* res;
+    res = fn_8012F50C(8);
+    return fn_8012F4C0(res, fn_80133510(self)[8]);
+}
+
+/* getMilliseconds: always 0 */
+void* fn_80145168(void* self, int nargs) {
+    return fn_8012F4C0(fn_8012F50C(8), 0);
+}
+
+extern char lbl_8033D2A8[];     /* ActionScript call arguments */
+extern void* lbl_8037D110;      /* the undefined value */
+extern void* fn_801489D4(void*, int);
+extern int fn_801321E4(void*);
+extern void fn_8026FA38(void*);
+
+void* fn_80145350(void* self, int nargs) {
+    register int* dst;
+    register int* tm;
+    if (nargs <= 0)
+        return lbl_8037D110;
+    tm = fn_80133510(self);
+    /* NON_MATCHING: the store goes through tm (r29) instead of the copy dst (r30) */
+    (dst = tm)[6] = fn_801321E4(fn_801489D4(lbl_8033D2A8, 0));
+    fn_8026FA38((char*)fn_80133510(self) + 0xc);
+    return lbl_8037D110;
+}
+
+void* fn_80145514(void* self, int nargs) {
+    register int* dst;
+    register int* tm;
+    if (nargs <= 0)
+        return lbl_8037D110;
+    tm = fn_80133510(self);
+    /* NON_MATCHING: the store goes through tm (r29) instead of the copy dst (r30) */
+    (dst = tm)[5] = fn_801321E4(fn_801489D4(lbl_8033D2A8, 0));
+    fn_8026FA38((char*)fn_80133510(self) + 0xc);
+    return lbl_8037D110;
+}
+
+void* fn_801455E8(void* self, int nargs) {
+    register int* dst;
+    register int* tm;
+    if (nargs <= 0)
+        return lbl_8037D110;
+    tm = fn_80133510(self);
+    /* NON_MATCHING: the store goes through tm (r29) instead of the copy dst (r30) */
+    (dst = tm)[4] = fn_801321E4(fn_801489D4(lbl_8033D2A8, 0));
+    fn_8026FA38((char*)fn_80133510(self) + 0xc);
+    return lbl_8037D110;
+}
+
+void* fn_8014568C(void* self, int nargs) {
+    register int* dst;
+    register int* tm;
+    if (nargs <= 0)
+        return lbl_8037D110;
+    tm = fn_80133510(self);
+    /* NON_MATCHING: the store goes through tm (r29) instead of the copy dst (r30) */
+    (dst = tm)[7] = fn_801321E4(fn_801489D4(lbl_8033D2A8, 0));
+    fn_8026FA38((char*)fn_80133510(self) + 0xc);
+    return lbl_8037D110;
+}
+
+void* fn_80145730(void* self, int nargs) {
+    register int* dst;
+    register int* tm;
+    if (nargs <= 0)
+        return lbl_8037D110;
+    tm = fn_80133510(self);
+    /* NON_MATCHING: the store goes through tm (r29) instead of the copy dst (r30) */
+    (dst = tm)[3] = fn_801321E4(fn_801489D4(lbl_8033D2A8, 0));
+    fn_8026FA38((char*)fn_80133510(self) + 0xc);
+    return lbl_8037D110;
+}
+
+/* setMilliseconds: ignored */
+void* fn_801455B8(void* self, int nargs) {
+    return lbl_8037D110;
+}
