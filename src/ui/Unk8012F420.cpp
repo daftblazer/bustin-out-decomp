@@ -175,6 +175,32 @@ void* AptInst::Data5() { return data; }
 void* AptInst::Data6() { return data; }
 void* AptInst::Data7() { return data; }
 
+/* 0x80132854, 0x801328BC: release functions that keep their argument on the stack */
+void fn_80133F70(AptValue*) asm("fn_80133F70");
+void fn_80133FC0(AptValue*) asm("fn_80133FC0");
+AptValue* fn_801334B0(AptValue*) asm("fn_801334B0");
+AptValue* fn_801334E0(AptValue*) asm("fn_801334E0");
+void fn_80132854(AptValue* v) asm("fn_80132854");
+void fn_80132854(AptValue* v)
+{
+    v->DecRef();
+    if (v->getRefCount() == 0) {
+        fn_80133F70(fn_801334B0(v));
+    }
+    return;
+    return;
+}
+void fn_801328BC(AptValue* v) asm("fn_801328BC");
+void fn_801328BC(AptValue* v)
+{
+    v->DecRef();
+    if (v->getRefCount() == 0) {
+        fn_80133FC0(fn_801334E0(v));
+    }
+    return;
+    return;
+}
+
 /* 0x8013342C: drop a reference without freeing */
 void AptValue::DecRef()
 {
@@ -207,6 +233,11 @@ APT_RELEASE(fn_80133794, fn_80134758, fn_801348FC)
 APT_RELEASE(fn_801337F4, fn_801346C8, fn_80134938)
 APT_RELEASE(fn_80133854, fn_80134818, fn_80134974)
 APT_RELEASE(fn_801338B4, fn_801347E8, fn_801349BC)
+
+/* classes that only carry a sized free */
+struct AptFreeA { static void operator delete(register void* p, register unsigned n) asm("fn_80134AB4"); };
+struct AptFreeB { static void operator delete(register void* p, register unsigned n) asm("fn_80134C98"); };
+struct AptFreeC { static void operator delete(register void* p, register unsigned n) asm("fn_80134CF0"); };
 
 /* ---- per-type boilerplate: delete wrappers, releases and allocators (0x80133914-) ---- */
 
@@ -308,17 +339,45 @@ void fn_80133B1C(register AptValue* v)
     }
 }
 
+/* 0x80133B7C: the shared value of type 3: undefined, reference count 0x8000 (never freed) */
+struct AptV3 : AptValue {
+    AptV3() asm("fn_80133B7C");
+};
+AptV3::AptV3() : AptValue(3)
+{
+    setIsDefined(0);
+    setRefCount(0 | 0x8000);
+}
+
 /* 0x80133BFC */
 struct AptAlloc80133BFC {
     static void* operator new(register unsigned n) asm("fn_80133BFC");
 };
 void* AptAlloc80133BFC::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n); }
 
+/* 0x80133C54: the same for type 0xB */
+struct AptV0B : AptValue {
+    AptV0B() asm("fn_80133C54");
+};
+AptV0B::AptV0B() : AptValue(0xB)
+{
+    setRefCount(0 | 0x8000);
+}
+
 /* 0x80133CC8 */
 struct AptAlloc80133CC8 {
     static void* operator new(register unsigned n) asm("fn_80133CC8");
 };
 void* AptAlloc80133CC8::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n); }
+
+/* 0x80133D20: the same for type 0x17, which also owns a hash of 16 slots */
+struct AptV17 : AptValue, AptNativeHash {
+    AptV17() asm("fn_80133D20");
+};
+AptV17::AptV17() : AptValue(0x17), AptNativeHash(4)
+{
+    setRefCount(0 | 0x8000);
+}
 
 /* 0x80133DA4 */
 struct AptAlloc80133DA4 {
@@ -402,6 +461,24 @@ void fn_80134060(register AptValue* p)
     return;
 }
 
+/* 0x801340B0 */
+void fn_801340B0(register AptValue* p)
+{
+    AptFreeB::operator delete(p, 4);
+}
+
+/* 0x801340F4 */
+void fn_801340F4(register AptValue* p)
+{
+    AptFreeC::operator delete(p, 4);
+}
+
+/* 0x80134138 */
+void fn_80134138(register AptValue* p)
+{
+    AptFreeA::operator delete(p, 0x3C0);
+}
+
 /* 0x8013417C: delete a value through its destructor */
 APT_PROTO_DESTROY(fn_8014FE18)
 void fn_8013417C(register AptValue* p)
@@ -412,6 +489,13 @@ void fn_8013417C(register AptValue* p)
     return;
     return;
     return;
+}
+
+/* 0x801341CC */
+void fn_801354D8(void*, unsigned) asm("fn_801354D8");
+void fn_801341CC(register AptValue* p)
+{
+    fn_801354D8(p, 0x30);
 }
 
 /* 0x80134448: delete a value through its destructor */
@@ -530,6 +614,9 @@ void fn_801349BC(register AptValue* p)
     return;
 }
 
+/* 0x80134AB4: free a block of a known size */
+void AptFreeA::operator delete(register void* p, register unsigned n) { lbl_8033D1E0.freeSized(p, n); }
+
 /* 0x80134BC0: delete a value through its destructor */
 APT_PROTO_DESTROY(fn_8012DA50)
 void fn_80134BC0(register AptValue* p)
@@ -559,3 +646,9 @@ void fn_80134C50(register AptValue* p)
     }
     return;
 }
+
+/* 0x80134C98 */
+void AptFreeB::operator delete(register void* p, register unsigned n) { lbl_8033D1E0.freeSized(p, n); }
+
+/* 0x80134CF0 */
+void AptFreeC::operator delete(register void* p, register unsigned n) { lbl_8033D1E0.freeSized(p, n); }
