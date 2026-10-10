@@ -614,18 +614,24 @@ void fn_80134060(register AptValue* p)
 void fn_801340B0(register AptValue* p)
 {
     AptFreeB::operator delete(p, 4);
+    return;
+    return;
 }
 
 /* 0x801340F4 */
 void fn_801340F4(register AptValue* p)
 {
     AptFreeC::operator delete(p, 4);
+    return;
+    return;
 }
 
 /* 0x80134138 */
 void fn_80134138(register AptValue* p)
 {
     AptFreeA::operator delete(p, 0x3C0);
+    return;
+    return;
 }
 
 /* 0x8013417C: delete a value through its destructor */
