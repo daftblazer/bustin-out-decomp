@@ -647,15 +647,19 @@ extern "C" UiClip* fn_8013356C(UiObj* o);
 struct UiMovieData {
     int clipDepth;           // 0x00
     int unk4;
-    int unk8;
-    void* dict;              // 0x0C member dictionary
-    int unk10;
+    struct UiMovieRes* res;  // 0x08 definition; its UiTimeline starts at +8
+    void* dict;              // 0x0C member dictionary (swapped for a scratch object while rewinding)
+    int frame;               // 0x10 current frame
     unsigned pad14 : 25;     // 0x14
     unsigned stopped : 1;    // set by 0x801411C4 from its third argument
     unsigned mode : 2;       // 1 = drawn by the host, 2 = drawn here
     unsigned rest14 : 4;
     int unk18;
     UiDisplayList list;      // 0x1C
+};
+struct UiMovieRes {
+    char pad[8];
+    UiTimeline tl;           // 0x08: unk0 = frame count
 };
 struct UiFont {
     char pad[0x10];
@@ -963,6 +967,7 @@ extern "C" UiObj* fn_8012C154(void* h, int zero);
 extern "C" void* fn_801489D4(void* gfx, int zero);
 extern "C" int fn_80131EEC(void* v);
 extern "C" void fn_801462CC(UiObj* o, int frame);
+extern "C" void fn_8013D6A0(UiDisplayList* list, UiHead* a, void* b, void* c);
 extern int lbl_8037D110;      // -0x62d0(r13): returned by the script natives
 
 // 0x801411C4: gotoAndPlay/gotoAndStop(frame or label): jump the clip to a frame, then set its stopped bit
@@ -998,4 +1003,58 @@ extern "C" int fn_80141350(void* h, int arg) {
 extern "C" int fn_801413A8(void* h, int arg) {
     do { return fn_801411C4(h, arg, 1); } while (0);
 }
+
+extern "C" void fn_8013F62C(UiTimeline* tl, UiDisplayList* list, UiObj* o, int frame);
+extern "C" void fn_8012C4A4(void* p, int n);
+extern "C" void fn_80134B68(void* p, int n);
+
+// 0x801462CC: bring a movie clip to a frame; forwards by running each frame's commands, backwards by rebuilding from frame 0
+extern "C" void fn_801462CC(register UiObj* o, int frame) {
+    UiMovieData* md = fn_8013DD0C(o);
+    int total = md->res->tl.unk0;
+    int cur;
+    if (frame < 0 || frame >= total) {
+        return;
+    }
+    cur = md->frame;
+    if (frame == cur) {
+        return;
+    } else if (frame == cur + 1) {
+        fn_8013F62C(&md->res->tl, &md->list, o, frame);
+    } else if (frame > cur) {
+        int i = cur + 1;
+        while (!(i > frame) && i < total) {
+            fn_8013F62C(&md->res->tl, &md->list, o, i);
+            i++;
+        }
+    } else {
+        UiHead tmpHead;
+        char tmpObj[8];
+        UiHead* savedHead;
+        UiHead* newHead;
+        char* newObj;
+        void* savedDict;
+        fn_8012C4A4(tmpObj, 4);
+        savedHead = md->list.GetHead();
+        newHead = &tmpHead;
+        newObj = tmpObj;
+        md->list.SetHead(newHead);
+        savedDict = md->dict;
+        md->dict = newObj;
+        md->list.Clear();
+        md->frame = 0;
+        while (!(md->frame > frame) && md->frame < md->res->tl.unk0) {
+            fn_8013F62C(&md->res->tl, &md->list, o, md->frame);
+            md->frame++;
+        }
+        md->list.SetHead(savedHead);
+        md->dict = savedDict;
+        fn_8013D6A0(&md->list, newHead, newObj, md->dict);
+        fn_80134B68(tmpObj, 2);
+        tmpHead.Destroy(2);
+    }
+    md->frame = frame;
+    md->res->tl.RunFrameB((int)o, frame);
+}
+
 
