@@ -26,8 +26,8 @@ No game assets or code from the disc are included. You need your own copy.
 <!-- progress:start -->
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Code_matched-3.97%25-3828f7" alt="Code matched: 3.97%">
-  <img src="https://img.shields.io/badge/Functions_matched-578_%2F_10,848-3828f7" alt="Functions matched: 578 / 10,848">
+  <img src="https://img.shields.io/badge/Code_matched-5.39%25-3828f7" alt="Code matched: 5.39%">
+  <img src="https://img.shields.io/badge/Functions_matched-803_%2F_10,848-3828f7" alt="Functions matched: 803 / 10,848">
   <img src="https://img.shields.io/badge/Linked_from_source-5_files-3828f7" alt="Linked from source: 5 files">
 </p>
 
@@ -38,7 +38,7 @@ No game assets or code from the disc are included. You need your own copy.
 | C/C++ runtime and libraries | 0 / 780 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | Dolphin SDK (Metrowerks) | 0 / 830 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | SN debugger stub (`libsn`) | 0 / 86 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
-| **Whole executable** | **578 / 10,848** | **3.97%** | `█░░░░░░░░░░░░░░░░░░░` |
+| **Whole executable** | **803 / 10,848** | **5.39%** | `█░░░░░░░░░░░░░░░░░░░` |
 
 A function counts as matched only when its C++ source compiles to the original bytes.
 The Dolphin SDK parts were built with a different compiler and are not decompiled by hand here.
@@ -75,13 +75,13 @@ The Dolphin SDK parts were built with a different compiler and are not decompile
 | `src/sims/cas/CASWidgets.cpp` | 7 / 9 | 65.8% | `███████░░░` |  |
 | `src/sims/cas/Unk800230AC.cpp` | 4 / 6 | 60.4% | `██████░░░░` |  |
 | `src/sims/cas/Unk80023D3C.cpp` | 4 / 5 | 27.8% | `███░░░░░░░` |  |
-| `src/ui/Unk8012BFC4.cpp` | 0 / 18 | 0.0% | `░░░░░░░░░░` |  |
-| `src/ui/Unk8012C7C8.cpp` | 0 / 42 | 0.0% | `░░░░░░░░░░` |  |
-| `src/ui/Unk801352FC.c` | 0 / 105 | 0.0% | `░░░░░░░░░░` |  |
-| `src/ui/Unk8013C054.cpp` | 0 / 105 | 0.0% | `░░░░░░░░░░` |  |
-| `src/ui/Unk801440C4.c` | 0 / 78 | 0.0% | `░░░░░░░░░░` |  |
-| `src/ui/Unk8014A18C.cpp` | 0 / 53 | 0.0% | `░░░░░░░░░░` |  |
-| `src/ui/Unk8014FD8C.cpp` | 0 / 26 | 0.0% | `░░░░░░░░░░` |  |
+| `src/ui/Unk8012BFC4.cpp` | 2 / 18 | 13.1% | `█░░░░░░░░░` |  |
+| `src/ui/Unk8012C7C8.cpp` | 8 / 42 | 9.2% | `█░░░░░░░░░` |  |
+| `src/ui/Unk801352FC.c` | 68 / 105 | 44.9% | `████░░░░░░` |  |
+| `src/ui/Unk8013C054.cpp` | 70 / 105 | 32.5% | `███░░░░░░░` |  |
+| `src/ui/Unk801440C4.c` | 32 / 78 | 17.9% | `██░░░░░░░░` |  |
+| `src/ui/Unk8014A18C.cpp` | 27 / 53 | 11.0% | `█░░░░░░░░░` |  |
+| `src/ui/Unk8014FD8C.cpp` | 18 / 26 | 71.1% | `███████░░░` |  |
 
 A file is linked from source once every function in it matches and its data is split out;
 until then the build uses the original bytes for that file.
