@@ -90,6 +90,11 @@ public:
     int unk4[5];
 };
 
+extern "C" const char lbl_802B6491[];                      // character class table, indexed from -1
+// the C library's tolower/toupper macros: a statement expression with its own temporary
+#define TO_LOWER(x) ({ int c_ = (x); ((char)(*(c_ + lbl_802B6491) & 1)) ? c_ + 0x20 : c_; })
+#define TO_UPPER(x) ({ int c_ = (x); ((char)(*(c_ + lbl_802B6491) & 2)) ? c_ - 0x20 : c_; })
+
 // ---- natives: (this value, argument count), arguments are read from the VM stack ----
 class Unk8014FD8C_Obj;
 extern "C" {
@@ -253,6 +258,105 @@ Unk8014FD8C_Obj* fn_80150780(Unk8014FD8C_Obj* self, int nargs)     // split
         }
     }
     return (Unk8014FD8C_Obj*)arr;
+}
+
+Unk8014FD8C_Obj* fn_801509D0(Unk8014FD8C_Obj* self, int nargs)     // substr
+{
+    char buf[0x100];
+    int start = -1;
+    int count = 9999999;
+
+    if (nargs == 0)
+        return lbl_8037D110;
+    if (nargs > 0) {
+        Unk8014FD8C_Obj* a = fn_801489D4(lbl_8033D2A8, 0);
+        start = fn_801321E4(a);
+    }
+    if (nargs > 1) {
+        Unk8014FD8C_Obj* a = fn_801489D4(lbl_8033D2A8, 1);
+        count = fn_801321E4(a);
+    }
+    fn_80132420(self, buf);
+    int len = fn_80111FF8(buf);
+    if (start < 0)
+        start += len;
+    if (start + count >= len)
+        count = len - start;
+    if (count >= 0) {
+        buf[start + count] = 0;
+    } else {
+        return lbl_8037D110;
+    }
+    Unk8014FD8C* r = new Unk8014FD8C(buf + start);
+    return (Unk8014FD8C_Obj*)r;
+}
+
+Unk8014FD8C_Obj* fn_80150B64(Unk8014FD8C_Obj* self, int nargs)     // substring
+{
+    char buf[0x100];
+    int start = -1;
+    int end = 9999999;
+
+    if (nargs == 0)
+        return lbl_8037D110;
+    if (nargs > 0) {
+        Unk8014FD8C_Obj* a = fn_801489D4(lbl_8033D2A8, 0);
+        start = fn_801321E4(a);
+    }
+    if (nargs > 1) {
+        Unk8014FD8C_Obj* a = fn_801489D4(lbl_8033D2A8, 1);
+        end = fn_801321E4(a);
+    }
+    fn_80132420(self, buf);
+    int len = fn_80111FF8(buf);
+    if (start < 0)
+        start = 0;
+    if (end < 0)
+        end = 0;
+    if (start >= len)
+        start = len;
+    if (end >= len)
+        end = len;
+    if (start > end) {
+        int t = end;
+        end = start;
+        start = t;
+    }
+    if (end > start) {
+        buf[end] = 0;
+    } else {
+        return lbl_8037D110;
+    }
+    Unk8014FD8C* r = new Unk8014FD8C(buf + start);
+    return (Unk8014FD8C_Obj*)r;
+}
+
+Unk8014FD8C_Obj* fn_80150D30(Unk8014FD8C_Obj* self, int nargs)     // toLowerCase
+{
+    char buf[0x100];
+    int len;
+    int i;
+
+    fn_80132420(self, buf);
+    len = fn_80111FF8(buf);
+    for (i = 0; i < len; i++)
+        buf[i] = TO_LOWER(buf[i]);
+    Unk8014FD8C* r = new Unk8014FD8C(buf);
+    return (Unk8014FD8C_Obj*)r;
+}
+
+Unk8014FD8C_Obj* fn_80150E28(Unk8014FD8C_Obj* self, int nargs)     // toUpperCase
+{
+    char buf[0x100];
+    int len;
+    int i;
+
+    fn_80132420(self, buf);
+    len = fn_80111FF8(buf);
+    for (i = 0; i < len; i++)
+        buf[i] = TO_UPPER(buf[i]);
+    Unk8014FD8C* r = new Unk8014FD8C(buf);
+    return (Unk8014FD8C_Obj*)r;
 }
 
 Unk8014FD8C_Obj* fn_80150574(Unk8014FD8C_Obj* self, int nargs)     // lastIndexOf (not implemented)
