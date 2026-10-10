@@ -72,7 +72,7 @@ extern void fn_8013D198(void* p, int flag);
 extern void fn_801B8A60(void* p);           /* operator delete */
 
 #define RELEASE(p) if (p) { (*(ReleaseFn*)((char*)lbl_802D67B4 + fn_8012C7C8(p) * 4))(p); p = 0; }
-#define MEMBER(T, off) (*(T*)(self + (off)))
+#define MEMBER(T, off) (*(T*)((char*)self + (off)))
 
 void fn_801365A4(register void* p, register unsigned n);
 void fn_801365FC(register void* p, register unsigned n);
@@ -299,3 +299,135 @@ void fn_80136964(register void* p, register unsigned n) {
     lbl_8033D1E0.free(p, n);
 }
 
+
+typedef struct { char pad[0x1c]; int f1c; } AptFile;
+extern void fn_801369BC(register char* self, int a, AptFile* p, int c);
+
+void fn_801374A8(register char* self, int a, AptFile* p, int c) {
+    AptFile* base = p;
+    if (p->f1c) {
+        *(&p->f1c) = (int)base + p->f1c;
+    }
+    *(int*)(self + 0x30) = 0;
+    fn_801369BC(self, a, p, c);
+    if (p->f1c) {
+        *(&p->f1c) = p->f1c - (int)base;
+    }
+    return;
+    return;
+}
+
+typedef struct { char pad[0xc]; int count; int* ids; } AptIdList;
+
+int fn_80137568(register AptIdList* self, int id) {
+    int i = 0;
+    while (i < self->count) {
+        if (self->ids[i] == id) return i;
+        i++;
+    }
+    return -1;
+    return;
+    return;
+}
+
+/* Apt VM context (0x3F3C bytes). */
+typedef struct { int count; int items[2049]; } AptList;       /* 0x180C: count, then item pointers */
+typedef struct { int used; void* obj; int pad[2]; } AptSlot;  /* 0x10 bytes */
+typedef struct AptCtx {
+    char pad0[0x1400];
+    struct AptCtx* f1400;
+    struct AptCtx* f1404;
+    char pad1[0x1808 - 0x1408];
+    int f1808;
+    AptList list;                /* 0x180C */
+    char f3814[0x3a18 - 0x3814]; /* 0x3814 */
+    int f3a18;
+    int f3a1c;
+    AptSlot slots[64];           /* 0x3A20 */
+    int f3e20;
+    int f3e24;
+    char pad2[0x3f28 - 0x3e28];
+    int f3f28, f3f2c, f3f30, f3f34, f3f38;
+} AptCtx;
+
+extern void fn_80139E1C(register char* self);
+extern void fn_801437F8(void* a, int b);
+extern void fn_80139FBC(register void* p, register unsigned n);
+extern void* lbl_8037D0F8;
+
+char* fn_801384E8(register char* self, int a) {
+    fn_80139E1C(self);
+    *(int*)(self + 0x20) = 0;
+    *(int*)(self + 8) = a;
+    return self;
+}
+
+void fn_8013853C(register char* self, int flag) {
+    fn_801437F8(lbl_8037D0F8, *(int*)(self + 8));
+    fn_80136704(self, 0);
+    if (flag & 1) fn_80139FBC(self, 0x24);
+}
+
+extern void fn_8013A014(void* p);
+extern void fn_8013A160(void* p);
+extern void fn_8013D148(void* p);
+extern void fn_8013954C(register void* self);
+extern void* fn_80111C78(void* p, int c, unsigned n);   /* memset */
+
+/* Apt VM context constructor (object is at least 0x3F3C bytes). */
+AptCtx* fn_80138A50(register AptCtx* self) {
+    fn_8013A014(&self->list);
+    fn_8013A160(self->f3814);
+    fn_8013D148(&self->f3a18);
+    fn_8013D148(&self->f3a1c);
+    self->f1400 = self->f1404 = self;
+    self->f1808 = 0;
+    fn_8013954C(self);
+    self->f3e24 = 0;
+    self->f3f28 = 0;
+    self->f3f2c = 0;
+    self->f3f30 = -1;
+    self->f3f34 = -1;
+    MEMBER(int, 0x1c10) = 0;
+    fn_80111C78(self->slots, 0, 0x400);
+    self->f3e20 = 0;
+    self->f3f38 = 0;
+    return self;
+}
+
+extern int fn_8013218C(void* list);
+extern void fn_80134210(void* list, int item);
+extern void fn_80139AA4(register void* self);
+extern void fn_8013A1A0(void* p, int flag);
+extern void fn_8013A054(void* p, int flag);
+extern void fn_80139ECC(register void* p, register unsigned n);
+
+/* Apt VM context destructor. */
+void fn_80138B28(register AptCtx* self, int flag) {
+    int count = self->list.count;
+    int i = 0;
+    while (i < fn_8013218C(&self->list)) {
+        if (self->list.items[i]) {
+            fn_80134210(&self->list, self->list.items[i]);
+            count--;
+            if (count == 0) break;
+        }
+        i++;
+    }
+    i = 0;
+    while (i <= 0x3f) {
+        if (count == self->f3e20) break;
+        if (self->slots[i].used == 0) goto next;
+        count++;
+        (*(ReleaseFn*)((char*)lbl_802D67B4 + fn_8012C7C8(self->slots[i].obj) * 4))(self->slots[i].obj);
+        self->slots[i].used = 0;
+    next:
+        i++;
+    }
+    fn_80139AA4(self);
+    fn_8013D198(&self->f3a1c, 2);
+    fn_8013D198(&self->f3a18, 2);
+    fn_8013A1A0(self->f3814, 2);
+    fn_8013A054(&self->list, 2);
+    if (flag & 1) fn_80139ECC(self, 0x3f3c);
+}
