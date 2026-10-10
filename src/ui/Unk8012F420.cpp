@@ -207,3 +207,355 @@ APT_RELEASE(fn_80133794, fn_80134758, fn_801348FC)
 APT_RELEASE(fn_801337F4, fn_801346C8, fn_80134938)
 APT_RELEASE(fn_80133854, fn_80134818, fn_80134974)
 APT_RELEASE(fn_801338B4, fn_801347E8, fn_801349BC)
+
+/* ---- per-type boilerplate: delete wrappers, releases and allocators (0x80133914-) ---- */
+
+#define APT_PROTO_DESTROY(fn) void fn(AptValue*, int) asm(#fn);
+
+#define APT_PROTO_ID(fn) AptValue* fn(AptValue*) asm(#fn);
+
+APT_PROTO_ID(fn_8012F420)
+APT_PROTO_ID(fn_80133480)
+APT_PROTO_ID(fn_80133510)
+void fn_80133914(AptValue*) asm("fn_80133914");
+void fn_8013395C(AptValue*) asm("fn_8013395C");
+void fn_80133A14(AptValue*) asm("fn_80133A14");
+void fn_80133A5C(AptValue*) asm("fn_80133A5C");
+void fn_80133ABC(AptValue*) asm("fn_80133ABC");
+void fn_80133B1C(AptValue*) asm("fn_80133B1C");
+void fn_80133ED8(AptValue*) asm("fn_80133ED8");
+void fn_80133F20(AptValue*) asm("fn_80133F20");
+void fn_80133F70(AptValue*) asm("fn_80133F70");
+void fn_80133FC0(AptValue*) asm("fn_80133FC0");
+void fn_80134010(AptValue*) asm("fn_80134010");
+void fn_80134060(AptValue*) asm("fn_80134060");
+void fn_8013417C(AptValue*) asm("fn_8013417C");
+void fn_80134448(AptValue*) asm("fn_80134448");
+void fn_80134498(AptValue*) asm("fn_80134498");
+void fn_801344E8(AptValue*) asm("fn_801344E8");
+void fn_80134538(AptValue*) asm("fn_80134538");
+void fn_80134588(AptValue*) asm("fn_80134588");
+void fn_801345D8(AptValue*) asm("fn_801345D8");
+void fn_80134628(AptValue*) asm("fn_80134628");
+void fn_80134678(AptValue*) asm("fn_80134678");
+void fn_80134974(AptValue*) asm("fn_80134974");
+void fn_801349BC(AptValue*) asm("fn_801349BC");
+void fn_80134BC0(AptValue*) asm("fn_80134BC0");
+void fn_80134C08(AptValue*) asm("fn_80134C08");
+void fn_80134C50(AptValue*) asm("fn_80134C50");
+#define APT_PROTO_W(fn) void fn(AptValue*) asm(#fn);
+
+/* 0x80133914: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80134A04)
+void fn_80133914(register AptValue* p)
+{
+    if (p) {
+        fn_80134A04(p, 3);
+    }
+    return;
+}
+
+/* 0x8013395C: release a value of this type */
+void fn_8013395C(register AptValue* v)
+{
+    v->DecRef();
+    if (v->getRefCount() == 0) {
+        fn_80133914(fn_80133480(v));
+    }
+}
+
+/* 0x801339BC */
+struct AptAlloc801339BC {
+    static void* operator new(register unsigned n) asm("fn_801339BC");
+};
+void* AptAlloc801339BC::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n); }
+
+/* 0x80133A14: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80132E40)
+void fn_80133A14(register AptValue* p)
+{
+    if (p) {
+        fn_80132E40(p, 3);
+    }
+    return;
+}
+
+/* 0x80133A5C: release a value of this type */
+void fn_80133A5C(register AptValue* v)
+{
+    v->DecRef();
+    if (v->getRefCount() == 0) {
+        fn_80134BC0(fn_8012F420(v));
+    }
+}
+
+/* 0x80133ABC: release a value of this type */
+void fn_80133ABC(register AptValue* v)
+{
+    v->DecRef();
+    if (v->getRefCount() == 0) {
+        fn_80134C08(fn_80133510(v));
+    }
+}
+
+/* 0x80133B1C: release a value of this type */
+APT_PROTO_ID(fn_801347B8)
+void fn_80133B1C(register AptValue* v)
+{
+    v->DecRef();
+    if (v->getRefCount() == 0) {
+        fn_80134C50(fn_801347B8(v));
+    }
+}
+
+/* 0x80133BFC */
+struct AptAlloc80133BFC {
+    static void* operator new(register unsigned n) asm("fn_80133BFC");
+};
+void* AptAlloc80133BFC::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n); }
+
+/* 0x80133CC8 */
+struct AptAlloc80133CC8 {
+    static void* operator new(register unsigned n) asm("fn_80133CC8");
+};
+void* AptAlloc80133CC8::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n); }
+
+/* 0x80133DA4 */
+struct AptAlloc80133DA4 {
+    static void* operator new(register unsigned n) asm("fn_80133DA4");
+};
+void* AptAlloc80133DA4::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n); }
+
+/* 0x80133E80 */
+struct AptAlloc80133E80 {
+    static void* operator new(register unsigned n) asm("fn_80133E80");
+};
+void* AptAlloc80133E80::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n); }
+
+/* 0x80133ED8: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80134B68)
+void fn_80133ED8(register AptValue* p)
+{
+    if (p) {
+        fn_80134B68(p, 3);
+    }
+    return;
+}
+
+/* 0x80133F20: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80134A5C)
+void fn_80133F20(register AptValue* p)
+{
+    if (p) {
+        fn_80134A5C(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80133F70: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80134B0C)
+void fn_80133F70(register AptValue* p)
+{
+    if (p) {
+        fn_80134B0C(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80133FC0: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_801353F0)
+void fn_80133FC0(register AptValue* p)
+{
+    if (p) {
+        fn_801353F0(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80134010: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80134D48)
+void fn_80134010(register AptValue* p)
+{
+    if (p) {
+        fn_80134D48(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80134060: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_801352FC)
+void fn_80134060(register AptValue* p)
+{
+    if (p) {
+        fn_801352FC(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x8013417C: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_8014FE18)
+void fn_8013417C(register AptValue* p)
+{
+    if (p) {
+        fn_8014FE18(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80134448: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80135860)
+void fn_80134448(register AptValue* p)
+{
+    if (p) {
+        fn_80135860(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80134498: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80135A88)
+void fn_80134498(register AptValue* p)
+{
+    if (p) {
+        fn_80135A88(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x801344E8: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_801357F8)
+void fn_801344E8(register AptValue* p)
+{
+    if (p) {
+        fn_801357F8(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80134538: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_801359D8)
+void fn_80134538(register AptValue* p)
+{
+    if (p) {
+        fn_801359D8(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80134588: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_8013853C)
+void fn_80134588(register AptValue* p)
+{
+    if (p) {
+        fn_8013853C(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x801345D8: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80135A30)
+void fn_801345D8(register AptValue* p)
+{
+    if (p) {
+        fn_80135A30(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80134628: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80135AE0)
+void fn_80134628(register AptValue* p)
+{
+    if (p) {
+        fn_80135AE0(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80134678: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80135530)
+void fn_80134678(register AptValue* p)
+{
+    if (p) {
+        fn_80135530(p, 3);
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80134974: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80135CF0)
+void fn_80134974(register AptValue* p)
+{
+    if (p) {
+        fn_80135CF0(p, 3);
+    }
+    return;
+}
+
+/* 0x801349BC: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_8012F564)
+void fn_801349BC(register AptValue* p)
+{
+    if (p) {
+        fn_8012F564(p, 3);
+    }
+    return;
+}
+
+/* 0x80134BC0: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_8012DA50)
+void fn_80134BC0(register AptValue* p)
+{
+    if (p) {
+        fn_8012DA50(p, 3);
+    }
+    return;
+}
+
+/* 0x80134C08: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80135EAC)
+void fn_80134C08(register AptValue* p)
+{
+    if (p) {
+        fn_80135EAC(p, 3);
+    }
+    return;
+}
+
+/* 0x80134C50: delete a value through its destructor */
+APT_PROTO_DESTROY(fn_80136410)
+void fn_80134C50(register AptValue* p)
+{
+    if (p) {
+        fn_80136410(p, 3);
+    }
+    return;
+}
