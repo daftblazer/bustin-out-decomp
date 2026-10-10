@@ -6,7 +6,9 @@ typedef struct {
     void* (*alloc)(unsigned);        /* 0x00 */
     void* slot4;                     /* 0x04 */
     void (*free)(void*, unsigned);   /* 0x08 */
-    void* slotC[13];                 /* 0x0C */
+    void* slotC[3];                  /* 0x0C */
+    void (*hook18)(void*, int);      /* 0x18: trace hook, called with (&{tag, word}, 8) */
+    void* slot1C[9];                 /* 0x1C */
     void (*release40)(void*);        /* 0x40: releases the object at +0x14 of the 0x24-byte class */
     void* rest[2];
 } UiAllocTable;
@@ -345,8 +347,8 @@ typedef struct AptCtx {
     int f3a1c;
     AptSlot slots[64];           /* 0x3A20 */
     int f3e20;
-    int f3e24;
-    char pad2[0x3f28 - 0x3e28];
+    int evCount;                 /* 0x3E24: queued event words */
+    unsigned evWords[64];        /* 0x3E28 */
     int f3f28, f3f2c, f3f30, f3f34, f3f38;
 } AptCtx;
 
@@ -371,7 +373,7 @@ void fn_8013853C(register char* self, int flag) {
 extern void fn_8013A014(void* p);
 extern void fn_8013A160(void* p);
 extern void fn_8013D148(void* p);
-extern void fn_8013954C(register void* self);
+extern void fn_8013954C(register struct AptCtx* self);
 extern void* fn_80111C78(void* p, int c, unsigned n);   /* memset */
 
 /* Apt VM context constructor (object is at least 0x3F3C bytes). */
@@ -383,7 +385,7 @@ AptCtx* fn_80138A50(register AptCtx* self) {
     self->f1400 = self->f1404 = (char*)self;
     self->rootCount = 0;
     fn_8013954C(self);
-    self->f3e24 = 0;
+    self->evCount = 0;
     self->f3f28 = 0;
     self->f3f2c = 0;
     self->f3f30 = -1;
@@ -531,4 +533,118 @@ void fn_80139110(register AptCtx* self) {
     }
     fn_80138F68(self);
     fn_8013954C(self);
+}
+
+extern int lbl_8037BE88;
+extern int lbl_8037D0F0;
+
+/* Queue one event word (and trace it through the platform hook when enabled). */
+void fn_801392B0(register AptCtx* self, unsigned word) {
+    self->evWords[self->evCount] = word;
+    self->evCount++;
+    if (lbl_8037BE88) {
+        struct { int tag; unsigned word; } rec;
+        rec.tag = lbl_8037D0F0;
+        rec.word = word;
+        lbl_8033D1E0.hook18(&rec, 8);
+    }
+}
+
+/* Event word type 1: [clip:15 | a:7 | 1 | b:8 | 0 0].
+   NON_MATCHING: the compiler folds the `| 1` onto the clip term (ori r0,r0,1); the original keeps it on the a term. */
+void fn_8013934C(register AptCtx* self, int clip, int a, int b) {
+    unsigned word = ((clip & 0x7fff) << 17) | (((a & 0x7f) << 10) | 1 | ((b & 0xff) << 2));
+    fn_801392B0(self, word);
+}
+
+/* Event word type 0: [clip:15 | 0 | value:15 | 0 0]. */
+void fn_801393C8(register AptCtx* self, int clip, int value) {
+    unsigned word = ((clip & 0x7fff) << 17) | ((value & 0x7fff) << 2);
+    fn_801392B0(self, word);
+}
+
+typedef struct { char pad[8]; int f8; } AptKey;
+extern AptKey* fn_80131FF8(void* o);
+
+/* clearInterval: drop the timers whose clip belongs to `target`. */
+void fn_8013942C(register AptCtx* self, void* target) {
+    int i = 0;
+    while (i <= 0x3f) {
+        if (self->slots[i].used) {
+            register AptClip* clip = fn_80131EBC(self->slots[i].obj);
+            if (((AptInfo*)clip)->f14 == fn_80131FF8(target)->f8) {
+                (*(ReleaseFn*)((char*)lbl_802D67B4 + fn_8012C7C8(self->slots[i].obj) * 4))(self->slots[i].obj);
+                self->slots[i].used = 0;
+            }
+        }
+        i++;
+    }
+}
+
+#define RELEASE_OBJ(o) (*(ReleaseFn*)((char*)lbl_802D67B4 + fn_8012C7C8(o) * 4))(o)
+
+/* Drop the queued messages without running them (releasing the objects they hold). */
+void fn_8013954C(register AptCtx* self) {
+    char* msg = self->f1400;
+    while (msg != self->f1404) {
+        if (MSG->type == 0) {
+            RELEASE_OBJ((void*)MSG->b);
+        } else if (MSG->type == 1) {
+            RELEASE_OBJ(MSG->a);
+            RELEASE_OBJ((void*)MSG->b);
+        } else {
+        }
+        msg = fn_80139F24(self, msg);
+    }
+    self->f1400 = self->f1404 = (char*)self;
+}
+
+extern void fn_8012C800(void* o);                /* add a reference */
+extern char* fn_80139F70(void* self, char* p);   /* previous queue slot */
+
+#define TAIL ((AptMsg*)self->f1404)
+#define HEAD ((AptMsg*)self->f1400)
+
+/* Queue (at the tail) a message that calls `b` with id `c`; `b` gains a reference. */
+void fn_801396A4(register AptCtx* self, int a, int b, int c) {
+    char* next = fn_80139F24(self, self->f1404);
+    if (next == self->f1400) return;
+    {
+        TAIL->type = 0;
+        TAIL->a = (int*)a;
+        TAIL->b = b;
+        fn_8012C800((void*)b);
+        TAIL->id = c;
+        self->f1404 = next;
+    }
+}
+
+/* Same, at the head of the queue. */
+void fn_80139748(register AptCtx* self, int a, int b, int c) {
+    char* next = fn_80139F70(self, self->f1400);
+    if (next == self->f1404) return;
+    {
+        self->f1400 = next;
+        HEAD->type = 0;
+        HEAD->a = (int*)a;
+        HEAD->b = b;
+        fn_8012C800((void*)b);
+        HEAD->id = c;
+    }
+}
+
+/* Head-of-queue message of type 1: two referenced objects and a number. */
+void fn_801397EC(register AptCtx* self, int a, int b, int c, int id) {
+    char* next = fn_80139F70(self, self->f1400);
+    if (next == self->f1404) return;
+    {
+        self->f1400 = next;
+        HEAD->type = 1;
+        HEAD->id = id;
+        HEAD->a = (int*)a;
+        fn_8012C800(HEAD->a);
+        HEAD->b = b;
+        fn_8012C800((void*)HEAD->b);
+        HEAD->c = c;
+    }
 }
