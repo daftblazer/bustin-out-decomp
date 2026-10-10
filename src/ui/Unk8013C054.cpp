@@ -66,9 +66,13 @@ struct UiAllocTable {
     void* (*alloc)(unsigned);        // 0x00
     void* slot4;                     // 0x04
     void (*free)(void*, unsigned);   // 0x08
-    char pad0C[0x44 - 0x0C];
+    char pad0C[0x10 - 0x0C];
+    void (*slot10)(int);             // 0x10
+    char pad14[0x44 - 0x14];
     void (*drawText)(void*);         // 0x44
-    char pad48[0x70 - 0x48];
+    char pad48[0x50 - 0x48];
+    void (*slot50)(void*);           // 0x50
+    char pad54[0x70 - 0x54];
     void (*twoPart)(void*);          // 0x70
     void (*drawShape)(void*, void*); // 0x74
     void (*slot78)(void*, void*, void*); // 0x78
@@ -657,12 +661,17 @@ struct UiMovieData {
     int unk18;
     UiDisplayList list;      // 0x1C
 };
+struct UiFontTable;
 struct UiMovieRes {
-    char pad[8];
+    int unk0;
+    struct UiFontTable* fonts; // 0x04
     UiTimeline tl;           // 0x08: unk0 = frame count
 };
 struct UiFont {
-    char pad[0x10];
+    int unk0;
+    int unk4;
+    void* handle;            // 0x08 host font
+    int unkC;
     UiShape** glyphs;        // 0x10
 };
 struct UiGlyph {
@@ -927,6 +936,41 @@ void* UiProps::operator new(register unsigned n) {
     return lbl_8033D1E0.alloc(n);
 }
 
+extern "C" void fn_8013CD18(UiDisplayList* list, void* place, UiObj* o);
+extern "C" void fn_8013D104(UiDisplayList* list, void* remove);
+
+// 0x8013F62C: run the commands of one frame of a timeline (type 3 place object, 4 remove object, 5 and 6 host calls)
+extern "C" void fn_8013F62C(register UiTimeline* tl, UiDisplayList* list, UiObj* o, int frame) {
+    int i = 0;
+    UiAction* act;
+    while (i < tl->frames[frame].count) {
+        act = tl->frames[frame].items[i];
+        switch (act->type) {
+        case 5:
+            lbl_8033D1E0.slot10(act->arg);
+            break;
+        case 3:
+            fn_8013CD18(list, &act->arg, o);
+            break;
+        case 1:
+        case 2:
+            break;
+            break;
+        case 4:
+            fn_8013D104(list, &act->arg);
+            break;
+            break;
+        case 6:
+            lbl_8033D1E0.slot50(((UiMovieRes*)o->clip->shape)->fonts->items[act->arg]->handle);
+            break;
+        case 7:
+        case 8:
+            break;
+        }
+        i++;
+    }
+}
+
 // 0x8013F7E4
 void UiTimeline::RunFrameA(int a, int frame) {
     int i = 0;
@@ -1004,7 +1048,6 @@ extern "C" int fn_801413A8(void* h, int arg) {
     do { return fn_801411C4(h, arg, 1); } while (0);
 }
 
-extern "C" void fn_8013F62C(UiTimeline* tl, UiDisplayList* list, UiObj* o, int frame);
 extern "C" void fn_8012C4A4(void* p, int n);
 extern "C" void fn_80134B68(void* p, int n);
 
