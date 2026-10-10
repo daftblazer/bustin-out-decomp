@@ -27,24 +27,24 @@ No game assets or code from the disc are included. You need your own copy.
 
 <p align="center">
   <img src="https://img.shields.io/badge/Code_matched-3.97%25-3828f7" alt="Code matched: 3.97%">
-  <img src="https://img.shields.io/badge/Functions_matched-577_%2F_10,848-3828f7" alt="Functions matched: 577 / 10,848">
+  <img src="https://img.shields.io/badge/Functions_matched-578_%2F_10,848-3828f7" alt="Functions matched: 578 / 10,848">
   <img src="https://img.shields.io/badge/Linked_from_source-5_files-3828f7" alt="Linked from source: 5 files">
 </p>
 
 | Part of the binary | Functions | Code matched | |
 |---|---:|---:|---|
-| Game code (`sims/`) | 577 / 3,289 | 9.89% | `██░░░░░░░░░░░░░░░░░░` |
+| Game code (`sims/`) | 578 / 3,289 | 9.90% | `██░░░░░░░░░░░░░░░░░░` |
 | EOR engine (`engine/`) | 0 / 5,855 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | C/C++ runtime and libraries | 0 / 780 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | Dolphin SDK (Metrowerks) | 0 / 830 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | SN debugger stub (`libsn`) | 0 / 86 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
-| **Whole executable** | **577 / 10,848** | **3.97%** | `█░░░░░░░░░░░░░░░░░░░` |
+| **Whole executable** | **578 / 10,848** | **3.97%** | `█░░░░░░░░░░░░░░░░░░░` |
 
 A function counts as matched only when its C++ source compiles to the original bytes.
 The Dolphin SDK parts were built with a different compiler and are not decompiled by hand here.
 
 <details>
-<summary>Source files (27)</summary>
+<summary>Source files (34)</summary>
 
 | File | Functions | Code matched | | Linked from source |
 |---|---:|---:|---|:---:|
@@ -66,7 +66,7 @@ The Dolphin SDK parts were built with a different compiler and are not decompile
 | `src/sims/Unk800401FC.cpp` | 41 / 51 | 40.2% | `████░░░░░░` |  |
 | `src/sims/Unk80044D84.cpp` | 7 / 7 | 100.0% | `██████████` | yes |
 | `src/sims/Unk800454AC.cpp` | 26 / 54 | 12.9% | `█░░░░░░░░░` |  |
-| `src/sims/Unk80049ADC.cpp` | 26 / 32 | 53.3% | `█████░░░░░` |  |
+| `src/sims/Unk80049ADC.cpp` | 27 / 32 | 53.8% | `█████░░░░░` |  |
 | `src/sims/cas/CASSelectors.cpp` | 22 / 27 | 43.0% | `████░░░░░░` |  |
 | `src/sims/cas/CASSim.cpp` | 21 / 38 | 27.1% | `███░░░░░░░` |  |
 | `src/sims/cas/CASSkin.cpp` | 20 / 26 | 28.1% | `███░░░░░░░` |  |
@@ -75,6 +75,13 @@ The Dolphin SDK parts were built with a different compiler and are not decompile
 | `src/sims/cas/CASWidgets.cpp` | 7 / 9 | 65.8% | `███████░░░` |  |
 | `src/sims/cas/Unk800230AC.cpp` | 4 / 6 | 60.4% | `██████░░░░` |  |
 | `src/sims/cas/Unk80023D3C.cpp` | 4 / 5 | 27.8% | `███░░░░░░░` |  |
+| `src/ui/Unk8012BFC4.cpp` | 0 / 18 | 0.0% | `░░░░░░░░░░` |  |
+| `src/ui/Unk8012C7C8.cpp` | 0 / 42 | 0.0% | `░░░░░░░░░░` |  |
+| `src/ui/Unk801352FC.c` | 0 / 105 | 0.0% | `░░░░░░░░░░` |  |
+| `src/ui/Unk8013C054.cpp` | 0 / 105 | 0.0% | `░░░░░░░░░░` |  |
+| `src/ui/Unk801440C4.c` | 0 / 78 | 0.0% | `░░░░░░░░░░` |  |
+| `src/ui/Unk8014A18C.cpp` | 0 / 53 | 0.0% | `░░░░░░░░░░` |  |
+| `src/ui/Unk8014FD8C.cpp` | 0 / 26 | 0.0% | `░░░░░░░░░░` |  |
 
 A file is linked from source once every function in it matches and its data is split out;
 until then the build uses the original bytes for that file.
