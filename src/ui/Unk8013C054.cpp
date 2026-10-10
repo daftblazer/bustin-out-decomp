@@ -41,7 +41,9 @@ struct UiAllocTable {
     void* (*alloc)(unsigned);        // 0x00
     void* slot4;                     // 0x04
     void (*free)(void*, unsigned);   // 0x08
-    void* rest[28];
+    char pad0C[0x74 - 0x0C];
+    void (*drawShape)(void*, void*); // 0x74
+    void* slot78;                    // 0x78
 };
 extern UiAllocTable lbl_8033D1E0;
 
@@ -82,6 +84,17 @@ struct UiObjSet128 {
     int Contains(UiObj* o);
     void Add(UiObj* o);
 };
+
+// a drawable piece: 1 = shape, 0xB = empty
+struct UiShape {
+    int type;                // 0x00
+    int unk4;
+    char bounds[0x10];       // 0x08
+    void* data;              // 0x18
+    void Draw(void* ctx, void* flag, void* matrix);
+    void DrawMask(void* ctx, void* flag, void* matrix);
+};
+extern "C" void fn_80147A70(void* ctx, void* flag, void* bounds);
 
 struct UiDisplayList {
     UiHead* head;            // 0x00
@@ -522,3 +535,40 @@ UI_TYPE_TEST(IsTypeC, 0xC)
 UI_TYPE_TEST(IsTypeF, 0xF)
 // 0x80142D60
 UI_TYPE_TEST(IsType10, 0x10)
+
+// 0x8013FAF4: draw a shape through host slot 0x74
+void UiShape::Draw(void* ctx, void* flag, void* matrix) {
+    if (matrix) {
+        fn_80147764(ctx);
+        fn_80147A00(ctx, matrix);
+    }
+    switch (type) {
+    case 1:
+        lbl_8033D1E0.drawShape(data, flag);
+        break;
+        break;
+    case 0xB:
+        break;
+    }
+    if (matrix) {
+        fn_801477DC(ctx);
+    }
+}
+
+// 0x8013FBB4: same walk for the mask pre-pass
+void UiShape::DrawMask(void* ctx, void* flag, void* matrix) {
+    if (matrix) {
+        fn_80147764(ctx);
+        fn_80147A00(ctx, matrix);
+    }
+    switch (type) {
+    case 1:
+        fn_80147A70(ctx, flag, (char*)this + 8);
+        break;
+    case 0xB:
+        break;
+    }
+    if (matrix) {
+        fn_801477DC(ctx);
+    }
+}
