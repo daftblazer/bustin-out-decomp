@@ -15,11 +15,17 @@ struct UiRect {
     float xmin, ymin, xmax, ymax;
 };
 
+struct UiProps {
+    float f[11];
+    float visible;           // 0x2C
+};
+
 struct UiObj {
     unsigned flags;          // 0x00 type in the low 15 bits, 0x8000 = alternate flag
     int depth;               // 0x04
     int name;                // 0x08
-    char padC[0x48 - 0xC];
+    char padC[0x44 - 0xC];
+    struct UiProps* props;   // 0x44
     void* parent;            // 0x48
     UiClip* clip;            // 0x4C
     UiObj* prev;             // 0x50
@@ -31,6 +37,7 @@ struct UiObj {
     UiClip* GetClip();
     void GetBounds(UiRect* out);
     void DrawForBounds(void* ctx, void* out);
+    void Draw(void* ctx, int flag);
     UiClip* GetDataE();       // 0x80131FCC
     UiClip* GetTextData();    // 0x8013356C
     UiClip* GetShapeData();   // 0x80131FF8
@@ -57,9 +64,12 @@ struct UiAllocTable {
     void* (*alloc)(unsigned);        // 0x00
     void* slot4;                     // 0x04
     void (*free)(void*, unsigned);   // 0x08
-    char pad0C[0x74 - 0x0C];
+    char pad0C[0x44 - 0x0C];
+    void (*drawText)(void*);         // 0x44
+    char pad48[0x70 - 0x48];
+    void (*twoPart)(void*);          // 0x70
     void (*drawShape)(void*, void*); // 0x74
-    void* slot78;                    // 0x78
+    void (*slot78)(void*, void*, void*); // 0x78
 };
 extern UiAllocTable lbl_8033D1E0;
 extern void* lbl_8037D124;     // -0x62bc(r13): context that collects bounds instead of drawing
@@ -627,8 +637,196 @@ void UiObj::GetBounds(UiRect* out) {
 
 extern "C" void* fn_80131FCC(UiObj* o);
 extern "C" void* fn_80131FF8(UiObj* o);
-extern "C" void* fn_8013356C(UiObj* o);
+extern "C" UiClip* fn_8013356C(UiObj* o);
 
+
+// data block of a movie clip (type 0xD/0x12), as UiObj::Draw sees it
+struct UiMovieData {
+    int clipDepth;           // 0x00
+    int unk4;
+    int unk8;
+    void* dict;              // 0x0C member dictionary
+    int unk10;
+    unsigned pad14 : 26;     // 0x14
+    unsigned mode : 2;       // 1 = drawn by the host, 2 = drawn here
+    unsigned rest14 : 4;
+    int unk18;
+    UiDisplayList list;      // 0x1C
+};
+struct UiFont {
+    char pad[0x10];
+    UiShape** glyphs;        // 0x10
+};
+struct UiGlyph {
+    short index;
+    short advance;
+};
+struct UiTextRec {
+    int font;                // 0x00
+    char cx[0x20];           // 0x04
+    float x;                 // 0x24
+    float y;                 // 0x28
+    float h;                 // 0x2C
+    int count;               // 0x30
+    UiGlyph* glyphs;         // 0x34
+};
+struct UiTextRes {
+    int unk0;
+    struct UiFontTable* fonts; // 0x04
+    char pad[0x30 - 8];
+    int count;               // 0x30
+    char* recs;              // 0x34 records of 0x38 bytes
+};
+struct UiFontTable {
+    char pad[0x18];
+    UiFont** items;          // 0x18
+};
+struct UiTextData {
+    int unk0;
+    int unk4;
+    UiTextRes* res;          // 0x08
+};
+struct UiTwoPart {
+    int unk0;
+    int unk4;
+    struct UiTwoRes* res;    // 0x08
+    char pad[0x10 - 0xC];
+    float ratio;             // 0x10
+};
+struct UiTwoRes {
+    char pad[8];
+    UiShape* a;              // 0x08
+    UiShape* b;              // 0x0C
+};
+struct UiOneShape {
+    int unk0;
+    int unk4;
+    UiShape* shape;          // 0x08
+};
+struct UiMat {
+    float f[6];
+};
+extern UiMat lbl_8033D270;
+extern "C" void fn_801475C0(void* ctx, void* cx);
+extern "C" void* fn_80149C3C(void* gfx, UiObj* o, int a, const char* name, int b, int c);
+extern "C" void* fn_80131E8C(void* v);
+extern "C" void* fn_8012D9C4(void* v);
+extern "C" void fn_80139B58(void* list, UiObj* o, void* m);
+extern "C" void fn_8013FD90(UiObj* o, void* parent);
+extern "C" void fn_801476B4(void* ctx, void* m);
+extern "C" UiTextData* fn_80133598(UiObj* o);
+extern "C" UiTwoPart* fn_801335C4(UiObj* o);
+extern "C" UiOneShape* fn_801335F0(UiObj* o);
+extern void (*lbl_802D67B4[])(void*);
+
+extern "C" UiMovieData* fn_8013DD0C(UiObj* o);
+
+#define UI_REC ((UiTextRec*)(td->res->recs + i * 0x38))
+
+// 0x8014041C: draw one object, by type
+void UiObj::Draw(void* ctx, int flag) {
+    if (props && !(props->visible >= 0.5f)) {
+        return;
+    }
+    if (fn_80132114(this, 0)) {
+        UiMovieData* md = fn_8013DD0C(this);
+        void* t;
+        if (md->mode == 0) {
+            t = md->dict ? fn_8012D6E0(md->dict, (int)"_type") : 0;
+            if (t) {
+                md->mode = 1;
+            } else {
+                md->mode = 2;
+            }
+        }
+        if (md->mode == 1) {
+            UiObj* first;
+            void* a;
+            register UiAllocTable* tbl;
+            register void* b;
+            register void* c;
+            t = md->dict ? fn_8012D6E0(md->dict, (int)"_type") : 0;
+            first = md->list.head->first->next;
+            a = fn_80149C3C(lbl_8033D2A8, this, 0, "_target", 1, 1);
+            fn_8012C800((UiObj*)a);
+            tbl = &lbl_8033D1E0;
+            b = fn_8012D9C4(fn_80131E8C(t));
+            c = fn_8012D9C4(fn_80131E8C(a));
+            tbl->slot78(b, c, fn_801335F0(first)->shape->data);
+            (*(void (**)(void*))((char*)lbl_802D67B4 + fn_8012C7C8((UiObj*)a) * 4))(a);
+        } else {
+            md->list.Draw(ctx, flag);
+        }
+    } else if (fn_8013209C(this, 0)) {
+        float m[6];
+        void* d;
+        fn_801476B4(ctx, m);
+        fn_80139B58(lbl_8037D0F4, this, m);
+        d = fn_80131FCC(this);
+        ((UiDisplayList*)((char*)d + 0x18))->Draw(ctx, flag);
+    } else if (IsTypeF()) {
+        UiClip* td = fn_8013356C(this);
+        fn_8013FD90(this, parent);
+        if (td->text) {
+            lbl_8033D1E0.drawText(td->text);
+        }
+    } else if (IsType10()) {
+        UiTextData* td = fn_80133598(this);
+        UiMat m;
+        float fx, fy, adv, h;
+        int i, j;
+        fn_80147764(ctx);
+        fn_80147A00(ctx, (char*)td->res + 0x18);
+        m = lbl_8033D270;
+        fx = -100000000.0f;
+        fy = -100000000.0f;
+        adv = 0.0f;
+        h = 1.0f;
+        i = 0;
+        while (i < td->res->count) {
+            UiFont* font;
+            fn_8014747C(ctx);
+            fn_801475C0(ctx, td->res->recs + i * 0x38 + 4);
+            font = td->res->fonts->items[UI_REC->font];
+            if (fx != UI_REC->x || fy != UI_REC->y) {
+                adv = 0.0f;
+                h = 1.0f;
+            }
+            fx = UI_REC->x;
+            fy = UI_REC->y;
+            h = UI_REC->h;
+            j = 0;
+            while (j < UI_REC->count) {
+                UiGlyph* g;
+                m.f[4] = fx + adv;
+                m.f[5] = fy;
+                m.f[0] = h;
+                m.f[3] = h;
+                g = &UI_REC->glyphs[j];
+                font->glyphs[g->index]->Draw(ctx, (void*)flag, &m);
+                adv = adv + g->advance * 0.05f;
+                j++;
+            }
+            fn_80147520(ctx);
+            i++;
+        }
+        fn_801477DC(ctx);
+    } else if (IsType11()) {
+        UiTwoPart* tp = fn_801335C4(this);
+        fn_8014747C(ctx);
+        *(float*)ctx = 1.0f - tp->ratio;
+        lbl_8033D1E0.twoPart(ctx);
+        tp->res->a->Draw(ctx, (void*)flag, 0);
+        *(float*)ctx = tp->ratio;
+        lbl_8033D1E0.twoPart(ctx);
+        tp->res->b->Draw(ctx, (void*)flag, 0);
+        fn_80147520(ctx);
+    } else if (IsTypeC()) {
+        UiOneShape* os = fn_801335F0(this);
+        os->shape->Draw(ctx, (void*)flag, 0);
+    }
+    return;
+}
 
 // 0x80140BBC: the mask/bounds pass; the same walk as the draw but nothing is rendered
 void UiObj::DrawForBounds(void* ctx, void* out) {
