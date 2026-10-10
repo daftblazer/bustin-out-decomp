@@ -104,7 +104,10 @@ struct UiHead {
 
 // base of the per-character data blocks (0x8012C544)
 struct UiBase {
-    char unk0[0x10];
+    int unk0;
+    int parentDepth;         // 0x04: depth of the clip the character sits in, -1 for none
+    void* res;               // 0x08: the character definition
+    int unkC;
     UiBase();
 };
 
@@ -187,10 +190,14 @@ struct UiDataA : UiBase {
 };
 struct UiDataB : UiBase {
     int unk10, unk14, unk18, unk1C;
+    int unk20;
     UiDataB();
     static void* operator new(unsigned n);
 };
 struct UiDataC : UiBase {
+    int frame;               // 0x10
+    unsigned flags14;        // 0x14
+    int unk18, unk1C;
     UiDataC();
     static void* operator new(unsigned n);
 };
@@ -203,6 +210,7 @@ struct UiDataE : UiBase {
     static void* operator new(unsigned n);
 };
 struct UiDataF : UiBase {
+    int unk10;
     UiDataF();
     static void* operator new(unsigned n);
 };
@@ -372,6 +380,14 @@ extern int lbl_8037D110;      // -0x62d0(r13): returned by the script natives
 extern "C" void fn_8012C4A4(void* p, int n);
 extern "C" void fn_80134B68(void* p, int n);
 
+extern "C" UiObj* fn_8013BF10(UiHead* head, int depth, int type, void* data);
+extern "C" void fn_8013BFCC(UiHead* head, int depth, UiObj* o);
+extern "C" void* fn_8012C44C(int size);
+extern "C" void* fn_8014FD8C(void* mem, const char* text);
+extern "C" void fn_8012CEF0(void* set, void* key, UiObj* o);
+extern "C" int fn_80111ECC(const char* a, const char* b);
+extern "C" void fn_8013CF5C(UiDisplayList* list, UiObj* o);
+
 // 0x8013C054: remove from the sibling list
 extern "C" UiObj* fn_8013C054(UiObj* self) {
     if (self->prev) {
@@ -383,6 +399,115 @@ extern "C" UiObj* fn_8013C054(UiObj* self) {
     self->prev = 0;
     self->next = 0;
     return self;
+}
+
+// 0x8013C0E0: create or reuse the instance at a depth for a PlaceObject, give it its character data, name and parent
+// NON_MATCHING: the control flow, locals and calls follow the original (372 instructions against 364), but the flag updates on the new movie clip data reload the pointer, which shifts the rest of the function
+extern "C" void fn_8013C0E0(register UiDisplayList* list, int depth, UiMovieRes* ch, const char* name, UiObj* parent,
+                             int force, int userdata, UiObj** outObj, int* outCreated) {
+    int created;
+    UiObj* where;
+    UiObj* found;
+    UiObj* obj;
+    UiBase* data;
+    int type;
+    created = 0;
+    obj = 0;
+    fn_8013BCEC(list->head, depth, (int)name, &where, &found);
+    if (found) {
+        if (force) {
+            fn_8013CF5C(list, found);
+            created = 1;
+        } else if (fn_8012C8A4(found)) {
+            if (name) {
+                if (fn_80111ECC(name, (const char*)fn_8012D9C4((void*)found->name)) == 0) {
+                    fn_8012CA5C(found, 1);
+                    obj = found;
+                }
+            }
+            created = 1;
+        } else {
+            obj = found;
+            created = 0;
+        }
+    } else {
+        created = 1;
+    }
+    if (created) {
+        data = 0;
+        if (*(int*)ch == 5) {
+            UiDataC* d;
+            data = d = new UiDataC;
+            type = 0xD;
+            d->frame = -1;
+            d->flags14 |= 0x80;
+            d->flags14 |= 0x40;
+        } else if (*(int*)ch == 4) {
+            UiDataA* d;
+            data = d = new UiDataA;
+            type = 0xE;
+            d->unk14 = 0;
+        } else if (*(int*)ch == 2) {
+            UiDataB* d;
+            data = d = new UiDataB;
+            type = 0xF;
+            data->res = ch;
+            d->unk20 = *(int*)((char*)ch + 0x20);
+        } else if (*(int*)ch == 10) {
+            UiDataE* d;
+            data = d = new UiDataE;
+            type = 0x10;
+        } else if (*(int*)ch == 1) {
+            UiDataD* d;
+            data = d = new UiDataD;
+            type = 0xC;
+        } else if (*(int*)ch == 8) {
+            UiDataF* d;
+            data = d = new UiDataF;
+            type = 0x11;
+        }
+        if (fn_80132114(parent, 0)) {
+            data->parentDepth = fn_8013DD0C(parent)->frame;
+        } else {
+            data->parentDepth = -1;
+        }
+        if (!obj) {
+            obj = fn_8013BF10(list->head, depth, type, data);
+        } else {
+            if (depth != obj->depth) {
+                fn_8013C054(obj);
+                fn_8013BFCC(list->head, depth, obj);
+                (*(void (**)(void*))((char*)lbl_802D67B4 + fn_8012C7C8(obj) * 4))(obj);
+            }
+            obj->clip = (UiClip*)data;
+        }
+        if (type == 0xD || type == 0xE) {
+            int* counter = (int*)((char*)lbl_8037D0F4 + 0x1808);
+            *(UiObj**)((char*)lbl_8037D0F4 + 0x1408 + *counter * 4) = obj;
+            (*counter)++;
+            fn_8012C800(obj);
+        } else if (type == 0xF) {
+            fn_8013FD90(obj, parent);
+        }
+        if (name) {
+            void* str = fn_8014FD8C(fn_8012C44C(8), name);
+            if (obj->name) {
+                (*(void (**)(void*))((char*)lbl_802D67B4 + fn_8012C7C8((UiObj*)obj->name) * 4))((void*)obj->name);
+            }
+            obj->name = (int)str;
+            fn_8012C800((UiObj*)str);
+            fn_8012CEF0(((UiClip*)fn_80131FF8(parent))->shape, str, obj);
+        }
+    }
+    fn_8012C800(parent);
+    if (obj->parent) {
+        (*(void (**)(void*))((char*)lbl_802D67B4 + fn_8012C7C8((UiObj*)obj->parent) * 4))(obj->parent);
+    }
+    obj->parent = parent;
+    obj->clip->shape = (UiShape*)ch;
+    obj->clip->clipDepth = userdata;
+    *outObj = obj;
+    *outCreated = created;
 }
 
 // 0x8013C8CC: PlaceObject helper: copy the colour transform record into a local object, then create or update the instance
