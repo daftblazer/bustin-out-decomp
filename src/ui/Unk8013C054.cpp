@@ -16,8 +16,7 @@ struct UiRect {
 };
 
 struct UiProps {
-    float f[11];
-    float visible;           // 0x2C
+    float f[12];             // f[11] (0x2C) is _visible
 };
 
 struct UiObj {
@@ -38,6 +37,7 @@ struct UiObj {
     void GetBounds(UiRect* out);
     void DrawForBounds(void* ctx, void* out);
     void Draw(void* ctx, int flag);
+    void Unk80141040(int idx, float v);
     UiClip* GetDataE();       // 0x80131FCC
     UiClip* GetTextData();    // 0x8013356C
     UiClip* GetShapeData();   // 0x80131FF8
@@ -725,7 +725,7 @@ extern "C" UiMovieData* fn_8013DD0C(UiObj* o);
 
 // 0x8014041C: draw one object, by type
 void UiObj::Draw(void* ctx, int flag) {
-    if (props && !(props->visible >= 0.5f)) {
+    if (props && !(props->f[11] >= 0.5f)) {
         return;
     }
     if (fn_80132114(this, 0)) {
@@ -852,6 +852,32 @@ void UiObj::DrawForBounds(void* ctx, void* out) {
         }
     }
     fn_801477DC(ctx);
+}
+
+extern "C" void fn_80140DC4(UiObj* o);
+extern "C" float fn_8010E288(float a);
+extern "C" float fn_8010E450(float a);
+
+// 0x80141040: set property idx of the object's property block, then rebuild its matrix and colour transform from it
+void UiObj::Unk80141040(int idx, float v) {
+    float angle, cs, sn, sx, sy;
+    fn_80140DC4(this);
+    idx[props->f] = v;
+    angle = props->f[6] * 0.017453294f;
+    cs = fn_8010E288(angle);
+    sn = fn_8010E450(angle);
+    sx = props->f[2] * 0.01f;
+    sy = props->f[3] * 0.01f;
+    *(float*)((char*)this + 0xC) = sx * cs;
+    *(float*)((char*)this + 0x10) = sx * sn;
+    *(float*)((char*)this + 0x14) = sy * -sn;
+    *(float*)((char*)this + 0x18) = sy * cs;
+    *(float*)((char*)this + 0x1C) = props->f[0];
+    *(float*)((char*)this + 0x20) = props->f[1];
+    *(float*)((char*)this + 0x24) = props->f[7] * 0.01f;
+    *(float*)((char*)this + 0x38) = props->f[8] * 0.003921569f;
+    *(float*)((char*)this + 0x3C) = props->f[9] * 0.003921569f;
+    *(float*)((char*)this + 0x40) = props->f[10] * 0.003921569f;
 }
 
 // 0x8013F7E4
