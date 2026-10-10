@@ -1,65 +1,45 @@
-// Flash (ActionScript 1) player: bytecode interpreter, value-type predicates and
-// the global VM object. Compiled at -O0 (tools/tu_ui.sh); `register` marks the
-// parameters and locals the original kept in registers. The URL-query helpers at
-// 8014E9F0-8014ED9C are plain C, see Unk8014A18C_c.c.
-
-extern "C" {
-
-int fn_8012C7C8(void* obj);           // object type tag
-int fn_8012C8A4(void* obj);
+// Flash (ActionScript 1) player: the global VM object (static initialiser at the
+// end of the unit). Compiled at -O0 (tools/tu_ui.sh). The interpreter itself and
+// the type predicates are plain C functions, see Unk8014A18C_c.c.
 
 // 4-byte list heads inside the VM object
-struct VmList0 { int head; };
-struct VmList1 { int head; };
-struct VmList2 { int head; };
+class Unk8014EE18 {
+public:
+    Unk8014EE18();
+    int head;
+};
 
-VmList0* fn_8014EE18(VmList0* p)
-{
-    p->head = 0;
-    return p;
-}
+class Unk8014EE48 {
+public:
+    Unk8014EE48();
+    int head;
+};
 
-VmList1* fn_8014EE48(VmList1* p)
-{
-    p->head = 0;
-    return p;
-}
+class Unk8014EE78 {
+public:
+    Unk8014EE78();
+    int head;
+};
 
-VmList2* fn_8014EE78(VmList2* p)
-{
-    p->head = 0;
-    return p;
-}
-
-// the 0x614-byte VM object
-struct Vm {
-    VmList0 a;          // 0x000 (0x404 bytes)
+// The VM object, 0x614 bytes (global at 0x8033D2A8)
+class Unk8014EEA8 {
+public:
+    Unk8014EEA8();
+    Unk8014EE18 a;      // 0x000 (0x404 bytes)
     char pad[0x400];
-    VmList1 b;          // 0x404
+    Unk8014EE48 b;      // 0x404
     char padb[0x80];
-    VmList2 c;          // 0x488
+    Unk8014EE78 c;      // 0x488
     char padc[0x80];
-    VmList2 d;          // 0x50C
+    Unk8014EE78 d;      // 0x50C
     char padd[0x80];
-    VmList2 e;          // 0x590
+    Unk8014EE78 e;      // 0x590
     char pade[0x80];
 };
 
-Vm* fn_8014EEA8(Vm* p)
-{
-    fn_8014EE18(&p->a);
-    fn_8014EE48(&p->b);
-    fn_8014EE78(&p->c);
-    fn_8014EE78(&p->d);
-    fn_8014EE78(&p->e);
-    return p;
-}
+Unk8014EE18::Unk8014EE18() { head = 0; }
+Unk8014EE48::Unk8014EE48() { head = 0; }
+Unk8014EE78::Unk8014EE78() { head = 0; }
+Unk8014EEA8::Unk8014EEA8() {}
 
-extern Vm lbl_8033D2A8;
-
-void fn_8014EF18(int initialize, int priority)
-{
-    if (priority == 0xFFFF && initialize != 0)
-        fn_8014EEA8(&lbl_8033D2A8);
-}
-}
+Unk8014EEA8 lbl_8033D2A8;

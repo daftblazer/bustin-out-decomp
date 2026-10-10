@@ -100,3 +100,38 @@ int fn_8014EFDC(register void* p)
         return r;
     } while (0);
 }
+
+#define IS_PLAIN_TYPE(name, tag)                          \
+    int name(register void* p)                            \
+    {                                                     \
+        register int r = 0;                               \
+        do {                                              \
+            if (fn_8012C7C8(p) == tag && fn_8012C8A4(p) == 0) \
+                r = 1;                                    \
+            return r;                                     \
+        } while (0);                                      \
+    }
+
+void* fn_8014EFAC(register void* p)
+{
+    do { return p; } while (0);
+}
+
+IS_PLAIN_TYPE(fn_8014F04C, 5)
+IS_PLAIN_TYPE(fn_8014F0BC, 4)
+IS_PLAIN_TYPE(fn_8014F12C, 9)
+IS_PLAIN_TYPE(fn_8014F19C, 0x19)
+IS_PLAIN_TYPE(fn_8014F20C, 0x1c)
+
+int fn_8014F27C(register void* p)
+{
+    register int r = 0;
+    do {
+        if ((fn_8012C7C8(p) > 19 && fn_8012C7C8(p) <= 25) || fn_8012C7C8(p) == 26 ||
+            fn_8012C7C8(p) == 10 || fn_8012C7C8(p) == 27 || fn_8012C7C8(p) == 9) {
+            if (fn_8012C8A4(p) == 0)
+                r = 1;
+        }
+        return r;
+    } while (0);
+}
