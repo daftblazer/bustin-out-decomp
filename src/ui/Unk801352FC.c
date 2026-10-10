@@ -333,7 +333,9 @@ int fn_80137568(register AptIdList* self, int id) {
 }
 
 /* Apt VM context (0x3F3C bytes). */
-typedef struct { int count; int items[2049]; } AptList;       /* 0x180C: count, then item pointers */
+typedef struct { int count; int items[256]; } AptList;        /* 0x180C: count, then item pointers */
+typedef struct { int w[6]; } AptFrameData;
+typedef struct { void* obj; AptFrameData data; } AptFrame;   /* 0x1C bytes */
 typedef struct { int used; void* obj; float interval; float remaining; } AptSlot;  /* 0x10 bytes: a setInterval timer */
 typedef struct AptCtx {
     char pad0[0x1400];
@@ -342,6 +344,8 @@ typedef struct AptCtx {
     void* roots[256];            /* 0x1408: root objects */
     int rootCount;               /* 0x1808 */
     AptList list;                /* 0x180C */
+    int frameCount;              /* 0x1C10 */
+    AptFrame frames[256];        /* 0x1C14 */
     char f3814[0x3a18 - 0x3814]; /* 0x3814 */
     int f3a18;
     int f3a1c;
@@ -390,7 +394,7 @@ AptCtx* fn_80138A50(register AptCtx* self) {
     self->f3f2c = 0;
     self->f3f30 = -1;
     self->f3f34 = -1;
-    MEMBER(int, 0x1c10) = 0;
+    self->frameCount = 0;
     fn_80111C78(self->slots, 0, 0x400);
     self->f3e20 = 0;
     self->f3f38 = 0;
@@ -399,7 +403,7 @@ AptCtx* fn_80138A50(register AptCtx* self) {
 
 extern int fn_8013218C(void* list);
 extern void fn_80134210(void* list, int item);
-extern void fn_80139AA4(register void* self);
+extern void fn_80139AA4(register struct AptCtx* self);
 extern void fn_8013A1A0(void* p, int flag);
 extern void fn_8013A054(void* p, int flag);
 extern void fn_80139ECC(register void* p, register unsigned n);
@@ -647,4 +651,54 @@ void fn_801397EC(register AptCtx* self, int a, int b, int c, int id) {
         fn_8012C800((void*)HEAD->b);
         HEAD->c = c;
     }
+}
+
+extern void* fn_80111B8C(void* dst, void* src, unsigned n);   /* memmove */
+
+#define TAILP ((AptMsg*)self->f1404)
+#define HEADP ((AptMsg*)self->f1400)
+
+extern AptMsg* nextMsg(void* self, AptMsg* p) __asm__("fn_80139F24");
+
+/* Remove the first queued call message for `obj` and release it. */
+void fn_801398B0(register AptCtx* self, int obj) {
+    AptMsg* msg = HEADP;
+    while (msg != TAILP) {
+        if (msg->type == 0 && msg->b == obj) {
+            if (msg < TAILP) {
+                RELEASE_OBJ((void*)obj);
+                fn_80111B8C(msg, msg + 1, (TAILP - msg - 1) * sizeof(AptMsg));
+                self->f1404 = fn_80139F70(self, self->f1404);
+                return;
+            } else if (msg > HEADP) {
+                RELEASE_OBJ((void*)obj);
+                fn_80111B8C(HEADP + 1, HEADP, (msg - HEADP) * sizeof(AptMsg));
+                self->f1400 = fn_80139F24(self, self->f1400);
+                return;
+            } else if (msg == HEADP) {
+                self->f1400 = fn_80139F24(self, self->f1400);
+                return;
+            } else {
+            }
+        }
+        msg = nextMsg(self, msg);
+    }
+}
+
+/* Release every frame on the call stack and empty it. */
+void fn_80139AA4(register AptCtx* self) {
+    int i = 0;
+    while (i < self->frameCount) {
+        RELEASE_OBJ(self->frames[i].obj);
+        i++;
+    }
+    self->frameCount = 0;
+}
+
+/* Push a call frame (adds a reference to obj, copies the 0x18-byte frame data). */
+void fn_80139B58(register AptCtx* self, void* obj, AptFrameData* data) {
+    self->frames[self->frameCount].obj = obj;
+    fn_8012C800(obj);
+    *(&self->frames[self->frameCount].data) = *data;
+    self->frameCount++;
 }
