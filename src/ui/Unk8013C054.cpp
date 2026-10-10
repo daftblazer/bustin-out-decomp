@@ -1,4 +1,10 @@
 // UI library (Flash-style display list), 0x8013C054-0x801440C4. Compiled at -O0.
+//
+// Functions are in address order, and that matters: at -O0 this compiler leaves state behind from one function to the next.
+// Whether a void function ends in two unreachable branches (`b; b`) depends on what came before it in the file: a `switch`
+// turns them on, and a function that returns the value of a variable (`return c;`, `return r;`, `return global;`) turns them off.
+// A `return f(x);` or a constant does not. So a near miss that is only a pair of branches off usually means a function
+// that is not written yet (or one out of order) sits earlier in the unit.
 
 struct UiShape;
 // per-character data block (first word is the clip depth)
@@ -208,64 +214,6 @@ extern "C" void fn_8012D480(void* dict, int name);
 extern "C" void fn_80132F5C(UiObj* o);
 
 
-// 0x8013C054: remove from the sibling list
-extern "C" UiObj* fn_8013C054(UiObj* self) {
-    if (self->prev) {
-        self->prev->next = self->next;
-    }
-    if (self->next) {
-        self->next->prev = self->prev;
-    }
-    self->prev = 0;
-    self->next = 0;
-    return self;
-}
-
-// 0x8013E4DC
-UiClipStack::UiClipStack() {
-    count = 0;
-}
-
-// 0x8013E558: insert, kept sorted by clip depth (largest first)
-void UiClipStack::Insert(register UiObj* o) {
-    int i;
-    int j;
-    for (i = 0; i < count && items[i]->clip->clipDepth >= o->clip->clipDepth; i++) {
-    }
-    for (j = count; j > i; j--) {
-        items[j] = items[j - 1];
-    }
-    items[i] = o;
-    count++;
-}
-
-// 0x8013E640
-void UiClipStack::Remove(register int i) {
-    while (i < count - 1) {
-        items[i] = items[i + 1];
-        i++;
-    }
-    count--;
-}
-
-// 0x8013E6A8
-UiObj* UiClipStack::At(register int i) {
-    return items[i];
-}
-
-// 0x8013E6E0
-int UiClipStack::Count() {
-    return count;
-}
-
-// 0x8013E50C
-void UiClipStack::Free(register int flag) {
-    if (flag & 1) {
-        delete this;
-        return;
-    }
-}
-
 extern "C" int fn_8012C7C8(UiObj* o);
 extern "C" int fn_8012C8A4(UiObj* o);
 extern "C" int fn_80139D88(UiObj* o);
@@ -277,300 +225,12 @@ extern "C" void fn_8014041C(UiObj* o, void* ctx, int flag);
 extern "C" void fn_801477DC(void* ctx);
 extern "C" void fn_80147520(void* ctx);
 
-// 0x8013D1F8: draw one object with its own colour transform and matrix
-void UiDisplayList::DrawOne(void* ctx, UiObj* o, int flag) {
-    fn_8014747C(ctx);
-    fn_801475C0(ctx, (char*)o + 0x24);
-    fn_80147764(ctx);
-    fn_80147A00(ctx, (char*)o + 0xc);
-    fn_8014041C(o, ctx, flag);
-    fn_801477DC(ctx);
-    fn_80147520(ctx);
-}
-
-// 0x8013D28C: draw the children in order; an object with a clip depth masks everything up to it
-void UiDisplayList::Draw(void* ctx, int flag) {
-    UiObj* cur = head->first->next;
-    UiClipStack stack;
-    while (cur) {
-        if (!fn_8012C8A4(cur) && !fn_80139D88(cur)) {
-            if (cur->clip->clipDepth >= 0) {
-                stack.Insert(cur);
-                DrawOne(ctx, cur, 1);
-            } else {
-                while (stack.Count() > 0 && stack.At(stack.Count() - 1)->clip->clipDepth < cur->depth) {
-                    DrawOne(ctx, stack.At(stack.Count() - 1), -1);
-                    stack.Remove(stack.Count() - 1);
-                }
-                DrawOne(ctx, cur, flag);
-            }
-        } else {
-        }
-        cur = cur->next;
-    }
-    while (stack.Count() > 0) {
-        DrawOne(ctx, stack.At(0), -1);
-        stack.Remove(0);
-    }
-    stack.Free(2);
-}
-
-// 0x8013CF5C: drop an instance from its parent's name table and free it
-void UiDisplayList::Release(UiObj* o) {
-    if (o && !fn_8012C8A4(o)) {
-        void* par = o->parent;
-        void* dict;
-        if (par) {
-            dict = fn_80151A24(par);
-            if (o->name) {
-                if (fn_8012D820(dict, o->name) == o) {
-                    fn_8012D480(dict, o->name);
-                }
-            }
-        }
-        fn_80132F5C(o);
-    }
-}
-
-// 0x8013D020
-void UiDisplayList::Remove(int id) {
-    int a;
-    UiObj* b;
-    fn_8013BCEC(head, id, 0, &a, &b);
-    Release(b);
-}
-
-// 0x8013D080: release an instance only when it was made at run time (depth above 0x3FFF)
-void UiDisplayList::RemoveDynamic(UiObj* id) {
-    int a = 0;
-    UiObj* b = 0;
-    fn_8013BCEC(head, id->depth, 0, &a, &b);
-    if (b->depth > 0x3FFF) {
-        Release(b);
-    }
-}
-
-// 0x8013D104
-void UiDisplayList::RemoveHandle(int* id) {
-    Remove(*id);
-}
-
-// 0x8013DDA0
-UiHead::UiHead() {
-    first = new UiObj(7, 0xBAADF00D, 0);
-    fn_8012CA5C(first, 0);
-    first->depth = -1;
-    first->next = 0;
-    first->prev = 0;
-}
-
-// 0x8013DE30
-void* UiHead::operator new(register unsigned n) {
-    void* (*f)(unsigned) = lbl_8033D1E0.alloc;
-    return f(n);
-}
-
-// 0x8013D148
-UiDisplayList::UiDisplayList() {
-    head = new UiHead;
-}
-
-// 0x8013DE88
-UiDataA::UiDataA() {
-    unk10 = 0;
-}
-
-// 0x8013DEDC
-void* UiDataA::operator new(register unsigned n) {
-    return lbl_8033D1E0.alloc(n);
-}
-
-// 0x8013DF34
-UiDataB::UiDataB() {
-    unk10 = 0;
-    unk14 = 0;
-    unk18 = 0;
-    unk1C = 0;
-}
-
-// 0x8013DF94
-void* UiDataB::operator new(register unsigned n) {
-    return lbl_8033D1E0.alloc(n);
-}
-
-// 0x8013DFEC
-UiDataC::UiDataC() {
-}
-
-// 0x8013E02C
-void* UiDataC::operator new(register unsigned n) {
-    return lbl_8033D1E0.alloc(n);
-}
-
-// 0x8013E084
-UiDataD::UiDataD() {
-}
-
-// 0x8013E0C4
-void* UiDataD::operator new(register unsigned n) {
-    return lbl_8033D1E0.alloc(n);
-}
-
-// 0x8013E11C
-UiDataE::UiDataE() {
-}
-
-// 0x8013E15C
-void* UiDataE::operator new(register unsigned n) {
-    return lbl_8033D1E0.alloc(n);
-}
-
-// 0x8013E1B4
-UiDataF::UiDataF() {
-}
-
-// 0x8013E1F4
-void* UiDataF::operator new(register unsigned n) {
-    return lbl_8033D1E0.alloc(n);
-}
-
 extern "C" void fn_80133A14(UiObj* o);
-
-// 0x8013E70C
-void UiHead::Destroy(register int flag) {
-    fn_80133A14(first);
-    if (flag & 1) {
-        Delete(this, 4);
-    }
-}
-
-// 0x8013E760
-void UiHead::Delete(register void* p, register unsigned n) {
-    lbl_8033D1E0.free(p, n);
-}
 
 extern "C" int fn_80132114(UiObj* o, int flag);
 extern "C" int fn_8013209C(UiObj* o, int flag);
 extern "C" void fn_80140BBC(UiObj* o, void* ctx, int flag);
 extern "C" void fn_80146B8C(UiObj* o);
-
-// 0x8013E494
-void UiHead::Free(register UiHead* p) {
-    if (p) {
-        p->Destroy(3);
-        return;
-    }
-}
-
-// 0x8013D198
-UiDisplayList::~UiDisplayList() {
-    Clear();
-    UiHead::Free(head);
-}
-
-// 0x8013D4AC: draw the children that are not clip layers
-void UiDisplayList::DrawUnmasked(void* ctx, int flag) {
-    UiObj* cur = head->first->next;
-    while (cur) {
-        if (cur->clip->clipDepth < 0) {
-            fn_80140BBC(cur, ctx, flag);
-        }
-        cur = cur->next;
-    }
-}
-
-// 0x8013D538
-void UiDisplayList::Update() {
-    UiObj* cur = head->first->next;
-    while (cur) {
-        if (fn_80132114(cur, 0) || fn_8013209C(cur, 0)) {
-            fn_80146B8C(cur);
-        }
-        cur = cur->next;
-    }
-}
-
-// 0x8013D5D4: release every child
-void UiDisplayList::Clear() {
-    UiObj* cur = head->first->next;
-    UiObj* nx;
-    while (cur) {
-        nx = cur->next;
-        Release(cur);
-        cur = nx;
-    }
-}
-
-// 0x8013D648
-UiHead* UiDisplayList::GetHead() {
-    return head;
-}
-
-// 0x8013D674
-void UiDisplayList::SetHead(UiHead* h) {
-    head = h;
-}
-
-// 0x8013E24C
-int UiObjSet256::Contains(register UiObj* o) {
-    int i = 0;
-    while (i <= 255) {
-        if (items[i] == o) {
-            return 1;
-        }
-        i++;
-    }
-    return 0;
-}
-
-// 0x8013E2C4
-void UiObjSet256::Add(register UiObj* o) {
-    int i;
-    count++;
-    i = count;
-    while (items[i] != 0) {
-        if (i <= 254) {
-            i++;
-        } else {
-            i = 0;
-        }
-    }
-    items[i] = o;
-    fn_8012C800(o);
-}
-
-// 0x8013E370
-int UiObjSet128::Contains(register UiObj* o) {
-    int i = 0;
-    while (i <= 127) {
-        if (items[i] == o) {
-            return 1;
-        }
-        i++;
-    }
-    return 0;
-}
-
-// 0x8013E3E8
-void UiObjSet128::Add(register UiObj* o) {
-    int i;
-    count++;
-    i = count;
-    while (items[i] != 0) {
-        if (i <= 126) {
-            i++;
-        } else {
-            i = 0;
-        }
-    }
-    items[i] = o;
-    fn_8012C800(o);
-}
-
-// 0x8013DD0C
-UiClip* UiObj::GetClip() {
-    return clip;
-}
 
 #define UI_TYPE_TEST(name, t) \
     int UiObj::name() { \
@@ -580,67 +240,6 @@ UiClip* UiObj::GetClip() {
         } \
         return r; \
     }
-
-// 0x8013DD38
-UI_TYPE_TEST(IsType11, 0x11)
-// 0x80142BB0
-// NON_MATCHING: the original has two more unreachable branches after the return
-UI_TYPE_TEST(IsType7, 7)
-// 0x80142C20
-// NON_MATCHING: the original has two more unreachable branches after the return
-UI_TYPE_TEST(IsType6, 6)
-// 0x80142C90
-UI_TYPE_TEST(IsTypeC, 0xC)
-// 0x80142CF8
-UI_TYPE_TEST(IsTypeF, 0xF)
-// 0x80142D60
-UI_TYPE_TEST(IsType10, 0x10)
-
-// 0x8013FAF4: draw a shape through host slot 0x74
-void UiShape::Draw(void* ctx, void* flag, void* matrix) {
-    if (matrix) {
-        fn_80147764(ctx);
-        fn_80147A00(ctx, matrix);
-    }
-    switch (type) {
-    case 1:
-        lbl_8033D1E0.drawShape(data, flag);
-        break;
-        break;
-    case 0xB:
-        break;
-    }
-    if (matrix) {
-        fn_801477DC(ctx);
-    }
-}
-
-// 0x8013FBB4: same walk for the mask pre-pass
-void UiShape::DrawMask(void* ctx, void* flag, void* matrix) {
-    if (matrix) {
-        fn_80147764(ctx);
-        fn_80147A00(ctx, matrix);
-    }
-    switch (type) {
-    case 1:
-        fn_80147A70(ctx, flag, (char*)this + 8);
-        break;
-    case 0xB:
-        break;
-    }
-    if (matrix) {
-        fn_801477DC(ctx);
-    }
-}
-
-// 0x80140D38: bounds {xmin, ymin, xmax, ymax} of an object, gathered by a draw pass with a collecting context
-void UiObj::GetBounds(UiRect* out) {
-    out->xmin = 1000000000.0f;
-    out->xmax = -1000000000.0f;
-    out->ymax = -1000000000.0f;
-    out->ymin = 1000000000.0f;
-    DrawForBounds(lbl_8037D124, out);
-}
 
 extern "C" void* fn_80131FCC(UiObj* o);
 extern "C" void* fn_80131FF8(UiObj* o);
@@ -739,6 +338,521 @@ extern void (*lbl_802D67B4[])(void*);
 extern "C" UiMovieData* fn_8013DD0C(UiObj* o);
 
 #define UI_REC ((UiTextRec*)(td->res->recs + i * 0x38))
+
+extern "C" float fn_8010E288(float a);
+extern "C" float fn_8010E450(float a);
+
+extern "C" float fn_8010DD60(float y, float x);
+
+extern "C" void fn_8013D104(UiDisplayList* list, void* remove);
+
+// PlaceObject command (an UiAction body): flags, depth, character, optional matrix / colour transform / ratio / name / clip actions
+struct UiPlace {
+    unsigned flags;          // 0x00: 1 move, 2 create, 4 matrix, 8 colour transform, 0x20 ratio-style int at 0x30, 0x40/0x80 name, clip actions
+    int depth;               // 0x04
+    int character;           // 0x08
+    float matrix[6];         // 0x0C
+    float cxform[2];         // 0x24 colour transform words
+    float ratio;             // 0x2C
+    int unk30;
+    int unk34;
+    int unk38;
+};
+extern "C" void fn_8013C8CC(register UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g);
+extern "C" void fn_8013CB40(UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g);
+extern "C" void fn_8013C690(void* dst, void* src);
+
+extern "C" UiObj* fn_8012C154(void* h, int zero);
+extern "C" void* fn_801489D4(void* gfx, int zero);
+extern "C" int fn_80131EEC(void* v);
+extern "C" void fn_801462CC(UiObj* o, int frame);
+extern "C" void fn_8013D6A0(UiDisplayList* list, UiHead* a, void* b, void* c);
+extern int lbl_8037D110;      // -0x62d0(r13): returned by the script natives
+
+extern "C" void fn_8012C4A4(void* p, int n);
+extern "C" void fn_80134B68(void* p, int n);
+
+// 0x8013C054: remove from the sibling list
+extern "C" UiObj* fn_8013C054(UiObj* self) {
+    if (self->prev) {
+        self->prev->next = self->next;
+    }
+    if (self->next) {
+        self->next->prev = self->prev;
+    }
+    self->prev = 0;
+    self->next = 0;
+    return self;
+}
+
+// 0x8013C8CC: PlaceObject helper: copy the colour transform record into a local object, then create or update the instance
+extern "C" void fn_8013C8CC(register UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g) {
+    char copy[0x20];
+    void* p;
+    if (cx) {
+        fn_8013C690(copy, cx);
+        fn_8013CB40(list, a, b, c, d, parent, e, f, ratio, copy, mat, g);
+    } else {
+        p = 0;
+        fn_8013CB40(list, a, b, c, d, parent, e, f, ratio, p, mat, g);
+    }
+}
+
+// 0x8013CD18: run one PlaceObject command
+extern "C" void fn_8013CD18(register UiDisplayList* list, UiPlace* rec, UiObj* parent) {
+    if (rec->flags & 2) {
+        int ch = (int)((UiMovieRes*)parent->clip->shape)->fonts->items[rec->character];
+        fn_8013C8CC(list, 0, rec->depth, ch, rec->flags & 0x20 ? rec->unk30 : 0, parent, 0, rec->unk34, rec->ratio,
+                    rec->flags & 8 ? &rec->cxform : 0, rec->flags & 4 ? &rec->matrix : 0, rec->flags & 0x80 ? rec->unk38 : 0);
+    } else if (rec->flags & 1) {
+        int found;
+        UiObj* where;
+        fn_8013BCEC(list->head, rec->depth, 0, &found, &where);
+        fn_8013C8CC(list, (int)where, 0, 0, 0, parent, 0, -1, rec->ratio,
+                    rec->flags & 8 ? &rec->cxform : 0, rec->flags & 4 ? &rec->matrix : 0, rec->flags & 0x80 ? rec->unk38 : 0);
+    }
+}
+
+// 0x8013CF5C: drop an instance from its parent's name table and free it
+void UiDisplayList::Release(UiObj* o) {
+    if (o && !fn_8012C8A4(o)) {
+        void* par = o->parent;
+        void* dict;
+        if (par) {
+            dict = fn_80151A24(par);
+            if (o->name) {
+                if (fn_8012D820(dict, o->name) == o) {
+                    fn_8012D480(dict, o->name);
+                }
+            }
+        }
+        fn_80132F5C(o);
+    }
+}
+
+// 0x8013D020
+void UiDisplayList::Remove(int id) {
+    int a;
+    UiObj* b;
+    fn_8013BCEC(head, id, 0, &a, &b);
+    Release(b);
+}
+
+// 0x8013D080: release an instance only when it was made at run time (depth above 0x3FFF)
+void UiDisplayList::RemoveDynamic(UiObj* id) {
+    int a = 0;
+    UiObj* b = 0;
+    fn_8013BCEC(head, id->depth, 0, &a, &b);
+    if (b->depth > 0x3FFF) {
+        Release(b);
+    }
+}
+
+// 0x8013D104
+void UiDisplayList::RemoveHandle(int* id) {
+    Remove(*id);
+}
+
+// 0x8013D148
+UiDisplayList::UiDisplayList() {
+    head = new UiHead;
+}
+
+// 0x8013D198
+UiDisplayList::~UiDisplayList() {
+    Clear();
+    UiHead::Free(head);
+}
+
+// 0x8013D1F8: draw one object with its own colour transform and matrix
+void UiDisplayList::DrawOne(void* ctx, UiObj* o, int flag) {
+    fn_8014747C(ctx);
+    fn_801475C0(ctx, (char*)o + 0x24);
+    fn_80147764(ctx);
+    fn_80147A00(ctx, (char*)o + 0xc);
+    fn_8014041C(o, ctx, flag);
+    fn_801477DC(ctx);
+    fn_80147520(ctx);
+}
+
+// 0x8013D28C: draw the children in order; an object with a clip depth masks everything up to it
+void UiDisplayList::Draw(void* ctx, int flag) {
+    UiObj* cur = head->first->next;
+    UiClipStack stack;
+    while (cur) {
+        if (!fn_8012C8A4(cur) && !fn_80139D88(cur)) {
+            if (cur->clip->clipDepth >= 0) {
+                stack.Insert(cur);
+                DrawOne(ctx, cur, 1);
+            } else {
+                while (stack.Count() > 0 && stack.At(stack.Count() - 1)->clip->clipDepth < cur->depth) {
+                    DrawOne(ctx, stack.At(stack.Count() - 1), -1);
+                    stack.Remove(stack.Count() - 1);
+                }
+                DrawOne(ctx, cur, flag);
+            }
+        } else {
+        }
+        cur = cur->next;
+    }
+    while (stack.Count() > 0) {
+        DrawOne(ctx, stack.At(0), -1);
+        stack.Remove(0);
+    }
+    stack.Free(2);
+}
+
+// 0x8013D4AC: draw the children that are not clip layers
+void UiDisplayList::DrawUnmasked(void* ctx, int flag) {
+    UiObj* cur = head->first->next;
+    while (cur) {
+        if (cur->clip->clipDepth < 0) {
+            fn_80140BBC(cur, ctx, flag);
+        }
+        cur = cur->next;
+    }
+}
+
+// 0x8013D538
+void UiDisplayList::Update() {
+    UiObj* cur = head->first->next;
+    while (cur) {
+        if (fn_80132114(cur, 0) || fn_8013209C(cur, 0)) {
+            fn_80146B8C(cur);
+        }
+        cur = cur->next;
+    }
+}
+
+// 0x8013D5D4: release every child
+void UiDisplayList::Clear() {
+    UiObj* cur = head->first->next;
+    UiObj* nx;
+    while (cur) {
+        nx = cur->next;
+        Release(cur);
+        cur = nx;
+    }
+}
+
+// 0x8013D648
+UiHead* UiDisplayList::GetHead() {
+    return head;
+}
+
+// 0x8013D674
+void UiDisplayList::SetHead(UiHead* h) {
+    head = h;
+}
+
+// 0x8013DD0C
+UiClip* UiObj::GetClip() {
+    return clip;
+}
+
+// 0x8013DD38
+UI_TYPE_TEST(IsType11, 0x11)
+
+// 0x8013DDA0
+UiHead::UiHead() {
+    first = new UiObj(7, 0xBAADF00D, 0);
+    fn_8012CA5C(first, 0);
+    first->depth = -1;
+    first->next = 0;
+    first->prev = 0;
+}
+
+// 0x8013DE30
+void* UiHead::operator new(register unsigned n) {
+    void* (*f)(unsigned) = lbl_8033D1E0.alloc;
+    return f(n);
+}
+
+// 0x8013DE88
+UiDataA::UiDataA() {
+    unk10 = 0;
+}
+
+// 0x8013DEDC
+void* UiDataA::operator new(register unsigned n) {
+    return lbl_8033D1E0.alloc(n);
+}
+
+// 0x8013DF34
+UiDataB::UiDataB() {
+    unk10 = 0;
+    unk14 = 0;
+    unk18 = 0;
+    unk1C = 0;
+}
+
+// 0x8013DF94
+void* UiDataB::operator new(register unsigned n) {
+    return lbl_8033D1E0.alloc(n);
+}
+
+// 0x8013DFEC
+UiDataC::UiDataC() {
+}
+
+// 0x8013E02C
+void* UiDataC::operator new(register unsigned n) {
+    return lbl_8033D1E0.alloc(n);
+}
+
+// 0x8013E084
+UiDataD::UiDataD() {
+}
+
+// 0x8013E0C4
+void* UiDataD::operator new(register unsigned n) {
+    return lbl_8033D1E0.alloc(n);
+}
+
+// 0x8013E11C
+UiDataE::UiDataE() {
+}
+
+// 0x8013E15C
+void* UiDataE::operator new(register unsigned n) {
+    return lbl_8033D1E0.alloc(n);
+}
+
+// 0x8013E1B4
+UiDataF::UiDataF() {
+}
+
+// 0x8013E1F4
+void* UiDataF::operator new(register unsigned n) {
+    return lbl_8033D1E0.alloc(n);
+}
+
+// 0x8013E24C
+int UiObjSet256::Contains(register UiObj* o) {
+    int i = 0;
+    while (i <= 255) {
+        if (items[i] == o) {
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
+
+// 0x8013E2C4
+void UiObjSet256::Add(register UiObj* o) {
+    int i;
+    count++;
+    i = count;
+    while (items[i] != 0) {
+        if (i <= 254) {
+            i++;
+        } else {
+            i = 0;
+        }
+    }
+    items[i] = o;
+    fn_8012C800(o);
+}
+
+// 0x8013E370
+int UiObjSet128::Contains(register UiObj* o) {
+    int i = 0;
+    while (i <= 127) {
+        if (items[i] == o) {
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
+
+// 0x8013E3E8
+void UiObjSet128::Add(register UiObj* o) {
+    int i;
+    count++;
+    i = count;
+    while (items[i] != 0) {
+        if (i <= 126) {
+            i++;
+        } else {
+            i = 0;
+        }
+    }
+    items[i] = o;
+    fn_8012C800(o);
+}
+
+// 0x8013E494
+void UiHead::Free(register UiHead* p) {
+    if (p) {
+        p->Destroy(3);
+        return;
+    }
+}
+
+// 0x8013E4DC
+UiClipStack::UiClipStack() {
+    count = 0;
+}
+
+// 0x8013E50C
+void UiClipStack::Free(register int flag) {
+    if (flag & 1) {
+        delete this;
+        return;
+    }
+}
+
+// 0x8013E558: insert, kept sorted by clip depth (largest first)
+void UiClipStack::Insert(register UiObj* o) {
+    int i;
+    int j;
+    for (i = 0; i < count && items[i]->clip->clipDepth >= o->clip->clipDepth; i++) {
+    }
+    for (j = count; j > i; j--) {
+        items[j] = items[j - 1];
+    }
+    items[i] = o;
+    count++;
+}
+
+// 0x8013E640
+void UiClipStack::Remove(register int i) {
+    while (i < count - 1) {
+        items[i] = items[i + 1];
+        i++;
+    }
+    count--;
+}
+
+// 0x8013E6A8
+UiObj* UiClipStack::At(register int i) {
+    return items[i];
+}
+
+// 0x8013E6E0
+int UiClipStack::Count() {
+    return count;
+}
+
+// 0x8013E70C
+void UiHead::Destroy(register int flag) {
+    fn_80133A14(first);
+    if (flag & 1) {
+        Delete(this, 4);
+    }
+}
+
+// 0x8013E760
+void UiHead::Delete(register void* p, register unsigned n) {
+    lbl_8033D1E0.free(p, n);
+}
+
+// 0x8013F62C: run the commands of one frame of a timeline (type 3 place object, 4 remove object, 5 and 6 host calls)
+extern "C" void fn_8013F62C(register UiTimeline* tl, UiDisplayList* list, UiObj* o, int frame) {
+    int i = 0;
+    UiAction* act;
+    while (i < tl->frames[frame].count) {
+        act = tl->frames[frame].items[i];
+        switch (act->type) {
+        case 5:
+            lbl_8033D1E0.slot10(act->arg);
+            break;
+        case 3:
+            fn_8013CD18(list, (UiPlace*)&act->arg, o);
+            break;
+        case 1:
+        case 2:
+            break;
+            break;
+        case 4:
+            fn_8013D104(list, &act->arg);
+            break;
+            break;
+        case 6:
+            lbl_8033D1E0.slot50(((UiMovieRes*)o->clip->shape)->fonts->items[act->arg]->handle);
+            break;
+        case 7:
+        case 8:
+            break;
+        }
+        i++;
+    }
+}
+
+// 0x8013F7E4
+void UiTimeline::RunFrameA(int a, int frame) {
+    int i = 0;
+    UiAction* act;
+    while (i < frames[frame].count) {
+        act = frames[frame].items[i];
+        if (act->type == 1) {
+            fn_8014ADB4(lbl_8033D2A8, act->arg, a, -1);
+        }
+        i++;
+    }
+}
+
+// 0x8013F8C0
+void UiTimeline::RunFrameB(int a, int frame) {
+    int i = 0;
+    UiAction* act;
+    while (i < frames[frame].count) {
+        act = frames[frame].items[i];
+        if (act->type == 1) {
+            fn_801396A4(lbl_8037D0F4, &act->arg, a, lbl_8037BE84);
+        }
+        i++;
+    }
+}
+
+// 0x8013F99C: frame number of a named label, -1 when missing
+int UiTimeline::Lookup(int name) {
+    void* v = fn_8012D6E0(names, name);
+    if (v) {
+        return fn_801321E4(v);
+    } else {
+        return -1;
+    }
+}
+
+// 0x8013FAF4: draw a shape through host slot 0x74
+void UiShape::Draw(void* ctx, void* flag, void* matrix) {
+    if (matrix) {
+        fn_80147764(ctx);
+        fn_80147A00(ctx, matrix);
+    }
+    switch (type) {
+    case 1:
+        lbl_8033D1E0.drawShape(data, flag);
+        break;
+        break;
+    case 0xB:
+        break;
+    }
+    if (matrix) {
+        fn_801477DC(ctx);
+    }
+}
+
+// 0x8013FBB4: same walk for the mask pre-pass
+void UiShape::DrawMask(void* ctx, void* flag, void* matrix) {
+    if (matrix) {
+        fn_80147764(ctx);
+        fn_80147A00(ctx, matrix);
+    }
+    switch (type) {
+    case 1:
+        fn_80147A70(ctx, flag, (char*)this + 8);
+        break;
+    case 0xB:
+        break;
+    }
+    if (matrix) {
+        fn_801477DC(ctx);
+    }
+}
 
 // 0x8014041C: draw one object, by type
 void UiObj::Draw(void* ctx, int flag) {
@@ -871,10 +985,14 @@ void UiObj::DrawForBounds(void* ctx, void* out) {
     fn_801477DC(ctx);
 }
 
-extern "C" float fn_8010E288(float a);
-extern "C" float fn_8010E450(float a);
-
-extern "C" float fn_8010DD60(float y, float x);
+// 0x80140D38: bounds {xmin, ymin, xmax, ymax} of an object, gathered by a draw pass with a collecting context
+void UiObj::GetBounds(UiRect* out) {
+    out->xmin = 1000000000.0f;
+    out->xmax = -1000000000.0f;
+    out->ymax = -1000000000.0f;
+    out->ymin = 1000000000.0f;
+    DrawForBounds(lbl_8037D124, out);
+}
 
 // 0x80140DC4: make the property block when there is none, from the object's matrix and colour transform
 void UiObj::Unk80140DC4() {
@@ -930,137 +1048,8 @@ void UiObj::Unk80141040(int idx, float v) {
     *(float*)((char*)this + 0x40) = props->f[10] * 0.003921569f;
 }
 
-// 0x80142DC8: allocate through host slot 0
-// NON_MATCHING: two extra trailing branches (the UiData operator new matches with the same body)
-void* UiProps::operator new(register unsigned n) {
-    return lbl_8033D1E0.alloc(n);
-}
-
-extern "C" void fn_8013D104(UiDisplayList* list, void* remove);
-
-// PlaceObject command (an UiAction body): flags, depth, character, optional matrix / colour transform / ratio / name / clip actions
-struct UiPlace {
-    unsigned flags;          // 0x00: 1 move, 2 create, 4 matrix, 8 colour transform, 0x20 ratio-style int at 0x30, 0x40/0x80 name, clip actions
-    int depth;               // 0x04
-    int character;           // 0x08
-    float matrix[6];         // 0x0C
-    float cxform[2];         // 0x24 colour transform words
-    float ratio;             // 0x2C
-    int unk30;
-    int unk34;
-    int unk38;
-};
-extern "C" void fn_8013C8CC(register UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g);
-extern "C" void fn_8013CB40(UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g);
-extern "C" void fn_8013C690(void* dst, void* src);
-
-// 0x8013C8CC: PlaceObject helper: copy the colour transform record into a local object, then create or update the instance
-// NON_MATCHING: two stray trailing branches (64 instructions against 62); everything else matches
-extern "C" void fn_8013C8CC(register UiDisplayList* list, int a, int b, int c, int d, UiObj* parent, int e, int f, float ratio, void* cx, void* mat, int g) {
-    char copy[0x20];
-    void* p;
-    if (cx) {
-        fn_8013C690(copy, cx);
-        fn_8013CB40(list, a, b, c, d, parent, e, f, ratio, copy, mat, g);
-    } else {
-        p = 0;
-        fn_8013CB40(list, a, b, c, d, parent, e, f, ratio, p, mat, g);
-    }
-}
-
-// 0x8013CD18: run one PlaceObject command
-// NON_MATCHING: two stray trailing branches (147 instructions against 145); everything else matches
-extern "C" void fn_8013CD18(register UiDisplayList* list, UiPlace* rec, UiObj* parent) {
-    if (rec->flags & 2) {
-        int ch = (int)((UiMovieRes*)parent->clip->shape)->fonts->items[rec->character];
-        fn_8013C8CC(list, 0, rec->depth, ch, rec->flags & 0x20 ? rec->unk30 : 0, parent, 0, rec->unk34, rec->ratio,
-                    rec->flags & 8 ? &rec->cxform : 0, rec->flags & 4 ? &rec->matrix : 0, rec->flags & 0x80 ? rec->unk38 : 0);
-    } else if (rec->flags & 1) {
-        int found;
-        UiObj* where;
-        fn_8013BCEC(list->head, rec->depth, 0, &found, &where);
-        fn_8013C8CC(list, (int)where, 0, 0, 0, parent, 0, -1, rec->ratio,
-                    rec->flags & 8 ? &rec->cxform : 0, rec->flags & 4 ? &rec->matrix : 0, rec->flags & 0x80 ? rec->unk38 : 0);
-    }
-}
-
-// 0x8013F62C: run the commands of one frame of a timeline (type 3 place object, 4 remove object, 5 and 6 host calls)
-extern "C" void fn_8013F62C(register UiTimeline* tl, UiDisplayList* list, UiObj* o, int frame) {
-    int i = 0;
-    UiAction* act;
-    while (i < tl->frames[frame].count) {
-        act = tl->frames[frame].items[i];
-        switch (act->type) {
-        case 5:
-            lbl_8033D1E0.slot10(act->arg);
-            break;
-        case 3:
-            fn_8013CD18(list, (UiPlace*)&act->arg, o);
-            break;
-        case 1:
-        case 2:
-            break;
-            break;
-        case 4:
-            fn_8013D104(list, &act->arg);
-            break;
-            break;
-        case 6:
-            lbl_8033D1E0.slot50(((UiMovieRes*)o->clip->shape)->fonts->items[act->arg]->handle);
-            break;
-        case 7:
-        case 8:
-            break;
-        }
-        i++;
-    }
-}
-
-// 0x8013F7E4
-void UiTimeline::RunFrameA(int a, int frame) {
-    int i = 0;
-    UiAction* act;
-    while (i < frames[frame].count) {
-        act = frames[frame].items[i];
-        if (act->type == 1) {
-            fn_8014ADB4(lbl_8033D2A8, act->arg, a, -1);
-        }
-        i++;
-    }
-}
-
-// 0x8013F8C0
-void UiTimeline::RunFrameB(int a, int frame) {
-    int i = 0;
-    UiAction* act;
-    while (i < frames[frame].count) {
-        act = frames[frame].items[i];
-        if (act->type == 1) {
-            fn_801396A4(lbl_8037D0F4, &act->arg, a, lbl_8037BE84);
-        }
-        i++;
-    }
-}
-
-// 0x8013F99C: frame number of a named label, -1 when missing
-int UiTimeline::Lookup(int name) {
-    void* v = fn_8012D6E0(names, name);
-    if (v) {
-        return fn_801321E4(v);
-    } else {
-        return -1;
-    }
-}
-
-extern "C" UiObj* fn_8012C154(void* h, int zero);
-extern "C" void* fn_801489D4(void* gfx, int zero);
-extern "C" int fn_80131EEC(void* v);
-extern "C" void fn_801462CC(UiObj* o, int frame);
-extern "C" void fn_8013D6A0(UiDisplayList* list, UiHead* a, void* b, void* c);
-extern int lbl_8037D110;      // -0x62d0(r13): returned by the script natives
-
 // 0x801411C4: gotoAndPlay/gotoAndStop(frame or label): jump the clip to a frame, then set its stopped bit
-// NON_MATCHING: two trailing branches short (the original ends in three branches to the epilogue; do { return } while (0) gives four)
+// NON_MATCHING: two trailing branches short (compiler state left by earlier functions; see the note at the top of the file)
 extern "C" int fn_801411C4(void* h, int arg, int stop) {
     void* v;
     int frame;
@@ -1093,8 +1082,27 @@ extern "C" int fn_801413A8(void* h, int arg) {
     do { return fn_801411C4(h, arg, 1); } while (0);
 }
 
-extern "C" void fn_8012C4A4(void* p, int n);
-extern "C" void fn_80134B68(void* p, int n);
+// 0x80142BB0
+// NON_MATCHING: two unreachable trailing branches missing (compiler state left by earlier functions; see the note at the top of the file)
+UI_TYPE_TEST(IsType7, 7)
+
+// 0x80142C20
+// NON_MATCHING: two unreachable trailing branches missing (compiler state left by earlier functions; see the note at the top of the file)
+UI_TYPE_TEST(IsType6, 6)
+
+// 0x80142C90
+UI_TYPE_TEST(IsTypeC, 0xC)
+
+// 0x80142CF8
+UI_TYPE_TEST(IsTypeF, 0xF)
+
+// 0x80142D60
+UI_TYPE_TEST(IsType10, 0x10)
+
+// 0x80142DC8: allocate through host slot 0
+void* UiProps::operator new(register unsigned n) {
+    return lbl_8033D1E0.alloc(n);
+}
 
 // 0x801462CC: bring a movie clip to a frame; forwards by running each frame's commands, backwards by rebuilding from frame 0
 extern "C" void fn_801462CC(register UiObj* o, int frame) {
@@ -1144,5 +1152,3 @@ extern "C" void fn_801462CC(register UiObj* o, int frame) {
     md->frame = frame;
     md->res->tl.RunFrameB((int)o, frame);
 }
-
-
