@@ -5,6 +5,9 @@
 // turns them on, and a function that returns the value of a variable (`return c;`, `return r;`, `return global;`) turns them off.
 // A `return f(x);` or a constant does not. So a near miss that is only a pair of branches off usually means a function
 // that is not written yet (or one out of order) sits earlier in the unit.
+//
+// The three trailing branches that the original shows after a single `return` are written `if (1) { return x; }`
+// (`do { return x; } while (0)` gives five). It reproduces IsType6/7, fn_801411C4 and its two wrappers.
 
 struct UiShape;
 // per-character data block (first word is the clip depth)
@@ -243,6 +246,14 @@ extern "C" int fn_8013209C(UiObj* o, int flag);
 extern "C" void fn_80140BBC(UiObj* o, void* ctx, int flag);
 extern "C" void fn_80146B8C(UiObj* o);
 
+#define UI_TYPE_TEST2(name, t) \
+    int UiObj::name() { \
+        register int r = 0; \
+        if (fn_8012C7C8(this) == t && !fn_8012C8A4(this)) { \
+            r = 1; \
+        } \
+        if (1) { return r; } \
+    }
 #define UI_TYPE_TEST(name, t) \
     int UiObj::name() { \
         register int r = 0; \
@@ -741,8 +752,7 @@ UiHead::UiHead() {
 
 // 0x8013DE30
 void* UiHead::operator new(register unsigned n) {
-    void* (*f)(unsigned) = lbl_8033D1E0.alloc;
-    return f(n);
+    return lbl_8033D1E0.alloc(n);
 }
 
 // 0x8013DE88
@@ -1248,24 +1258,24 @@ extern "C" int fn_801411C4(void* h, int arg, int stop) {
     {
         fn_8013DD0C(fn_8012C154(h, 0))->stopped = stop != 0 ? 1 : 0;
     }
-    return lbl_8037D110;
+    if (1) { return lbl_8037D110; }
 }
 
 // 0x80141350, 0x801413A8: the two entry points (play / stop)
 extern "C" int fn_80141350(void* h, int arg) {
-    do { return fn_801411C4(h, arg, 0); } while (0);
+    if (1) { return fn_801411C4(h, arg, 0); }
 }
 extern "C" int fn_801413A8(void* h, int arg) {
-    do { return fn_801411C4(h, arg, 1); } while (0);
+    if (1) { return fn_801411C4(h, arg, 1); }
 }
 
 // 0x80142BB0
 // NON_MATCHING: two unreachable trailing branches missing (compiler state left by earlier functions; see the note at the top of the file)
-UI_TYPE_TEST(IsType7, 7)
+UI_TYPE_TEST2(IsType7, 7)
 
 // 0x80142C20
 // NON_MATCHING: two unreachable trailing branches missing (compiler state left by earlier functions; see the note at the top of the file)
-UI_TYPE_TEST(IsType6, 6)
+UI_TYPE_TEST2(IsType6, 6)
 
 // 0x80142C90
 UI_TYPE_TEST(IsTypeC, 0xC)
