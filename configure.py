@@ -232,11 +232,11 @@ config.linker_version = "ProDG/3.7"
 
 
 # Helper for game / engine code
-def GameLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
+def GameLib(lib_name: str, objects: List[Object], cflags: List[str] = None) -> Dict[str, Any]:
     return {
         "lib": lib_name,
         "mw_version": config.linker_version,
-        "cflags": cflags_base,
+        "cflags": cflags if cflags is not None else cflags_base,
         "progress_category": "game",
         "objects": objects,
     }
@@ -300,6 +300,8 @@ config.libs = [
             Object(NonMatching, "ui/Unk8014A18C.cpp"),
             Object(NonMatching, "ui/Unk8014FD8C.cpp"),
         ],
+        # The Apt UI library (Flash player runtime) was built without optimisation.
+        cflags=["-O0" if f == "-O2" else f for f in cflags_base],
     ),
 ]
 
