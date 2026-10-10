@@ -17,6 +17,13 @@ struct UiObj {
     int unk5C;               // 0x5C
     UiObj(int type, unsigned fill, int zero);   // 0x8012C21C
     static void* operator new(unsigned n);       // 0x8012C3F4
+    UiClip* GetClip();
+    int IsType11();
+    int IsType7();
+    int IsType6();
+    int IsTypeC();
+    int IsTypeF();
+    int IsType10();
 };
 
 struct UiClipStack {
@@ -187,6 +194,7 @@ void UiClipStack::Free(register int flag) {
     }
 }
 
+extern "C" int fn_8012C7C8(UiObj* o);
 extern "C" int fn_8012C8A4(UiObj* o);
 extern "C" int fn_80139D88(UiObj* o);
 extern "C" void fn_8014747C(void* ctx);
@@ -485,3 +493,30 @@ void UiObjSet128::Add(register UiObj* o) {
     items[i] = o;
     fn_8012C800(o);
 }
+
+// 0x8013DD0C
+UiClip* UiObj::GetClip() {
+    return clip;
+}
+
+#define UI_TYPE_TEST(name, t) \
+    int UiObj::name() { \
+        int r = 0; \
+        if (fn_8012C7C8(this) == t && !fn_8012C8A4(this)) { \
+            r = 1; \
+        } \
+        return r; \
+    }
+
+// 0x8013DD38
+UI_TYPE_TEST(IsType11, 0x11)
+// 0x80142BB0
+UI_TYPE_TEST(IsType7, 7)
+// 0x80142C20
+UI_TYPE_TEST(IsType6, 6)
+// 0x80142C90
+UI_TYPE_TEST(IsTypeC, 0xC)
+// 0x80142CF8
+UI_TYPE_TEST(IsTypeF, 0xF)
+// 0x80142D60
+UI_TYPE_TEST(IsType10, 0x10)
