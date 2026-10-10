@@ -26,19 +26,19 @@ No game assets or code from the disc are included. You need your own copy.
 <!-- progress:start -->
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Code_matched-5.93%25-3828f7" alt="Code matched: 5.93%">
-  <img src="https://img.shields.io/badge/Functions_matched-1,447_%2F_10,848-3828f7" alt="Functions matched: 1,447 / 10,848">
+  <img src="https://img.shields.io/badge/Code_matched-6.24%25-3828f7" alt="Code matched: 6.24%">
+  <img src="https://img.shields.io/badge/Functions_matched-1,829_%2F_10,848-3828f7" alt="Functions matched: 1,829 / 10,848">
   <img src="https://img.shields.io/badge/Linked_from_source-5_files-3828f7" alt="Linked from source: 5 files">
 </p>
 
 | Part of the binary | Functions | Code matched | |
 |---|---:|---:|---|
-| Game code (`sims/`) | 1,155 / 3,289 | 10.64% | `██░░░░░░░░░░░░░░░░░░` |
+| Game code (`sims/`) | 1,537 / 3,289 | 11.43% | `██░░░░░░░░░░░░░░░░░░` |
 | EOR engine (`engine/`) | 0 / 5,855 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | C/C++ runtime and libraries | 0 / 780 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | Dolphin SDK (Metrowerks) | 0 / 830 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
 | SN debugger stub (`libsn`) | 0 / 86 | 0.00% | `░░░░░░░░░░░░░░░░░░░░` |
-| **Whole executable** | **1,447 / 10,848** | **5.93%** | `█░░░░░░░░░░░░░░░░░░░` |
+| **Whole executable** | **1,829 / 10,848** | **6.24%** | `█░░░░░░░░░░░░░░░░░░░` |
 
 A function counts as matched only when its C++ source compiles to the original bytes.
 The Dolphin SDK parts were built with a different compiler and are not decompiled by hand here.
@@ -67,20 +67,20 @@ The Dolphin SDK parts were built with a different compiler and are not decompile
 | `src/sims/Unk80044D84.cpp` | 7 / 7 | 100.0% | `██████████` | yes |
 | `src/sims/Unk800454AC.cpp` | 26 / 54 | 12.9% | `█░░░░░░░░░` |  |
 | `src/sims/Unk80049ADC.cpp` | 27 / 32 | 53.8% | `█████░░░░░` |  |
-| `src/sims/Unk80087A5C.cpp` | 39 / 375 | 0.2% | `█░░░░░░░░░` |  |
-| `src/sims/Unk800D53D4.cpp` | 209 / 477 | 3.1% | `█░░░░░░░░░` |  |
-| `src/sims/Unk800F8F20.cpp` | 50 / 261 | 2.3% | `█░░░░░░░░░` |  |
-| `src/sims/Unk8019479C.cpp` | 7 / 258 | 0.0% | `█░░░░░░░░░` |  |
-| `src/sims/Unk801AFC44.cpp` | 10 / 221 | 0.2% | `█░░░░░░░░░` |  |
-| `src/sims/Unk801C0FCC.cpp` | 26 / 140 | 3.7% | `█░░░░░░░░░` |  |
-| `src/sims/Unk801C7420.cpp` | 14 / 94 | 0.6% | `█░░░░░░░░░` |  |
-| `src/sims/Unk801E58D4.cpp` | 39 / 319 | 0.5% | `█░░░░░░░░░` |  |
-| `src/sims/Unk801F6614.cpp` | 29 / 394 | 0.3% | `█░░░░░░░░░` |  |
-| `src/sims/Unk8021A398.cpp` | 25 / 138 | 0.2% | `█░░░░░░░░░` |  |
-| `src/sims/Unk8022A578.cpp` | 17 / 116 | 0.6% | `█░░░░░░░░░` |  |
-| `src/sims/Unk802372E4.cpp` | 67 / 449 | 0.7% | `█░░░░░░░░░` |  |
-| `src/sims/Unk80252B4C.cpp` | 29 / 394 | 0.6% | `█░░░░░░░░░` |  |
-| `src/sims/Unk8026CB70.cpp` | 16 / 66 | 1.2% | `█░░░░░░░░░` |  |
+| `src/sims/Unk80087A5C.cpp` | 69 / 375 | 0.8% | `█░░░░░░░░░` |  |
+| `src/sims/Unk800D53D4.cpp` | 210 / 477 | 3.2% | `█░░░░░░░░░` |  |
+| `src/sims/Unk800F8F20.cpp` | 78 / 261 | 4.0% | `█░░░░░░░░░` |  |
+| `src/sims/Unk8019479C.cpp` | 28 / 258 | 1.2% | `█░░░░░░░░░` |  |
+| `src/sims/Unk801AFC44.cpp` | 30 / 221 | 2.0% | `█░░░░░░░░░` |  |
+| `src/sims/Unk801C0FCC.cpp` | 45 / 140 | 5.4% | `█░░░░░░░░░` |  |
+| `src/sims/Unk801C7420.cpp` | 24 / 94 | 1.4% | `█░░░░░░░░░` |  |
+| `src/sims/Unk801E58D4.cpp` | 83 / 319 | 1.4% | `█░░░░░░░░░` |  |
+| `src/sims/Unk801F6614.cpp` | 67 / 394 | 1.1% | `█░░░░░░░░░` |  |
+| `src/sims/Unk8021A398.cpp` | 38 / 138 | 0.6% | `█░░░░░░░░░` |  |
+| `src/sims/Unk8022A578.cpp` | 43 / 116 | 1.9% | `█░░░░░░░░░` |  |
+| `src/sims/Unk802372E4.cpp` | 97 / 449 | 1.2% | `█░░░░░░░░░` |  |
+| `src/sims/Unk80252B4C.cpp` | 120 / 394 | 2.9% | `█░░░░░░░░░` |  |
+| `src/sims/Unk8026CB70.cpp` | 27 / 66 | 3.8% | `█░░░░░░░░░` |  |
 | `src/sims/cas/CASSelectors.cpp` | 22 / 27 | 43.0% | `████░░░░░░` |  |
 | `src/sims/cas/CASSim.cpp` | 21 / 38 | 27.1% | `███░░░░░░░` |  |
 | `src/sims/cas/CASSkin.cpp` | 20 / 26 | 28.1% | `███░░░░░░░` |  |
