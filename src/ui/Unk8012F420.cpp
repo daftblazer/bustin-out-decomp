@@ -688,6 +688,56 @@ void fn_801341CC(register AptValue* p)
     fn_801354D8(p, 0x30);
 }
 
+/* 0x80134210: a table of up to 256 values; remove one (and release it)
+   NON_MATCHING: the original leaves the search loop through one shared exit branch (bgt straight to it); 69 instructions against 71 here */
+struct AptSet256 {
+    int count;               /* 0x00 */
+    AptValue* items[256];    /* 0x04 */
+    int Remove(AptValue* v) asm("fn_80134210");
+};
+int AptSet256::Remove(register AptValue* v)
+{
+    int i = 0;
+    while (!(i > 255)) {
+        if (items[i] == v) {
+            break;
+        }
+        i++;
+    }
+    if (!(i > 255)) {
+        count--;
+        APT_HANDLER(items[i])(items[i]);
+        items[i] = 0;
+        return 1;
+    }
+    return 0;
+}
+
+/* 0x8013432C: a table of up to 128 values; remove one (and release it)
+   NON_MATCHING: as 0x80134210 */
+struct AptSet128 {
+    int count;               /* 0x00 */
+    AptValue* items[128];    /* 0x04 */
+    int Remove(AptValue* v) asm("fn_8013432C");
+};
+int AptSet128::Remove(register AptValue* v)
+{
+    int i = 0;
+    while (!(i > 127)) {
+        if (items[i] == v) {
+            break;
+        }
+        i++;
+    }
+    if (!(i > 127)) {
+        count--;
+        APT_HANDLER(items[i])(items[i]);
+        items[i] = 0;
+        return 1;
+    }
+    return 0;
+}
+
 /* 0x80134448: delete a value through its destructor */
 APT_PROTO_DESTROY(fn_80135860)
 void fn_80134448(register AptValue* p)
