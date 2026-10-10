@@ -174,3 +174,36 @@ void* AptInst::Data4() { return data; }
 void* AptInst::Data5() { return data; }
 void* AptInst::Data6() { return data; }
 void* AptInst::Data7() { return data; }
+
+/* 0x8013342C: drop a reference without freeing */
+void AptValue::DecRef()
+{
+    setRefCount(getRefCount() - 1);
+    return;
+    return;
+}
+
+/* 0x8013361C: free a block of a known size through the user callbacks */
+struct AptBlock {
+    static void operator delete(register void* p, register unsigned n) asm("fn_8013361C");
+};
+void AptBlock::operator delete(register void* p, register unsigned n) { lbl_8033D1E0.freeSized(p, n); }
+
+/* 0x80133674 ...: release a value of one type: drop a reference and, when none is left, tear it down in two steps */
+#define APT_RELEASE(fn, step1, step2) \
+    void* step1(AptValue*) asm(#step1); \
+    void step2(void*) asm(#step2); \
+    extern "C" void fn(register AptValue* v) \
+    { \
+        v->DecRef(); \
+        if (v->getRefCount() == 0) { \
+            step2(step1(v)); \
+        } \
+    }
+APT_RELEASE(fn_80133674, fn_801346F8, fn_80134848)
+APT_RELEASE(fn_801336D4, fn_80134728, fn_80134884)
+APT_RELEASE(fn_80133734, fn_80134788, fn_801348C0)
+APT_RELEASE(fn_80133794, fn_80134758, fn_801348FC)
+APT_RELEASE(fn_801337F4, fn_801346C8, fn_80134938)
+APT_RELEASE(fn_80133854, fn_80134818, fn_80134974)
+APT_RELEASE(fn_801338B4, fn_801347E8, fn_801349BC)

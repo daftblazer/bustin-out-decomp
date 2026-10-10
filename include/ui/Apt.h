@@ -45,6 +45,7 @@ struct AptValue {
     int isCIH(int includeUndefined) const asm("fn_8012C188");
     int isType12(int includeUndefined) const asm("fn_8012C37C");
     int isType01() const asm("fn_80131EEC");
+    void DecRef() asm("fn_8013342C");
     int isType0A() const asm("fn_80131F5C");
     int isType0D(int includeUndefined) const asm("fn_80132024");
     int isType0E(int includeUndefined) const asm("fn_8013209C");
