@@ -367,13 +367,15 @@ typedef struct AptCtx {
     int f3f28, f3f2c, f3f30, f3f34, f3f38;
 } AptCtx;
 
-extern void fn_80139E1C(register char* self);
+struct AptThing;
+extern struct /* NON_MATCHING: the original stores the result of fn_8012C4A4 straight from r3 (stw r3, 0xc(r30)); the compiler routes it through r0. */
+AptThing* fn_80139E1C(struct AptThing* self);
 extern void fn_801437F8(void* a, int b);
 extern void fn_80139FBC(register void* p, register unsigned n);
 extern void* lbl_8037D0F8;
 
 char* fn_801384E8(register char* self, int a) {
-    fn_80139E1C(self);
+    fn_80139E1C((struct AptThing*)self);
     *(int*)(self + 0x20) = 0;
     *(int*)(self + 8) = a;
     return self;
@@ -838,4 +840,191 @@ char* fn_80139F70(register AptCtx* self, register char* p) {
     char* prev = p - 0x14;
     if ((unsigned)prev < (unsigned)self) prev = (char*)self + 0x13ec;
     return prev;
+}
+
+typedef struct AptThing {
+    char base[0xc];
+    int f0c;
+    int f10;
+    unsigned a : 24;
+    unsigned b : 1;
+    unsigned c : 1;
+    unsigned d : 2;
+    unsigned e : 4;
+    int f18;
+    char f1c[4];
+} AptThing;
+extern void fn_8012C544(void* p);
+extern void* fn_8012C4EC(int n);
+extern int fn_8012C4A4(void* p, int n);
+
+/* NON_MATCHING: the original stores the result of fn_8012C4A4 straight from r3 (stw r3, 0xc(r30)); the compiler routes it through r0. */
+AptThing* fn_80139E1C(register AptThing* self) {
+    fn_8012C544(self);
+    fn_8013D148(self->f1c);
+    self->f18 = 0;
+    self->b = 0;
+    self->c = 1;
+    self->d = 0;
+    self->a = 0;
+    self->f0c = fn_8012C4A4(fn_8012C4EC(8), 4);
+    self->f10 = -1;
+    return self;
+}
+
+/* Math object member lookup: the native function object for `name`, created on first use
+   (cached in lbl_8037BE.. slots, one per member). Returns 0 for an unknown name. */
+extern int fn_80111ECC(const char* a, const char* b);   /* strcmp */
+extern void* fn_8012F66C(int size);
+extern void* fn_8012F61C(void* mem, void* fn);
+extern void* fn_8013ABDC(void*, int);
+extern void* fn_8013AC64(void*, int);
+extern void* fn_8013ACEC(void*, int);
+extern void* fn_8013ADBC(void*, int);
+extern void* fn_8013AEB4(void*, int);
+extern void* fn_8013AF9C(void*, int);
+extern void* fn_8013B084(void*, int);
+extern void* fn_8013B124(void*, int);
+extern void* fn_8013B1C4(void*, int);
+extern void* fn_8013B264(void*, int);
+extern void* fn_8013B304(void*, int);
+extern void* fn_8013B3A4(void*, int);
+extern void* fn_8013B444(void*, int);
+extern void* fn_8013B4E4(void*, int);
+extern void* fn_8013B584(void*, int);
+extern void* fn_8013B654(void*, int);
+extern void* fn_8013B6E0(void*, int);
+extern void* fn_8013B780(void*, int);
+extern void* lbl_8037BEAC;
+extern void* lbl_8037BEB0;
+extern void* lbl_8037BEB4;
+extern void* lbl_8037BEB8;
+extern void* lbl_8037BEBC;
+extern void* lbl_8037BEC0;
+extern void* lbl_8037BEC4;
+extern void* lbl_8037BEC8;
+extern void* lbl_8037BECC;
+extern void* lbl_8037BED0;
+extern void* lbl_8037BED4;
+extern void* lbl_8037BED8;
+extern void* lbl_8037BEDC;
+extern void* lbl_8037BEE0;
+extern void* lbl_8037BEE4;
+extern void* lbl_8037BEE8;
+extern void* lbl_8037BEEC;
+extern void* lbl_8037BEF0;
+
+/* NON_MATCHING: the original stores the result of the native-function constructor straight from r3
+   (a C++ `new`); C routes it through r0, one instruction longer per member. */
+void* fn_8013A4E0(register void* self, int unused, char* name) {
+    if (fn_80111ECC(name, "sin") == 0) {
+        if (lbl_8037BEAC == 0) {
+            lbl_8037BEAC = fn_8012F61C(fn_8012F66C(0x10), fn_8013ABDC);
+            fn_8012C800(lbl_8037BEAC);
+        }
+        return lbl_8037BEAC;
+    } else if (fn_80111ECC(name, "cos") == 0) {
+        if (lbl_8037BEB0 == 0) {
+            lbl_8037BEB0 = fn_8012F61C(fn_8012F66C(0x10), fn_8013AC64);
+            fn_8012C800(lbl_8037BEB0);
+        }
+        return lbl_8037BEB0;
+    } else if (fn_80111ECC(name, "atan2") == 0) {
+        if (lbl_8037BEB4 == 0) {
+            lbl_8037BEB4 = fn_8012F61C(fn_8012F66C(0x10), fn_8013ACEC);
+            fn_8012C800(lbl_8037BEB4);
+        }
+        return lbl_8037BEB4;
+    } else if (fn_80111ECC(name, "round") == 0) {
+        if (lbl_8037BEB8 == 0) {
+            lbl_8037BEB8 = fn_8012F61C(fn_8012F66C(0x10), fn_8013ADBC);
+            fn_8012C800(lbl_8037BEB8);
+        }
+        return lbl_8037BEB8;
+    } else if (fn_80111ECC(name, "min") == 0) {
+        if (lbl_8037BEBC == 0) {
+            lbl_8037BEBC = fn_8012F61C(fn_8012F66C(0x10), fn_8013AEB4);
+            fn_8012C800(lbl_8037BEBC);
+        }
+        return lbl_8037BEBC;
+    } else if (fn_80111ECC(name, "max") == 0) {
+        if (lbl_8037BEC0 == 0) {
+            lbl_8037BEC0 = fn_8012F61C(fn_8012F66C(0x10), fn_8013AF9C);
+            fn_8012C800(lbl_8037BEC0);
+        }
+        return lbl_8037BEC0;
+    } else if (fn_80111ECC(name, "abs") == 0) {
+        if (lbl_8037BEC4 == 0) {
+            lbl_8037BEC4 = fn_8012F61C(fn_8012F66C(0x10), fn_8013B084);
+            fn_8012C800(lbl_8037BEC4);
+        }
+        return lbl_8037BEC4;
+    } else if (fn_80111ECC(name, "acos") == 0) {
+        if (lbl_8037BEC8 == 0) {
+            lbl_8037BEC8 = fn_8012F61C(fn_8012F66C(0x10), fn_8013B124);
+            fn_8012C800(lbl_8037BEC8);
+        }
+        return lbl_8037BEC8;
+    } else if (fn_80111ECC(name, "asin") == 0) {
+        if (lbl_8037BECC == 0) {
+            lbl_8037BECC = fn_8012F61C(fn_8012F66C(0x10), fn_8013B1C4);
+            fn_8012C800(lbl_8037BECC);
+        }
+        return lbl_8037BECC;
+    } else if (fn_80111ECC(name, "atan") == 0) {
+        if (lbl_8037BED0 == 0) {
+            lbl_8037BED0 = fn_8012F61C(fn_8012F66C(0x10), fn_8013B264);
+            fn_8012C800(lbl_8037BED0);
+        }
+        return lbl_8037BED0;
+    } else if (fn_80111ECC(name, "ceil") == 0) {
+        if (lbl_8037BED4 == 0) {
+            lbl_8037BED4 = fn_8012F61C(fn_8012F66C(0x10), fn_8013B304);
+            fn_8012C800(lbl_8037BED4);
+        }
+        return lbl_8037BED4;
+    } else if (fn_80111ECC(name, "exp") == 0) {
+        if (lbl_8037BED8 == 0) {
+            lbl_8037BED8 = fn_8012F61C(fn_8012F66C(0x10), fn_8013B3A4);
+            fn_8012C800(lbl_8037BED8);
+        }
+        return lbl_8037BED8;
+    } else if (fn_80111ECC(name, "floor") == 0) {
+        if (lbl_8037BEDC == 0) {
+            lbl_8037BEDC = fn_8012F61C(fn_8012F66C(0x10), fn_8013B444);
+            fn_8012C800(lbl_8037BEDC);
+        }
+        return lbl_8037BEDC;
+    } else if (fn_80111ECC(name, "log") == 0) {
+        if (lbl_8037BEE0 == 0) {
+            lbl_8037BEE0 = fn_8012F61C(fn_8012F66C(0x10), fn_8013B4E4);
+            fn_8012C800(lbl_8037BEE0);
+        }
+        return lbl_8037BEE0;
+    } else if (fn_80111ECC(name, "pow") == 0) {
+        if (lbl_8037BEE4 == 0) {
+            lbl_8037BEE4 = fn_8012F61C(fn_8012F66C(0x10), fn_8013B584);
+            fn_8012C800(lbl_8037BEE4);
+        }
+        return lbl_8037BEE4;
+    } else if (fn_80111ECC(name, "random") == 0) {
+        if (lbl_8037BEE8 == 0) {
+            lbl_8037BEE8 = fn_8012F61C(fn_8012F66C(0x10), fn_8013B654);
+            fn_8012C800(lbl_8037BEE8);
+        }
+        return lbl_8037BEE8;
+    } else if (fn_80111ECC(name, "sqrt") == 0) {
+        if (lbl_8037BEEC == 0) {
+            lbl_8037BEEC = fn_8012F61C(fn_8012F66C(0x10), fn_8013B6E0);
+            fn_8012C800(lbl_8037BEEC);
+        }
+        return lbl_8037BEEC;
+    } else if (fn_80111ECC(name, "tan") == 0) {
+        if (lbl_8037BEF0 == 0) {
+            lbl_8037BEF0 = fn_8012F61C(fn_8012F66C(0x10), fn_8013B780);
+            fn_8012C800(lbl_8037BEF0);
+        }
+        return lbl_8037BEF0;
+    }
+    return 0;
 }
