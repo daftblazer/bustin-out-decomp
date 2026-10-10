@@ -44,6 +44,11 @@ struct AptValue {
     int isType17() const asm("fn_8012CB88");
     int isCIH(int includeUndefined) const asm("fn_8012C188");
     int isType12(int includeUndefined) const asm("fn_8012C37C");
+    int isType01() const asm("fn_80131EEC");
+    int isType0A() const asm("fn_80131F5C");
+    int isType0D(int includeUndefined) const asm("fn_80132024");
+    int isType0E(int includeUndefined) const asm("fn_8013209C");
+    int isType0D12(int includeUndefined) const asm("fn_80132114");
 };
 
 /* Slot of an AptNativeHash: key is an AptString, value any AptValue. */
