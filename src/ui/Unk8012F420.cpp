@@ -90,6 +90,36 @@ void* AptFunc::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n);
 /* 0x8012F71C */
 void AptFunc::operator delete(register void* p, register unsigned n) { lbl_8033D1E0.freeSized(p, n); }
 
+/* 0x8012FF4C: the movie's button event mask as the interpreter's clip event flags.
+   Press, release, release outside, roll over, roll out, drag over, drag out map to 0x400, 0x800, 0x1000, 0x2000, 0x4000, 0x8000, 0x10000. */
+int fn_8012FF4C(unsigned mask) asm("fn_8012FF4C");
+int fn_8012FF4C(unsigned mask)
+{
+    int flags = 0;
+    if (mask & 8) {
+        flags |= 0x800;
+    }
+    if (mask & 4) {
+        flags |= 0x400;
+    }
+    if (mask & 0x40) {
+        flags |= 0x1000;
+    }
+    if (mask & 1) {
+        flags |= 0x2000;
+    }
+    if (mask & 2) {
+        flags |= 0x4000;
+    }
+    if (mask & 0x20) {
+        flags |= 0x8000;
+    }
+    if (mask & 0x10) {
+        flags |= 0x10000;
+    }
+    return flags;
+}
+
 /* 0x8013071C: transform a point by a 2x3 matrix {a, b, c, d, tx, ty} (the movie's affine form):
    out.x = a * in.x + c * in.y + tx, out.y = b * in.x + d * in.y + ty */
 struct AptPoint {
