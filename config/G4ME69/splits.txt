@@ -150,3 +150,18 @@ sims/Unk80049ADC.cpp:
 	.text       start:0x80049ADC end:0x8004BCBC
 	.ctors      start:0x80291CDC end:0x80291CE0
 	.rodata     start:0x80299CF8 end:0x8029A310
+
+ui/Unk801352FC.c:
+	.text       start:0x801352FC end:0x8013C054
+
+ui/Unk8013C054.cpp:
+	.text       start:0x8013C054 end:0x801440C4
+
+ui/Unk801440C4.c:
+	.text       start:0x801440C4 end:0x8014A18C
+
+ui/Unk8014A18C.cpp:
+	.text       start:0x8014A18C end:0x8014FD8C
+
+ui/Unk8014FD8C.cpp:
+	.text       start:0x8014FD8C end:0x80154380

@@ -287,6 +287,16 @@ config.libs = [
             Object(NonMatching, "sims/Unk80049ADC.cpp"),
         ],
     ),
+    GameLib(
+        "ui",
+        [
+            Object(NonMatching, "ui/Unk801352FC.c"),
+            Object(NonMatching, "ui/Unk8013C054.cpp"),
+            Object(NonMatching, "ui/Unk801440C4.c"),
+            Object(NonMatching, "ui/Unk8014A18C.cpp"),
+            Object(NonMatching, "ui/Unk8014FD8C.cpp"),
+        ],
+    ),
 ]
 
 
