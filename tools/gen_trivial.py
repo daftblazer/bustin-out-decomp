@@ -96,6 +96,138 @@ def destructor(a, name, ins):
     return None
 
 
+def symbolic(a, name, ins):
+    """Straight-line functions: optional frame, loads/stores/constants, at most one call. Registers hold C expressions."""
+    body = list(ins)
+    framed = False
+    if len(body) >= 7 and re.fullmatch(r"stwu r1, -(\w+)\(r1\)", body[0]) and body[1] == "mflr r0" and re.fullmatch(r"stw r0, \w+\(r1\)", body[2]):
+        # strip the frame; the epilogue is the last four instructions before blr
+        if body[-1] == "blr" and body[-2].startswith("addi r1, r1,") and body[-3] == "mtlr r0" and body[-4].startswith("lwz r0,"):
+            body = body[3:-4]
+            framed = True
+        else:
+            return None
+    elif body[-1] == "blr":
+        body = body[:-1]
+    else:
+        return None
+    if any(re.match(r"(b|beq|bne|blt|bgt|ble|bge|blr|bctr|blrl|bl\w+|cmp|mtlr|mflr|stmw|lmw)", i.split()[0]) and not i.startswith("bl 0x") for i in body):
+        return None
+    reg = {"3": "self", "4": "a", "5": "b", "6": "c"}
+    kind = {"3": "p", "4": "i", "5": "i", "6": "i"}
+    used_in = set()
+    written = set()
+    stmts = []
+    decls = set()
+    calls = 0
+    lastcall = None
+    hi = {}
+
+    def val(r, create=True):
+        if r not in written and r in ("4", "5", "6"):
+            used_in.add(r)
+        if r == "3" and "3" not in written:
+            used_in.add("3")
+        if r not in reg:
+            raise KeyError(r)
+        return reg[r]
+    try:
+        for i in body:
+            m = re.fullmatch(r"li r(\d+), (-?\w+)", i)
+            if m:
+                reg[m.group(1)] = str(num(m.group(2))); kind[m.group(1)] = "i"; written.add(m.group(1)); continue
+            m = re.fullmatch(r"lis r(\d+), (-?\w+)", i)
+            if m:
+                hi[m.group(1)] = num(m.group(2)) << 16; reg[m.group(1)] = "HI"; written.add(m.group(1)); continue
+            m = re.fullmatch(r"addi r(\d+), r(\d+), (-?\w+)", i)
+            if m:
+                d, s_, k = m.group(1), m.group(2), num(m.group(3))
+                if s_ == "13":
+                    g = gname(k); decls.add("extern int %s;" % g); reg[d] = "(int)&%s" % g
+                elif s_ in hi and reg.get(s_) == "HI":
+                    ad = (hi[s_] + k) & 0xFFFFFFFF; g = "lbl_%08X" % ad
+                    decls.add("extern char %s[];" % g); reg[d] = "(int)%s" % g
+                else:
+                    reg[d] = "((int)%s + %d)" % (val(s_), k)
+                kind[d] = "i"; written.add(d); continue
+            m = re.fullmatch(r"ori r(\d+), r(\d+), (-?\w+)", i)
+            if m:
+                d, s_, k = m.group(1), m.group(2), num(m.group(3))
+                if reg.get(s_) == "HI":
+                    reg[d] = str(hi[s_] | k)
+                else:
+                    reg[d] = "(%s | %d)" % (val(s_), k)
+                kind[d] = "i"; written.add(d); continue
+            m = re.fullmatch(r"mr r(\d+), r(\d+)", i)
+            if m:
+                reg[m.group(1)] = val(m.group(2)); kind[m.group(1)] = kind.get(m.group(2), "i"); written.add(m.group(1)); continue
+            m = re.fullmatch(r"(lwz|lha|lhz|lbz) r(\d+), (-?\w+)\(r(\d+)\)", i)
+            if m:
+                op, d, off, b = m.groups()
+                ty = {"lwz": "int", "lha": "short", "lhz": "unsigned short", "lbz": "unsigned char"}[op]
+                if b == "13":
+                    g = gname(num(off)); decls.add("extern %s %s;" % (ty, g)); reg[d] = g
+                else:
+                    reg[d] = "*(%s*)((char*)%s + %d)" % (ty, val(b), num(off))
+                kind[d] = "i"; written.add(d); continue
+            m = re.fullmatch(r"(stw|sth|stb) r(\d+), (-?\w+)\(r(\d+)\)", i)
+            if m:
+                op, r, off, b = m.groups()
+                ty = {"stw": "int", "sth": "short", "stb": "char"}[op]
+                if b == "13":
+                    g = gname(num(off)); decls.add("extern %s %s;" % (ty, g)); stmts.append("%s = %s;" % (g, val(r)))
+                else:
+                    stmts.append("*(%s*)((char*)%s + %d) = %s;" % (ty, val(b), num(off), val(r)))
+                continue
+            m = re.fullmatch(r"bl (0x[0-9a-f]+)", i)
+            if m:
+                if calls:
+                    return None
+                calls = 1
+                callee = "fn_%08X" % num(m.group(1))
+                nargs = 0
+                for k in ("3", "4", "5", "6", "7", "8"):
+                    if k in written or k in used_in or (k == "3"):
+                        nargs = int(k) - 2
+                    elif k in reg:
+                        pass
+                args = [("(int)%s" % val(str(3 + j)) if str(3 + j) in reg else "0") for j in range(nargs)]
+                decls.add('extern "C" int %s(%s);' % (callee, ", ".join("int" for _ in range(nargs)) or "void"))
+                lastcall = "%s(%s)" % (callee, ", ".join(args))
+                reg["3"] = "CALL"; written.add("3")
+                for k in ("4", "5", "6", "7", "8", "9", "10", "11", "12"):
+                    reg.pop(k, None) if k not in ("4", "5", "6") else None
+                continue
+            return None
+    except KeyError:
+        return None
+    # return value
+    r3 = reg.get("3")
+    params = ["char* self"]
+    if "4" in used_in: params.append("int a")
+    if "5" in used_in: params.append("int b")
+    if "6" in used_in: params.append("int c")
+    if r3 == "CALL":
+        if stmts and False:
+            return None
+        text = "\n".join("    " + t for t in stmts)
+        body_c = (text + "\n" if text else "") + "    %s;\n" % lastcall
+        ret = "void"
+        # a call whose result is the return value: keep it a statement (the result is already in r3)
+        return "%s %s(%s)" % (ret, name, ", ".join(params)), body_c, decls
+    if "3" in used_in and "3" not in written:
+        pass
+    if r3 == "self" or r3 is None:
+        if not stmts and not lastcall:
+            return None
+        body_c = "".join("    " + t + "\n" for t in stmts) + ("    %s;\n" % lastcall if lastcall else "")
+        return "void %s(%s)" % (name, ", ".join(params)), body_c, decls
+    if lastcall is not None:
+        return None
+    body_c = "".join("    " + t + "\n" for t in stmts) + "    return %s;\n" % r3
+    return "int %s(%s)" % (name, ", ".join(params)), body_c, decls
+
+
 def stores(a, name, ins):
     regs = {}; sts = []
     if ins[-1] != "blr":
@@ -151,6 +283,34 @@ def run_tu(srcname):
     return res, r.stdout + r.stderr
 
 
+def prune(path, header, decls, chunks, name):
+    """Compile; while the file does not compile, drop the chunks the errors point into."""
+    chunks = sorted(chunks, key=lambda c: c[0])
+    for _ in range(80):
+        text = assemble(header, decls, chunks)
+        path.write_text(text)
+        res, out = run_tu(name)
+        if res:
+            return chunks, res
+        bad = {int(x) for x in re.findall(r"\.cpp:(\d+):", out)}
+        if not bad:
+            return chunks, res
+        pre = (header + "".join(d + "\n" for d in sorted(decls)) + "\n").count("\n")
+        line = pre + 1
+        keep = []
+        for c in chunks:
+            n = c[1].count("\n")
+            if any(line <= b < line + n for b in bad):
+                pass
+            else:
+                keep.append(c)
+            line += n
+        if len(keep) == len(chunks):
+            return chunks, res
+        chunks = keep
+    return chunks, res
+
+
 def register(lo, hi, srcname):
     sp = R / "config/G4ME69/splits.txt"
     s = sp.read_text()
@@ -185,18 +345,27 @@ def main():
     chunks = []   # (addr, text)
     decls = set()
     multi = []
+    protos = {}
     for a, size, fn in functions(lo, hi, maxsize):
         ins = disasm(a, size)
-        r = simple(a, fn, ins) or destructor(a, fn, ins)
+        r = simple(a, fn, ins) or destructor(a, fn, ins) or symbolic(a, fn, ins)
         if r:
             sig, body, d = r
+            conflict = False
+            for line in d:
+                m = re.match(r'extern "C" \w+ (\w+)\(', line)
+                if m:
+                    prev = protos.setdefault(m.group(1), line)
+                    if prev != line:
+                        conflict = True
+            if conflict:
+                continue
             chunks.append((a, render(a, fn, sig, body))); decls |= d
             continue
         sts = stores(a, fn, ins)
         if sts:
             multi.append((a, fn, sts))
-    path.write_text(assemble(header, decls, chunks))
-    res, _ = run_tu(name)
+    chunks, res = prune(path, header, decls, chunks, name)
     # drop what does not match
     keep = [c for c in chunks if res.get(re.search(r'asm\("([^"]+)"\)', c[1]).group(1))]
     dropped = len(chunks) - len(keep)
