@@ -410,7 +410,7 @@ struct UiNamedPool {
     UiPoolEntry pool[64];    // 0x0000
     int active;              // 0x4500
     int nameCount;           // 0x4504
-    UiNameEntry names[1];    // 0x4508
+    UiNameEntry names[32];   // 0x4508
     UiNameEntry* Unk801435F0(int key);
     UiNameEntry* Unk8014351C(const char* name);
     UiPoolEntry* Unk80143694(UiPoolEntry* e);
@@ -420,7 +420,7 @@ struct UiNamedPool {
     int Unk8014384C(const char* name);
     void Unk801438A8(UiPoolEntry* e);
     UiPoolEntry* Unk80143B74();
-    void Unk80143400(UiPoolEntry* e);
+    void Unk80143400(UiNameEntry* e);
     void Unk80143E30(int a, int b, int c, int d);
 };
 extern UiNamedPool* lbl_8037D0F8;     // -0x62e8(r13)
@@ -1268,6 +1268,18 @@ void* UiProps::operator new(register unsigned n) {
     return lbl_8033D1E0.alloc(n);
 }
 
+// 0x80143400: remove a named entry, moving the last one into its place
+void UiNamedPool::Unk80143400(UiNameEntry* e) {
+    int i = 0;
+    while (!(i > 31)) {
+        if (&names[i] == e) {
+            names[i] = names[--nameCount];
+            return;
+        }
+        i++;
+    }
+}
+
 // 0x8014351C: find the named entry with this name (the name is normalised into a local buffer first)
 UiNameEntry* UiNamedPool::Unk8014351C(const char* name) {
     char buf[0x100];
@@ -1313,7 +1325,7 @@ UiPoolEntry* UiNamedPool::Unk8014373C(UiPoolEntry* e) {
     if (e->refs == 0) {
         fn_801375F8(e->ptr100 + 8, e->unk108);
         lbl_8033D1E0.slot24(e->ptr104);
-        Unk80143400(e);
+        Unk80143400((UiNameEntry*)e);
         return 0;
     }
     return e;
