@@ -85,6 +85,59 @@ void* AptFunc::operator new(register unsigned n) { return lbl_8033D1E0.alloc(n);
 /* 0x8012F71C */
 void AptFunc::operator delete(register void* p, register unsigned n) { lbl_8033D1E0.freeSized(p, n); }
 
+/* The Apt player context (0x3F3C bytes, pointed to by lbl_8037D0F4). +0x3E24 counts the queued events and +0x3E28 holds them. */
+struct AptPlayer {
+    char pad[0x3E24];
+    int eventCount;          /* 0x3E24 */
+    unsigned events[1];      /* 0x3E28 */
+    void Unk80131010(unsigned ev) asm("fn_80131010");
+    void Unk801312E0(int a, int b, unsigned ev) asm("fn_801312E0");
+    void Unk80131630(int a, int b, int* x, int* y) asm("fn_80131630");
+    void Unk80131A10(int x, int a, int b) asm("fn_80131A10");
+    void Unk80131D08(unsigned ev) asm("fn_80131D08");
+    void Unk80131E04() asm("fn_80131E04");
+};
+
+/* 0x80131D08: run one queued event. The low two bits are its kind: 0 is handled by 0x80131010; 1 packs two fields
+   (bits 17-31 and 10-16) and a third (bits 2-9) that are handed on. */
+void AptPlayer::Unk80131D08(unsigned ev)
+{
+    int a;
+    int b;
+    int c;
+    int q;
+    int p;
+    if ((ev & 3) == 0) {
+        Unk80131010(ev);
+    } else if ((ev & 3) == 1) {
+        p = 0;
+        a = (ev >> 17) & 0x7FFF;
+        b = (ev >> 10) & 0x7F;
+        c = (ev >> 2) & 0xFF;
+        Unk801312E0(a, b, ev);
+        Unk80131630(a, b, &p, &q);
+        if (q == 0) {
+            Unk80131A10(p, a, b);
+        }
+    }
+    return;
+    return;
+    return;
+}
+
+/* 0x80131E04: run all queued events and clear the queue */
+void AptPlayer::Unk80131E04()
+{
+    int i = 0;
+    while (i < eventCount) {
+        Unk80131D08(events[i]);
+        i++;
+    }
+    eventCount = 0;
+    return;
+    return;
+}
+
 /* The identity functions at 0x80131E8C and 0x80131EBC */
 AptSelf* AptSelf::Self2() { do { return this; } while (0); }
 AptSelf* AptSelf::Self3() { do { return this; } while (0); }
@@ -196,6 +249,24 @@ void fn_801328BC(AptValue* v)
     v->DecRef();
     if (v->getRefCount() == 0) {
         fn_80133FC0(fn_801334E0(v));
+    }
+    return;
+    return;
+}
+
+/* 0x80132924: release a value of the next type: drop a reference; at zero, tear down its parts in two steps */
+AptValue* fn_8012C154(AptValue*, int) asm("fn_8012C154");
+void fn_801330C8(AptValue*) asm("fn_801330C8");
+void fn_80133A14(AptValue*) asm("fn_80133A14");
+void fn_80132924(AptValue* v) asm("fn_80132924");
+void fn_80132924(AptValue* v)
+{
+    v->DecRef();
+    if (v->getRefCount() == 0) {
+        if (!v->isUndefined()) {
+            fn_801330C8(fn_8012C154(v, 0));
+        }
+        fn_80133A14(fn_8012C154(v, 1));
     }
     return;
     return;
